@@ -1,0 +1,22 @@
+.TH TOUCH 1 sbase\-VERSION
+.SH NAME
+touch \- set files' modification time
+.SH SYNOPSIS
+.B touch
+.RB [ \-c ]
+.RB [ \-t
+.IR time ]
+.RI [ file ...]
+.SH DESCRIPTION
+.B touch
+sets the files' modification time to the current time.  If a file does not exist
+it is created.
+.SH OPTIONS
+.TP
+.B \-c
+do not create files if they do not exist.
+.TP
+.BI \-t " time"
+sets the files' modification time to
+.IR time ,
+given as the number of seconds since the Unix epoch.

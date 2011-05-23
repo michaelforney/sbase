@@ -1,0 +1,43 @@
+.TH GREP 1 sbase\-VERSION
+.SH NAME
+grep \- search files for a pattern
+.SH SYNOPSIS
+.B grep
+.RB [ \-c ]
+.RB [ \-i ]
+.RB [ \-l ]
+.RB [ \-n ]
+.RB [ \-q ]
+.RB [ \-v ]
+.I pattern
+.RI [ file ...]
+.SH DESCRIPTION
+.B grep
+searches the input files for lines that match the pattern, a regular expression as defined in
+.BR regex (7).
+By default each matching line is printed to stdout.  If no file is given, grep
+reads from stdin.
+.P
+The status code is 0 if any lines match, and 1 if not.  If an error occurred the
+status code is 2.
+.SH OPTIONS
+.TP
+.B \-c
+prints only a count of matching lines.
+.TP
+.B \-i
+matches lines case insensitively.
+.TP
+.B \-l
+prints only the names of files with matching lines.
+.TP
+.B \-n
+prefixes each matching line with its line number in the input.
+.TP
+.B \-q
+prints nothing, only returns status.
+.TP
+.B \-v
+selects lines which do
+.B not
+match the pattern.

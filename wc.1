@@ -1,0 +1,28 @@
+.TH WC 1 sbase\-VERSION
+.SH NAME
+wc \- word count
+.SH SYNOPSIS
+.B wc
+.RB [ \-c ]
+.RB [ \-l ]
+.RB [ \-m ]
+.RB [ \-w ]
+.RI [ file ...]
+.SH DESCRIPTION
+.B wc
+prints the number of lines, words, and bytes in each file.  If any flags are
+given, wc will print only the requested information.  If no files are given, wc
+reads stdin.
+.SH OPTIONS
+.TP
+.B \-c
+print the number of bytes.
+.TP
+.B \-l
+print the number of lines.
+.TP
+.B \-m
+print the number of characters, not bytes.
+.TP
+.B \-w
+print the number of words.
