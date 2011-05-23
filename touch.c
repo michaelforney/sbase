@@ -21,7 +21,6 @@ main(int argc, char *argv[])
 	int i;
 
 	t = time(NULL);
-
 	for(i = 1; i < argc; i++)
 		if(!strcmp(argv[i], "-c"))
 			cflag = true;

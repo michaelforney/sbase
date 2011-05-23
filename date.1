@@ -1,0 +1,20 @@
+.TH DATE 1 sbase\-VERSION
+.SH NAME
+date \- print date and time
+.SH SYNOPSIS
+.B date
+.RB [ \-d
+.IR time ]
+.RI [+ format ]
+.SH DESCRIPTION
+.B date
+prints the date and time. If a
+.I format
+is given it is used to format the date as per
+.BR strftime (3).
+.SH OPTIONS
+.TP
+.BI \-d " time"
+prints
+.I time
+instead of the system time, given as the number of seconds since the Unix epoch.
