@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include "util.h"
 
 int
@@ -11,13 +12,15 @@ main(int argc, char *argv[])
 	char *s;
 	size_t n;
 
-	if(argc < 2)
+	if(getopt(argc, argv, "") != -1)
+		exit(EXIT_FAILURE);
+	if(optind == argc)
 		eprintf("usage: %s string [suffix]\n", argv[0]);
 
-	s = basename(argv[1]);
-	if(argc > 2 && strlen(s) > strlen(argv[2])) {
-		n = strlen(s) - strlen(argv[2]);
-		if(!strcmp(&s[n], argv[2]))
+	s = basename(argv[optind++]);
+	if(optind < argc && strlen(s) > strlen(argv[optind])) {
+		n = strlen(s) - strlen(argv[optind]);
+		if(!strcmp(&s[n], argv[optind]))
 			s[n] = '\0';
 	}
 	puts(s);
