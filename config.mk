@@ -6,6 +6,6 @@ VERSION = 0.0
 
 AR = ar
 
-CPPFLAGS = -D_POSIX_C_SOURCE=200112L
-CFLAGS   = -Os -ansi -Wall -pedantic $(CPPFLAGS)
+CPPFLAGS = -D_POSIX_C_SOURCE=2
+CFLAGS   = -Os -std=c99 -Wall -pedantic $(CPPFLAGS)
 LDFLAGS  = -s -static
