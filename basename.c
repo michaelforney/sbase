@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <libgen.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,24 +8,18 @@
 int
 main(int argc, char *argv[])
 {
-	char *str = argv[1];
-	size_t n, i = 0;
+	char *s;
+	size_t n;
 
 	if(argc < 2)
 		eprintf("usage: %s string [suffix]\n", argv[0]);
-	if(str[0] != '\0')
-		for(i = strlen(str)-1; i > 0 && str[i] == '/'; i--)
-			str[i] = '\0';
-	if(i == 0 || !(str = strrchr(argv[1], '/')))
-		str = argv[1];
-	else
-		str++;
 
-	if(argc > 2 && strlen(str) > strlen(argv[2])) {
-		n = strlen(str) - strlen(argv[2]);
-		if(!strcmp(&str[n], argv[2]))
-			str[n] = '\0';
+	s = basename(argv[1]);
+	if(argc > 2 && strlen(s) > strlen(argv[2])) {
+		n = strlen(s) - strlen(argv[2]);
+		if(!strcmp(&s[n], argv[2]))
+			s[n] = '\0';
 	}
-	puts(str);
+	puts(s);
 	return EXIT_SUCCESS;
 }
