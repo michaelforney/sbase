@@ -1,6 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "util.h"
 
 static void cat(FILE *, const char *);
@@ -8,15 +9,16 @@ static void cat(FILE *, const char *);
 int
 main(int argc, char *argv[])
 {
-	int i;
 	FILE *fp;
 
-	if(argc == 1)
+	if(getopt(argc, argv, "") != -1)
+		exit(EXIT_FAILURE);
+	if(optind == argc)
 		cat(stdin, "<stdin>");
-	else for(i = 1; i < argc; i++) {
-		if(!(fp = fopen(argv[i], "r")))
-			eprintf("fopen %s:", argv[i]);
-		cat(fp, argv[i]);
+	else for(; optind < argc; optind++) {
+		if(!(fp = fopen(argv[optind], "r")))
+			eprintf("fopen %s:", argv[optind]);
+		cat(fp, argv[optind]);
 		fclose(fp);
 	}
 	return EXIT_SUCCESS;

@@ -36,7 +36,7 @@ main(int argc, char *argv[])
 			vflag = true;
 			break;
 		default:
-			exit(EXIT_FAILURE);
+			exit(2);
 		}
 	if(optind == argc) {
 		fprintf(stderr, "usage: %s [-cilnqv] pattern [files...]\n", argv[0]);

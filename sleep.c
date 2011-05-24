@@ -8,10 +8,12 @@ main(int argc, char *argv[])
 {
 	unsigned int seconds;
 
-	if(argc != 2)
+	if(getopt(argc, argv, "") != -1)
+		exit(EXIT_FAILURE);
+	if(optind != argc-1)
 		eprintf("usage: %s seconds\n", argv[0]);
 
-	seconds = atoi(argv[1]);
+	seconds = atoi(argv[optind]);
 	while((seconds = sleep(seconds)) > 0)
 		;
 	return EXIT_SUCCESS;
