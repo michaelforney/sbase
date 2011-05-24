@@ -1,0 +1,22 @@
+.TH LN 1 sbase\-VERSION
+.SH NAME
+ln \- make links between files
+.SH SYNOPSIS
+.B ln
+.RB [ \-s ]
+.I file
+.RI [ name ]
+.P
+.B ln
+.RB [ \-s ]
+.RI [ files ...]
+.RI [ directory ]
+.SH DESCRIPTION
+.B ln
+creates a hard link to a given file, with the given name.  If no name is given
+it is linked into the current directory.  If multiple files are listed they will
+be linked into the given directory.
+.SH OPTIONS
+.TP
+.B \-s
+create a symbolic link.

@@ -1,22 +1,27 @@
 include config.mk
 
-SRC = basename.c cat.c date.c echo.c false.c grep.c pwd.c rm.c sleep.c tee.c touch.c true.c wc.c
-OBJ = $(SRC:.c=.o) util.o
+LIB = util/enmasse.o util/eprintf.o
+SRC = basename.c cat.c date.c echo.c false.c grep.c ln.c pwd.c rm.c sleep.c tee.c touch.c true.c wc.c
+OBJ = $(SRC:.c=.o) $(LIB)
 BIN = $(SRC:.c=)
 MAN = $(SRC:.c=.1)
 
 all: $(BIN)
 
 $(OBJ): util.h
-$(BIN): util.o
+$(BIN): util.a
 
 .o:
 	@echo CC -o $@
-	@$(CC) -o $@ $< util.o $(LDFLAGS)
+	@$(CC) -o $@ $< util.a $(LDFLAGS)
 
 .c.o:
 	@echo CC -c $<
-	@$(CC) -c $< $(CFLAGS)
+	@$(CC) -c -o $@ $< $(CFLAGS)
+
+util.a: $(LIB)
+	@echo AR rc $@
+	@$(AR) rc $@ $(LIB)
 
 dist: clean
 	@echo creating dist tarball
@@ -28,4 +33,4 @@ dist: clean
 
 clean:
 	@echo cleaning
-	@rm -f $(BIN) $(OBJ)
+	@rm -f $(BIN) $(OBJ) $(LIB) util.a
