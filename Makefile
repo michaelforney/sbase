@@ -1,6 +1,6 @@
 include config.mk
 
-SRC = basename.c cat.c date.c echo.c false.c grep.c pwd.c sleep.c tee.c touch.c true.c wc.c
+SRC = basename.c cat.c date.c echo.c false.c grep.c pwd.c rm.c sleep.c tee.c touch.c true.c wc.c
 OBJ = $(SRC:.c=.o) util.o
 BIN = $(SRC:.c=)
 MAN = $(SRC:.c=.1)

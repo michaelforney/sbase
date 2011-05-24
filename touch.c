@@ -43,7 +43,7 @@ touch(const char *str)
 	struct stat st;
 	struct utimbuf ut;
 
-	if(stat(str, &st) < 0) {
+	if(stat(str, &st) != 0) {
 		if(errno != ENOENT)
 			eprintf("stat %s:", str);
 		if(cflag)
@@ -54,6 +54,6 @@ touch(const char *str)
 	}
 	ut.actime = st.st_atime;
 	ut.modtime = t;
-	if(utime(str, &ut) < 0)
+	if(utime(str, &ut) != 0)
 		eprintf("utime %s:", str);
 }
