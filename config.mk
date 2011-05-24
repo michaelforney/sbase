@@ -2,7 +2,7 @@
 VERSION = 0.0
 
 #CC = cc
-CC = musl-gcc
+#CC = musl-gcc
 
 AR = ar
 
