@@ -10,7 +10,8 @@
 
 static void rm(const char *);
 
-static bool rflag = 0;
+static bool fflag = false;
+static bool rflag = false;
 
 int
 main(int argc, char *argv[])
@@ -20,6 +21,7 @@ main(int argc, char *argv[])
 	while((c = getopt(argc, argv, "fr")) != -1)
 		switch(c) {
 		case 'f':
+			fflag = true;
 			break;
 		case 'r':
 			rflag = true;
@@ -54,5 +56,6 @@ void rm(const char *path)
 		if(remove(path) == 0)
 			return;
 	}
-	eprintf("remove %s:", path);
+	if(!fflag)
+		eprintf("remove %s:", path);
 }
