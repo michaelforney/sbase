@@ -39,9 +39,17 @@ void rm(const char *path)
 	if(remove(path) == 0)
 		return;
 	if(errno == ENOTEMPTY && rflag) {
+		char *buf;
+		long size;
 		struct dirent *d;
 		DIR *dp;
 
+		if((size = pathconf(".", _PC_PATH_MAX)) < 0)
+			size = BUFSIZ;
+		if(!(buf = malloc(size)))
+			eprintf("malloc:");
+		if(!getcwd(buf, size))
+			eprintf("getcwd:");
 		if(!(dp = opendir(path)))
 			eprintf("opendir %s:", path);
 		if(chdir(path) != 0)
@@ -51,8 +59,8 @@ void rm(const char *path)
 				rm(d->d_name);
 
 		closedir(dp);
-		if(chdir("..") != 0)
-			eprintf("chdir:");
+		if(chdir(buf) != 0)
+			eprintf("chdir %s:", buf);
 		if(remove(path) == 0)
 			return;
 	}
