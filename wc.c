@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <unistd.h>
 #include "util.h"
 
 static void output(const char *, long, long, long);
@@ -18,28 +18,32 @@ int
 main(int argc, char *argv[])
 {
 	bool many;
-	int i;
+	char c;
 	FILE *fp;
 
-	for(i = 1; i < argc; i++)
-		if(!strcmp(argv[i], "-c"))
-			cmode = 'c';
-		else if(!strcmp(argv[i], "-l"))
-			lflag = true;
-		else if(!strcmp(argv[i], "-m"))
-			cmode = 'm';
-		else if(!strcmp(argv[i], "-w"))
-			wflag = true;
-		else
+	while((c = getopt(argc, argv, "clmw")) != -1)
+		switch(c) {
+		case 'c':
+		case 'm':
+			cmode = c;
 			break;
-	many = (argc > i+1);
+		case 'l':
+			lflag = true;
+			break;
+		case 'w':
+			wflag = true;
+			break;
+		default:
+			exit(EXIT_FAILURE);
+		}
+	many = (argc > optind+1);
 
-	if(i == argc)
+	if(optind == argc)
 		wc(stdin, NULL);
-	else for(; i < argc; i++) {
-		if(!(fp = fopen(argv[i], "r")))
-			eprintf("fopen %s:", argv[i]);
-		wc(fp, argv[i]);
+	else for(; optind < argc; optind++) {
+		if(!(fp = fopen(argv[optind], "r")))
+			eprintf("fopen %s:", argv[optind]);
+		wc(fp, argv[optind]);
 		fclose(fp);
 	}
 	if(many)

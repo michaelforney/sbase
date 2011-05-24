@@ -2,19 +2,25 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <unistd.h>
 
 int
 main(int argc, char *argv[])
 {
 	bool nflag = false;
-	int i;
+	char c;
 
-	if(argc > 1 && !strcmp(argv[1], "-n"))
-		nflag = true;
-	for(i = nflag ? 2 : 1; i < argc; i++) {
-		fputs(argv[i], stdout);
-		if(i+1 < argc)
+	while((c = getopt(argc, argv, "n")) != -1)
+		switch(c) {
+		case 'n':
+			nflag = true;
+			break;
+		default:
+			exit(EXIT_FAILURE);
+		}
+	for(; optind < argc; optind++) {
+		fputs(argv[optind], stdout);
+		if(optind+1 < argc)
 			fputc(' ', stdout);
 	}
 	if(!nflag)

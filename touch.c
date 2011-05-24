@@ -3,7 +3,6 @@
 #include <fcntl.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <string.h>
 #include <time.h>
 #include <unistd.h>
 #include <utime.h>
@@ -18,19 +17,22 @@ static time_t t;
 int
 main(int argc, char *argv[])
 {
-	int i;
+	char c;
 
 	t = time(NULL);
-	for(i = 1; i < argc; i++)
-		if(!strcmp(argv[i], "-c"))
+	while((c = getopt(argc, argv, "ct:")) != -1)
+		switch(c) {
+		case 'c':
 			cflag = true;
-		else if(!strcmp(argv[i], "-t") && i+1 < argc)
-			t = strtol(argv[++i], NULL, 0);
-		else
 			break;
-
-	for(; i < argc; i++)
-		touch(argv[i]);
+		case 't':
+			t = strtol(optarg, NULL, 0);
+			break;
+		default:
+			exit(EXIT_FAILURE);
+		}
+	for(; optind < argc; optind++)
+		touch(argv[optind]);
 	return EXIT_SUCCESS;
 }
 

@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <unistd.h>
 
 static void grep(FILE *, const char *, regex_t *);
 
@@ -16,46 +16,48 @@ static char mode = 0;
 int
 main(int argc, char *argv[])
 {
-	int i, flags = 0;
+	char c;
+	int flags = 0;
 	regex_t preg;
 	FILE *fp;
 
-	for(i = 1; i < argc; i++)
-		if(!strcmp(argv[i], "-c"))
-			mode = 'c';
-		else if(!strcmp(argv[i], "-i"))
-			iflag = true;
-		else if(!strcmp(argv[i], "-l"))
-			mode = 'l';
-		else if(!strcmp(argv[i], "-n"))
-			mode = 'n';
-		else if(!strcmp(argv[i], "-q"))
-			mode = 'q';
-		else if(!strcmp(argv[i], "-v"))
-			vflag = true;
-		else
+	while((c = getopt(argc, argv, "cilnqv")) != -1)
+		switch(c) {
+		case 'c':
+		case 'l':
+		case 'n':
+		case 'q':
+			mode = c;
 			break;
-
-	if(i == argc) {
-		fprintf(stderr, "usage: %s [-c] [-i] [-l] [-n] [-v] pattern [files...]\n", argv[0]);
+		case 'i':
+			iflag = true;
+			break;
+		case 'v':
+			vflag = true;
+			break;
+		default:
+			exit(EXIT_FAILURE);
+		}
+	if(optind == argc) {
+		fprintf(stderr, "usage: %s [-cilnqv] pattern [files...]\n", argv[0]);
 		exit(2);
 	}
 	if(mode == 'c')
 		flags |= REG_NOSUB;
 	if(iflag)
 		flags |= REG_ICASE;
-	regcomp(&preg, argv[i++], flags);
+	regcomp(&preg, argv[optind++], flags);
 
-	many = (argc > i+1);
-	if(i == argc)
+	many = (argc > optind+1);
+	if(optind == argc)
 		grep(stdin, "<stdin>", &preg);
-	else for(; i < argc; i++) {
-		if(!(fp = fopen(argv[i], "r"))) {
-			fprintf(stderr, "fopen %s: ", argv[i]);
+	else for(; optind < argc; optind++) {
+		if(!(fp = fopen(argv[optind], "r"))) {
+			fprintf(stderr, "fopen %s: ", argv[optind]);
 			perror(NULL);
 			exit(2);
 		}
-		grep(fp, argv[i], &preg);
+		grep(fp, argv[optind], &preg);
 		fclose(fp);
 	}
 	return match ? 0 : 1;
