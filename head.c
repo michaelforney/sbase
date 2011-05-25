@@ -1,6 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include "util.h"
 
@@ -38,10 +39,13 @@ void
 head(FILE *fp, const char *str, long n)
 {
 	char buf[BUFSIZ];
-	long i;
+	long i = 0;
 
-	for(i = 0; i < n && fgets(buf, sizeof buf, fp); i++)
+	while(i < n && fgets(buf, sizeof buf, fp)) {
 		fputs(buf, stdout);
+		if(buf[strlen(buf)-1] == '\n')
+			i++;
+	}
 	if(ferror(fp))
 		eprintf("%s: read error:", str);
 }

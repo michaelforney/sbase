@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "text.h"
 
 static void grep(FILE *, const char *, regex_t *);
 
@@ -66,34 +67,39 @@ main(int argc, char *argv[])
 void
 grep(FILE *fp, const char *str, regex_t *preg)
 {
-	char buf[BUFSIZ];
-	int n, c = 0;
+	char *buf = NULL;
+	long n, c = 0;
+	size_t size = 0;
 
-	for(n = 1; fgets(buf, sizeof buf, fp); n++) {
+	for(n = 1; afgets(&buf, &size, fp); n++) {
 		if(regexec(preg, buf, 0, NULL, 0) ^ vflag)
 			continue;
-		if(mode == 'c')
+		switch(mode) {
+		case 'c':
 			c++;
-		else if(mode == 'l') {
-			puts(str);
 			break;
-		}
-		else if(mode == 'q')
+		case 'l':
+			puts(str);
+			goto end;
+		case 'q':
 			exit(0);
-		else {
+		default:
 			if(many)
 				printf("%s:", str);
 			if(mode == 'n')
-				printf("%d:", n);
+				printf("%ld:", n);
 			fputs(buf, stdout);
+			break;
 		}
 		match = true;
 	}
 	if(mode == 'c')
-		printf("%d\n", c);
+		printf("%ld\n", c);
+end:
 	if(ferror(fp)) {
 		fprintf(stderr, "%s: read error: ", str);
 		perror(NULL);
 		exit(2);
 	}
+	free(buf);
 }

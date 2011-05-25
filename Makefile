@@ -1,6 +1,6 @@
 include config.mk
 
-LIB = util/enmasse.o util/eprintf.o util/recurse.o
+LIB = util/afgets.o util/enmasse.o util/eprintf.o util/recurse.o
 SRC = basename.c cat.c chown.c date.c dirname.c echo.c false.c grep.c head.c \
       ln.c mkfifo.c pwd.c rm.c sleep.c tee.c touch.c true.c wc.c
 OBJ = $(SRC:.c=.o) $(LIB)
@@ -11,6 +11,7 @@ all: $(BIN)
 
 $(OBJ): util.h
 $(BIN): util.a
+grep: text.h
 
 .o:
 	@echo CC -o $@
