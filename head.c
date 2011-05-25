@@ -38,7 +38,7 @@ void
 head(FILE *fp, const char *str, long n)
 {
 	char buf[BUFSIZ];
-	int i;
+	long i;
 
 	for(i = 0; i < n && fgets(buf, sizeof buf, fp); i++)
 		fputs(buf, stdout);
