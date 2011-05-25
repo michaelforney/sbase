@@ -49,7 +49,7 @@ main(int argc, char *argv[])
 		if(errno != 0)
 			eprintf("getgrnam %s:", group);
 		else if(!gr)
-			eprintf("getgrnam %s: no such user\n", group);
+			eprintf("getgrnam %s: no such group\n", group);
 	}
 	for(; optind < argc; optind++)
 		chownpwgr(argv[optind]);

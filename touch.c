@@ -17,7 +17,7 @@ static time_t t;
 int
 main(int argc, char *argv[])
 {
-	char c;
+	char *end, c;
 
 	t = time(NULL);
 	while((c = getopt(argc, argv, "ct:")) != -1)
@@ -26,7 +26,9 @@ main(int argc, char *argv[])
 			cflag = true;
 			break;
 		case 't':
-			t = strtol(optarg, NULL, 0);
+			t = strtol(optarg, &end, 0);
+			if(*end != '\0')
+				eprintf("%s: not a number\n", optarg);
 			break;
 		default:
 			exit(EXIT_FAILURE);
