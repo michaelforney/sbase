@@ -20,5 +20,5 @@ afgets(char **p, size_t *size, FILE *fp)
 		if(buf[n-1] == '\n' || feof(fp))
 			break;
 	}
-	return *p;
+	return (len > 0) ? *p : NULL;
 }
