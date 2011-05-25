@@ -2,7 +2,7 @@ include config.mk
 
 LIB = util/enmasse.o util/eprintf.o util/recurse.o
 SRC = basename.c cat.c chown.c date.c dirname.c echo.c false.c grep.c ln.c \
-      pwd.c rm.c sleep.c tee.c touch.c true.c wc.c
+      mkfifo.c pwd.c rm.c sleep.c tee.c touch.c true.c wc.c
 OBJ = $(SRC:.c=.o) $(LIB)
 BIN = $(SRC:.c=)
 MAN = $(SRC:.c=.1)
