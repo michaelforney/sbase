@@ -8,8 +8,8 @@
 int
 main(int argc, char *argv[])
 {
-	char buf[BUFSIZ], c, *end;
-	char *fmt = "%c";
+	char buf[BUFSIZ], c;
+	char *end, *fmt = "%c";
 	struct tm *now = NULL;
 	time_t t;
 
