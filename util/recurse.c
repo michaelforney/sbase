@@ -10,7 +10,7 @@
 void
 recurse(const char *path, void (*fn)(const char *))
 {
-	char *buf;
+	char *cwd;
 	struct dirent *d;
 	DIR *dp;
 
@@ -20,7 +20,7 @@ recurse(const char *path, void (*fn)(const char *))
 		else
 			eprintf("opendir %s:", path);
 	}
-	buf = agetcwd();
+	cwd = agetcwd();
 	if(chdir(path) != 0)
 		eprintf("chdir %s:", path);
 	while((d = readdir(dp)))
@@ -28,7 +28,7 @@ recurse(const char *path, void (*fn)(const char *))
 			fn(d->d_name);
 
 	closedir(dp);
-	if(chdir(buf) != 0)
-		eprintf("chdir %s:", buf);
-	free(buf);
+	if(chdir(cwd) != 0)
+		eprintf("chdir %s:", cwd);
+	free(cwd);
 }

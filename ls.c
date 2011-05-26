@@ -89,13 +89,13 @@ ls(char *path)
 void
 lsdir(const char *path)
 {
-	char *buf, *p;
+	char *cwd, *p;
 	long i, n = 0;
 	struct dirent *d;
 	DIR *dp;
 	Entry *ents = NULL;
 
-	buf = agetcwd();
+	cwd = agetcwd();
 	if(!(dp = opendir(path)))
 		eprintf("opendir %s:", path);
 	if(chdir(path) != 0)
@@ -119,10 +119,10 @@ lsdir(const char *path)
 		output(&ents[i]);
 		free(ents[i].name);
 	}
-	if(chdir(buf) != 0)
-		eprintf("chdir %s:", buf);
+	if(chdir(cwd) != 0)
+		eprintf("chdir %s:", cwd);
 	free(ents);
-	free(buf);
+	free(cwd);
 }
 
 void
