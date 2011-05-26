@@ -9,14 +9,13 @@
 static void dropinit(FILE *, const char *, long);
 static void taketail(FILE *, const char *, long);
 
-static void (*tail)(FILE *, const char *, long) = taketail;
-
 int
 main(int argc, char *argv[])
 {
 	char *end, c;
 	long n = 10;
 	FILE *fp;
+	void (*tail)(FILE *, const char *, long) = taketail;
 
 	while((c = getopt(argc, argv, "n:")) != -1)
 		switch(c) {
@@ -67,6 +66,8 @@ taketail(FILE *fp, const char *str, long n)
 		eprintf("calloc:");
 	for(i = j = 0; afgets(&ring[i], &size[i], fp); i = j = (i+1)%n)
 		;
+	if(ferror(fp))
+		eprintf("%s: read error:", str);
 
 	do {
 		if(ring[j]) {
@@ -76,7 +77,4 @@ taketail(FILE *fp, const char *str, long n)
 	} while((j = (j+1)%n) != i);
 	free(ring);
 	free(size);
-
-	if(ferror(fp))
-		eprintf("%s: read error:", str);
 }
