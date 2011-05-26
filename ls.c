@@ -107,8 +107,9 @@ lsdir(const char *path)
 			continue;
 		if(!(ents = realloc(ents, ++n * sizeof *ents)))
 			eprintf("realloc:");
-		if(!(p = strdup(d->d_name)))
-			eprintf("strdup:");
+		if(!(p = malloc(strlen(d->d_name)+1)))
+			eprintf("malloc:");
+		strcpy(p, d->d_name);
 		mkent(&ents[n-1], p);
 	}
 	closedir(dp);
