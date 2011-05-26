@@ -64,7 +64,7 @@ output(const char *str, long nc, long nl, long nw)
 		printf(" %5ld", nc);
 	if(str)
 		printf(" %s", str);
-	fputc('\n', stdout);
+	putchar('\n');
 }
 
 void

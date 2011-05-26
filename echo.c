@@ -21,9 +21,9 @@ main(int argc, char *argv[])
 	for(; optind < argc; optind++) {
 		fputs(argv[optind], stdout);
 		if(optind+1 < argc)
-			fputc(' ', stdout);
+			putchar(' ');
 	}
 	if(!nflag)
-		fputc('\n', stdout);
+		putchar('\n');
 	return EXIT_SUCCESS;
 }

@@ -11,7 +11,6 @@ void
 recurse(const char *path, void (*fn)(const char *))
 {
 	char *buf;
-	long size;
 	struct dirent *d;
 	DIR *dp;
 
@@ -21,12 +20,7 @@ recurse(const char *path, void (*fn)(const char *))
 		else
 			eprintf("opendir %s:", path);
 	}
-	if((size = pathconf(".", _PC_PATH_MAX)) < 0)
-		size = BUFSIZ;
-	if(!(buf = malloc(size)))
-		eprintf("malloc:");
-	if(!getcwd(buf, size))
-		eprintf("getcwd:");
+	buf = agetcwd();
 	if(chdir(path) != 0)
 		eprintf("chdir %s:", path);
 	while((d = readdir(dp)))

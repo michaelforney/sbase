@@ -1,0 +1,27 @@
+.TH LS 1 sbase\-VERSION
+.SH NAME
+ls \- list directory contents
+.SH SYNOPSIS
+.B ls
+.RB [ \-adlt ]
+.RI [ file ...]
+.SH DESCRIPTION
+.B ls
+lists each given file, and the contents of each given directory.  If no files
+are given the current directory is listed.
+.SH OPTIONS
+.TP
+.B \-a
+shows hidden files (those beginning with '.').
+.TP
+.B \-d
+lists directories themselves, not their contents.
+.TP
+.B \-l
+lists detailed information about each file, including their permissions, links,
+owner, group, size, and modification time.
+.TP
+.B \-t
+sorts files by modification time instead of by name.
+.SH SEE ALSO
+.IR stat (2)
