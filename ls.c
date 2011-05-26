@@ -23,12 +23,13 @@ typedef struct {
 } Entry;
 
 static int entcmp(Entry *, Entry *);
-static void ls(char *, bool);
+static void ls(char *);
 static void lsdir(const char *);
 static void mkent(Entry *, char *);
 static void output(Entry *);
 
 static bool aflag = false;
+static bool dflag = false;
 static bool lflag = false;
 static bool tflag = false;
 static bool many;
@@ -36,7 +37,6 @@ static bool many;
 int
 main(int argc, char *argv[])
 {
-	bool dflag = false;
 	char c;
 
 	while((c = getopt(argc, argv, "adlt")) != -1)
@@ -59,9 +59,9 @@ main(int argc, char *argv[])
 	many = (argc > optind+1);
 
 	if(optind == argc)
-		ls(".", !dflag);
+		ls(".");
 	else for(; optind < argc; optind++)
-		ls(argv[optind], !dflag);
+		ls(argv[optind]);
 	return EXIT_SUCCESS;
 }
 
@@ -75,12 +75,12 @@ entcmp(Entry *a, Entry *b)
 }
 
 void
-ls(char *path, bool expand)
+ls(char *path)
 {
 	Entry ent;
 
 	mkent(&ent, path);
-	if(expand && S_ISDIR(ent.mode))
+	if(S_ISDIR(ent.mode) && !dflag)
 		lsdir(path);
 	else
 		output(&ent);
@@ -208,5 +208,6 @@ output(Entry *ent)
 		fmt = "%b %d %H:%M";
 
 	strftime(buf, sizeof buf, fmt, localtime(&ent->mtime));
-	printf("%s %2d %s %s %6lu %s %s\n", mode, ent->nlink, pw->pw_name, gr->gr_name, (unsigned long)ent->size, buf, ent->name);
+	printf("%s %2d %s %s %6lu %s %s\n", mode, ent->nlink, pw->pw_name,
+	       gr->gr_name, (unsigned long)ent->size, buf, ent->name);
 }
