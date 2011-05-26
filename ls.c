@@ -32,6 +32,7 @@ static bool aflag = false;
 static bool dflag = false;
 static bool lflag = false;
 static bool tflag = false;
+static bool first = true;
 static bool many;
 
 int
@@ -113,8 +114,12 @@ lsdir(const char *path)
 	closedir(dp);
 	qsort(ents, n, sizeof *ents, (int (*)(const void *, const void *))entcmp);
 
-	if(many)
+	if(many) {
+		if(!first)
+			putchar('\n');
 		printf("%s:\n", path);
+		first = false;
+	}
 	for(i = 0; i < n; i++) {
 		output(&ents[i]);
 		free(ents[i].name);
