@@ -1,0 +1,20 @@
+.TH TAIL 1 sbase\-VERSION
+.SH NAME
+tail \- output last part of a file
+.SH SYNOPSIS
+.B tail
+.RB [ \-n
+.IR lines ]
+.RI [ file ]
+.SH DESCRIPTION
+.B tail
+writes the first 10 lines of the file to stdout.  If no file is given, tail
+reads from stdin.
+.SH OPTIONS
+.TP
+.BI \-n " lines"
+outputs the given number of lines.  If
+.I lines
+begins with '+' it is used as an offset from the beginning of the file.
+.SH SEE ALSO
+.IR head (1)
