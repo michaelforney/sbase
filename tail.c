@@ -69,8 +69,10 @@ taketail(FILE *fp, const char *str, long n)
 		;
 
 	do {
-		if(ring[j])
+		if(ring[j]) {
 			fputs(ring[j], stdout);
+			free(ring[j]);
+		}
 	} while((j = (j+1)%n) != i);
 	free(ring);
 	free(size);
