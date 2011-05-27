@@ -150,7 +150,8 @@ mkent(Entry *ent, char *path)
 void
 output(Entry *ent)
 {
-	char buf[BUFSIZ], mode[11], *fmt;
+	char buf[BUFSIZ], *fmt;
+	char mode[] = "----------";
 	struct group *gr;
 	struct passwd *pw;
 
@@ -175,24 +176,18 @@ output(Entry *ent)
 	else
 		mode[0] = '?';
 
-	mode[1] = (ent->mode & S_IRUSR) ? 'r' : '-';
-	mode[2] = (ent->mode & S_IWUSR) ? 'w' : '-';
-	if(ent->mode & S_ISUID)
-		mode[3] = (ent->mode & S_IXUSR) ? 's' : 'S';
-	else
-		mode[3] = (ent->mode & S_IXUSR) ? 'x' : '-';
+	if(ent->mode & S_IRUSR) mode[1] = 'r';
+	if(ent->mode & S_IWUSR) mode[2] = 'w';
+	if(ent->mode & S_IXUSR) mode[3] = 'x';
+	if(ent->mode & S_IRGRP) mode[4] = 'r';
+	if(ent->mode & S_IWGRP) mode[5] = 'w';
+	if(ent->mode & S_IXGRP) mode[6] = 'x';
+	if(ent->mode & S_IROTH) mode[7] = 'r';
+	if(ent->mode & S_IWOTH) mode[8] = 'w';
+	if(ent->mode & S_IXOTH) mode[9] = 'x';
 
-	mode[4] = (ent->mode & S_IRGRP) ? 'r' : '-';
-	mode[5] = (ent->mode & S_IWGRP) ? 'w' : '-';
-	if(ent->mode & S_ISGID)
-		mode[6] = (ent->mode & S_IXGRP) ? 's' : 'S';
-	else
-		mode[6] = (ent->mode & S_IXGRP) ? 'x' : '-';
-
-	mode[7] = (ent->mode & S_IROTH) ? 'r' : '-';
-	mode[8] = (ent->mode & S_IWOTH) ? 'w' : '-';
-	mode[9] = (ent->mode & S_IXOTH) ? 'x' : '-';
-	mode[10] = '\0';
+	if(ent->mode & S_ISUID) mode[3] = (mode[3] == 'x' ? 's' : 'S');
+	if(ent->mode & S_ISGID) mode[6] = (mode[6] == 'x' ? 's' : 'S');
 
 	errno = 0;
 	pw = getpwuid(ent->uid);
