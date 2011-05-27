@@ -1,7 +1,9 @@
 include config.mk
 
+HDR = text.h util.h
 LIB = util/afgets.o util/agetcwd.o util/concat.o util/enmasse.o util/eprintf.o \
       util/recurse.o
+
 SRC = basename.c cat.c chown.c date.c dirname.c echo.c false.c grep.c head.c \
       ln.c ls.c mkdir.c mkfifo.c pwd.c rm.c sleep.c tail.c tee.c touch.c \
       true.c wc.c
@@ -13,7 +15,7 @@ all: $(BIN)
 
 $(OBJ): util.h
 $(BIN): util.a
-grep.o: text.h
+cat.o grep.o tail.o: text.h
 
 .o:
 	@echo CC -o $@
@@ -30,7 +32,7 @@ util.a: $(LIB)
 dist: clean
 	@echo creating dist tarball
 	@mkdir -p sbase-$(VERSION)
-	@cp LICENSE Makefile config.mk $(SRC) $(MAN) util.c util.h sbase-$(VERSION)
+	@cp -r LICENSE Makefile config.mk $(SRC) $(MAN) util $(HDR) sbase-$(VERSION)
 	@tar -cf sbase-$(VERSION).tar sbase-$(VERSION)
 	@gzip sbase-$(VERSION).tar
 	@rm -rf sbase-$(VERSION)
