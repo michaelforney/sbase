@@ -3,8 +3,17 @@
 pwd \- print working directory
 .SH SYNOPSIS
 .B pwd
+.RB [ \-LP ]
 .SH DESCRIPTION
 .B pwd
 prints the path of the current working directory.
+.SH OPTIONS
+.TP
+.B \-L
+logical path, uses $PWD (default).
+.TP
+.B \-P
+physical path, avoids all symlinks.
 .SH SEE ALSO
+.IR cd (1),
 .IR getcwd (3)

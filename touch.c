@@ -50,7 +50,7 @@ touch(const char *str)
 			eprintf("stat %s:", str);
 		if(cflag)
 			return;
-		if((fd = creat(str, O_RDONLY|S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH)) < 0)
+		if((fd = creat(str, O_EXCL|S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH)) < 0)
 			eprintf("creat %s:", str);
 		close(fd);
 	}

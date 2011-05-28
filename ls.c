@@ -186,8 +186,8 @@ output(Entry *ent)
 	if(ent->mode & S_IWOTH) mode[8] = 'w';
 	if(ent->mode & S_IXOTH) mode[9] = 'x';
 
-	if(ent->mode & S_ISUID) mode[3] = (mode[3] == 'x' ? 's' : 'S');
-	if(ent->mode & S_ISGID) mode[6] = (mode[6] == 'x' ? 's' : 'S');
+	if(ent->mode & S_ISUID) mode[3] = (mode[3] == 'x') ? 's' : 'S';
+	if(ent->mode & S_ISGID) mode[6] = (mode[6] == 'x') ? 's' : 'S';
 
 	errno = 0;
 	pw = getpwuid(ent->uid);
