@@ -27,7 +27,7 @@ main(int argc, char *argv[])
 			if(optarg[0] == 'p')
 				regcomp(&preg, &optarg[1], REG_NOSUB);
 			else if(!strchr("ant", optarg[0]) || optarg[1] != '\0')
-				eprintf("usage: %s [-b mode] [file...]\n", argv[0]);
+				eprintf("usage: %s [-b mode] [-i increment] [-s separator] [file...]\n", argv[0]);
 			break;
 		case 'i':
 			incr = strtol(optarg, &end, 0);
