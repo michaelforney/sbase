@@ -18,7 +18,7 @@ int
 main(int argc, char *argv[])
 {
 	char c;
-	int flags = 0;
+	int flags = REG_NOSUB;
 	regex_t preg;
 	FILE *fp;
 
@@ -43,8 +43,6 @@ main(int argc, char *argv[])
 		fprintf(stderr, "usage: %s [-cilnqv] pattern [files...]\n", argv[0]);
 		exit(2);
 	}
-	if(mode == 'c')
-		flags |= REG_NOSUB;
 	if(iflag)
 		flags |= REG_ICASE;
 	regcomp(&preg, argv[optind++], flags);
