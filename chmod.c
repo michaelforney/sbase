@@ -35,7 +35,6 @@ main(int argc, char *argv[])
 	/* posix doesn't specify modal bits */
 	if(octal & 04000) mode |= S_ISUID;
 	if(octal & 02000) mode |= S_ISGID;
-	if(octal & 01000) mode |= S_ISVTX;
 	if(octal & 00400) mode |= S_IRUSR;
 	if(octal & 00200) mode |= S_IWUSR;
 	if(octal & 00100) mode |= S_IXUSR;
