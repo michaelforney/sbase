@@ -5,7 +5,7 @@ LIB = util/afgets.o util/agetcwd.o util/concat.o util/enmasse.o util/eprintf.o \
       util/recurse.o
 
 SRC = basename.c cat.c chmod.c chown.c date.c dirname.c echo.c false.c grep.c \
-      head.c ln.c ls.c mkdir.c mkfifo.c pwd.c rm.c sleep.c tail.c tee.c \
+      head.c ln.c ls.c mkdir.c mkfifo.c nl.c pwd.c rm.c sleep.c tail.c tee.c \
       touch.c true.c wc.c
 OBJ = $(SRC:.c=.o) $(LIB)
 BIN = $(SRC:.c=)
@@ -13,13 +13,13 @@ MAN = $(SRC:.c=.1)
 
 all: $(BIN)
 
-$(OBJ): util.h
+$(OBJ): util.h config.mk
 $(BIN): util.a
 cat.o grep.o tail.o: text.h
 
 .o:
-	@echo CC -o $@
-	@$(CC) -o $@ $< util.a $(LDFLAGS)
+	@echo LD -o $@
+	@$(LD) -o $@ $< util.a $(LDFLAGS)
 
 .c.o:
 	@echo CC -c $<

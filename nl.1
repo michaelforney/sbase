@@ -1,0 +1,44 @@
+.TH NL 1 sbase\-VERSION
+.SH NAME
+nl \- number lines
+.SH SYNOPSIS
+.B nl
+.RB [ \-b
+.IR mode ]
+.RB [ \-i
+.IR increment ]
+.RB [ \-s
+.IR separator ]
+.RI [ file ...]
+.SH DESCRIPTION
+.B nl
+reads each file in sequence and writes it to stdout with non-empty lines
+numbered.  If no file is given, nl reads from stdin.
+.SH OPTIONS
+.TP
+.BI \-b " mode"
+defines which lines will be numbered:
+.RS
+.TP
+.B a
+all lines.
+.TP
+.B n
+no lines.
+.TP
+.BI p pattern
+only lines which match
+.IR pattern ,
+a regular expression as defined in
+.IR regex (7).
+.TP
+.B t
+only non-empty lines (default).
+.RE
+.TP
+.BI \-i " increment"
+defines the increment between numbered lines.
+.TP
+.BI \-s " separator"
+defines the string used to separate line numbers and lines.  By default this is
+a tab.
