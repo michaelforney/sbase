@@ -6,7 +6,7 @@ VERSION = 0.0
 LD = $(CC)
 CPPFLAGS = -D_POSIX_C_SOURCE=200112L
 CFLAGS   = -Os -ansi -Wall -pedantic $(CPPFLAGS)
-LDFLAGS  = -s -static
+LDFLAGS  = -static #-s
 
 #CC = tcc
 #LD = $(CC)

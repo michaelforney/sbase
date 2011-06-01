@@ -26,8 +26,8 @@ cat.o grep.o tail.o: text.h
 	@$(CC) -c -o $@ $< $(CFLAGS)
 
 util.a: $(LIB)
-	@echo AR rc $@
-	@$(AR) rc $@ $(LIB)
+	@echo AR -r $@
+	@$(AR) -r -c $@ $(LIB)
 
 dist: clean
 	@echo creating dist tarball
