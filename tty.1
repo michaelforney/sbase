@@ -1,0 +1,13 @@
+.TH TTY 1 sbase\-VERSION
+.SH NAME
+tty \- print terminal name
+.SH SYNOPSIS
+.B tty
+.SH DESCRIPTION
+.B tty
+prints the name of the terminal open on stdin.
+.P
+The status code is 0 if stdin is a terminal, and 1 if not.  If an error occurred
+the status code is 2.
+.SH SEE ALSO
+.IR ttyname (3)

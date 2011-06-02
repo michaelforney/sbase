@@ -6,7 +6,7 @@ LIB = util/afgets.o util/agetcwd.o util/concat.o util/enmasse.o util/eprintf.o \
 
 SRC = basename.c cat.c chmod.c chown.c date.c dirname.c echo.c false.c grep.c \
       head.c ln.c ls.c mkdir.c mkfifo.c nl.c pwd.c rm.c sleep.c sort.c tail.c \
-      tee.c touch.c true.c uname.c wc.c
+      tee.c touch.c true.c tty.c uname.c wc.c
 OBJ = $(SRC:.c=.o) $(LIB)
 BIN = $(SRC:.c=)
 MAN = $(SRC:.c=.1)

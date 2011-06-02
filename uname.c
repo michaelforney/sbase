@@ -41,7 +41,7 @@ main(int argc, char *argv[])
 			exit(EXIT_FAILURE);
 		}
 	if(uname(&u) == -1)
-		eprintf("uname failed:");
+		eprintf("uname:");
 
 	if(sflag || !(nflag || rflag || vflag || mflag))
 		printf("%s ", u.sysname);
