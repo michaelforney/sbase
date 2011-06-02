@@ -11,6 +11,7 @@ static int linecmp(const char **, const char **);
 static void getlines(FILE *, const char *);
 
 static bool rflag = false;
+static bool uflag = false;
 static char **lines = NULL;
 static long nlines = 0;
 
@@ -21,10 +22,13 @@ main(int argc, char *argv[])
 	long i;
 	FILE *fp;
 
-	while((c = getopt(argc, argv, "r")) != -1)
+	while((c = getopt(argc, argv, "ru")) != -1)
 		switch(c) {
 		case 'r':
 			rflag = true;
+			break;
+		case 'u':
+			uflag = true;
 			break;
 		default:
 			exit(EXIT_FAILURE);
@@ -39,12 +43,9 @@ main(int argc, char *argv[])
 	}
 	qsort(lines, nlines, sizeof *lines, (int (*)(const void *, const void *))linecmp);
 
-	for(i = 0; i < nlines; i++) {
-		fputs(lines[i], stdout);
-		free(lines[i]);
-	}
-	free(lines);
-
+	for(i = 0; i < nlines; i++)
+		if(!uflag || i == 0 || strcmp(lines[i], lines[i-1]) != 0)
+			fputs(lines[i], stdout);
 	return EXIT_SUCCESS;
 }
 
