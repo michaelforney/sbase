@@ -44,7 +44,7 @@ main(int argc, char *argv[])
 	qsort(lines, nlines, sizeof *lines, (int (*)(const void *, const void *))linecmp);
 
 	for(i = 0; i < nlines; i++)
-		if(!uflag || i == 0 || strcmp(lines[i], lines[i-1]) == -1)
+		if(!uflag || i == 0 || strcmp(lines[i], lines[i-1]) != 0)
 			fputs(lines[i], stdout);
 	return EXIT_SUCCESS;
 }
