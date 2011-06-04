@@ -37,7 +37,7 @@ main(int argc, char *argv[])
 	if(owner && *owner) {
 		errno = 0;
 		pw = getpwnam(owner);
-		if(errno != 0)
+		if(errno == -1)
 			eprintf("getpwnam %s:", owner);
 		else if(!pw)
 			eprintf("getpwnam %s: no such user\n", owner);
@@ -45,7 +45,7 @@ main(int argc, char *argv[])
 	if(group && *group) {
 		errno = 0;
 		gr = getgrnam(group);
-		if(errno != 0)
+		if(errno == -1)
 			eprintf("getgrnam %s:", group);
 		else if(!gr)
 			eprintf("getgrnam %s: no such group\n", group);
@@ -58,7 +58,7 @@ main(int argc, char *argv[])
 void
 chownpwgr(const char *path)
 {
-	if(chown(path, pw ? pw->pw_uid : -1, gr ? gr->gr_gid : -1) != 0)
+	if(chown(path, pw ? pw->pw_uid : -1, gr ? gr->gr_gid : -1) == -1)
 		eprintf("chown %s:", path);
 	if(rflag)
 		recurse(path, chownpwgr);

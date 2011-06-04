@@ -99,7 +99,7 @@ lsdir(const char *path)
 	cwd = agetcwd();
 	if(!(dp = opendir(path)))
 		eprintf("opendir %s:", path);
-	if(chdir(path) != 0)
+	if(chdir(path) == -1)
 		eprintf("chdir %s:", path);
 
 	while((d = readdir(dp))) {
@@ -125,7 +125,7 @@ lsdir(const char *path)
 		output(&ents[i]);
 		free(ents[i].name);
 	}
-	if(chdir(cwd) != 0)
+	if(chdir(cwd) == -1)
 		eprintf("chdir %s:", cwd);
 	free(ents);
 	free(cwd);
@@ -136,7 +136,7 @@ mkent(Entry *ent, char *path)
 {
 	struct stat st;
 
-	if(lstat(path, &st) != 0)
+	if(lstat(path, &st) == -1)
 		eprintf("lstat %s:", path);
 	ent->name   = path;
 	ent->mode   = st.st_mode;

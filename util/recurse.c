@@ -20,14 +20,14 @@ recurse(const char *path, void (*fn)(const char *))
 			eprintf("opendir %s:", path);
 	}
 	cwd = agetcwd();
-	if(chdir(path) != 0)
+	if(chdir(path) == -1)
 		eprintf("chdir %s:", path);
 	while((d = readdir(dp)))
 		if(strcmp(d->d_name, ".") && strcmp(d->d_name, ".."))
 			fn(d->d_name);
 
 	closedir(dp);
-	if(chdir(cwd) != 0)
+	if(chdir(cwd) == -1)
 		eprintf("chdir %s:", cwd);
 	free(cwd);
 }

@@ -16,7 +16,7 @@ enmasse(int argc, char **argv, int (*fn)(const char *, const char *))
 	struct stat st;
 
 	if(argc == 2 && !(stat(argv[1], &st) == 0 && S_ISDIR(st.st_mode))) {
-		if(fn(argv[0], argv[1]) != 0)
+		if(fn(argv[0], argv[1]) == -1)
 			eprintf("%s:", argv[1]);
 		return;
 	}
@@ -31,7 +31,7 @@ enmasse(int argc, char **argv, int (*fn)(const char *, const char *))
 		eprintf("malloc:");
 	for(i = 0; i < argc; i++) {
 		snprintf(buf, size, "%s/%s", dir, basename(argv[i]));
-		if(fn(argv[i], buf) != 0)
+		if(fn(argv[i], buf) == -1)
 			eprintf("%s:", buf);
 	}
 	free(buf);

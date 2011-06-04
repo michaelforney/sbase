@@ -34,7 +34,7 @@ main(int argc, char *argv[])
 int
 ln(const char *s1, const char *s2)
 {
-	if(fflag && remove(s2) != 0 && errno != ENOENT)
+	if(fflag && remove(s2) == -1 && errno != ENOENT)
 		eprintf("remove %s:", s2);
 	return (sflag ? symlink : link)(s1, s2);
 }

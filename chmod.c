@@ -53,7 +53,7 @@ main(int argc, char *argv[])
 void
 chmodr(const char *path)
 {
-	if(chmod(path, mode) != 0)
+	if(chmod(path, mode) == -1)
 		eprintf("chmod %s:", path);
 	if(rflag)
 		recurse(path, chmodr);

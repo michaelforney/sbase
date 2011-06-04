@@ -36,6 +36,6 @@ rm(const char *path)
 {
 	if(rflag)
 		recurse(path, rm);
-	if(remove(path) != 0 && !fflag)
+	if(remove(path) == -1 && !fflag)
 		eprintf("remove %s:", path);
 }

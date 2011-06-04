@@ -33,9 +33,9 @@ getpwd(const char *cwd)
 	const char *pwd;
 	struct stat cst, pst;
 
-	if(!(pwd = getenv("PWD")) || pwd[0] != '/' || stat(pwd, &pst) != 0)
+	if(!(pwd = getenv("PWD")) || pwd[0] != '/' || stat(pwd, &pst) == -1)
 		return cwd;
-	if(stat(cwd, &cst) != 0)
+	if(stat(cwd, &cst) == -1)
 		eprintf("stat %s:", cwd);
 	if(pst.st_dev == cst.st_dev && pst.st_ino == cst.st_ino)
 		return pwd;
