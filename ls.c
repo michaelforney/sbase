@@ -152,6 +152,7 @@ output(Entry *ent)
 {
 	char buf[BUFSIZ], *fmt;
 	char mode[] = "----------";
+	ssize_t len;
 	struct group *gr;
 	struct passwd *pw;
 
@@ -204,11 +205,18 @@ output(Entry *ent)
 		eprintf("getgrgid %d: no such group\n", ent->gid);
 
 	if(time(NULL) > ent->mtime + (180*24*60*60)) /* 6 months ago? */
-		fmt = "%b %d %Y";
+		fmt = "%b %d  %Y";
 	else
 		fmt = "%b %d %H:%M";
 
 	strftime(buf, sizeof buf, fmt, localtime(&ent->mtime));
-	printf("%s %2d %s %s %6lu %s %s\n", mode, ent->nlink, pw->pw_name,
+	printf("%s %2d %s %s %6lu %s %s", mode, ent->nlink, pw->pw_name,
 	       gr->gr_name, (unsigned long)ent->size, buf, ent->name);
+	if(S_ISLNK(ent->mode)) {
+		if((len = readlink(ent->name, buf, sizeof buf)) == -1)
+			eprintf("readlink %s:", ent->name);
+		buf[len] = '\0';
+		printf(" -> %s", buf);
+	}
+	putchar('\n');
 }
