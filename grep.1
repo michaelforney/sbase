@@ -3,7 +3,7 @@
 grep \- search files for a pattern
 .SH SYNOPSIS
 .B grep
-.RB [ \-cilnqv ]
+.RB [ \-Ecilnqv ]
 .I pattern
 .RI [ file ...]
 .SH DESCRIPTION
@@ -16,6 +16,9 @@ reads from stdin.
 The status code is 0 if any lines match, and 1 if not.  If an error occurred the
 status code is 2.
 .SH OPTIONS
+.TP
+.B \-E
+matches using extended regex.
 .TP
 .B \-c
 prints only a count of matching lines.
