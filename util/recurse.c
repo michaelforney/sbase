@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #include "../util.h"
 
 void
@@ -11,14 +12,14 @@ recurse(const char *path, void (*fn)(const char *))
 {
 	char *cwd;
 	struct dirent *d;
+	struct stat st;
 	DIR *dp;
 
-	if(!(dp = opendir(path))) {
-		if(errno == ENOTDIR)
-			return;
-		else
-			eprintf("opendir %s:", path);
-	}
+	if(lstat(path, &st) == -1 || !S_ISDIR(st.st_mode))
+		return;
+	else if(!(dp = opendir(path)))
+		eprintf("opendir %s:", path);
+
 	cwd = agetcwd();
 	if(chdir(path) == -1)
 		eprintf("chdir %s:", path);
