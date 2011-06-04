@@ -40,7 +40,7 @@ main(int argc, char *argv[])
 		default:
 			exit(EXIT_FAILURE);
 		}
-	if(uname(&u) == -1)
+	if(uname(&u) != 0)
 		eprintf("uname:");
 
 	if(sflag || !(nflag || rflag || vflag || mflag))

@@ -3,12 +3,12 @@
 ln \- make links between files
 .SH SYNOPSIS
 .B ln
-.RB [ \-s ]
+.RB [ \-fs ]
 .I file
 .RI [ name ]
 .P
 .B ln
-.RB [ \-s ]
+.RB [ \-fs ]
 .RI [ file ...]
 .RI [ directory ]
 .SH DESCRIPTION
@@ -17,6 +17,9 @@ creates a hard link to a given file, with the given name.  If no name is given
 it is linked into the current directory.  If multiple files are listed they will
 be linked into the given directory.
 .SH OPTIONS
+.TP
+.B \-f
+remove existing destinations.
 .TP
 .B \-s
 create a symlink.
