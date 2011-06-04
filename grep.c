@@ -8,8 +8,6 @@
 
 static void grep(FILE *, const char *, regex_t *);
 
-static bool Eflag = false;
-static bool iflag = false;
 static bool vflag = false;
 static bool many;
 static bool match = false;
@@ -26,7 +24,7 @@ main(int argc, char *argv[])
 	while((c = getopt(argc, argv, "Ecilnqv")) != -1)
 		switch(c) {
 		case 'E':
-			Eflag = true;
+			flags |= REG_EXTENDED;
 			break;
 		case 'c':
 		case 'l':
@@ -35,7 +33,7 @@ main(int argc, char *argv[])
 			mode = c;
 			break;
 		case 'i':
-			iflag = true;
+			flags |= REG_ICASE;
 			break;
 		case 'v':
 			vflag = true;
@@ -44,13 +42,9 @@ main(int argc, char *argv[])
 			exit(2);
 		}
 	if(optind == argc) {
-		fprintf(stderr, "usage: %s [-cilnqv] pattern [files...]\n", argv[0]);
+		fprintf(stderr, "usage: %s [-Ecilnqv] pattern [files...]\n", argv[0]);
 		exit(2);
 	}
-	if(Eflag)
-		flags |= REG_EXTENDED;
-	if(iflag)
-		flags |= REG_ICASE;
 	regcomp(&preg, argv[optind++], flags);
 
 	many = (argc > optind+1);
