@@ -1,0 +1,31 @@
+cksum [file...]
+
+cmp [-ls] file1 file2
+
+comm [-123] file1 file2
+
+cp [-r] file [name]
+cp [-r] [file...] [directory]
+
+cut [-bcfs] [-d delim] list [file...]
+
+diff [-ru] file1 file2
+
+fold [-bs] [-w width] [file...]
+
+id [-gnru] [user]
+
+kill [-s signal] [pid...]
+
+mv file [name]
+mv [file...] directory
+
+nohup command [argument...]
+
+paste [-s] [-d list] [file...]
+
+printf format [argument...]
+
+test [expression...]
+
+tr string1 [string2]
