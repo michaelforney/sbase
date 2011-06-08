@@ -59,6 +59,20 @@ util.a: $(LIB)
 	@echo AR -r $@
 	@$(AR) -r -c $@ $(LIB)
 
+install:
+	@echo installing executables to $(DESTDIR)$(PREFIX)/bin
+	@mkdir -p $(DESTDIR)$(PREFIX)/bin
+	@cp -f $(BIN) $(DESTDIR)$(PREFIX)/bin
+	@cd $(DESTDIR)$(PREFIX)/bin && chmod 755 $(BIN)
+	@echo installing manual pages to $(DESTDIR)$(MANPREFIX)/man1
+	@mkdir -p $(DESTDIR)$(MANPREFIX)/man1
+	@cp -f $(MAN) $(DESTDIR)$(MANPREFIX)/man1
+	@cd $(DESTDIR)$(MANPREFIX)/man1 && chmod 644 $(MAN)
+
+uninstall:
+	@cd $(DESTDIR)$(PREFIX)/bin && rm -f $(BIN)
+	@cd $(DESTDIR)$(MANPREFIX)/man1 && rm -f $(MAN)
+
 dist: clean
 	@echo creating dist tarball
 	@mkdir -p sbase-$(VERSION)
