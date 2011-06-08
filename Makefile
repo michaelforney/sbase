@@ -59,7 +59,7 @@ util.a: $(LIB)
 	@echo AR -r $@
 	@$(AR) -r -c $@ $(LIB)
 
-install:
+install: all
 	@echo installing executables to $(DESTDIR)$(PREFIX)/bin
 	@mkdir -p $(DESTDIR)$(PREFIX)/bin
 	@cp -f $(BIN) $(DESTDIR)$(PREFIX)/bin
