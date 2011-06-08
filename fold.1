@@ -1,0 +1,25 @@
+.TH FOLD 1 sbase\-VERSION
+.SH NAME
+fold \- wrap lines to width
+.SH SYNOPSIS
+.B fold
+.RB [ \-bs ]
+.RB [ \-w
+.IR width ]
+.RI [ file ...]
+.SH DESCRIPTION
+.B fold
+reads each file in sequence and prints its lines, broken such that no line
+exceeds 80 characters.  If no file is given, fold reads from stdin.
+.SH OPTIONS
+.TP
+.B \-b
+counts bytes rather than columns.
+.TP
+.B \-s
+breaks only at spaces.
+.TP
+.BI \-w " width"
+uses
+.I width
+columns instead of 80.

@@ -18,6 +18,7 @@ SRC = \
 	dirname.c  \
 	echo.c     \
 	false.c    \
+	fold.c     \
 	grep.c     \
 	head.c     \
 	ln.c       \
@@ -70,7 +71,9 @@ install: all
 	@cd $(DESTDIR)$(MANPREFIX)/man1 && chmod 644 $(MAN)
 
 uninstall:
+	@echo removing executables from $(DESTDIR)$(PREFIX)/bin
 	@cd $(DESTDIR)$(PREFIX)/bin && rm -f $(BIN)
+	@echo removing manual pages from $(DESTDIR)$(MANPREFIX)/man1
 	@cd $(DESTDIR)$(MANPREFIX)/man1 && rm -f $(MAN)
 
 dist: clean

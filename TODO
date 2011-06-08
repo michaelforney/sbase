@@ -11,8 +11,6 @@ cut [-bcfs] [-d delim] list [file...]
 
 diff [-ru] file1 file2
 
-fold [-bs] [-w width] [file...]
-
 id [-gnru] [user]
 
 kill [-s signal] [pid...]
