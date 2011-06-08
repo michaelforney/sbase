@@ -6,6 +6,8 @@
 #include <sys/utsname.h>
 #include "util.h"
 
+static void print(const char *);
+
 int
 main(int argc, char *argv[])
 {
@@ -44,15 +46,26 @@ main(int argc, char *argv[])
 		eprintf("uname:");
 
 	if(sflag || !(nflag || rflag || vflag || mflag))
-		printf("%s ", u.sysname);
+		print(u.sysname);
 	if(nflag)
-		printf("%s ", u.nodename);
+		print(u.nodename);
 	if(rflag)
-		printf("%s ", u.release);
+		print(u.release);
 	if(vflag)
-		printf("%s ", u.version);
+		print(u.version);
 	if(mflag)
-		printf("%s ", u.machine);
+		print(u.machine);
 	putchar('\n');
 	return EXIT_SUCCESS;
+}
+
+void
+print(const char *s)
+{
+	static bool first = true;
+
+	if(!first)
+		putchar(' ');
+	fputs(s, stdout);
+	first = false;
 }
