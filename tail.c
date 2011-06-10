@@ -58,7 +58,7 @@ taketail(FILE *fp, const char *str, long n)
 {
 	char **ring;
 	long i, j;
-	size_t *size;
+	size_t *size = NULL;
 
 	if(!(ring = calloc(n, sizeof *ring)) || !(size = calloc(n, sizeof *size)))
 		eprintf("calloc:");
