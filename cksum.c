@@ -88,9 +88,10 @@ cksum(FILE *fp, const char *s)
 		ck = (ck << 8) ^ crctab[(ck >> 24) ^ c];
 	for(i = n; i > 0; i >>= 8)
 		ck = (ck << 8) ^ crctab[(ck >> 24) ^ (i & 0377)];
-	ck = ~ck;
+	if(ferror(fp))
+		eprintf("%s: read error:", s ? s : "<stdin>");
 
-	printf("%lu %lu", ck, n);
+	printf("%lu %lu", ~ck, n);
 	if(s != NULL)
 		printf(" %s", s);
 	putchar('\n');
