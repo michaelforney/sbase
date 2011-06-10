@@ -62,9 +62,9 @@ void
 foldline(const char *str, long width)
 {
 	bool space;
-	long col, i, j, n;
+	long col, j, i = 0, n = 0;
 
-	for(i = n = 0; str[i] && str[i] != '\n'; i = n) {
+	do {
 		space = false;
 		for(j = i, col = 0; str[j] && col <= width; j++) {
 			if(!UTF8_POINT(str[j]) && !bflag)
@@ -95,5 +95,5 @@ foldline(const char *str, long width)
 			eprintf("<stdout>: write error:");
 		if(str[n])
 			putchar('\n');
-	}
+	} while(str[i = n] && str[i] != '\n');
 }
