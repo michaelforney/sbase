@@ -22,6 +22,7 @@ SRC = \
 	fold.c     \
 	grep.c     \
 	head.c     \
+	kill.c     \
 	ln.c       \
 	ls.c       \
 	mkdir.c    \
