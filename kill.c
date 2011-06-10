@@ -1,6 +1,8 @@
 /* See LICENSE file for copyright and license details. */
-#include <stdlib.h>
 #include <signal.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <strings.h>
 #include <unistd.h>
 #include "util.h"
@@ -21,12 +23,16 @@ struct {
 int
 main(int argc, char *argv[])
 {
+	bool lflag = false;
 	char c, *end;
 	int i, sig = SIGTERM;
 	pid_t pid;
 
-	while((c = getopt(argc, argv, "s:")) != -1)
+	while((c = getopt(argc, argv, "ls:")) != -1)
 		switch(c) {
+		case 'l':
+			lflag = true;
+			break;
 		case 's':
 			for(i = 0; i < LEN(sigs); i++)
 				if(!strcasecmp(optarg, sigs[i].name)) {
@@ -39,7 +45,24 @@ main(int argc, char *argv[])
 		default:
 			exit(EXIT_FAILURE);
 		}
-	for(; optind < argc; optind++) {
+	if(lflag) {
+		if(optind == argc-1) {
+			sig = strtol(argv[optind], &end, 0);
+			if(*end != '\0')
+				eprintf("%s: not a number\n", argv[optind]);
+		}
+		else if(optind == argc)
+			sig = 0;
+		else
+			eprintf("usage: %s [-s signal] [pid...]\n"
+			        "       %s -l [signum]\n", argv[0], argv[0]);
+
+		for(i = 0; i < LEN(sigs); i++)
+			if(sigs[i].sig == sig || sig == 0)
+				putword(sigs[i].name);
+		putchar('\n');
+	}
+	else for(; optind < argc; optind++) {
 		pid = strtol(argv[optind], &end, 0);
 		if(*end != '\0')
 			eprintf("%s: not a number\n", argv[optind]);

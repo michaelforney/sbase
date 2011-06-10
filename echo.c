@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "util.h"
 
 int
 main(int argc, char *argv[])
@@ -18,11 +19,8 @@ main(int argc, char *argv[])
 		default:
 			exit(EXIT_FAILURE);
 		}
-	for(; optind < argc; optind++) {
-		fputs(argv[optind], stdout);
-		if(optind+1 < argc)
-			putchar(' ');
-	}
+	for(; optind < argc; optind++)
+		putword(argv[optind]);
 	if(!nflag)
 		putchar('\n');
 	return EXIT_SUCCESS;

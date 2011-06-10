@@ -1,7 +1,5 @@
 cksum [file...]
 
-cmp [-ls] file1 file2
-
 comm [-123] file1 file2
 
 cp [-r] file [name]
@@ -12,8 +10,6 @@ cut [-bcfs] [-d delim] list [file...]
 diff [-ru] file1 file2
 
 id [-gnru] [user]
-
-kill [-s signal] [pid...]
 
 mv file [name]
 mv [file...] directory

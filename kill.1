@@ -3,8 +3,13 @@
 KILL \- compare two files
 .SH SYNOPSIS
 .B kill
-.RB [ \-s ]
+.RB [ \-s
+.IR signal ]
 .RI [ pid ...]
+.P
+.B kill
+.B -l
+.RI [ signum ]
 .SH DESCRIPTION
 .B kill
 sends a
@@ -14,5 +19,10 @@ signal to the given processes.
 .TP
 .BI \-s " signal"
 sends the named signal.
+.TP
+.B \-l
+lists available signals.  If a
+.I signum
+is given, only the corresponding signal name will be printed.
 .SH SEE ALSO
 .IR kill (2)

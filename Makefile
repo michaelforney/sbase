@@ -7,6 +7,7 @@ LIB = \
 	util/concat.o  \
 	util/enmasse.o \
 	util/eprintf.o \
+	util/putword.o \
 	util/recurse.o \
 
 SRC = \
