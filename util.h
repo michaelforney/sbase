@@ -7,3 +7,4 @@ void enmasse(int, char **, int (*)(const char *, const char *));
 void eprintf(const char *, ...);
 void putword(const char *);
 void recurse(const char *, void (*)(const char *));
+long strnum(const char *, int);

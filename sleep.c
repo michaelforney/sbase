@@ -6,7 +6,6 @@
 int
 main(int argc, char *argv[])
 {
-	char *end;
 	unsigned int seconds;
 
 	if(getopt(argc, argv, "") != -1)
@@ -14,9 +13,7 @@ main(int argc, char *argv[])
 	if(optind != argc-1)
 		eprintf("usage: %s seconds\n", argv[0]);
 
-	seconds = strtol(argv[optind], &end, 0);
-	if(*end != '\0')
-		eprintf("%s: not a number\n", argv[optind]);
+	seconds = strnum(argv[optind], 0);
 	while((seconds = sleep(seconds)) > 0)
 		;
 	return EXIT_SUCCESS;

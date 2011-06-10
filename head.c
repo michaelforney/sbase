@@ -10,16 +10,14 @@ static void head(FILE *, const char *, long);
 int
 main(int argc, char *argv[])
 {
-	char *end, c;
+	char c;
 	long n = 10;
 	FILE *fp;
 
 	while((c = getopt(argc, argv, "n:")) != -1)
 		switch(c) {
 		case 'n':
-			n = strtol(optarg, &end, 0);
-			if(*end != '\0')
-				eprintf("%s: not a number\n", optarg);
+			n = strnum(optarg, 0);
 			break;
 		default:
 			exit(EXIT_FAILURE);

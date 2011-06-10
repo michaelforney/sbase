@@ -49,26 +49,18 @@ main(int argc, char *argv[])
 			exit(EXIT_FAILURE);
 		}
 	if(lflag) {
-		if(optind == argc-1) {
-			sig = strtol(argv[optind], &end, 0);
-			if(*end != '\0')
-				eprintf("%s: not a number\n", argv[optind]);
-		}
-		else if(optind == argc)
-			sig = 0;
-		else
+		if(optind < argc-1)
 			eprintf("usage: %s [-s signal] [pid...]\n"
 			        "       %s -l [signum]\n", argv[0], argv[0]);
 
+		sig = (optind == argc) ? 0 : strnum(argv[optind], 0);
 		for(i = 0; i < LEN(sigs); i++)
 			if(sigs[i].sig == sig || sig == 0)
 				putword(sigs[i].name);
 		putchar('\n');
 	}
 	else for(; optind < argc; optind++) {
-		pid = strtol(argv[optind], &end, 0);
-		if(*end != '\0')
-			eprintf("%s: not a number\n", argv[optind]);
+		pid = strnum(argv[optind], 0);
 		if(kill(pid, sig) == -1)
 			eprintf("kill %d:", pid);
 	}

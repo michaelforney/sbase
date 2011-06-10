@@ -16,7 +16,7 @@ static bool sflag = false;
 int
 main(int argc, char *argv[])
 {
-	char c, *end;
+	char c;
 	long width = 80;
 	FILE *fp;
 
@@ -29,9 +29,7 @@ main(int argc, char *argv[])
 			sflag = true;
 			break;
 		case 'w':
-			width = strtol(optarg, &end, 0);
-			if(*end != '\0')
-				eprintf("%s: not a number\n", optarg);
+			width = strnum(optarg, 0);
 			break;
 		default:
 			exit(EXIT_FAILURE);

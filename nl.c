@@ -17,7 +17,7 @@ static regex_t preg;
 int
 main(int argc, char *argv[])
 {
-	char c, *end;
+	char c;
 	FILE *fp;
 
 	while((c = getopt(argc, argv, "b:i:s:")) != -1)
@@ -30,9 +30,7 @@ main(int argc, char *argv[])
 				eprintf("usage: %s [-b mode] [-i increment] [-s separator] [file...]\n", argv[0]);
 			break;
 		case 'i':
-			incr = strtol(optarg, &end, 0);
-			if(*end != '\0')
-				eprintf("%s: not a number\n", optarg);
+			incr = strnum(optarg, 0);
 			break;
 		case 's':
 			sep = optarg;

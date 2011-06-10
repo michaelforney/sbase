@@ -12,7 +12,7 @@ static void taketail(FILE *, const char *, long);
 int
 main(int argc, char *argv[])
 {
-	char *end, c;
+	char c;
 	long n = 10;
 	FILE *fp;
 	void (*tail)(FILE *, const char *, long) = taketail;
@@ -20,9 +20,7 @@ main(int argc, char *argv[])
 	while((c = getopt(argc, argv, "n:")) != -1)
 		switch(c) {
 		case 'n':
-			n = abs(strtol(optarg, &end, 0));
-			if(*end != '\0')
-				eprintf("%s: not a number\n", optarg);
+			n = abs(strnum(optarg, 0));
 			if(optarg[0] == '+')
 				tail = dropinit;
 			break;

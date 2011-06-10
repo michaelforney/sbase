@@ -9,7 +9,7 @@ int
 main(int argc, char *argv[])
 {
 	char buf[BUFSIZ], c;
-	char *end, *fmt = "%c";
+	char *fmt = "%c";
 	struct tm *now = NULL;
 	time_t t;
 
@@ -17,9 +17,7 @@ main(int argc, char *argv[])
 	while((c = getopt(argc, argv, "d:")) != -1)
 		switch(c) {
 		case 'd':
-			t = strtol(optarg, &end, 0);
-			if(*end != '\0')
-				eprintf("%s: not a number\n", optarg);
+			t = strnum(optarg, 0);
 			break;
 		default:
 			exit(EXIT_FAILURE);
