@@ -14,7 +14,7 @@ static mode_t mode = 0;
 int
 main(int argc, char *argv[])
 {
-	char c, *end;
+	char c;
 	int octal;
 
 	while((c = getopt(argc, argv, "Rr")) != -1)
@@ -28,9 +28,7 @@ main(int argc, char *argv[])
 		}
 	if(optind == argc)
 		eprintf("usage: %s [-Rr] mode [file...]\n", argv[0]);
-	octal = strtol(argv[optind++], &end, 8);
-	if(*end != '\0')
-		eprintf("%s: not an octal number\n", argv[optind-1]);
+	octal = strnum(argv[optind++], 8);
 
 	/* posix doesn't specify modal bits */
 	if(octal & 04000) mode |= S_ISUID;
