@@ -51,6 +51,9 @@ chmodr(const char *path)
 	case '-':
 		st.st_mode &= ~mode;
 		break;
+	case '=':
+		st.st_mode = mode;
+		break;
 	}
 	if(chmod(path, st.st_mode) == -1)
 		eprintf("chmod %s:", path);
