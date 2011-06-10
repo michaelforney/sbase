@@ -29,7 +29,7 @@ main(int argc, char *argv[])
 			sflag = true;
 			break;
 		case 'w':
-			width = strnum(optarg, 0);
+			width = estrtol(optarg, 0);
 			break;
 		default:
 			exit(EXIT_FAILURE);

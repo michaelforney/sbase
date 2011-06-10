@@ -20,7 +20,7 @@ main(int argc, char *argv[])
 	while((c = getopt(argc, argv, "n:")) != -1)
 		switch(c) {
 		case 'n':
-			n = abs(strnum(optarg, 0));
+			n = abs(estrtol(optarg, 0));
 			if(optarg[0] == '+')
 				tail = dropinit;
 			break;

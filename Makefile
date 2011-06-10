@@ -7,9 +7,9 @@ LIB = \
 	util/concat.o  \
 	util/enmasse.o \
 	util/eprintf.o \
+	util/estrtol.o \
 	util/putword.o \
 	util/recurse.o \
-	util/strnum.o  \
 
 SRC = \
 	basename.c \

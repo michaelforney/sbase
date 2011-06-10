@@ -28,7 +28,7 @@ main(int argc, char *argv[])
 		}
 	if(optind == argc)
 		eprintf("usage: %s [-Rr] mode [file...]\n", argv[0]);
-	octal = strnum(argv[optind++], 8);
+	octal = estrtol(argv[optind++], 8);
 
 	/* posix doesn't specify modal bits */
 	if(octal & 04000) mode |= S_ISUID;

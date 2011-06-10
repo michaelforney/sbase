@@ -53,14 +53,14 @@ main(int argc, char *argv[])
 			eprintf("usage: %s [-s signal] [pid...]\n"
 			        "       %s -l [signum]\n", argv[0], argv[0]);
 
-		sig = (optind == argc) ? 0 : strnum(argv[optind], 0);
+		sig = (optind == argc) ? 0 : estrtol(argv[optind], 0);
 		for(i = 0; i < LEN(sigs); i++)
 			if(sigs[i].sig == sig || sig == 0)
 				putword(sigs[i].name);
 		putchar('\n');
 	}
 	else for(; optind < argc; optind++) {
-		pid = strnum(argv[optind], 0);
+		pid = estrtol(argv[optind], 0);
 		if(kill(pid, sig) == -1)
 			eprintf("kill %d:", pid);
 	}

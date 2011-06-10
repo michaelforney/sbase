@@ -4,7 +4,7 @@
 #include "../util.h"
 
 long
-strnum(const char *s, int base)
+estrtol(const char *s, int base)
 {
 	char *end;
 	long n;

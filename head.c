@@ -17,7 +17,7 @@ main(int argc, char *argv[])
 	while((c = getopt(argc, argv, "n:")) != -1)
 		switch(c) {
 		case 'n':
-			n = strnum(optarg, 0);
+			n = estrtol(optarg, 0);
 			break;
 		default:
 			exit(EXIT_FAILURE);

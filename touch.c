@@ -26,7 +26,7 @@ main(int argc, char *argv[])
 			cflag = true;
 			break;
 		case 't':
-			t = strnum(optarg, 0);
+			t = estrtol(optarg, 0);
 			break;
 		default:
 			exit(EXIT_FAILURE);

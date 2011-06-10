@@ -13,7 +13,7 @@ main(int argc, char *argv[])
 	if(optind != argc-1)
 		eprintf("usage: %s seconds\n", argv[0]);
 
-	seconds = strnum(argv[optind], 0);
+	seconds = estrtol(argv[optind], 0);
 	while((seconds = sleep(seconds)) > 0)
 		;
 	return EXIT_SUCCESS;

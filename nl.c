@@ -30,7 +30,7 @@ main(int argc, char *argv[])
 				eprintf("usage: %s [-b mode] [-i increment] [-s separator] [file...]\n", argv[0]);
 			break;
 		case 'i':
-			incr = strnum(optarg, 0);
+			incr = estrtol(optarg, 0);
 			break;
 		case 's':
 			sep = optarg;
