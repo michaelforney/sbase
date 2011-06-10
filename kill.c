@@ -34,6 +34,9 @@ main(int argc, char *argv[])
 			lflag = true;
 			break;
 		case 's':
+			sig = strtol(optarg, &end, 0);
+			if(*end == '\0')
+				break;
 			for(i = 0; i < LEN(sigs); i++)
 				if(!strcasecmp(optarg, sigs[i].name)) {
 					sig = sigs[i].sig;
