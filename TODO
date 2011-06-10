@@ -1,5 +1,3 @@
-cksum [file...]
-
 comm [-123] file1 file2
 
 cp [-r] file [name]

@@ -74,7 +74,7 @@ wc(FILE *fp, const char *str)
 	char c;
 	long nc = 0, nl = 0, nw = 0;
 
-	while((c = fgetc(fp)) != EOF) {
+	while((c = getc(fp)) != EOF) {
 		if(cmode != 'm' || UTF8_POINT(c))
 			nc++;
 		if(c == '\n')

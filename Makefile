@@ -15,6 +15,7 @@ SRC = \
 	cat.c      \
 	chmod.c    \
 	chown.c    \
+	cksum.c    \
 	cmp.c      \
 	date.c     \
 	dirname.c  \
