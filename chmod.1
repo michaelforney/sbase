@@ -4,18 +4,65 @@ chmod \- change file mode
 .SH SYNOPSIS
 .B chmod
 .RB [ \-Rr ]
-.RI mode
+.I octal
+.RI [ file ...]
+.P
+.B chmod
+.RB [ \-Rr ]
+.RB [ ugoa ][ +-= ][ rwxs ]
 .RI [ file ...]
 .SH DESCRIPTION
 .B chmod
-changes the file mode for the given files.  The
-.I mode
-is a four digit octal number derived from its comprising bits.
+changes the file mode for the given files.
 .P
-The first digit defines the setuid (4) and setgid (2) attributes.  The second
-digit defines the owner's permissions: read (4), write (2), and execute (1); the
-third defines permissions for others in the file's group; and the fourth for all
-other users. Leading zeroes may be omitted.
+If the mode is an
+.I octal
+number, the modes are set according to that number's comprising bits. The first
+digit defines the setuid (4) and setgid (2) attributes.  The second digit
+defines the owner's permissions: read (4), write (2), and execute (1); the third
+defines permissions for others in the file's group; and the fourth for all other
+users. Leading zeroes may be omitted.
+.P
+Alternatively the mode may be symbolic. The symbol meanings are:
+.TP
+.B u
+modifies owner permissions.
+.PD 0
+.TP
+.B g
+modifies group permissions.
+.TP
+.B o
+modifies other user permissions.
+.TP
+.B a
+modifies all user permissions.
+.PD
+.TP
+.B +
+adds the given permissions to the mode.
+.PD 0
+.TP
+.B -
+removes the given permissions from the mode.
+.TP
+.B =
+sets the mode to the given permissions.
+.PD
+.TP
+.B r
+read permissions.
+.PD 0
+.TP
+.B w
+write permissions.
+.TP
+.B x
+execute permissions.
+.TP
+.B s
+setuid and setgid attributes.
+.PD
 .SH OPTIONS
 .TP
 .B \-R, \-r
