@@ -2,16 +2,13 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
-#include "util.h"
-
-static bool lflag = false;
-static bool sflag = false;
 
 int
 main(int argc, char *argv[])
 {
+	bool lflag = false;
+	bool sflag = false;
 	bool same = true;
 	char c;
 	int b[2], i;
@@ -30,12 +27,12 @@ main(int argc, char *argv[])
 			exit(2);
 		}
 	if(optind != argc-2) {
-		eprintf("usage: %s [-ls] file1 file2\n", argv[0]);
+		fprintf(stderr, "usage: %s [-ls] file1 file2\n", argv[0]);
 		exit(2);
 	}
 	for(i = 0; i < 2; i++)
 		if(!(fp[i] = fopen(argv[optind+i], "r"))) {
-			eprintf("fopen %s:", argv[optind+i]);
+			fprintf(stderr, "fopen %s:", argv[optind+i]);
 			exit(2);
 		}
 	for(n = 1; ((b[0] = getc(fp[0])) != EOF) | ((b[1] = getc(fp[1])) != EOF); n++) {
