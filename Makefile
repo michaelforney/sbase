@@ -89,6 +89,23 @@ dist: clean
 	@gzip sbase-$(VERSION).tar
 	@rm -rf sbase-$(VERSION)
 
+sbase-box: $(SRC)
+	@echo creating box binary
+	@mkdir -p build
+	@cp -r $(HDR) util build
+	@for f in $(SRC); do sed "s/^main.*/`basename $$f .c`_main(int argc, char *argv[])/" < $$f > build/$$f; done
+	@echo '#include <libgen.h>'  > build/$@.c
+	@echo '#include <stdlib.h>' >> build/$@.c
+	@echo '#include <string.h>' >> build/$@.c
+	@echo '#include "util.h"'   >> build/$@.c
+	@for f in $(SRC); do echo "int `basename $$f .c`_main(int, char **);" >> build/sbase-box.c; done
+	@echo 'int main(int argc, char *argv[]) { char *s = basename(argv[0]); if(0);' >> build/sbase-box.c
+	@for f in $(SRC); do echo "else if(!strcmp(s, \"`basename $$f .c`\")) `basename $$f .c`_main(argc, argv);" >> build/sbase-box.c; done
+	@printf 'else eprintf("%%s: unknown program\\n", s); return EXIT_SUCCESS; }' >> build/sbase-box.c
+	@echo LD $@
+	@$(LD) -o $@ build/*.c build/util/*.c $(CFLAGS) $(LDFLAGS)
+	@rm -r build
+
 clean:
 	@echo cleaning
-	@rm -f $(BIN) $(OBJ) $(LIB) util.a
+	@rm -f $(BIN) $(OBJ) $(LIB) util.a sbase-box
