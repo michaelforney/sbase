@@ -39,6 +39,8 @@ int
 main(int argc, char *argv[])
 {
 	char c;
+	int i, n;
+	Entry *ents;
 
 	while((c = getopt(argc, argv, "adlt")) != -1)
 		switch(c) {
@@ -59,10 +61,17 @@ main(int argc, char *argv[])
 		}
 	many = (argc > optind+1);
 
-	if(optind == argc)
+	if((n = argc - optind) > 0) {
+		if(!(ents = malloc((argc-1) * sizeof *ents)))
+			eprintf("malloc:");
+		for(i = 0; i < n; i++)
+			mkent(&ents[i], argv[optind+i]);
+		qsort(ents, n, sizeof *ents, (int (*)(const void *, const void *))entcmp);
+		for(i = 0; i < n; i++)
+			ls(ents[i].name);
+	}
+	else
 		ls(".");
-	else for(; optind < argc; optind++)
-		ls(argv[optind]);
 	return EXIT_SUCCESS;
 }
 
@@ -210,7 +219,7 @@ output(Entry *ent)
 		fmt = "%b %d %H:%M";
 
 	strftime(buf, sizeof buf, fmt, localtime(&ent->mtime));
-	printf("%s %2ld %s %s %6lu %s %s", mode, (long)ent->nlink, pw->pw_name,
+	printf("%s %2ld %-4s %-5s %6lu %s %s", mode, (long)ent->nlink, pw->pw_name,
 	       gr->gr_name, (unsigned long)ent->size, buf, ent->name);
 	if(S_ISLNK(ent->mode)) {
 		if((len = readlink(ent->name, buf, sizeof buf)) == -1)
