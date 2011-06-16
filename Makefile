@@ -54,15 +54,15 @@ $(BIN): util.a
 cat.o grep.o tail.o: text.h
 
 .o:
-	@echo LD -o $@
+	@echo LD $@
 	@$(LD) -o $@ $< util.a $(LDFLAGS)
 
 .c.o:
-	@echo CC -c $<
+	@echo CC $<
 	@$(CC) -c -o $@ $< $(CFLAGS)
 
 util.a: $(LIB)
-	@echo AR -r $@
+	@echo AR $@
 	@$(AR) -r -c $@ $(LIB)
 
 install: all
@@ -89,21 +89,21 @@ dist: clean
 	@gzip sbase-$(VERSION).tar
 	@rm -rf sbase-$(VERSION)
 
-sbase-box: $(SRC)
+sbase-box: $(SRC) util.a
 	@echo creating box binary
 	@mkdir -p build
-	@cp -r $(HDR) util build
-	@for f in $(SRC); do sed "s/^main/`basename $$f .c`_&/" < $$f > build/$$f; done
+	@cp $(HDR) build
+	@for f in $(SRC); do sed "s/^main(/`basename $$f .c`_&/" < $$f > build/$$f; done
 	@echo '#include <libgen.h>'  > build/$@.c
 	@echo '#include <stdlib.h>' >> build/$@.c
 	@echo '#include <string.h>' >> build/$@.c
 	@echo '#include "util.h"'   >> build/$@.c
-	@for f in $(SRC); do echo "int `basename $$f .c`_main(int, char **);" >> build/sbase-box.c; done
-	@echo 'int main(int argc, char *argv[]) { char *s = basename(argv[0]); if(0);' >> build/sbase-box.c
-	@for f in $(SRC); do echo "else if(!strcmp(s, \"`basename $$f .c`\")) `basename $$f .c`_main(argc, argv);" >> build/sbase-box.c; done
-	@printf 'else eprintf("%%s: unknown program\\n", s); return EXIT_SUCCESS; }\n' >> build/sbase-box.c
+	@for f in $(SRC); do echo "int `basename $$f .c`_main(int, char **);" >> build/$@.c; done
+	@echo 'int main(int argc, char *argv[]) { char *s = basename(argv[0]); if(0) ;' >> build/$@.c
+	@for f in $(SRC); do echo "else if(!strcmp(s, \"`basename $$f .c`\")) `basename $$f .c`_main(argc, argv);" >> build/$@.c; done
+	@printf 'else eprintf("%%s: unknown program\\n", s); return EXIT_SUCCESS; }\n' >> build/$@.c
 	@echo LD $@
-	@$(LD) -o $@ build/*.c build/util/*.c $(CFLAGS) $(LDFLAGS)
+	@$(LD) -o $@ build/*.c util.a $(CFLAGS) $(LDFLAGS)
 	@rm -r build
 
 clean:
