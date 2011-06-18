@@ -43,17 +43,20 @@ touch(const char *str)
 	struct stat st;
 	struct utimbuf ut;
 
-	if(stat(str, &st) == -1) {
-		if(errno != ENOENT)
-			eprintf("stat %s:", str);
-		if(cflag)
-			return;
-		if((fd = creat(str, O_EXCL|S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH)) < 0)
-			eprintf("creat %s:", str);
-		close(fd);
+	if(stat(str, &st) == 0) {
+		ut.actime = st.st_atime;
+		ut.modtime = t;
+		if(utime(str, &ut) == -1)
+			eprintf("utime %s:", str);
+		return;
 	}
-	ut.actime = st.st_atime;
-	ut.modtime = t;
-	if(utime(str, &ut) == -1)
-		eprintf("utime %s:", str);
+	else if(errno != ENOENT)
+		eprintf("stat %s:", str);
+	else if(cflag)
+		return;
+	if((fd = open(str, O_CREAT|O_EXCL,
+	              S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH)) == -1)
+		eprintf("open %s:", str);
+	close(fd);
+	touch(str);
 }
