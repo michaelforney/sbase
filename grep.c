@@ -5,6 +5,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "text.h"
+#include "util.h"
+
+enum { Match = 0, NoMatch = 1, Error = 2 };
 
 static void grep(FILE *, const char *, regex_t *);
 
@@ -39,27 +42,22 @@ main(int argc, char *argv[])
 			vflag = true;
 			break;
 		default:
-			exit(2);
+			exit(Error);
 		}
-	if(optind == argc) {
-		fprintf(stderr, "usage: %s [-Ecilnqv] pattern [files...]\n", argv[0]);
-		exit(2);
-	}
+	if(optind == argc)
+		enprintf(Error, "usage: %s [-Ecilnqv] pattern [files...]\n", argv[0]);
 	regcomp(&preg, argv[optind++], flags);
 
 	many = (argc > optind+1);
 	if(optind == argc)
 		grep(stdin, "<stdin>", &preg);
 	else for(; optind < argc; optind++) {
-		if(!(fp = fopen(argv[optind], "r"))) {
-			fprintf(stderr, "fopen %s: ", argv[optind]);
-			perror(NULL);
-			exit(2);
-		}
+		if(!(fp = fopen(argv[optind], "r")))
+			enprintf(Error, "fopen %s:", argv[optind]);
 		grep(fp, argv[optind], &preg);
 		fclose(fp);
 	}
-	return match ? 0 : 1;
+	return match ? Match : NoMatch;
 }
 
 void
@@ -80,7 +78,7 @@ grep(FILE *fp, const char *str, regex_t *preg)
 			puts(str);
 			goto end;
 		case 'q':
-			exit(0);
+			exit(Match);
 		default:
 			if(many)
 				printf("%s:", str);
@@ -94,10 +92,7 @@ grep(FILE *fp, const char *str, regex_t *preg)
 	if(mode == 'c')
 		printf("%ld\n", c);
 end:
-	if(ferror(fp)) {
-		fprintf(stderr, "%s: read error: ", str);
-		perror(NULL);
-		exit(2);
-	}
+	if(ferror(fp))
+		enprintf(Error, "%s: read error:", str);
 	free(buf);
 }
