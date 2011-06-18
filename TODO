@@ -12,8 +12,6 @@ id [-gnru] [user]
 mv file [name]
 mv [file...] directory
 
-nohup command [argument...]
-
 paste [-s] [-d list] [file...]
 
 printf format [argument...]
