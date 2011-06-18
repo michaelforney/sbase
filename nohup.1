@@ -1,0 +1,15 @@
+.TH NOHUP 1 sbase\-VERSION
+.SH NAME
+nohup \- run a command immune to hangups
+.SH SYNOPSIS
+.B nohup
+.I command
+.RI [ argument ...]
+.SH DESCRIPTION
+.B nohup
+runs the given command with the SIGHUP signal set to be ignored.  If stdout is a
+tty, it is appended to
+.I nohup.out
+in the current working directory; if stderr is a tty, it is redirected to stdout.
+.SH SEE ALSO
+.IR signal (7)

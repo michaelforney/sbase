@@ -2,14 +2,16 @@ include config.mk
 
 HDR = text.h util.h
 LIB = \
-	util/afgets.o  \
-	util/agetcwd.o \
-	util/concat.o  \
-	util/enmasse.o \
-	util/eprintf.o \
-	util/estrtol.o \
-	util/putword.o \
-	util/recurse.o \
+	util/afgets.o    \
+	util/agetcwd.o   \
+	util/concat.o    \
+	util/enmasse.o   \
+	util/eprintf.o   \
+	util/enprintf.o  \
+	util/estrtol.o   \
+	util/putword.o   \
+	util/recurse.o   \
+	util/venprintf.o
 
 SRC = \
 	basename.c \
@@ -31,6 +33,7 @@ SRC = \
 	mkdir.c    \
 	mkfifo.c   \
 	nl.c       \
+	nohup.c    \
 	pwd.c      \
 	rm.c       \
 	sleep.c    \
