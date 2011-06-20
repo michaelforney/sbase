@@ -67,6 +67,7 @@ cat.o grep.o tail.o: text.h
 util.a: $(LIB)
 	@echo AR $@
 	@$(AR) -r -c $@ $(LIB)
+	@ranlib $@
 
 install: all
 	@echo installing executables to $(DESTDIR)$(PREFIX)/bin
