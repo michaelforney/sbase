@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <strings.h>
 #include <unistd.h>
+#include <sys/wait.h>
 #include "util.h"
 
 #define LEN(x) (sizeof (x) / sizeof *(x))
@@ -54,6 +55,8 @@ main(int argc, char *argv[])
 			        "       %s -l [signum]\n", argv[0], argv[0]);
 
 		sig = (optind == argc) ? 0 : estrtol(argv[optind], 0);
+		if(sig > 128)
+			sig = WTERMSIG(sig);
 		for(i = 0; i < LEN(sigs); i++)
 			if(sigs[i].sig == sig || sig == 0)
 				putword(sigs[i].name);
