@@ -7,7 +7,7 @@
 #include "text.h"
 #include "util.h"
 
-static void nl(FILE *, const char *);
+static void nl(FILE *);
 
 static char mode = 't';
 static const char *sep = "\t";
@@ -39,18 +39,18 @@ main(int argc, char *argv[])
 			exit(EXIT_FAILURE);
 		}
 	if(optind == argc)
-		nl(stdin, "<stdin>");
+		nl(stdin);
 	else for(; optind < argc; optind++) {
 		if(!(fp = fopen(argv[optind], "r")))
 			eprintf("fopen %s:", argv[optind]);
-		nl(fp, argv[optind]);
+		nl(fp);
 		fclose(fp);
 	}
 	return EXIT_SUCCESS;
 }
 
 void
-nl(FILE *fp, const char *str)
+nl(FILE *fp)
 {
 	char *buf = NULL;
 	long n = 0;

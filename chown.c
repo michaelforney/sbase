@@ -58,7 +58,8 @@ main(int argc, char *argv[])
 void
 chownpwgr(const char *path)
 {
-	if(chown(path, pw ? pw->pw_uid : -1, gr ? gr->gr_gid : -1) == -1)
+	if(chown(path, pw ? pw->pw_uid : (uid_t)-1,
+	               gr ? gr->gr_gid : (gid_t)-1) == -1)
 		eprintf("chown %s:", path);
 	if(rflag)
 		recurse(path, chownpwgr);

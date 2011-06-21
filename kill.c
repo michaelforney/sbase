@@ -26,8 +26,9 @@ main(int argc, char *argv[])
 {
 	bool lflag = false;
 	char c, *end;
-	int i, sig = SIGTERM;
+	int sig = SIGTERM;
 	pid_t pid;
+	size_t i;
 
 	while((c = getopt(argc, argv, "ls:")) != -1)
 		switch(c) {

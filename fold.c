@@ -7,7 +7,7 @@
 #include "text.h"
 #include "util.h"
 
-static void fold(FILE *, const char *, long);
+static void fold(FILE *, long);
 static void foldline(const char *, long);
 
 static bool bflag = false;
@@ -35,18 +35,18 @@ main(int argc, char *argv[])
 			exit(EXIT_FAILURE);
 		}
 	if(optind == argc)
-		fold(stdin, "<stdin>", width);
+		fold(stdin, width);
 	else for(; optind < argc; optind++) {
 		if(!(fp = fopen(argv[optind], "r")))
 			eprintf("fopen %s:", argv[optind]);
-		fold(fp, argv[optind], width);
+		fold(fp, width);
 		fclose(fp);
 	}
 	return EXIT_SUCCESS;
 }
 
 void
-fold(FILE *fp, const char *str, long width)
+fold(FILE *fp, long width)
 {
 	char *buf = NULL;
 	size_t size = 0;
@@ -60,7 +60,8 @@ void
 foldline(const char *str, long width)
 {
 	bool space;
-	long col, j, i = 0, n = 0;
+	long col, j;
+	size_t i = 0, n = 0;
 
 	do {
 		space = false;

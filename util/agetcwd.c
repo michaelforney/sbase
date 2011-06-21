@@ -8,9 +8,9 @@ char *
 agetcwd(void)
 {
 	char *buf;
-	size_t size;
+	long size;
 
-	if((size = pathconf(".", _PC_PATH_MAX)) < 0)
+	if((size = pathconf(".", _PC_PATH_MAX)) == -1)
 		size = BUFSIZ;
 	if(!(buf = malloc(size)))
 		eprintf("malloc:");

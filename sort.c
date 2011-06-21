@@ -8,7 +8,7 @@
 #include "util.h"
 
 static int linecmp(const char **, const char **);
-static void getlines(FILE *, const char *);
+static void getlines(FILE *);
 
 static bool rflag = false;
 static bool uflag = false;
@@ -34,11 +34,11 @@ main(int argc, char *argv[])
 			exit(EXIT_FAILURE);
 		}
 	if(optind == argc)
-		getlines(stdin, "<stdin>");
+		getlines(stdin);
 	else for(; optind < argc; optind++) {
 		if(!(fp = fopen(argv[optind], "r")))
 			eprintf("fopen %s:", argv[optind]);
-		getlines(fp, argv[optind]);
+		getlines(fp);
 		fclose(fp);
 	}
 	qsort(lines, nlines, sizeof *lines, (int (*)(const void *, const void *))linecmp);
@@ -50,7 +50,7 @@ main(int argc, char *argv[])
 }
 
 void
-getlines(FILE *fp, const char *str)
+getlines(FILE *fp)
 {
 	char *line = NULL;
 	size_t size = 0;

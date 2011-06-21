@@ -25,7 +25,7 @@ enmasse(int argc, char **argv, int (*fn)(const char *, const char *))
 	else
 		dir = argv[--argc];
 
-	if((size = pathconf(dir, _PC_PATH_MAX)) < 0)
+	if((size = pathconf(dir, _PC_PATH_MAX)) == -1)
 		size = BUFSIZ;
 	if(!(buf = malloc(size)))
 		eprintf("malloc:");
