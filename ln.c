@@ -34,7 +34,14 @@ main(int argc, char *argv[])
 int
 ln(const char *s1, const char *s2)
 {
-	if(fflag && remove(s2) == -1 && errno != ENOENT)
-		eprintf("remove %s:", s2);
-	return (sflag ? symlink : link)(s1, s2);
+	int (*flink)(const char *, const char *) = sflag ? symlink : link;
+
+	if(flink(s1, s2) == 0)
+		return 0;
+	if(fflag && errno == EEXIST) {
+		if(remove(s2) == -1)
+			eprintf("remove %s:", s2);
+		return flink(s1, s2);
+	}
+	return -1;
 }
