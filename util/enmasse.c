@@ -7,6 +7,8 @@
 #include <sys/stat.h>
 #include "../util.h"
 
+static void fnck(const char *, const char *, int (*)(const char *, const char *));
+
 void
 enmasse(int argc, char **argv, int (*fn)(const char *, const char *))
 {
@@ -16,8 +18,7 @@ enmasse(int argc, char **argv, int (*fn)(const char *, const char *))
 	struct stat st;
 
 	if(argc == 2 && !(stat(argv[1], &st) == 0 && S_ISDIR(st.st_mode))) {
-		if(fn(argv[0], argv[1]) == -1)
-			eprintf("%s:", argv[1]);
+		fnck(argv[0], argv[1], fn);
 		return;
 	}
 	else if(argc == 1)
@@ -31,8 +32,19 @@ enmasse(int argc, char **argv, int (*fn)(const char *, const char *))
 		eprintf("malloc:");
 	for(i = 0; i < argc; i++) {
 		snprintf(buf, size, "%s/%s", dir, basename(argv[i]));
-		if(fn(argv[i], buf) == -1)
-			eprintf("%s:", buf);
+		fnck(argv[i], buf, fn);
 	}
 	free(buf);
+}
+
+void
+fnck(const char *a, const char *b, int (*fn)(const char *, const char *))
+{
+	struct stat sta, stb;
+
+	if(stat(a, &sta) == 0 && stat(b, &stb) == 0
+	&& sta.st_dev == stb.st_dev && sta.st_ino == stb.st_ino)
+		eprintf("%s: same file as: %s\n", b, a);
+	if(fn(a, b) == -1)
+		eprintf("%s:", b);
 }
