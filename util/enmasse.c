@@ -21,17 +21,16 @@ enmasse(int argc, char **argv, int (*fn)(const char *, const char *))
 		fnck(argv[0], argv[1], fn);
 		return;
 	}
-	else if(argc == 1)
-		dir = ".";
 	else
-		dir = argv[--argc];
+		dir = (argc == 1) ? "." : argv[--argc];
 
 	if((size = pathconf(dir, _PC_PATH_MAX)) == -1)
 		size = BUFSIZ;
 	if(!(buf = malloc(size)))
 		eprintf("malloc:");
 	for(i = 0; i < argc; i++) {
-		snprintf(buf, size, "%s/%s", dir, basename(argv[i]));
+		if(snprintf(buf, size, "%s/%s", dir, basename(argv[i])) > size)
+			eprintf("%s/%s: filename too long\n", dir, basename(argv[i]));
 		fnck(argv[i], buf, fn);
 	}
 	free(buf);
