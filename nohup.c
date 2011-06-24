@@ -13,16 +13,14 @@ int
 main(int argc, char *argv[])
 {
 	int fd;
-	struct sigaction sa;
 
 	if(getopt(argc, argv, "") != -1)
 		exit(Error);
 	if(optind == argc)
 		enprintf(Error, "usage: %s command [argument...]\n", argv[0]);
 
-	sa.sa_handler = SIG_IGN;
-	if(sigaction(SIGHUP, &sa, NULL) == -1)
-		enprintf(Error, "sigaction HUP:");
+	if(signal(SIGHUP, SIG_IGN) == SIG_ERR)
+		enprintf(Error, "signal HUP:");
 	if(isatty(STDOUT_FILENO)) {
 		if((fd = open("nohup.out", O_APPEND|O_CREAT, S_IRUSR|S_IWUSR)) == -1)
 			enprintf(Error, "open nohup.out:");
