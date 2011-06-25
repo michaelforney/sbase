@@ -4,6 +4,7 @@ HDR = text.h util.h
 LIB = \
 	util/afgets.o    \
 	util/agetcwd.o   \
+	util/apathmax.o  \
 	util/concat.o    \
 	util/enmasse.o   \
 	util/eprintf.o   \

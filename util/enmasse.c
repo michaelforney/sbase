@@ -24,10 +24,7 @@ enmasse(int argc, char **argv, int (*fn)(const char *, const char *))
 	else
 		dir = (argc == 1) ? "." : argv[--argc];
 
-	if((size = pathconf(dir, _PC_PATH_MAX)) == -1)
-		size = BUFSIZ;
-	if(!(buf = malloc(size)))
-		eprintf("malloc:");
+	apathmax(&buf, &size);
 	for(i = 0; i < argc; i++) {
 		if(snprintf(buf, size, "%s/%s", dir, basename(argv[i])) > size)
 			eprintf("%s/%s: filename too long\n", dir, basename(argv[i]));

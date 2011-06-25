@@ -4,6 +4,7 @@
 
 char *agetcwd(void);
 void enmasse(int, char **, int (*)(const char *, const char *));
+void apathmax(char **, long *);
 void eprintf(const char *, ...);
 void enprintf(int, const char *, ...);
 long estrtol(const char *, int);
