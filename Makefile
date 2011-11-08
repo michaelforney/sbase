@@ -41,6 +41,7 @@ SRC = \
 	sort.c     \
 	tail.c     \
 	tee.c      \
+	test.c     \
 	touch.c    \
 	true.c     \
 	tty.c      \
