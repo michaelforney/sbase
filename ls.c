@@ -62,7 +62,7 @@ main(int argc, char *argv[])
 	many = (argc > optind+1);
 
 	if((n = argc - optind) > 0) {
-		if(!(ents = malloc((argc-1) * sizeof *ents)))
+		if(!(ents = malloc(n * sizeof *ents)))
 			eprintf("malloc:");
 		for(i = 0; i < n; i++)
 			mkent(&ents[i], argv[optind+i]);
