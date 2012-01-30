@@ -1,0 +1,22 @@
+.TH CP 1 sbase\-VERSION
+.SH NAME
+cp \- copy files and directories
+.SH SYNOPSIS
+.B cp
+.RB [ \-r ]
+.I file
+.RI [ name ]
+.P
+.B cp
+.RB [ \-r ]
+.RI [ file ...]
+.RI [ directory ]
+.SH DESCRIPTION
+.B cp
+copies a given file, naming it the given name.  If multiple files are listed
+they will be copied into the given directory.
+.SH OPTIONS
+.TP
+.B \-r
+copies directories recursively.  If this flag is not specified, directories are
+not copied.

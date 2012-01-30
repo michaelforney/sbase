@@ -1,17 +1,20 @@
 include config.mk
 
-HDR = text.h util.h
+HDR = fs.h text.h util.h
 LIB = \
 	util/afgets.o    \
 	util/agetcwd.o   \
 	util/apathmax.o  \
 	util/concat.o    \
+	util/cp.o        \
 	util/enmasse.o   \
 	util/eprintf.o   \
 	util/enprintf.o  \
 	util/estrtol.o   \
+	util/fnck.o      \
 	util/putword.o   \
 	util/recurse.o   \
+	util/rm.o        \
 	util/venprintf.o
 
 SRC = \
@@ -21,6 +24,7 @@ SRC = \
 	chown.c    \
 	cksum.c    \
 	cmp.c      \
+	cp.c       \
 	date.c     \
 	dirname.c  \
 	echo.c     \
@@ -33,6 +37,7 @@ SRC = \
 	ls.c       \
 	mkdir.c    \
 	mkfifo.c   \
+	mv.c       \
 	nl.c       \
 	nohup.c    \
 	pwd.c      \
@@ -56,7 +61,8 @@ all: $(BIN)
 
 $(OBJ): util.h config.mk
 $(BIN): util.a
-cat.o grep.o tail.o: text.h
+cat.o cp.o mv.o grep.o tail.o: text.h
+cp.o mv.o rm.o: fs.h
 
 .o:
 	@echo LD $@

@@ -1,16 +1,10 @@
 comm [-123] file1 file2
 
-cp [-r] file [name]
-cp [-r] [file...] [directory]
-
 cut [-bcfs] [-d delim] list [file...]
 
 diff [-ru] file1 file2
 
 id [-gnru] [user]
-
-mv file [name]
-mv [file...] directory
 
 paste [-s] [-d list] [file...]
 

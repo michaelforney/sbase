@@ -3,39 +3,33 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/stat.h>
+#include "fs.h"
 #include "util.h"
-
-static void rm(const char *);
-
-static bool fflag = false;
-static bool rflag = false;
 
 int
 main(int argc, char *argv[])
 {
 	char c;
+	struct stat st;
 
 	while((c = getopt(argc, argv, "fr")) != -1)
 		switch(c) {
 		case 'f':
-			fflag = true;
+			rm_fflag = true;
 			break;
 		case 'r':
-			rflag = true;
+			rm_rflag = true;
 			break;
 		default:
 			exit(EXIT_FAILURE);
 		}
-	for(; optind < argc; optind++)
-		rm(argv[optind]);
+	for(; optind < argc; optind++) {
+		if(!rm_rflag && stat(argv[optind], &st) == 0 &&
+				S_ISDIR(st.st_mode))
+			fprintf(stderr, "%s: is a directory\n", argv[optind]);
+		else
+			rm(argv[optind]);
+	}
 	return EXIT_SUCCESS;
-}
-
-void
-rm(const char *path)
-{
-	if(rflag)
-		recurse(path, rm);
-	if(remove(path) == -1 && !fflag)
-		eprintf("remove %s:", path);
 }
