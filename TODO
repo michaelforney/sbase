@@ -1,15 +1,63 @@
+cal [-1] [-3] [-y] [year]
+
+chgrp [-R] groupname file...
+
+chvt N
+
 comm [-123] file1 file2
 
 cut [-bcfs] [-d delim] list [file...]
 
+df [-shia] [path]
+
 diff [-ru] file1 file2
+
+du [-hdi] [path]
+
+env [-u] [name=value...] [command]
+
+expand [-i] [-t N] [file...]
+
+expr [expression]
 
 id [-gnru] [user]
 
+id [-ruGgn] username
+
+md5sum [-c] [file...]
+
+nice [-n N] [command]
+
 paste [-s] [-d list] [file...]
 
+printenv [variable...]
+
+printf [format] [data...]
+
 printf format [argument...]
+
+readlink [-fem] file
+
+rmdir [directory...]
+
+seq [-s string] [N [N]] N
+
+sha1sum [-c] [file...]
+
+split [-a N] [-b N] [-l N] [input [prefix]]
+
+sync
 
 test [expression...]
 
 tr string1 [string2]
+
+unexpand [-a] [-t N] [file...]
+
+uniq [-diuc] [input [output]]
+
+unlink file
+
+who 
+
+yes [string]
