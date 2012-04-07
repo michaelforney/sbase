@@ -16,7 +16,7 @@ static const char *progname;
 int
 main(int argc, char *argv[])
 {
-	bool ret, not = false;
+	bool ret = false, not = false;
 
 	progname = argv[0];
 
