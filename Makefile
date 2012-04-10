@@ -51,6 +51,7 @@ SRC = \
 	true.c     \
 	tty.c      \
 	uname.c    \
+	seq.c      \
 	wc.c
 
 OBJ = $(SRC:.c=.o) $(LIB)
