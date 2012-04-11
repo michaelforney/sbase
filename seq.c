@@ -117,7 +117,7 @@ main(int argc, char *argv[])
       ends = argv[optind++];
       break;
     default:
-      eprintf("usage: %s [-f fmt] [-s separator] [-w] [start [step]]"
+      eprintf("usage: %s [-w] [-f fmt] [-s separator] [start [step]]"
 		     " end\n", basename(argv[0]));
   }
 
