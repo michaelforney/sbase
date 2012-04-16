@@ -5,163 +5,182 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <libgen.h>
+#include <regex.h>
 
 #include "util.h"
 
-char afmt[4096];
+#define MAX(a, b) (((a) > (b))? (a):(b))
 
-char *
-getalignedwidthfmt(char *fmt, char *starts, char *steps, char *ends)
+int
+validfloat(char *fmt)
 {
-  char starttmp[4096], steptmp[4096], endtmp[4096];
-  char *startdelim, *stepdelim, *enddelim;
-  int startl, startr, stepr, endl, endr;
-  int maxl, maxr;
+	char *end;
 
-  /*
-   * 1.) Get a temp buffer we can work in.
-   * 2.) Calculate the *r(ight) and *l(eft) size.
-   */
-  memmove(starttmp, starts, strlen(starts)+1);
-  startdelim = strchr(starttmp, '.');
-  if (startdelim != NULL) {
-    startdelim[0] = '\0';
-    startr = strlen(startdelim+1);
-  } else {
-    startr = 0;
-  }
-  startl = strlen(starttmp);
-  if (starttmp[0] == '+')
-    startl--;
+	fmt += strspn(fmt, " ");
+	strtod(fmt, &end);
+	if (fmt == end || end != fmt + strlen(fmt))
+		return 0;
 
-  memmove(endtmp, ends, strlen(ends)+1);
-  enddelim = strchr(endtmp, '.');
-  if (enddelim != NULL) {
-    enddelim[0] = '\0';
-    endr = strlen(enddelim+1);
-  } else {
-    endr = 0;
-  }
-  endl = strlen(endtmp);
-  if (endtmp[0] == '+')
-    endl--;
+	return 1;
+}
 
-  /*
-   * We do not care for the left length of the step, because it
-   * will never be displayed.
-   */
-  memmove(steptmp, steps, strlen(steps)+1);
-  stepdelim = strchr(steptmp, '.');
-  if (stepdelim != NULL) {
-    stepdelim[0] = '\0';
-    stepr = strlen(stepdelim+1);
-  } else {
-    stepr = 0;
-  }
+int
+digitsleft(char *d)
+{
+	char *exp;
+	int shift;
 
-  maxl = (startl > endl)? startl : endl;
-  maxr = (startl > endr)? startr : endr;
-  if (stepr > maxr)
-    maxr = stepr;
+	if (d[0] == '-' || d[0] == '+')
+		d++;
+	exp = strpbrk(d, "eE");
+	shift = exp? atoi(exp+1) : 0;
 
-  if (maxl <= 1) {
-    snprintf(afmt, sizeof(afmt), "%%.%df", maxr);
-  } else if (maxr == 0) {
-    snprintf(afmt, sizeof(afmt), "%%0%d.f", maxl);
-  } else {
-    snprintf(afmt, sizeof(afmt), "%%0%d.%df", maxl+maxr+1, maxr);
-  }
+	return MAX(0, strspn(d, "0123456789")+shift);
+}
 
-  return afmt;
+int
+digitsright(char *d)
+{
+	char *exp;
+	int shift, after;
+
+	if (d[0] == '-' || d[0] == '+')
+		d++;
+	exp = strpbrk(d, "eE");
+	shift = exp ? atoi(exp+1) : 0;
+	after = (d = strchr(d, '.'))? strspn(d+1, "0123456789") : 0;
+
+	return MAX(0, after-shift);
+}
+
+int
+validfmt(char *fmt)
+{
+	regex_t reg;
+	int ret;
+
+	regcomp(&reg, "\\([^%]|%%\\)*%[0-9]*\\.[0-9]*[fFgG]"
+			"\\([^%]|%%\\)*", REG_NOSUB);
+	ret = regexec(&reg, fmt, 0, NULL, 0);
+	regfree(&reg);
+
+	return (ret == 0);
 }
 
 int
 main(int argc, char *argv[])
 {
-  char c, *fmt, *sep, *starts, *steps, *ends;
-  bool wflag = false;
-  double start, step, end, out;
+	char c, *fmt, ftmp[4096], *sep, *starts, *steps, *ends;
+	bool wflag, fflag;
+	double start, step, end, out;
+	int left, right;
 
-  sep = "\n";
-  fmt = "%G";
+	sep = "\n";
+	fmt = ftmp;
 
-  starts = "1";
-  steps = "1";
-  ends = "1";
+	wflag = false;
+	fflag = false;
 
-  while((c = getopt(argc, argv, "f:s:w")) != -1) {
-    switch(c) {
-      case 'f':
-        fmt = optarg;
-        break;
-      case 's':
-        sep = optarg;
-        break;
-      case 'w':
-        wflag = true;
-        break;
-    }
-  }
+	starts = "1";
+	steps = "1";
+	ends = "1";
 
-  switch(argc-optind) {
-    case 3:
-      starts = argv[optind++];
-      steps = argv[optind++];
-      ends = argv[optind++];
-      break;
-    case 2:
-      starts = argv[optind++];
-      ends = argv[optind++];
-      break;
-    case 1:
-      ends = argv[optind++];
-      break;
-    default:
-      eprintf("usage: %s [-w] [-f fmt] [-s separator] [start [step]]"
-		     " end\n", basename(argv[0]));
-  }
+	while((c = getopt(argc, argv, "f:s:w")) != -1) {
+		switch(c) {
+		case 'f':
+			if (!validfmt(optarg))
+				eprintf("invalid format.\n");
+			fmt = optarg;
+			fflag = true;
+			break;
+		case 's':
+			sep = optarg;
+			break;
+		case 'w':
+			wflag = true;
+			break;
+		}
+	}
 
-  start = atof(starts);
-  step = atof(steps);
-  end = atof(ends);
+	if (wflag && fflag)
+		eprintf("-f and -w cannot be combined.\n");
 
-  if (step == 0)
-    return EXIT_FAILURE;
+	switch(argc-optind) {
+	case 3:
+		starts = argv[optind++];
+		steps = argv[optind++];
+		ends = argv[optind++];
+		break;
+	case 2:
+		starts = argv[optind++];
+		ends = argv[optind++];
+		break;
+	case 1:
+		ends = argv[optind++];
+		break;
+	default:
+		eprintf("usage: %s [-w] [-f fmt] [-s separator] "
+				"[start [step]] end\n",
+				basename(argv[0]));
+	}
 
-  if (start > end) {
-    if (step > 0)
-      return EXIT_FAILURE;
-  } else if (start < end) {
-    if (step < 0)
-      return EXIT_FAILURE;
-  }
+	if (!validfloat(starts))
+		eprintf("start is not a valid float.\n");
+	if (!validfloat(steps))
+		eprintf("step is not a valid float.\n");
+	if (!validfloat(ends))
+		eprintf("end is not a valid float.\n");
 
-  if (wflag)
-    fmt = getalignedwidthfmt(fmt, starts, steps, ends);
-  printf("%s\n", fmt);
+	start = atof(starts);
+	step = atof(steps);
+	end = atof(ends);
 
-  for (out = start;;) {
-    printf(fmt, out);
+	if (step == 0)
+		return EXIT_FAILURE;
 
-    out += step;
-    if (start > end) {
-      if (out >= end) {
-        printf("%s", sep);
-      } else {
-        break;
-      }
-    } else if (start < end) {
-      if (out <= end) {
-        printf("%s", sep);
-      } else {
-        break;
-      }
-    } else {
-      break;
-    }
-  }
-  printf("\n");
+	if (start > end) {
+		if (step > 0)
+			return EXIT_FAILURE;
+	} else if (start < end) {
+		if (step < 0)
+			return EXIT_FAILURE;
+	}
 
-  return EXIT_SUCCESS;
+	right = MAX(digitsright(starts),
+			MAX(digitsright(ends),
+				digitsright(steps)));
+	if (wflag) {
+		left = MAX(digitsleft(starts), digitsleft(ends));
+
+		snprintf(ftmp, sizeof(ftmp), "%%0%d.%df",
+				right+left+(right != 0),
+				right);
+	} else if (fmt == ftmp) {
+		snprintf(ftmp, sizeof(ftmp), "%%.%df", right);
+	}
+
+	for (out = start;;) {
+		printf(fmt, out);
+
+		out += step;
+		if (start > end) {
+			if (out >= end) {
+				printf("%s", sep);
+			} else {
+				break;
+			}
+		} else if (start < end) {
+			if (out <= end) {
+				printf("%s", sep);
+			} else {
+				break;
+			}
+		} else {
+			break;
+		}
+	}
+	printf("\n");
+
+	return EXIT_SUCCESS;
 }
 
