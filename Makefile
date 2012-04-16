@@ -52,7 +52,6 @@ SRC = \
 	tty.c      \
 	uname.c    \
 	seq.c      \
-	seq-test.c \
 	wc.c
 
 OBJ = $(SRC:.c=.o) $(LIB)
