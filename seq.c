@@ -5,7 +5,6 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <libgen.h>
-#include <regex.h>
 
 #include "util.h"
 
@@ -30,12 +29,12 @@ digitsleft(char *d)
 	char *exp;
 	int shift;
 
-	if (d[0] == '-' || d[0] == '+')
+	if (d[0] == '+')
 		d++;
 	exp = strpbrk(d, "eE");
 	shift = exp? atoi(exp+1) : 0;
 
-	return MAX(0, strspn(d, "0123456789")+shift);
+	return MAX(0, strspn(d, "-0123456789")+shift);
 }
 
 int
@@ -44,8 +43,6 @@ digitsright(char *d)
 	char *exp;
 	int shift, after;
 
-	if (d[0] == '-' || d[0] == '+')
-		d++;
 	exp = strpbrk(d, "eE");
 	shift = exp ? atoi(exp+1) : 0;
 	after = (d = strchr(d, '.'))? strspn(d+1, "0123456789") : 0;
@@ -56,15 +53,36 @@ digitsright(char *d)
 int
 validfmt(char *fmt)
 {
-	regex_t reg;
-	int ret;
+	int occur;
 
-	regcomp(&reg, "\\([^%]|%%\\)*%[0-9]*\\.[0-9]*[fFgG]"
-			"\\([^%]|%%\\)*", REG_NOSUB);
-	ret = regexec(&reg, fmt, 0, NULL, 0);
-	regfree(&reg);
+	occur = 0;
 
-	return (ret == 0);
+NonFormat:
+	while(*fmt) {
+		if (*fmt++ == '%')
+			goto Format;
+	}
+	return (occur == 1);
+Format:
+	if (*fmt == '%') {
+		fmt++;
+		goto NonFormat;
+	}
+	fmt += strspn(fmt, "-+#0 '");
+	fmt += strspn(fmt, "0123456789");
+	if (*fmt == '.') {
+		fmt ++;
+		fmt += strspn(fmt, "0123456789");
+	}
+	if (*fmt == 'L')
+		fmt++;
+	if (*fmt == '\0')
+		return 0;
+	if (strchr("fFgGeEaA", *fmt)) {
+		occur++;
+		goto NonFormat;
+	}
+	return 0;
 }
 
 int
@@ -72,7 +90,7 @@ main(int argc, char *argv[])
 {
 	char c, *fmt, ftmp[4096], *sep, *starts, *steps, *ends;
 	bool wflag, fflag;
-	double start, step, end, out;
+	double start, step, end, out, dir;
 	int left, right;
 
 	sep = "\n";
@@ -134,17 +152,12 @@ main(int argc, char *argv[])
 	start = atof(starts);
 	step = atof(steps);
 	end = atof(ends);
+	dir = (step > 0)? 1.0 : -1.0;
 
 	if (step == 0)
 		return EXIT_FAILURE;
-
-	if (start > end) {
-		if (step > 0)
-			return EXIT_FAILURE;
-	} else if (start < end) {
-		if (step < 0)
-			return EXIT_FAILURE;
-	}
+	if (start * dir > end * dir)
+		return EXIT_FAILURE;
 
 	right = MAX(digitsright(starts),
 			MAX(digitsright(ends),
@@ -163,18 +176,8 @@ main(int argc, char *argv[])
 		printf(fmt, out);
 
 		out += step;
-		if (start > end) {
-			if (out >= end) {
-				printf("%s", sep);
-			} else {
-				break;
-			}
-		} else if (start < end) {
-			if (out <= end) {
-				printf("%s", sep);
-			} else {
-				break;
-			}
+		if (out * dir <= end * dir) {
+			printf("%s", sep);
 		} else {
 			break;
 		}
