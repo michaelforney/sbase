@@ -3,10 +3,6 @@
 basename \- strip leading path component
 .SH SYNOPSIS
 .B basename
-.RB [ \-a ]
-.RB [ \-z ]
-.RB [ \-s
-.IR suffix ]
 .I string
 .RI [ suffix ]
 .SH DESCRIPTION
@@ -16,17 +12,6 @@ prints the
 with any leading path components, and the
 .IR suffix ,
 removed.
-.SH OPTIONS
-.TP
-.BI \-a
-multiple arguments will each be treated as strings
-.TP
-.BI \-s " suffix"
-specifies the suffix that should be removed
-.TP
-.BI \-z
-output will be separated with NUL
-.TP
 .SH SEE ALSO
 .IR dirname (1),
 .IR basename (3)

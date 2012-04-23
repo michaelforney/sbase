@@ -14,28 +14,16 @@ char *argv0;
 void
 usage(void)
 {
-	eprintf("usage: %s [-ahz] [-s suffix] name [suffix]\n",
-			basename(argv0));
+	eprintf("usage: %s name [suffix]\n", basename(argv0));
 }
 
 int
 main(int argc, char *argv[])
 {
-	char *s, *suffix = NULL;
-	size_t n, sn;
-	bool aflag = false, zflag = false;
+	char *s;
+	size_t n;
 
 	ARGBEGIN {
-	case 'a':
-		aflag = true;
-		break;
-	case 's':
-		suffix = EARGF(usage());
-		break;
-	case 'z':
-		zflag = true;
-		break;
-	case 'h':
 	default:
 		usage();
 	} ARGEND;
@@ -43,23 +31,13 @@ main(int argc, char *argv[])
 	if (argc < 1)
 		usage();
 
-	if (!aflag && argc == 2)
-		suffix = argv[1];
-	if (suffix)
-		sn = strlen(suffix);
-
-	for (; argc > 0; argc--, argv++) {
-		s = basename(argv[0]);
-		if (suffix) {
-			n = strlen(s) - sn;
-			if (!strcmp(&s[n], suffix))
-				s[n] = '\0';
-		}
-		printf("%s%c", s, (zflag)? '\0' : '\n');
-
-		if (!aflag)
-			break;
+	s = basename(argv[0]);
+	if (suffix) {
+		n = strlen(s) - strlen(suffix);
+		if (!strcmp(&s[n], suffix))
+			s[n] = '\0';
 	}
+	puts(s);
 
 	return EXIT_SUCCESS;
 }
