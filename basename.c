@@ -32,9 +32,9 @@ main(int argc, char *argv[])
 		usage();
 
 	s = basename(argv[0]);
-	if (suffix) {
-		n = strlen(s) - strlen(suffix);
-		if (!strcmp(&s[n], suffix))
+	if (argc == 2 && argv[1]) {
+		n = strlen(s) - strlen(argv[1]);
+		if (!strcmp(&s[n], argv[1]))
 			s[n] = '\0';
 	}
 	puts(s);
