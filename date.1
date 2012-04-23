@@ -5,6 +5,7 @@ date \- print date and time
 .B date
 .RB [ \-d
 .IR time ]
+.RB [ \-u ]
 .RI [+ format ]
 .SH DESCRIPTION
 .B date
@@ -18,5 +19,8 @@ is given it is used to format the date as per
 prints
 .I time
 instead of the system time, given as the number of seconds since the Unix epoch.
+.TP
+.B \-u
+prints UTC time instead of local time.
 .SH SEE ALSO
 .IR strftime (3)
