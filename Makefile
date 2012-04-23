@@ -52,7 +52,8 @@ SRC = \
 	tty.c      \
 	uname.c    \
 	seq.c      \
-	wc.c
+	wc.c       \
+	yes.c
 
 OBJ = $(SRC:.c=.o) $(LIB)
 BIN = $(SRC:.c=)
