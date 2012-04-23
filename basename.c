@@ -4,25 +4,63 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdbool.h>
+
+#include "arg.h"
 #include "util.h"
+
+char *argv0;
+
+void
+usage(void)
+{
+	eprintf("usage: %s [-ahz] [-s suffix] name [suffix]\n",
+			basename(argv0));
+}
 
 int
 main(int argc, char *argv[])
 {
-	char *s;
-	size_t n;
+	char *s, *suffix = NULL;
+	size_t n, sn;
+	bool aflag = false, zflag = false;
 
-	if(getopt(argc, argv, "") != -1)
-		exit(EXIT_FAILURE);
-	if(optind == argc)
-		eprintf("usage: %s string [suffix]\n", argv[0]);
+	ARGBEGIN {
+	case 'a':
+		aflag = true;
+		break;
+	case 's':
+		suffix = EARGF(usage());
+		break;
+	case 'z':
+		zflag = true;
+		break;
+	case 'h':
+	default:
+		usage();
+	} ARGEND;
 
-	s = basename(argv[optind++]);
-	if(optind < argc && strlen(s) > strlen(argv[optind])) {
-		n = strlen(s) - strlen(argv[optind]);
-		if(!strcmp(&s[n], argv[optind]))
-			s[n] = '\0';
+	if (argc < 1)
+		usage();
+
+	if (!aflag && argc == 2)
+		suffix = argv[1];
+	if (suffix)
+		sn = strlen(suffix);
+
+	for (; argc > 0; argc--, argv++) {
+		s = basename(argv[0]);
+		if (suffix) {
+			n = strlen(s) - sn;
+			if (!strcmp(&s[n], suffix))
+				s[n] = '\0';
+		}
+		printf("%s%c", s, (zflag)? '\0' : '\n');
+
+		if (!aflag)
+			break;
 	}
-	puts(s);
+
 	return EXIT_SUCCESS;
 }
+
