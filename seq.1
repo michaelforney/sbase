@@ -9,20 +9,22 @@ seq \- print a sequence of numbers
 .RB [ \-s
 .IR separator ]
 .RI [ start
-.RI [step] ]
+.RI [ step ]]
 .RI end
 .SH DESCRIPTION
 .B seq 
-will print numbers from 
-.I START
-to
-.I END,
-in steps of
-.I STEP. 
+will print a sequence of numbers from 
+.I start
+(default 1) to
+.IR end ,
+in
+.IR step
+intervals (default 1).
 .SH OPTIONS
 .TP
 .BI \-f " format"
-specifies the printf style for the output lines
+specifies the format used for output lines, as per
+.IR printf (3).
 .TP
 .BI \-s " separator"
 specifies the separator to print between output lines

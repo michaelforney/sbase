@@ -12,9 +12,9 @@ estrtol(const char *s, int base)
 	n = strtol(s, &end, base);
 	if(*end != '\0') {
 		if(base == 0)
-			eprintf("%s: not a number\n", s);
+			eprintf("%s: not an integer\n", s);
 		else
-			eprintf("%s: not a base %d number\n", s, base);
+			eprintf("%s: not a base %d integer\n", s, base);
 	}
 	return n;
 }
