@@ -51,7 +51,7 @@ main(int argc, char *argv[])
 		char buf[BUFSIZ];
 
 		regerror(n, &preg, buf, sizeof buf);
-		enprintf(Error, "%s\n", buf);
+		enprintf(Error, "invalid pattern: %s\n", buf);
 	}
 	many = (argc > optind+1);
 	if(optind == argc)
