@@ -20,7 +20,7 @@ int
 main(int argc, char *argv[])
 {
 	char c;
-	int flags = REG_NOSUB;
+	int n, flags = REG_NOSUB;
 	regex_t preg;
 	FILE *fp;
 
@@ -46,8 +46,13 @@ main(int argc, char *argv[])
 		}
 	if(optind == argc)
 		enprintf(Error, "usage: %s [-Ecilnqv] pattern [files...]\n", argv[0]);
-	regcomp(&preg, argv[optind++], flags);
 
+	if((n = regcomp(&preg, argv[optind++], flags)) != 0) {
+		char buf[BUFSIZ];
+
+		regerror(n, &preg, buf, sizeof buf);
+		enprintf(Error, "%s\n", buf);
+	}
 	many = (argc > optind+1);
 	if(optind == argc)
 		grep(stdin, "<stdin>", &preg);
