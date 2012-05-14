@@ -58,8 +58,8 @@ unary(const char *op, const char *arg)
 	if(op[0] != '-' || op[1] == '\0' || op[2] != '\0')
 		usage();
 	switch(op[1]) {
-	case 'b': case 'c': case 'd': case 'e': case 'f':
-	case 'g': case 'p': case 'S': case 's': case 'u':
+	case 'b': case 'c': case 'd': case 'f': case 'g':
+	case 'p': case 'S': case 's': case 'u':
 		if((r = stat(arg, &st)) == -1)
 			return false; /* -e */
 		switch(op[1]) {
@@ -69,8 +69,6 @@ unary(const char *op, const char *arg)
 			return S_ISCHR(st.st_mode);
 		case 'd':
 			return S_ISDIR(st.st_mode);
-		case 'e':
-			return true;
 		case 'f':
 			return S_ISREG(st.st_mode);
 		case 'g':
@@ -84,18 +82,20 @@ unary(const char *op, const char *arg)
 		case 'u':
 			return st.st_mode & S_ISUID;
 		}
-	case 'h': case 'L':
-		return lstat(arg, &st) == 0 && S_ISLNK(st.st_mode);
-	case 'n':
-		return arg[0] != '\0';
-	case 't':
-		return isatty((int)estrtol(arg, 0));
+	case 'e':
+		return access(arg, F_OK) == 0;
 	case 'r':
 		return access(arg, R_OK) == 0;
 	case 'w':
 		return access(arg, W_OK) == 0;
 	case 'x':
 		return access(arg, X_OK) == 0;
+	case 'h': case 'L':
+		return lstat(arg, &st) == 0 && S_ISLNK(st.st_mode);
+	case 't':
+		return isatty((int)estrtol(arg, 0));
+	case 'n':
+		return arg[0] != '\0';
 	case 'z':
 		return arg[0] == '\0';
 	default:
