@@ -1,10 +1,13 @@
 /* See LICENSE file for copyright and license details. */
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include "util.h"
 
-static void cksum(FILE *, const char *);
+#define USAGE() usage("[files...]")
+
+static void cksum(int, const char *);
 
 static const unsigned long crctab[] = {         0x00000000,
 0x04c11db7, 0x09823b6e, 0x0d4326d9, 0x130476dc, 0x17c56b6b,
@@ -63,35 +66,42 @@ static const unsigned long crctab[] = {         0x00000000,
 int
 main(int argc, char *argv[])
 {
-	FILE *fp;
+	int i, fd;
 
-	if(getopt(argc, argv, "") != -1)
-		exit(EXIT_FAILURE);
-	if(optind == argc)
-		cksum(stdin, NULL);
-	else for(; optind < argc; optind++) {
-		if(!(fp = fopen(argv[optind], "r")))
-			eprintf("fopen %s:", argv[optind]);
-		cksum(fp, argv[optind]);
-		fclose(fp);
+	ARGBEGIN {
+	default:
+		USAGE();
+	} ARGEND;
+
+	if(argc == 0)
+		cksum(STDIN_FILENO, NULL);
+	else for(i = 0; i < argc; i++) {
+		if((fd = open(argv[i], O_RDONLY)) == -1)
+			eprintf("open %s:", argv[i]);
+		cksum(fd, argv[i]);
+		close(fd);
 	}
 	return EXIT_SUCCESS;
 }
 
 void
-cksum(FILE *fp, const char *s)
+cksum(int fd, const char *s)
 {
-	int c;
-	unsigned long i, n, ck = 0;
+	unsigned char buf[BUFSIZ];
+	unsigned int ck = 0;
+	size_t len;
+	int i, n;
 
-	for(n = 0; (c = getc(fp)) != EOF; n++)
-		ck = (ck << 8) ^ crctab[(ck >> 24) ^ c];
-	for(i = n; i > 0; i >>= 8)
-		ck = (ck << 8) ^ crctab[(ck >> 24) ^ (i & 0377)];
-	if(ferror(fp))
+	for(len = 0; (n = read(fd, buf, sizeof buf)) > 0; len += n)
+		for(i = 0; i < n; i++)
+			ck = (ck << 8) ^ crctab[(ck >> 24) ^ buf[i]];
+	if(n < 0)
 		eprintf("%s: read error:", s ? s : "<stdin>");
 
-	printf("%lu %lu", ~ck, n);
+	for(i = len; i > 0; i >>= 8)
+		ck = (ck << 8) ^ crctab[(ck >> 24) ^ (i & 0xFF)];
+
+	printf("%u %lu", ~ck, len);
 	if(s != NULL)
 		printf(" %s", s);
 	putchar('\n');
