@@ -8,7 +8,7 @@
 #include <sys/wait.h>
 #include "util.h"
 
-#define LEN(x) (sizeof (x) / sizeof *(x))
+#define USAGE() killusage()
 
 struct {
 	const char *name;
@@ -20,6 +20,8 @@ struct {
 	SIG(TERM), SIG(TSTP), SIG(TTIN), SIG(TTOU), SIG(USR1), SIG(USR2), SIG(URG),
 #undef SIG
 };
+
+static void killusage(void);
 
 int
 main(int argc, char *argv[])
@@ -48,13 +50,12 @@ main(int argc, char *argv[])
 				eprintf("%s: unknown signal\n", optarg);
 			break;
 		default:
-			exit(EXIT_FAILURE);
+			USAGE();
 		}
-	if(lflag) {
-		if(optind < argc-1)
-			eprintf("usage: %s [-s signal] [pid...]\n"
-			        "       %s -l [signum]\n", argv[0], argv[0]);
+	if(optind < argc-1)
+		USAGE();
 
+	if(lflag) {
 		sig = (optind == argc) ? 0 : estrtol(argv[optind], 0);
 		if(sig > 128)
 			sig = WTERMSIG(sig);
@@ -69,4 +70,11 @@ main(int argc, char *argv[])
 			eprintf("kill %d:", pid);
 	}
 	return EXIT_SUCCESS;
+}
+
+void
+killusage(void)
+{
+	fprintf(stderr, "usage: %s [-s signal] [pid...]\n"
+	                "       %s -l [signum]\n", argv0, argv0);
 }

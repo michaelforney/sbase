@@ -9,13 +9,11 @@ LIB = \
 	util/cp.o        \
 	util/enmasse.o   \
 	util/eprintf.o   \
-	util/enprintf.o  \
 	util/estrtol.o   \
 	util/fnck.o      \
 	util/putword.o   \
 	util/recurse.o   \
-	util/rm.o        \
-	util/venprintf.o
+	util/rm.o
 
 SRC = \
 	basename.c \

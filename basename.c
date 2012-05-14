@@ -3,19 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <stdbool.h>
-
-#include "arg.h"
 #include "util.h"
 
-char *argv0;
-
-void
-usage(void)
-{
-	eprintf("usage: %s name [suffix]\n", basename(argv0));
-}
+#define USAGE()  usage("name [suffix]")
 
 int
 main(int argc, char *argv[])
@@ -25,20 +15,19 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	default:
-		usage();
+		USAGE();
 	} ARGEND;
 
-	if (argc < 1)
-		usage();
+	if(argc < 1)
+		USAGE();
 
 	s = basename(argv[0]);
-	if (argc == 2 && argv[1]) {
+	if(argc == 2 && argv[1]) {
 		n = strlen(s) - strlen(argv[1]);
-		if (!strcmp(&s[n], argv[1]))
+		if(!strcmp(&s[n], argv[1]))
 			s[n] = '\0';
 	}
 	puts(s);
 
 	return EXIT_SUCCESS;
 }
-

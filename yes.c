@@ -1,44 +1,30 @@
 /* See LICENSE file for copyright and license details. */
-#include <unistd.h>
-#include <libgen.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "arg.h"
 #include "util.h"
 
-char *argv0;
-
-void
-usage(void)
-{
-	eprintf("usage: %s [string ...]\n", basename(argv0));
-}
+#define USAGE()  usage("[string]")
 
 int
 main(int argc, char *argv[])
 {
-	int i;
+	char *s = "y";
 
 	ARGBEGIN {
 	default:
-		usage();
+		USAGE();
 	} ARGEND;
 
-	if (!argc) {
+	switch(argc) {
+	case 1:
+		s = argv[0];
+		/* fallthrough */
+	case 0:
 		for(;;)
-			puts("y");
+			puts(s);
+		break;
+	default:
+		USAGE();
 	}
-
-	for (;;) {
-		for (i = 0; i < argc; i++) {
-			fputs(argv[i], stdout);
-			if (argv[i+1] != NULL)
-				fputs(" ", stdout);
-		}
-		fputs("\n", stdout);
-	}
-
-	return EXIT_SUCCESS;
+	return EXIT_FAILURE; /* should not reach */
 }
-

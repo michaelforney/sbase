@@ -7,23 +7,23 @@
 #include <sys/stat.h>
 #include "util.h"
 
-static bool unary(const char *, const char *);
-static void usage(void);
-static bool binary(const char *, const char *, const char *);
+#define USAGE() testusage()
 
-static const char *progname;
+static bool unary(const char *, const char *);
+static bool binary(const char *, const char *, const char *);
+static void testusage(void);
 
 int
 main(int argc, char *argv[])
 {
 	bool ret = false, not = false;
 
-	progname = argv[0];
+	argv0 = argv[0];
 
 	/* [ ... ] alias */
 	if(!strcmp(argv[0], "[")) {
 		if(strcmp(argv[argc-1], "]") != 0)
-			usage();
+			USAGE();
 		argc--;
 	}
 	if(argc > 1 && !strcmp(argv[1], "!")) {
@@ -42,7 +42,7 @@ main(int argc, char *argv[])
 		ret = binary(argv[1], argv[2], argv[3]);
 		break;
 	default:
-		usage();
+		USAGE();
 	}
 	if(not)
 		ret = !ret;
@@ -56,7 +56,7 @@ unary(const char *op, const char *arg)
 	int r;
 
 	if(op[0] != '-' || op[1] == '\0' || op[2] != '\0')
-		usage();
+		USAGE();
 	switch(op[1]) {
 	case 'b': case 'c': case 'd': case 'f': case 'g':
 	case 'p': case 'S': case 's': case 'u':
@@ -99,20 +99,9 @@ unary(const char *op, const char *arg)
 	case 'z':
 		return arg[0] == '\0';
 	default:
-		usage();
+		USAGE();
 	}
 	return false; /* should not reach */
-}
-
-void
-usage(void)
-{
-	const char *ket = (progname[0] == '[') ? " ]" : "";
-
-	fprintf(stderr, "usage: %s string%s\n", progname, ket);
-	fprintf(stderr, "       %s [!] [-bcdefghLnprSstuwxz] string%s\n",  progname, ket);
-	fprintf(stderr, "       %s [!] string1 comparison-op string2%s\n", progname, ket);
-	exit(EXIT_FAILURE);
 }
 
 bool
@@ -120,4 +109,14 @@ binary(const char *arg1, const char *op, const char *arg2)
 {
 	eprintf("not yet implemented\n");
 	return false;
+}
+
+void
+testusage(void)
+{
+	const char *ket = (*argv0 == '[') ? " ]" : "";
+
+	fprintf(stderr, "usage: %s string%s\n"
+	                "       %s [!] [-bcdefghLnprSstuwxz] string%s\n",  argv0, ket, argv0, ket);
+	exit(EXIT_FAILURE);
 }
