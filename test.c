@@ -114,7 +114,6 @@ usage(void)
 {
 	const char *ket = (*argv0 == '[') ? " ]" : "";
 
-	fprintf(stderr, "usage: %s string%s\n"
-	                "       %s [!] [-bcdefghLnprSstuwxz] string%s\n",  argv0, ket, argv0, ket);
-	exit(EXIT_FAILURE);
+	eprintf("usage: %s string%s\n"
+	        "       %s [!] [-bcdefghLnprSstuwxz] string%s\n", argv0, ket, argv0, ket);
 }
