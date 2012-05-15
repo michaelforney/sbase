@@ -40,4 +40,3 @@ long estrtol(const char *, int);
 void fnck(const char *, const char *, int (*)(const char *, const char *));
 void putword(const char *);
 void recurse(const char *, void (*)(const char *));
-void usage(const char *);

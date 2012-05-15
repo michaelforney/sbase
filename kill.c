@@ -8,8 +8,6 @@
 #include <sys/wait.h>
 #include "util.h"
 
-#define USAGE() killusage()
-
 struct {
 	const char *name;
 	int sig;
@@ -21,7 +19,7 @@ struct {
 #undef SIG
 };
 
-static void killusage(void);
+static void usage(void);
 
 int
 main(int argc, char *argv[])
@@ -50,10 +48,10 @@ main(int argc, char *argv[])
 				eprintf("%s: unknown signal\n", optarg);
 			break;
 		default:
-			USAGE();
+			usage();
 		}
 	if(optind < argc-1)
-		USAGE();
+		usage();
 
 	if(lflag) {
 		sig = (optind == argc) ? 0 : estrtol(argv[optind], 0);
@@ -73,8 +71,8 @@ main(int argc, char *argv[])
 }
 
 void
-killusage(void)
+usage(void)
 {
-	fprintf(stderr, "usage: %s [-s signal] [pid...]\n"
-	                "       %s -l [signum]\n", argv0, argv0);
+	eprintf("usage: %s [-s signal] [pid...]\n"
+	        "       %s -l [signum]\n", argv0, argv0);
 }

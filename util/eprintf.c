@@ -30,13 +30,6 @@ enprintf(int status, const char *fmt, ...)
 }
 
 void
-usage(const char *s)
-{
-	fprintf(stderr, "usage: %s %s\n", argv0, s);
-	exit(EXIT_FAILURE);
-}
-
-void
 venprintf(int status, const char *fmt, va_list ap)
 {
 	/*fprintf(stderr, "%s: ", argv0);*/

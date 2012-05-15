@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "util.h"
 
-#define USAGE()  usage("[string]")
+static void usage(void);
 
 int
 main(int argc, char *argv[])
@@ -12,7 +12,7 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	default:
-		USAGE();
+		usage();
 	} ARGEND;
 
 	switch(argc) {
@@ -24,7 +24,13 @@ main(int argc, char *argv[])
 			puts(s);
 		break;
 	default:
-		USAGE();
+		usage();
 	}
 	return EXIT_FAILURE; /* should not reach */
+}
+
+void
+usage(void)
+{
+	eprintf("usage: %s [string]\n", argv0);
 }

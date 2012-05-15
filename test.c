@@ -7,11 +7,9 @@
 #include <sys/stat.h>
 #include "util.h"
 
-#define USAGE() testusage()
-
 static bool unary(const char *, const char *);
 static bool binary(const char *, const char *, const char *);
-static void testusage(void);
+static void usage(void);
 
 int
 main(int argc, char *argv[])
@@ -23,7 +21,7 @@ main(int argc, char *argv[])
 	/* [ ... ] alias */
 	if(!strcmp(argv[0], "[")) {
 		if(strcmp(argv[argc-1], "]") != 0)
-			USAGE();
+			usage();
 		argc--;
 	}
 	if(argc > 1 && !strcmp(argv[1], "!")) {
@@ -42,7 +40,7 @@ main(int argc, char *argv[])
 		ret = binary(argv[1], argv[2], argv[3]);
 		break;
 	default:
-		USAGE();
+		usage();
 	}
 	if(not)
 		ret = !ret;
@@ -56,7 +54,7 @@ unary(const char *op, const char *arg)
 	int r;
 
 	if(op[0] != '-' || op[1] == '\0' || op[2] != '\0')
-		USAGE();
+		usage();
 	switch(op[1]) {
 	case 'b': case 'c': case 'd': case 'f': case 'g':
 	case 'p': case 'S': case 's': case 'u':
@@ -99,7 +97,7 @@ unary(const char *op, const char *arg)
 	case 'z':
 		return arg[0] == '\0';
 	default:
-		USAGE();
+		usage();
 	}
 	return false; /* should not reach */
 }
@@ -112,7 +110,7 @@ binary(const char *arg1, const char *op, const char *arg2)
 }
 
 void
-testusage(void)
+usage(void)
 {
 	const char *ket = (*argv0 == '[') ? " ]" : "";
 

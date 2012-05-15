@@ -5,7 +5,7 @@
 #include <string.h>
 #include "util.h"
 
-#define USAGE()  usage("name [suffix]")
+static void usage(void);
 
 int
 main(int argc, char *argv[])
@@ -15,11 +15,11 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	default:
-		USAGE();
+		usage();
 	} ARGEND;
 
 	if(argc < 1)
-		USAGE();
+		usage();
 
 	s = basename(argv[0]);
 	if(argc == 2 && argv[1]) {
@@ -30,4 +30,10 @@ main(int argc, char *argv[])
 	puts(s);
 
 	return EXIT_SUCCESS;
+}
+
+void
+usage(void)
+{
+	eprintf("usage: %s name [suffix]\n", argv0);
 }

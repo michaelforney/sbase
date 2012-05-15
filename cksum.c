@@ -5,9 +5,8 @@
 #include <unistd.h>
 #include "util.h"
 
-#define USAGE() usage("[files...]")
-
 static void cksum(int, const char *);
+static void usage(void);
 
 static const unsigned long crctab[] = {         0x00000000,
 0x04c11db7, 0x09823b6e, 0x0d4326d9, 0x130476dc, 0x17c56b6b,
@@ -70,7 +69,7 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	default:
-		USAGE();
+		usage();
 	} ARGEND;
 
 	if(argc == 0)
@@ -105,4 +104,10 @@ cksum(int fd, const char *s)
 	if(s != NULL)
 		printf(" %s", s);
 	putchar('\n');
+}
+
+void
+usage(void)
+{
+	eprintf("usage: %s [files...]\n", argv0);
 }
