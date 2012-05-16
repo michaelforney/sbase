@@ -1,5 +1,8 @@
 include config.mk
 
+.POSIX:
+.SUFFIXES: .c .o
+
 HDR = fs.h text.h util.h arg.h
 LIB = \
 	util/afgets.o    \
