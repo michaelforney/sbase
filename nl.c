@@ -36,7 +36,7 @@ main(int argc, char *argv[])
 			sep = optarg;
 			break;
 		default:
-			exit(EXIT_FAILURE);
+			exit(2);
 		}
 	if(optind == argc)
 		nl(stdin);
