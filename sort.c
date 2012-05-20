@@ -31,7 +31,7 @@ main(int argc, char *argv[])
 			uflag = true;
 			break;
 		default:
-			exit(EXIT_FAILURE);
+			exit(2);
 		}
 	if(optind == argc)
 		getlines(stdin);
