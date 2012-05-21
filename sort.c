@@ -12,15 +12,7 @@ static int linecmp(const char **, const char **);
 static bool rflag = false;
 static bool uflag = false;
 
-struct linebuf {
-	char **lines;
-	long nlines;
-	long capacity;
-};
-#define EMPTY_LINEBUF {NULL, 0, 0,}
 static struct linebuf linebuf = EMPTY_LINEBUF;
-
-static void getlines(FILE *, struct linebuf *);
 
 int
 main(int argc, char *argv[])
@@ -54,22 +46,6 @@ main(int argc, char *argv[])
 		if(!uflag || i == 0 || strcmp(linebuf.lines[i], linebuf.lines[i-1]) != 0)
 			fputs(linebuf.lines[i], stdout);
 	return EXIT_SUCCESS;
-}
-
-void
-getlines(FILE *fp, struct linebuf *b)
-{
-	char *line = NULL;
-	size_t size = 0;
-
-	while(afgets(&line, &size, fp)) {
-		if(++b->nlines > b->capacity && !(b->lines = realloc(b->lines, (b->capacity+=512) * sizeof *b->lines)))
-			eprintf("realloc:");
-		if(!(b->lines[b->nlines-1] = malloc(strlen(line)+1)))
-			eprintf("malloc:");
-		strcpy(b->lines[b->nlines-1], line);
-	}
-	free(line);
 }
 
 int

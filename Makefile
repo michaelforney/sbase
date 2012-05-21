@@ -14,6 +14,7 @@ LIB = \
 	util/eprintf.o   \
 	util/estrtol.o   \
 	util/fnck.o      \
+	util/getlines.o  \
 	util/putword.o   \
 	util/recurse.o   \
 	util/rm.o
