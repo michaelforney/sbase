@@ -37,6 +37,7 @@ SRC = \
 	kill.c     \
 	ln.c       \
 	ls.c       \
+	mc.c       \
 	mkdir.c    \
 	mkfifo.c   \
 	mv.c       \
