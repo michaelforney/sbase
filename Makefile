@@ -65,7 +65,7 @@ all: $(BIN)
 
 $(OBJ): util.h config.mk
 $(BIN): util.a
-cat.o cp.o mv.o grep.o tail.o: text.h
+cat.o fold.o grep.o nl.o sort.o tail.o: text.h
 cp.o mv.o rm.o: fs.h
 
 .o:
