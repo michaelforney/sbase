@@ -1,0 +1,36 @@
+.TH MC 1 sbase\-VERSION
+.SH NAME
+mc \- multi-column
+.SH SYNOPSIS
+.B mc
+.RB [ \-c
+.IR chars ]
+.RI [ file ...]
+.SH DESCRIPTION
+.B mc
+reads each file in sequence and writes them to stdout,
+in as many vertical columns as will fit in
+.I chars
+character columns.
+If no file is given, mc reads from stdin.
+.SH OPTIONS
+.TP
+.BI \-c " chars"
+specifies the maximum number of character columns to use
+(unless the input contains lines longer than
+.I chars
+characters).
+.I chars
+defaults to 65.
+.SH BUGS
+This implementation of
+.B mc
+assumes that every byte is a character
+which takes up one column on the screen.
+It does not handle non-ASCII UTF-8 runes
+or TAB characters correctly.
+.B mc
+currently mangles files which contain embedded NULs.
+.B mc
+does not attempt to determine the width of its output device,
+nor does it allow the user to set a default width in its environment.
