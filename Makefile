@@ -54,6 +54,7 @@ SRC = \
 	true.c     \
 	tty.c      \
 	uname.c    \
+	uniq.c     \
 	seq.c      \
 	wc.c       \
 	yes.c
@@ -66,7 +67,7 @@ all: $(BIN)
 
 $(OBJ): util.h config.mk
 $(BIN): util.a
-cat.o fold.o grep.o nl.o sort.o tail.o: text.h
+cat.o fold.o grep.o nl.o sort.o tail.o uniq.o: text.h
 cp.o mv.o rm.o: fs.h
 
 .o:
