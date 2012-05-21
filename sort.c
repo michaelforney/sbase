@@ -15,8 +15,9 @@ static bool uflag = false;
 struct linebuf {
 	char **lines;
 	long nlines;
+	long capacity;
 };
-#define EMPTY_LINEBUF {NULL, 0,}
+#define EMPTY_LINEBUF {NULL, 0, 0,}
 static struct linebuf linebuf = EMPTY_LINEBUF;
 
 static void getlines(FILE *, struct linebuf *);
@@ -62,7 +63,7 @@ getlines(FILE *fp, struct linebuf *b)
 	size_t size = 0;
 
 	while(afgets(&line, &size, fp)) {
-		if(!(b->lines = realloc(b->lines, ++b->nlines * sizeof *b->lines)))
+		if(++b->nlines > b->capacity && !(b->lines = realloc(b->lines, (b->capacity+=512) * sizeof *b->lines)))
 			eprintf("realloc:");
 		if(!(b->lines[b->nlines-1] = malloc(strlen(line)+1)))
 			eprintf("malloc:");
