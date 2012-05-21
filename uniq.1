@@ -1,0 +1,39 @@
+.TH UNIQ 1 sbase\-VERSION
+.SH NAME
+uniq \- multi-column
+.SH SYNOPSIS
+.B uniq
+.RB [ \-cdu ]
+.RI [ file ]
+.SH DESCRIPTION
+.B uniq
+reads file and writes one copy of a line
+from each group of consecutive duplicate lines
+to stdout.
+If no file is given, uniq reads from stdin.
+.SH OPTIONS
+.TP
+.B \-c
+prefixes each line with a count
+of its consecutive occurrences in the input.
+.TP
+.B \-d
+suppresses non-duplicate lines
+(thus 'uniq -d' prints only duplicates).
+.TP
+.B \-u
+suppresses non-unique lines
+(thus 'uniq -u' prints only uniques).
+.SH BUGS
+The original sbase implementation of
+.B uniq
+supported multiple input-file arguments,
+as e.g. cat and grep do.
+Unfortunately, POSIX uniq treats its second argument (if present)
+as an output filename and clobbers it.
+Since users and scripts which rely on uniq
+supporting multiple input-file arguments
+would be at risk of data loss
+if they ever ran into a POSIX-compatible uniq,
+support for multiple input-file arguments
+was removed from this implementation.
