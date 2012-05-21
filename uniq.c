@@ -41,12 +41,13 @@ main(int argc, char *argv[])
 
 	if(optind == argc)
 		uniq(stdin, "<stdin>");
-	else for(; optind < argc; optind++) {
+	else if(optind == argc - 1) {
 		if(!(fp = fopen(argv[optind], "r")))
 			eprintf("fopen %s:", argv[optind]);
 		uniq(fp, argv[optind]);
 		fclose(fp);
-	}
+	} else
+		enprintf(2, "too many arguments\n");
 	uniq_finish();
 
 	return EXIT_SUCCESS;
