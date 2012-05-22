@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include "text.h"
 #include "util.h"
@@ -70,9 +71,11 @@ grep(FILE *fp, const char *str, regex_t *preg)
 {
 	char *buf = NULL;
 	long n, c = 0;
-	size_t size = 0;
+	size_t size = 0, len;
 
 	for(n = 1; afgets(&buf, &size, fp); n++) {
+		if(buf[(len = strlen(buf))-1] == '\n')
+			buf[--len] = '\0';
 		if(regexec(preg, buf, 0, NULL, 0) ^ vflag)
 			continue;
 		switch(mode) {
@@ -89,7 +92,7 @@ grep(FILE *fp, const char *str, regex_t *preg)
 				printf("%s:", str);
 			if(mode == 'n')
 				printf("%ld:", n);
-			fputs(buf, stdout);
+			printf("%s\n", buf);
 			break;
 		}
 		match = true;
