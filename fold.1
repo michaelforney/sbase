@@ -10,16 +10,16 @@ fold \- wrap lines to width
 .SH DESCRIPTION
 .B fold
 reads each file in sequence and prints its lines, broken such that no line
-exceeds 80 characters.  If no file is given, fold reads from stdin.
+exceeds 80 UTF-8 characters.  If no file is given, fold reads from stdin.
 .SH OPTIONS
 .TP
 .B \-b
-counts bytes rather than columns.
+counts bytes rather than characters.
 .TP
 .B \-s
 breaks only at spaces.
 .TP
 .BI \-w " width"
-uses
+breaks at
 .I width
-columns instead of 80.
+characters, instead of 80.
