@@ -19,9 +19,8 @@ main(int argc, char *argv[])
 {
 	char c, *owner, *group;
 
-	while((c = getopt(argc, argv, "Rr")) != -1)
+	while((c = getopt(argc, argv, "r")) != -1)
 		switch(c) {
-		case 'R':
 		case 'r':
 			rflag = true;
 			break;
@@ -29,7 +28,7 @@ main(int argc, char *argv[])
 			exit(EXIT_FAILURE);
 		}
 	if(optind == argc)
-		eprintf("usage: %s [-Rr] [owner][:group] [file...]\n", argv[0]);
+		eprintf("usage: %s [-r] [owner][:group] [file...]\n", argv[0]);
 	owner = argv[optind++];
 	if((group = strchr(owner, ':')))
 		*group++ = '\0';

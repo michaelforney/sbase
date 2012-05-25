@@ -18,9 +18,8 @@ main(int argc, char *argv[])
 {
 	char c;
 
-	while((c = getopt(argc, argv, "Rr")) != -1)
+	while((c = getopt(argc, argv, "r")) != -1)
 		switch(c) {
-		case 'R':
 		case 'r':
 			rflag = true;
 			break;
@@ -28,7 +27,7 @@ main(int argc, char *argv[])
 			exit(EXIT_FAILURE);
 		}
 	if(optind == argc)
-		eprintf("usage: %s [-Rr] mode [file...]\n", argv[0]);
+		eprintf("usage: %s [-r] mode [file...]\n", argv[0]);
 
 	parsemode(argv[optind++]);
 	for(; optind < argc; optind++)
