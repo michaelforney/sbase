@@ -11,7 +11,6 @@ int
 main(int argc, char *argv[])
 {
 	char c;
-	struct stat st;
 
 	while((c = getopt(argc, argv, "fr")) != -1)
 		switch(c) {
@@ -24,12 +23,7 @@ main(int argc, char *argv[])
 		default:
 			exit(EXIT_FAILURE);
 		}
-	for(; optind < argc; optind++) {
-		if(!rm_rflag && stat(argv[optind], &st) == 0 &&
-				S_ISDIR(st.st_mode))
-			fprintf(stderr, "%s: is a directory\n", argv[optind]);
-		else
-			rm(argv[optind]);
-	}
+	for(; optind < argc; optind++)
+		rm(argv[optind]);
 	return EXIT_SUCCESS;
 }
