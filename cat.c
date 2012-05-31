@@ -9,15 +9,19 @@ int
 main(int argc, char *argv[])
 {
 	FILE *fp;
+	int i;
 
-	if(getopt(argc, argv, "") != -1)
-		exit(EXIT_FAILURE);
-	if(optind == argc)
+	ARGBEGIN {
+	default:
+		eprintf("usage: %s [files...]\n", argv0);
+	} ARGEND;
+
+	if(argc == 0)
 		concat(stdin, "<stdin>", stdout, "<stdout>");
-	else for(; optind < argc; optind++) {
-		if(!(fp = fopen(argv[optind], "r")))
-			eprintf("fopen %s:", argv[optind]);
-		concat(fp, argv[optind], stdout, "<stdout>");
+	else for(i = 0; i < argc; i++) {
+		if(!(fp = fopen(argv[i], "r")))
+			eprintf("fopen %s:", argv[i]);
+		concat(fp, argv[i], stdout, "<stdout>");
 		fclose(fp);
 	}
 	return EXIT_SUCCESS;
