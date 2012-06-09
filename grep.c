@@ -21,7 +21,6 @@ static char mode = 0;
 int
 main(int argc, char *argv[])
 {
-	char c;
 	int i, n, flags = REG_NOSUB;
 	regex_t preg;
 	FILE *fp;
@@ -34,7 +33,7 @@ main(int argc, char *argv[])
 	case 'l':
 	case 'n':
 	case 'q':
-		mode = c;
+		mode = ARGC();
 		break;
 	case 'i':
 		flags |= REG_ICASE;
