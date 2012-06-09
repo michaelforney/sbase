@@ -15,7 +15,7 @@ int
 main(int argc, char *argv[])
 {
 	const char *starts = "1", *steps = "1", *ends = "1", *sep = "\n";
-	bool fflag = false, wflag = false;
+	bool wflag = false;
 	char c, ftmp[BUFSIZ], *fmt = ftmp;
 	double start, step, end, out, dir;
 
@@ -25,7 +25,6 @@ main(int argc, char *argv[])
 			if(!validfmt(optarg))
 				eprintf("%s: invalid format\n", optarg);
 			fmt = optarg;
-			fflag = true;
 			break;
 		case 's':
 			sep = optarg;
