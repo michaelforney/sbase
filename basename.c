@@ -3,9 +3,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "util.h"
 
 static void usage(void);
+
+void
+usage(void)
+{
+	eprintf("usage: %s name [suffix]\n", argv0);
+}
 
 int
 main(int argc, char *argv[])
@@ -27,13 +34,9 @@ main(int argc, char *argv[])
 		if(!strcmp(&s[n], argv[1]))
 			s[n] = '\0';
 	}
+
 	puts(s);
 
-	return EXIT_SUCCESS;
+	return 0;
 }
 
-void
-usage(void)
-{
-	eprintf("usage: %s name [suffix]\n", argv0);
-}
