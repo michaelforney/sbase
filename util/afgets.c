@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "../text.h"
 #include "../util.h"
 
@@ -15,10 +16,12 @@ afgets(char **p, size_t *size, FILE *fp)
 		len += (n = strlen(buf));
 		if(len+1 > *size && !(*p = realloc(*p, len+1)))
 			eprintf("realloc:");
+
 		strcpy(&(*p)[len-n], buf);
 
 		if(buf[n-1] == '\n' || feof(fp))
 			break;
 	}
+
 	return (len > 0) ? *p : NULL;
 }

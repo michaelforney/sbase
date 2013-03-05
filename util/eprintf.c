@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "../util.h"
 
 char *argv0;
@@ -40,5 +41,7 @@ venprintf(int status, const char *fmt, va_list ap)
 		fputc(' ', stderr);
 		perror(NULL);
 	}
+
 	exit(status);
 }
+

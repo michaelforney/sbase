@@ -5,6 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/stat.h>
+
 #include "../util.h"
 
 void
@@ -15,20 +16,25 @@ recurse(const char *path, void (*fn)(const char *))
 	struct stat st;
 	DIR *dp;
 
-	if(lstat(path, &st) == -1 || !S_ISDIR(st.st_mode))
+	if(lstat(path, &st) == -1 || !S_ISDIR(st.st_mode)) {
 		return;
-	else if(!(dp = opendir(path)))
+	} else if(!(dp = opendir(path))) {
 		eprintf("opendir %s:", path);
+	}
 
 	cwd = agetcwd();
 	if(chdir(path) == -1)
 		eprintf("chdir %s:", path);
-	while((d = readdir(dp)))
+
+	while((d = readdir(dp))) {
 		if(strcmp(d->d_name, ".") && strcmp(d->d_name, ".."))
 			fn(d->d_name);
+	}
 
 	closedir(dp);
 	if(chdir(cwd) == -1)
 		eprintf("chdir %s:", cwd);
+
 	free(cwd);
 }
+
