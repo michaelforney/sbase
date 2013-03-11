@@ -17,37 +17,38 @@ static long tc = 0, tl = 0, tw = 0;
 int
 main(int argc, char *argv[])
 {
-	bool many;
-	char c;
 	FILE *fp;
-
-	while((c = getopt(argc, argv, "clmw")) != -1)
-		switch(c) {
-		case 'c':
-		case 'm':
-			cmode = c;
-			break;
-		case 'l':
-			lflag = true;
-			break;
-		case 'w':
-			wflag = true;
-			break;
-		default:
-			exit(EXIT_FAILURE);
-		}
-	many = (argc > optind+1);
-
-	if(optind == argc)
+	int i;
+	
+	ARGBEGIN {
+	case 'c':
+		cmode = 'c';
+		break;
+	case 'm':
+		cmode = 'm';
+		break;
+	case 'l':
+		lflag = true;
+		break;
+	case 'w':
+		wflag = true;
+		break;
+	default:
+		eprintf("usage: %s [-clmw] [files...]\n", argv0);
+	} ARGEND;
+	
+	if (argc == 0) {
 		wc(stdin, NULL);
-	else for(; optind < argc; optind++) {
-		if(!(fp = fopen(argv[optind], "r")))
-			eprintf("fopen %s:", argv[optind]);
-		wc(fp, argv[optind]);
-		fclose(fp);
+	} else {
+		for (i = 0; i < argc; i++) {
+			if(!(fp = fopen(argv[i], "r")))
+				eprintf("fopen %s:", argv[i]);
+			wc(fp, argv[i]);
+			fclose(fp);
+		}
+		if (argc > 1)
+			output("total", tc, tl, tw);
 	}
-	if(many)
-		output("total", tc, tl, tw);
 	return EXIT_SUCCESS;
 }
 
