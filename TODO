@@ -28,8 +28,6 @@ md5sum [-c] [file...]
 
 nice [-n N] [command]
 
-paste [-s] [-d list] [file...]
-
 printenv [variable...]
 
 printf [format] [data...]

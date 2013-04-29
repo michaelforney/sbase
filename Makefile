@@ -43,6 +43,7 @@ SRC = \
 	mv.c       \
 	nl.c       \
 	nohup.c    \
+	paste.c    \
 	pwd.c      \
 	rm.c       \
 	sleep.c    \

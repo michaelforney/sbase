@@ -1,0 +1,122 @@
+.TH PASTE 1 paste-VERSION "Apr 2013"
+.SH NAME
+paste \- merge corresponding or subsequent lines of files
+.SH "SYNOPSIS"
+.PP
+.B paste
+[
+.B \-s
+]
+[
+.B \-d
+.I list
+]
+.I file...
+.SH DESCRIPTION
+The
+.B paste
+utility concatenates the corresponding lines of the given input files,
+and writes the resulting lines to standard output. The default operation
+of
+.B paste
+concatenates the corresponding  lines of the input files.
+The newline of every line except the line  from the last input file is
+replaced with a tab.
+If an end-of-file condition is detected on one or more input files, 
+but not all input files,
+.B paste
+behaves as though empty lines were read from the files on which
+end-of-file was detected, unless the
+.B \-s
+option is specified.
+.SH OPTIONS
+.TP
+.B \-d list
+unless a backslash character appears in
+.I list
+each character is an element specifying a delimiter.
+If a backslash character appears, that and one or more characters 
+following it are an element specifying a delimiter.
+These elements specify one or more characters to use, 
+instead of the default tab, to replace the newline of the input 
+lines. The elements in
+.I list
+are used circularly; that is, when the 
+.I list
+is exhausted the first element from the list is reused.
+When the
+.B \-s 
+option is specified, the last newline in a file is not be modified.
+The delimiter is reset to the first element of list after each file
+operand is processed.
+If a backslash character appears in list, it and the character following
+it represents the following delimiters:
+.RS
+.TP
+.I \en
+newline character
+.TP
+.I \et
+tab character
+.TP
+.I \e\e
+backslash character
+.TP
+.I \e0
+empty string (not a null character)
+.TP
+If Any other characters follow the backslash, results are unspecified.
+.RE
+.TP
+.B \-s
+concatenate all of the lines of each separate input file in command line 
+order. The newline of every line except the last line in each input file
+are replaced with the tab, unless otherwise specified by the 
+.B \-d
+option.
+.PP
+If '\-' is specified for one or more input files, the standard input is
+used; standard input is read one line at a time, circularly for each
+instance of '\-'.
+.SH EXIT VALUES
+The
+.B paste
+utility exits 0 on successful completion, and >0 if an error
+occurs.
+.SH ENVIRONMENT VARIABLES
+The following environment variables affect the execution:
+.TP
+.B LANG
+provide a default value for the internationalization variables
+that are unset or null.
+.TP
+.B LC_ALL
+if set to a non-empty string value, override the values of all the
+other internationalization variables.
+.TP
+.B LC_CTYPE
+determine the locale for the interpretation of sequences of bytes
+of text data as characters (for example, single-byte as opposed to
+multi-byte characters in arguments and input files).
+.TP
+.B LC_MESSAGES
+determine the locale that should be used to affect the format and
+contents of diagnostic messages written to standard error.
+.SH CONFORMING TO
+The
+.B paste
+utility is IEEE Std 1003.2 (POSIX.2) compatible.
+.SH EXAMPLES
+.TP
+.I "ls | paste - - - -"
+.PP
+Write out a directory in four columns.
+.TP
+.I "paste -s -d '\et\en' file"
+.PP
+Combine pairs of lines from a file into single lines.
+.SH AUTHOR
+Written by Lorenzo Cogotti.
+.SH SEE ALSO
+.BR cut(1)
+.BR lam(1)
