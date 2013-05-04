@@ -28,9 +28,9 @@ main(int argc, char **argv) {
 	size_t len;
 	Fdescr *dsc;
 	int i, c;
-	
+
 	setlocale(LC_CTYPE, "");
-	
+
 	while((c = getopt(argc, argv, "sd:")) != -1)
 		switch(c) {
 		case 's':
@@ -44,58 +44,58 @@ main(int argc, char **argv) {
 			eusage();
 			break;
 		}
-	
+
 	argc -= optind;
 	argv += optind;
 	if(argc == 0)
 		eusage();
-	
+
 	/* populate delimeters */
 	if(!adelim)
 		adelim = "\t";
-	
+
 	len = mbstowcs(NULL, adelim, 0);
 	if(len == (size_t)-1)
 		eprintf("invalid delimiter\n");
-	
+
 	delim = malloc((len + 1) * sizeof(*delim));
 	if(!delim)
 		eprintf("out of memory\n");
-	
+
 	mbstowcs(delim, adelim, len);
 	len = unescape(delim);
 	if(len == 0)
 		eprintf("no delimiters specified\n");
-	
+
 	/* populate file list */
 	dsc = malloc(argc * sizeof(*dsc));
 	if(!dsc)
 		eprintf("out of memory\n");
-	
+
 	for(i = 0; i < argc; i++) {
 		const char *name = argv[i];
-		
+
 		if(strcmp(name, "-") == 0)
 			dsc[i].fp = stdin;
 		else
 			dsc[i].fp = fopen(name, "r");
-		
+
 		if(!dsc[i].fp)
 			eprintf("can't open '%s':", name);
-		
+
 		dsc[i].name = name;
 	}
-	
+
 	if(seq)
 		sequential(dsc, argc, delim, len);
 	else
 		parallel(dsc, argc, delim, len);
-	
+
 	for(i = 0; i < argc; i++) {
 		if(dsc[i].fp != stdin)
 			(void)fclose(dsc[i].fp);
 	}
-	
+
 	free(delim);
 	free(dsc);
 	return 0;
@@ -111,7 +111,7 @@ unescape(wchar_t *delim) {
 	wchar_t c;
 	size_t i;
 	size_t len;
-	
+
 	for(i = 0, len = 0; (c = delim[i++]) != '\0'; len++) {
 		if(c == '\\') {
 			switch(delim[i++]) {
@@ -135,17 +135,17 @@ unescape(wchar_t *delim) {
 		} else
 			delim[len] = c;
 	}
-	
+
 	return len;
 }
 
 static wint_t
 in(Fdescr *f) {
 	wint_t c = fgetwc(f->fp);
-	
+
 	if(c == WEOF && ferror(f->fp))
 		eprintf("'%s' read error:", f->name);
-	
+
 	return c;
 }
 
@@ -159,26 +159,26 @@ out(wchar_t c) {
 static void
 sequential(Fdescr *dsc, int len, const wchar_t *delim, size_t cnt) {
 	int i;
-	
+
 	for(i = 0; i < len; i++) {
 		size_t d = 0;
 		wint_t c, last = WEOF;
-		
+
 		while((c = in(&dsc[i])) != WEOF) {
 			if(last == '\n') {
 				if(delim[d] != '\0')
 					out(delim[d]);
-				
+
 				d++;
 				d %= cnt;
 			}
-			
+
 			if(c != '\n')
 				out((wchar_t)c);
-			
+
 			last = c;
 		}
-		
+
 		if(last == '\n')
 			out((wchar_t)last);
 	}
@@ -187,45 +187,46 @@ sequential(Fdescr *dsc, int len, const wchar_t *delim, size_t cnt) {
 static void
 parallel(Fdescr *dsc, int len, const wchar_t *delim, size_t cnt) {
 	int last;
-	
+
 	do {
 		int i;
-		
+
 		last = 0;
 		for(i = 0; i < len; i++) {
 			wint_t c;
 			wchar_t d = delim[i % cnt];
-			
+
 			do {
 				wint_t o = in(&dsc[i]);
-				
+
 				c = o;
 				switch(c) {
 				case WEOF:
 					if(last == 0)
 						break;
-					
+
 					o = '\n';
 					/* fallthrough */
 				case '\n':
 					if(i != len - 1)
 						o = d;
-					
+
 					break;
 				default:
 					break;
 				}
-				
+
 				if(o != WEOF) {
 					/* pad with delimiters up to this point */
 					while(++last < i) {
 						if(d != '\0')
 							out(d);
 					}
-					
+
 					out((wchar_t)o);
 				}
 			} while(c != '\n' && c != WEOF);
 		}
 	} while(last > 0);
 }
+
