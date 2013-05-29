@@ -41,6 +41,7 @@ SRC = \
 	mkdir.c    \
 	mkfifo.c   \
 	mv.c       \
+	nice.c     \
 	nl.c       \
 	nohup.c    \
 	paste.c    \
