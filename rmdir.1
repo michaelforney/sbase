@@ -1,0 +1,25 @@
+.TH RMDIR  1 sbase\-VERSION
+.SH NAME
+rmdir \- remove a directory
+.SH SYNOPSIS
+.B rmdir
+.I directory...
+.SH DESCRIPTION
+.B rmdir
+attempts to remove all non-full directories specified
+by
+.IR directory.
+.SH BUGS
+Subdirectories are removed in the order specified, so
+.nf
+	rmdir foo/bar foo
+.fi
+will be successful, but
+.nf
+	rmdir foo foo/bar
+.fi
+will only succeed in removing 
+.BR foo/bar.
+
+.SH SEE ALSO
+.IR rm (1) rmdir (2) unlink (1) unlink (2) 

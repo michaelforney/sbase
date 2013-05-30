@@ -1,9 +1,5 @@
 cal [-1] [-3] [-y] [year]
 
-chgrp [-R] groupname file...
-
-chvt N
-
 comm [-123] file1 file2
 
 cut [-bcfs] [-d delim] list [file...]
@@ -26,17 +22,11 @@ id [-ruGgn] username
 
 md5sum [-c] [file...]
 
-nice [-n N] [command]
-
-printenv [variable...]
-
 printf [format] [data...]
 
 printf format [argument...]
 
 readlink [-fem] file
-
-rmdir [directory...]
 
 seq [-s string] [N [N]] N
 
@@ -44,15 +34,11 @@ sha1sum [-c] [file...]
 
 split [-a N] [-b N] [-l N] [input [prefix]]
 
-sync
-
 test [expression...]
 
 tr string1 [string2]
 
 unexpand [-a] [-t N] [file...]
-
-unlink file
 
 who 
 

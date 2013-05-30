@@ -1,0 +1,19 @@
+.TH PRINTENV 1 sbase\-VERSION
+.SH NAME
+printenv \- print out the environment or the values of specific variables.
+.SH SYNOPSIS
+.B printenv
+.RB [ var... ]
+.SH DESCRIPTION
+.B printenv
+prints the entire environment as key=values pairs when
+no 
+.IR var
+is specified. Otherwise, in the order specified, 
+.B printenv
+prints the value only of each
+.IR var, 
+one per line.
+
+.SH SEE ALSO
+.IR env (1)

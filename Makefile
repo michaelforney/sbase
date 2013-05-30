@@ -22,8 +22,10 @@ LIB = \
 SRC = \
 	basename.c \
 	cat.c      \
+	chgrp.c    \
 	chmod.c    \
 	chown.c    \
+	chvt.c     \
 	cksum.c    \
 	cmp.c      \
 	cp.c       \
@@ -45,10 +47,13 @@ SRC = \
 	nl.c       \
 	nohup.c    \
 	paste.c    \
+	printenv.c \
 	pwd.c      \
 	rm.c       \
+	rmdir.c    \
 	sleep.c    \
 	sort.c     \
+	sync.c     \
 	tail.c     \
 	tee.c      \
 	test.c     \
@@ -57,6 +62,7 @@ SRC = \
 	tty.c      \
 	uname.c    \
 	uniq.c     \
+	unlink.c   \
 	seq.c      \
 	wc.c       \
 	yes.c

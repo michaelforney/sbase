@@ -1,0 +1,22 @@
+.TH CHGRP 1 sbase\-VERSION
+.SH NAME
+nice \- invoke a utility with an altered nice value
+.SH SYNOPSIS
+.B chgrp
+.RB [ \-R ]
+.I groupname
+.I file...
+.SH DESCRIPTION
+.B chgrp
+sets the group id of the files specified by 
+.IR file
+to the gid of the group named
+.IR group.
+If the 
+.IR R
+flag is specified, this process is recursively applied to 
+everything in
+.IR file.
+
+.SH SEE ALSO
+.IR chown (1) chown (2) chmod (1) chmod (2) getgrnam (3)
