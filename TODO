@@ -26,8 +26,6 @@ printf format [argument...]
 
 readlink [-fem] file
 
-seq [-s string] [N [N]] N
-
 sha1sum [-c] [file...]
 
 test [expression...]
