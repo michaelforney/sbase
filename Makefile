@@ -25,6 +25,7 @@ SRC = \
 	chgrp.c    \
 	chmod.c    \
 	chown.c    \
+	chroot.c   \
 	chvt.c     \
 	cksum.c    \
 	cmp.c      \
@@ -32,6 +33,7 @@ SRC = \
 	date.c     \
 	dirname.c  \
 	echo.c     \
+	env.c      \
 	false.c    \
 	fold.c     \
 	grep.c     \
@@ -53,6 +55,7 @@ SRC = \
 	rmdir.c    \
 	sleep.c    \
 	sort.c     \
+	split.c    \
 	sync.c     \
 	tail.c     \
 	tee.c      \
@@ -65,6 +68,7 @@ SRC = \
 	unlink.c   \
 	seq.c      \
 	wc.c       \
+	who.c      \
 	yes.c
 
 OBJ = $(SRC:.c=.o) $(LIB)

@@ -1,0 +1,26 @@
+.TH CHROOT 1 sbase\-VERSION
+.SH NAME
+chroot \- invoke a command with a different root directory
+.SH SYNOPSIS
+.B chroot
+.IR dir
+.RI [ command
+.RI [ arg ...]]
+
+.SH DESCRIPTION
+.B chroot
+runs 
+.IR command
+after changing the root directory to 
+.IR dir
+with the
+.B chroot
+system call, and changing the working directory to the new root.
+
+If 
+.IR command
+is not specified, an interactive shell is started in the new root.
+
+.SH SEE ALSO
+.IR chroot (2)
+.IR chdir (2)

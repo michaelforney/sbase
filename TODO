@@ -10,8 +10,6 @@ diff [-ru] file1 file2
 
 du [-hdi] [path]
 
-env [-u] [name=value...] [command]
-
 expand [-i] [-t N] [file...]
 
 expr [expression]
@@ -31,8 +29,6 @@ readlink [-fem] file
 seq [-s string] [N [N]] N
 
 sha1sum [-c] [file...]
-
-split [-a N] [-b N] [-l N] [input [prefix]]
 
 test [expression...]
 

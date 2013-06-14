@@ -1,0 +1,24 @@
+.TH WHO 1 sbase\-VERSION
+.SH NAME
+who \- print who has logged on
+.SH SYNOPSIS
+.B who
+
+.SH DESCRIPTION
+.B who
+prints a list of who has logged on, their controlling tty, and the 
+time at which they logged on.
+
+.SH BUGS
+.B who
+relies on the utmp file to be updated responsibly. This
+doesn't always happen, which can cause who to print completely
+bogus data.
+
+musl\-libc currently implements all utmpx functions as stubs Obviously,
+this command cannot work under such conditions.
+
+.SH SEE ALSO
+.IR getutxent (3)
+.IR utmpx (5)
+

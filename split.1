@@ -1,0 +1,58 @@
+.TH SPLIT 1 sbase\-VERSION
+.SH NAME
+split \- split up a file
+.SH SYNOPSIS
+.B split
+.RB [ \-d ]
+.RB [ \-a 
+.IR len ]
+.RB [ \-b 
+.RI [ bytes [k|m|g]]]
+.RB [ \-l 
+.RI [ lines ]]
+.RI [ input 
+.RI [ prefix ]]
+
+.SH DESCRIPTION
+.B split
+Reads a file, splitting it into smaller files, every 
+.IR bytes
+bytes
+or
+.IR lines
+lines. If
+.B split
+runs out of filenames before all the data can be written, it stops at the
+last valid filename, leaving all the written data on the disk. 
+
+The 
+.IR b
+and
+.IR l
+flags are mutually exclusive. Only the last one specified will be obeyed.
+
+.SH OPTIONS
+.TP
+.B \-d
+Use decimal suffixes rather than alphabetical.
+
+.TP
+.B \-a "len"
+Set the suffix length to 
+.IR len
+characters long.
+
+.TP
+.B \-b [bytes[k|m|g]]
+Start a new file every 
+.IR bytes
+bytes. The units k, m, and g are case insensitive, and powers of 2, not 10.
+
+.TP
+.B \-l [lines]
+Start a new file every 
+.IR lines
+lines.
+
+.SH SEE ALSO
+.IR cat (1)
