@@ -7,30 +7,37 @@
 
 static void head(FILE *, const char *, long);
 
+static void
+usage(void)
+{
+	eprintf("usage: %s [-n] [FILE...]\n", argv0);
+	exit(1);
+}
+
 int
 main(int argc, char *argv[])
 {
-	char c;
 	long n = 10;
 	FILE *fp;
 
-	while((c = getopt(argc, argv, "n:")) != -1)
-		switch(c) {
-		case 'n':
-			n = estrtol(optarg, 0);
-			break;
-		default:
-			exit(EXIT_FAILURE);
-		}
-	if(optind == argc)
+	ARGBEGIN {
+	case 'n':
+		n = estrtol(EARGF(usage()), 0);
+		break;
+	default:
+		usage();
+	} ARGEND;
+
+	if(argc == 0) {
 		head(stdin, "<stdin>", n);
-	else for(; optind < argc; optind++) {
-		if(!(fp = fopen(argv[optind], "r")))
-			eprintf("fopen %s:", argv[optind]);
-		head(fp, argv[optind], n);
+	} else for(; argc > 0; argc--, argv++) {
+		if(!(fp = fopen(argv[0], "r")))
+			eprintf("fopen %s:", argv[0]);
+		head(fp, argv[0], n);
 		fclose(fp);
 	}
-	return EXIT_SUCCESS;
+
+	return 0;
 }
 
 void
@@ -47,3 +54,4 @@ head(FILE *fp, const char *str, long n)
 	if(ferror(fp))
 		eprintf("%s: read error:", str);
 }
+

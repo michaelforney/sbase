@@ -14,22 +14,30 @@ static bool rflag = false;
 static struct passwd *pw = NULL;
 static struct group *gr = NULL;
 
+static void
+usage(void)
+{
+	eprintf("usage: %s [-r] [owner][:[group]] file...\n", argv0);
+	exit(1);
+}
+
 int
 main(int argc, char *argv[])
 {
-	char c, *owner, *group;
+	char *owner, *group;
 
-	while((c = getopt(argc, argv, "r")) != -1)
-		switch(c) {
-		case 'r':
-			rflag = true;
-			break;
-		default:
-			exit(EXIT_FAILURE);
-		}
-	if(optind == argc)
-		eprintf("usage: %s [-r] [owner][:group] [file...]\n", argv[0]);
-	owner = argv[optind++];
+	ARGBEGIN {
+	case 'r':
+		rflag = true;
+		break;
+	default:
+		usage();
+	} ARGEND;
+	if(argc == 0)
+		usage();
+
+	owner = argv[0];
+	argv++;
 	if((group = strchr(owner, ':')))
 		*group++ = '\0';
 
@@ -49,9 +57,10 @@ main(int argc, char *argv[])
 		else if(!gr)
 			eprintf("getgrnam %s: no such group\n", group);
 	}
-	for(; optind < argc; optind++)
-		chownpwgr(argv[optind]);
-	return EXIT_SUCCESS;
+	for(; argc > 0; argc--, argv++)
+		chownpwgr(argv[0]);
+
+	return 0;
 }
 
 void
@@ -63,3 +72,4 @@ chownpwgr(const char *path)
 	if(rflag)
 		recurse(path, chownpwgr);
 }
+

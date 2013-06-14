@@ -13,42 +13,44 @@ typedef struct {
 	const char *name;
 } Fdescr;
 
-static void eusage(void);
 static size_t unescape(wchar_t *);
 static wint_t in(Fdescr *);
 static void out(wchar_t);
 static void sequential(Fdescr *, int, const wchar_t *, size_t);
 static void parallel(Fdescr *, int, const wchar_t *, size_t);
 
+static void
+usage(void)
+{
+	eprintf("usage: %s [-s] [-d list] file...\n", argv0);
+	exit(1);
+}
+
 int
-main(int argc, char **argv) {
+main(int argc, char *argv[])
+{
 	const char *adelim = NULL;
 	bool seq = false;
 	wchar_t *delim;
 	size_t len;
 	Fdescr *dsc;
-	int i, c;
+	int i;
 
 	setlocale(LC_CTYPE, "");
 
-	while((c = getopt(argc, argv, "sd:")) != -1)
-		switch(c) {
-		case 's':
-			seq = true;
-			break;
-		case 'd':
-			adelim = optarg;
-			break;
-		case '?':
-		default:
-			eusage();
-			break;
-		}
+	ARGBEGIN {
+	case 's':
+		seq = true;
+		break;
+	case 'd':
+		adelim = EARGF(usage());
+		break;
+	default:
+		usage();
+	} ARGEND;
 
-	argc -= optind;
-	argv += optind;
 	if(argc == 0)
-		eusage();
+		usage();
 
 	/* populate delimeters */
 	if(!adelim)
@@ -98,16 +100,14 @@ main(int argc, char **argv) {
 
 	free(delim);
 	free(dsc);
+
 	return 0;
 }
 
-static void
-eusage(void) {
-	eprintf("usage: paste [-s][-d list] file...\n");
-}
 
 static size_t
-unescape(wchar_t *delim) {
+unescape(wchar_t *delim)
+{
 	wchar_t c;
 	size_t i;
 	size_t len;
@@ -140,7 +140,8 @@ unescape(wchar_t *delim) {
 }
 
 static wint_t
-in(Fdescr *f) {
+in(Fdescr *f)
+{
 	wint_t c = fgetwc(f->fp);
 
 	if(c == WEOF && ferror(f->fp))
@@ -150,14 +151,16 @@ in(Fdescr *f) {
 }
 
 static void
-out(wchar_t c) {
+out(wchar_t c)
+{
 	putwchar(c);
 	if(ferror(stdout))
 		eprintf("write error:");
 }
 
 static void
-sequential(Fdescr *dsc, int len, const wchar_t *delim, size_t cnt) {
+sequential(Fdescr *dsc, int len, const wchar_t *delim, size_t cnt)
+{
 	int i;
 
 	for(i = 0; i < len; i++) {
@@ -185,7 +188,8 @@ sequential(Fdescr *dsc, int len, const wchar_t *delim, size_t cnt) {
 }
 
 static void
-parallel(Fdescr *dsc, int len, const wchar_t *delim, size_t cnt) {
+parallel(Fdescr *dsc, int len, const wchar_t *delim, size_t cnt)
+{
 	int last;
 
 	do {

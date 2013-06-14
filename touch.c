@@ -14,26 +14,32 @@ static void touch(const char *);
 static bool cflag = false;
 static time_t t;
 
+static void
+usage(void)
+{
+	eprintf("usage: %s [-c] [-t stamp] file...\n", argv0);
+	exit(1);
+}
+
 int
 main(int argc, char *argv[])
 {
-	char c;
-
 	t = time(NULL);
-	while((c = getopt(argc, argv, "ct:")) != -1)
-		switch(c) {
-		case 'c':
-			cflag = true;
-			break;
-		case 't':
-			t = estrtol(optarg, 0);
-			break;
-		default:
-			exit(EXIT_FAILURE);
-		}
-	for(; optind < argc; optind++)
-		touch(argv[optind]);
-	return EXIT_SUCCESS;
+
+	ARGBEGIN {
+	case 'c':
+		cflag = true;
+		break;
+	case 't':
+		t = estrtol(EARGF(usage()), 0);
+		break;
+	default:
+		usage();
+	} ARGEND;
+	for(; argc > 0; argc--, argv++)
+		touch(argv[0]);
+
+	return 0;
 }
 
 void
@@ -60,3 +66,4 @@ touch(const char *str)
 	close(fd);
 	touch(str);
 }
+

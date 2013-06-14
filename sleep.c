@@ -3,18 +3,29 @@
 #include <unistd.h>
 #include "util.h"
 
+static void
+usage(void)
+{
+	eprintf("usage: %s seconds\n", argv0);
+	exit(1);
+}
+
 int
 main(int argc, char *argv[])
 {
 	unsigned int seconds;
 
-	if(getopt(argc, argv, "") != -1)
-		exit(EXIT_FAILURE);
-	if(optind != argc-1)
-		eprintf("usage: %s seconds\n", argv[0]);
+	ARGBEGIN {
+	default:
+		usage();
+	} ARGEND;
 
-	seconds = estrtol(argv[optind], 0);
+	if(argc < 1)
+		usage();
+
+	seconds = estrtol(argv[0], 0);
 	while((seconds = sleep(seconds)) > 0)
 		;
-	return EXIT_SUCCESS;
+	return 0;
 }
+

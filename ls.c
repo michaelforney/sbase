@@ -35,44 +35,52 @@ static bool tflag = false;
 static bool first = true;
 static bool many;
 
+static void
+usage(void)
+{
+	eprintf("usage: %s [-adlt] [FILE...]\n", argv0);
+	exit(1);
+}
+
 int
 main(int argc, char *argv[])
 {
-	char c;
 	int i, n;
 	Entry *ents;
 
-	while((c = getopt(argc, argv, "adlt")) != -1)
-		switch(c) {
-		case 'a':
-			aflag = true;
-			break;
-		case 'd':
-			dflag = true;
-			break;
-		case 'l':
-			lflag = true;
-			break;
-		case 't':
-			tflag = true;
-			break;
-		default:
-			exit(EXIT_FAILURE);
-		}
-	many = (argc > optind+1);
+	ARGBEGIN {
+	case 'a':
+		aflag = true;
+		break;
+	case 'd':
+		dflag = true;
+		break;
+	case 'l':
+		lflag = true;
+		break;
+	case 't':
+		tflag = true;
+		break;
+	default:
+		usage();
+	} ARGEND;
 
-	if((n = argc - optind) > 0) {
+	many = (argc > 1);
+
+	if((n = argc) > 0) {
 		if(!(ents = malloc(n * sizeof *ents)))
 			eprintf("malloc:");
 		for(i = 0; i < n; i++)
-			mkent(&ents[i], argv[optind+i]);
-		qsort(ents, n, sizeof *ents, (int (*)(const void *, const void *))entcmp);
+			mkent(&ents[i], argv[i]);
+		qsort(ents, n, sizeof *ents,
+				(int (*)(const void *, const void *))entcmp);
 		for(i = 0; i < n; i++)
 			ls(ents[i].name);
 	}
 	else
 		ls(".");
-	return EXIT_SUCCESS;
+
+	return 0;
 }
 
 int
@@ -229,3 +237,4 @@ output(Entry *ent)
 	}
 	putchar('\n');
 }
+

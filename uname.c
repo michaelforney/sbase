@@ -6,6 +6,13 @@
 #include <sys/utsname.h>
 #include "util.h"
 
+static void
+usage(void)
+{
+	eprintf("usage: %s [-amnrsv]\n", argv0);
+	exit(1);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -14,32 +21,30 @@ main(int argc, char *argv[])
 	bool rflag = false;
 	bool sflag = false;
 	bool vflag = false;
-	char c;
 	struct utsname u;
 
-	while((c = getopt(argc, argv, "amnrsv")) != -1)
-		switch(c) {
-		case 'a':
-			mflag = nflag = rflag = sflag = vflag = true;
-			break;
-		case 'm':
-			mflag = true;
-			break;
-		case 'n':
-			nflag = true;
-			break;
-		case 'r':
-			rflag = true;
-			break;
-		case 's':
-			sflag = true;
-			break;
-		case 'v':
-			vflag = true;
-			break;
-		default:
-			exit(EXIT_FAILURE);
-		}
+	ARGBEGIN {
+	case 'a':
+		mflag = nflag = rflag = sflag = vflag = true;
+		break;
+	case 'm':
+		mflag = true;
+		break;
+	case 'n':
+		nflag = true;
+		break;
+	case 'r':
+		rflag = true;
+		break;
+	case 's':
+		sflag = true;
+		break;
+	case 'v':
+		vflag = true;
+		break;
+	default:
+		usage();
+	} ARGEND;
 	if(uname(&u) == -1)
 		eprintf("uname:");
 
@@ -54,5 +59,7 @@ main(int argc, char *argv[])
 	if(mflag)
 		putword(u.machine);
 	putchar('\n');
-	return EXIT_SUCCESS;
+
+	return 0;
 }
+

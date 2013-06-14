@@ -14,38 +14,49 @@ static bool uflag = false;
 
 static struct linebuf linebuf = EMPTY_LINEBUF;
 
+static void
+usage(void)
+{
+	eprintf("usage: %s [-ru] [file...]\n", argv0);
+	exit(1);
+}
+
 int
 main(int argc, char *argv[])
 {
-	char c;
 	long i;
 	FILE *fp;
 
-	while((c = getopt(argc, argv, "ru")) != -1)
-		switch(c) {
-		case 'r':
-			rflag = true;
-			break;
-		case 'u':
-			uflag = true;
-			break;
-		default:
-			exit(2);
-		}
-	if(optind == argc)
+	ARGBEGIN {
+	case 'r':
+		rflag = true;
+		break;
+	case 'u':
+		uflag = true;
+		break;
+	default:
+		usage();
+	} ARGEND;
+
+	if(argc == 0) {
 		getlines(stdin, &linebuf);
-	else for(; optind < argc; optind++) {
-		if(!(fp = fopen(argv[optind], "r")))
-			eprintf("fopen %s:", argv[optind]);
+	} else for(; argc > 0; argc--, argv++) {
+		if(!(fp = fopen(argv[0], "r")))
+			eprintf("fopen %s:", argv[0]);
 		getlines(fp, &linebuf);
 		fclose(fp);
 	}
-	qsort(linebuf.lines, linebuf.nlines, sizeof *linebuf.lines, (int (*)(const void *, const void *))linecmp);
+	qsort(linebuf.lines, linebuf.nlines, sizeof *linebuf.lines,
+			(int (*)(const void *, const void *))linecmp);
 
-	for(i = 0; i < linebuf.nlines; i++)
-		if(!uflag || i == 0 || strcmp(linebuf.lines[i], linebuf.lines[i-1]) != 0)
+	for(i = 0; i < linebuf.nlines; i++) {
+		if(!uflag || i == 0 || strcmp(linebuf.lines[i],
+					linebuf.lines[i-1]) != 0) {
 			fputs(linebuf.lines[i], stdout);
-	return EXIT_SUCCESS;
+		}
+	}
+
+	return 0;
 }
 
 int
@@ -53,3 +64,4 @@ linecmp(const char **a, const char **b)
 {
 	return strcmp(*a, *b) * (rflag ? -1 : +1);
 }
+

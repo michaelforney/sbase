@@ -13,26 +13,32 @@ static bool rflag = false;
 static char oper = '=';
 static mode_t mode = 0;
 
+static void
+usage(void)
+{
+	eprintf("usage: %s [-r] mode [file...]\n", argv0);
+	exit(1);
+}
+
 int
 main(int argc, char *argv[])
 {
-	char c;
 
-	while((c = getopt(argc, argv, "r")) != -1)
-		switch(c) {
-		case 'r':
-			rflag = true;
-			break;
-		default:
-			exit(EXIT_FAILURE);
-		}
-	if(optind == argc)
-		eprintf("usage: %s [-r] mode [file...]\n", argv[0]);
+	ARGBEGIN {
+	case 'r':
+		rflag = true;
+		break;
+	default:
+		usage();
+	} ARGEND;
 
-	parsemode(argv[optind++]);
-	for(; optind < argc; optind++)
-		chmodr(argv[optind]);
-	return EXIT_SUCCESS;
+	if(argc < 1)
+		usage();
+
+	parsemode(argv[0]);
+	for(++argv; argc > 0; argc--)
+		chmodr(argv[0]);
+	return 0;
 }
 
 void

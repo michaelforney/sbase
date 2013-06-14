@@ -7,24 +7,32 @@
 
 static const char *getpwd(const char *cwd);
 
+static void
+usage(void)
+{
+	eprintf("usage: %s [-LP]\n", argv0);
+	exit(1);
+}
+
 int
 main(int argc, char *argv[])
 {
-	char *cwd, c;
+	char *cwd;
 	char mode = 'L';
 
-	while((c = getopt(argc, argv, "LP")) != -1)
-		switch(c) {
-		case 'L':
-		case 'P':
-			mode = c;
-			break;
-		default:
-			exit(EXIT_FAILURE);
-		}
+	ARGBEGIN {
+	case 'L':
+	case 'P':
+		mode = ARGC();
+		break;
+	default:
+		usage();
+	} ARGEND;
+
 	cwd = agetcwd();
 	puts((mode == 'L') ? getpwd(cwd) : cwd);
-	return EXIT_SUCCESS;
+
+	return 0;
 }
 
 const char *
@@ -42,3 +50,4 @@ getpwd(const char *cwd)
 	else
 		return cwd;
 }
+

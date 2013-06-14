@@ -10,26 +10,35 @@
 
 static void mkdirp(char *);
 
+static void
+usage(void)
+{
+	eprintf("usage: %s [-p] directory...\n", argv0);
+	exit(1);
+}
+
 int
 main(int argc, char *argv[])
 {
 	bool pflag = false;
-	char c;
 
-	while((c = getopt(argc, argv, "p")) != -1)
-		switch(c) {
-		case 'p':
-			pflag = true;
-			break;
-		default:
-			exit(EXIT_FAILURE);
+	ARGBEGIN {
+	case 'p':
+		pflag = true;
+		break;
+	default:
+		usage();
+	} ARGEND;
+
+	for(; argc > 0; argc--, argv++) {
+		if(pflag) {
+			mkdirp(argv[0]);
+		} else if(mkdir(argv[0], S_IRWXU|S_IRWXG|S_IRWXO) == -1) {
+			eprintf("mkdir %s:", argv[0]);
 		}
-	for(; optind < argc; optind++)
-		if(pflag)
-			mkdirp(argv[optind]);
-		else if(mkdir(argv[optind], S_IRWXU|S_IRWXG|S_IRWXO) == -1)
-			eprintf("mkdir %s:", argv[optind]);
-	return EXIT_SUCCESS;
+	}
+
+	return 0;
 }
 
 void
@@ -46,3 +55,4 @@ mkdirp(char *path)
 			*p = '/';
 	} while(p);
 }
+

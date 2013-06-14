@@ -7,23 +7,29 @@
 #include "fs.h"
 #include "util.h"
 
+static void
+usage(void)
+{
+	eprintf("usage: %s [-fr] FILE...\n", argv0);
+	exit(1);
+}
+
 int
 main(int argc, char *argv[])
 {
-	char c;
+	ARGBEGIN {
+	case 'f':
+		rm_fflag = true;
+		break;
+	case 'r':
+		rm_rflag = true;
+		break;
+	default:
+		usage();
+	} ARGEND;
+	for(; argc > 0; argc--, argv++)
+		rm(argv[0]);
 
-	while((c = getopt(argc, argv, "fr")) != -1)
-		switch(c) {
-		case 'f':
-			rm_fflag = true;
-			break;
-		case 'r':
-			rm_rflag = true;
-			break;
-		default:
-			exit(EXIT_FAILURE);
-		}
-	for(; optind < argc; optind++)
-		rm(argv[optind]);
-	return EXIT_SUCCESS;
+	return 0;
 }
+

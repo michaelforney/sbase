@@ -14,32 +14,37 @@ static struct linebuf b = EMPTY_LINEBUF;
 static long n_columns;
 static long n_rows;
 
+static void
+usage(void)
+{
+	eprintf("usage: %s [-c chars] [FILE...]\n", argv0);
+	exit(1);
+}
+
 int
 main(int argc, char *argv[])
 {
-	int c;
 	long i, l, col;
 	size_t maxlen = 0;
 	char *space;
 	FILE *fp;
 
-	while ((c = getopt(argc, argv, "c:")) != -1)
-		switch (c) {
-		case 'c':
-			chars = estrtol(optarg, 0);
-			if (chars < 3)
-				eprintf("%d: too few character columns");
-			break;
-		default:
-			exit(2);
-		}
+	ARGBEGIN {
+	case 'c':
+		chars = estrtol(EARGF(usage()), 0);
+		if(chars < 3)
+			eprintf("%d: too few character columns");
+		break;
+	default:
+		usage();
+	} ARGEND;
 
 	/* XXX librarify this chunk, too?  only useful in sponges though */
-	if(optind == argc)
+	if(argc == 0) {
 		getlines(stdin, &b);
-	else for(; optind < argc; optind++) {
-		if(!(fp = fopen(argv[optind], "r")))
-			eprintf("fopen %s:", argv[optind]);
+	} else for(; argc > 0; argc--, argv++) {
+		if(!(fp = fopen(argv[0], "r")))
+			eprintf("fopen %s:", argv[0]);
 		getlines(fp, &b);
 		fclose(fp);
 	}
@@ -59,7 +64,7 @@ main(int argc, char *argv[])
 		for(l = 0; l < b.nlines; ++l) {
 			fputs(b.lines[l], stdout);
 		}
-		return EXIT_SUCCESS;
+		return 0;
 	}
 
 	if(!(space = malloc(maxlen + 2)))
@@ -78,6 +83,6 @@ main(int argc, char *argv[])
 		fputs("\n", stdout);
 	}
 
-	return EXIT_SUCCESS;
+	return 0;
 }
 

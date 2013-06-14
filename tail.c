@@ -9,36 +9,40 @@
 static void dropinit(FILE *, const char *, long);
 static void taketail(FILE *, const char *, long);
 
+static void
+usage(void)
+{
+	eprintf("usage: %s [-n lines] [file]\n", argv0);
+	exit(1);
+}
+
 int
 main(int argc, char *argv[])
 {
-	char c;
 	long n = 10;
 	FILE *fp;
 	void (*tail)(FILE *, const char *, long) = taketail;
 
-	while((c = getopt(argc, argv, "n:")) != -1)
-		switch(c) {
-		case 'n':
-			n = abs(estrtol(optarg, 0));
-			if(optarg[0] == '+')
-				tail = dropinit;
-			break;
-		default:
-			exit(EXIT_FAILURE);
-		}
-	if(optind == argc)
+	ARGBEGIN {
+	case 'n':
+		n = abs(estrtol(EARGF(usage()), 0));
+		if(optarg[0] == '+')
+			tail = dropinit;
+		break;
+	default:
+		usage();
+	} ARGEND;
+	if(argc == 0) {
 		tail(stdin, "<stdin>", n);
-	else if(optind == argc-1) {
-		if(!(fp = fopen(argv[optind], "r")))
-			eprintf("fopen %s:", argv[optind]);
-		tail(fp, argv[optind], n);
+	} else if(argc == 1) {
+		if(!(fp = fopen(argv[0], "r")))
+			eprintf("fopen %s:", argv[0]);
+		tail(fp, argv[0], n);
 		fclose(fp);
-	}
-	else
-		eprintf("usage: %s [-n lines] [file]\n", argv[0]);
+	} else
+		usage();
 
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 void
@@ -76,3 +80,4 @@ taketail(FILE *fp, const char *str, long n)
 	free(ring);
 	free(size);
 }
+

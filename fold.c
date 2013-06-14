@@ -13,36 +13,43 @@ static void foldline(const char *, long);
 static bool bflag = false;
 static bool sflag = false;
 
+static void
+usage(void)
+{
+	eprintf("usage: %s [-bs] [-w width] [FILE...]\n", argv0);
+	exit(1);
+}
+
 int
 main(int argc, char *argv[])
 {
-	char c;
 	long width = 80;
 	FILE *fp;
 
-	while((c = getopt(argc, argv, "bsw:")) != -1)
-		switch(c) {
-		case 'b':
-			bflag = true;
-			break;
-		case 's':
-			sflag = true;
-			break;
-		case 'w':
-			width = estrtol(optarg, 0);
-			break;
-		default:
-			exit(EXIT_FAILURE);
-		}
-	if(optind == argc)
+	ARGBEGIN {
+	case 'b':
+		bflag = true;
+		break;
+	case 's':
+		sflag = true;
+		break;
+	case 'w':
+		width = estrtol(EARGF(usage()), 0);
+		break;
+	default:
+		usage();
+	} ARGEND;
+
+	if(argc == 0) {
 		fold(stdin, width);
-	else for(; optind < argc; optind++) {
-		if(!(fp = fopen(argv[optind], "r")))
-			eprintf("fopen %s:", argv[optind]);
+	} else for(; argc > 0; argc--, argv++) {
+		if(!(fp = fopen(argv[0], "r")))
+			eprintf("fopen %s:", argv[0]);
 		fold(fp, width);
 		fclose(fp);
 	}
-	return EXIT_SUCCESS;
+
+	return 0;
 }
 
 void
@@ -96,3 +103,4 @@ foldline(const char *str, long width)
 			putchar('\n');
 	} while(str[i = n] && str[i] != '\n');
 }
+

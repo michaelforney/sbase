@@ -5,14 +5,26 @@
 #include <unistd.h>
 #include "util.h"
 
+static void
+usage(void)
+{
+	eprintf("usage: %s string\n", argv0);
+	exit(1);
+}
+
 int
 main(int argc, char *argv[])
 {
-	if(getopt(argc, argv, "") != -1)
-		exit(EXIT_FAILURE);
-	if(optind != argc-1)
-		eprintf("usage: %s string\n", argv[0]);
+	ARGBEGIN {
+	default:
+		usage();
+	} ARGEND;
+
+	if(argc < 1)
+		usage();
 
 	puts(dirname(argv[optind]));
-	return EXIT_SUCCESS;
+
+	return 0;
 }
+

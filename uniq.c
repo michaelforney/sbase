@@ -19,39 +19,44 @@ static bool uflag = false;
 static char *prev_line = NULL;
 static long prev_line_count = 0;
 
+static void
+usage(void)
+{
+	eprintf("usage: %s [-cdu] [input]]\n", argv0);
+	exit(1);
+}
+
 int
 main(int argc, char *argv[])
 {
-	int c;
 	FILE *fp;
 
-	while((c = getopt(argc, argv, "cdu")) != -1)
-		switch(c) {
-		case 'c':
-			countfmt = "%7ld ";
-			break;
-		case 'd':
-			dflag = true;
-			break;
-		case 'u':
-			uflag = true;
-			break;
-		default:
-			exit(2);
-		}
+	ARGBEGIN {
+	case 'c':
+		countfmt = "%7ld ";
+		break;
+	case 'd':
+		dflag = true;
+		break;
+	case 'u':
+		uflag = true;
+		break;
+	default:
+		usage();
+	} ARGEND;
 
-	if(optind == argc)
+	if(argc == 0) {
 		uniq(stdin, "<stdin>");
-	else if(optind == argc - 1) {
-		if(!(fp = fopen(argv[optind], "r")))
-			eprintf("fopen %s:", argv[optind]);
-		uniq(fp, argv[optind]);
+	} else if(argc == 1) {
+		if(!(fp = fopen(argv[0], "r")))
+			eprintf("fopen %s:", argv[0]);
+		uniq(fp, argv[0]);
 		fclose(fp);
 	} else
-		enprintf(2, "too many arguments\n");
+		usage();
 	uniq_finish();
 
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 void
@@ -96,3 +101,4 @@ uniq_finish()
 {
 	uniq_line(NULL);
 }
+

@@ -11,43 +11,56 @@ static int digitsright(const char *);
 static double estrtod(const char *);
 static bool validfmt(const char *);
 
+static void
+usage(void)
+{
+	eprintf("usage: %s [-f format] [-s sep] [-w width] first"
+		       " [inc [last]]\n", argv0);
+	exit(1);
+}
+
 int
 main(int argc, char *argv[])
 {
 	const char *starts = "1", *steps = "1", *ends = "1", *sep = "\n";
 	bool wflag = false;
-	char c, ftmp[BUFSIZ], *fmt = ftmp;
+	char ftmp[BUFSIZ], *fmt = ftmp;
 	double start, step, end, out, dir;
 
-	while((c = getopt(argc, argv, "f:s:w")) != -1)
-		switch(c) {
-		case 'f':
-			if(!validfmt(optarg))
-				eprintf("%s: invalid format\n", optarg);
-			fmt = optarg;
-			break;
-		case 's':
-			sep = optarg;
-			break;
-		case 'w':
-			wflag = true;
-			break;
-		}
-
-	switch(argc-optind) {
-	case 3:
-		starts = argv[optind++];
-		steps = argv[optind++];
-		ends = argv[optind++];
+	ARGBEGIN {
+	case 'f':
+		if(!validfmt(EARGF(usage())))
+			eprintf("%s: invalid format\n", ARGF());
+		fmt = ARGF();
 		break;
-	case 2:
-		starts = argv[optind++];
-		/* fallthrough */
-	case 1:
-		ends = argv[optind++];
+	case 's':
+		sep = EARGF(usage());
+		break;
+	case 'w':
+		wflag = true;
 		break;
 	default:
-		eprintf("usage: %s [-w] [-f fmt] [-s separator] [start [step]] end\n", argv[0]);
+		usage();
+	} ARGEND;
+
+	switch(argc) {
+	case 3:
+		starts = argv[0];
+		argv++;
+		steps = argv[0];
+		argv++;
+		ends = argv[0];
+		argv++;
+		break;
+	case 2:
+		starts = argv[0];
+		argv++;
+		/* fallthrough */
+	case 1:
+		ends = argv[0];
+		break;
+	default:
+		usage();
 	}
 	start = estrtod(starts);
 	step  = estrtod(steps);
@@ -65,9 +78,9 @@ main(int argc, char *argv[])
 		if(wflag) {
 			int left = MAX(digitsleft(starts), digitsleft(ends));
 
-			snprintf(ftmp, sizeof ftmp, "%%0%d.%df", right+left+(right != 0), right);
-		}
-		else
+			snprintf(ftmp, sizeof ftmp, "%%0%d.%df",
+					right+left+(right != 0), right);
+		} else
 			snprintf(ftmp, sizeof ftmp, "%%.%df", right);
 	}
 	for(out = start; out * dir <= end * dir; out += step) {
@@ -77,7 +90,7 @@ main(int argc, char *argv[])
 	}
 	printf("\n");
 
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 int
@@ -155,3 +168,4 @@ format:
 		return false;
 	}
 }
+

@@ -11,24 +11,30 @@ static int ln(const char *, const char *);
 static bool sflag = false;
 static bool fflag = false;
 
+static void
+usage(void)
+{
+	eprintf("usage: %s [-fs] target linkname\n", argv0);
+	exit(1);
+}
+
 int
 main(int argc, char *argv[])
 {
-	char c;
+	ARGBEGIN {
+	case 'f':
+		fflag = true;
+		break;
+	case 's':
+		sflag = true;
+		break;
+	default:
+		usage();
+	} ARGEND;
 
-	while((c = getopt(argc, argv, "fs")) != -1)
-		switch(c) {
-		case 'f':
-			fflag = true;
-			break;
-		case 's':
-			sflag = true;
-			break;
-		default:
-			exit(EXIT_FAILURE);
-		}
-	enmasse(argc - optind, &argv[optind], ln);
-	return EXIT_SUCCESS;
+	enmasse(argc, &argv[0], ln);
+
+	return 0;
 }
 
 int
@@ -45,3 +51,4 @@ ln(const char *s1, const char *s2)
 	}
 	return -1;
 }
+

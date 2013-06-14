@@ -5,23 +5,31 @@
 #include <unistd.h>
 #include "util.h"
 
+static void
+usage(void)
+{
+	eprintf("usage: %s [-n] text\n", argv0);
+	exit(1);
+}
+
 int
 main(int argc, char *argv[])
 {
 	bool nflag = false;
-	char c;
 
-	while((c = getopt(argc, argv, "n")) != -1)
-		switch(c) {
-		case 'n':
-			nflag = true;
-			break;
-		default:
-			exit(EXIT_FAILURE);
-		}
-	for(; optind < argc; optind++)
-		putword(argv[optind]);
+	ARGBEGIN {
+	case 'n':
+		nflag = true;
+		break;
+	default:
+		usage();
+	} ARGEND;
+
+	for(; argc > 0; argc--, argv++)
+		putword(argv[0]);
 	if(!nflag)
 		putchar('\n');
-	return EXIT_SUCCESS;
+
+	return 0;
 }
+

@@ -9,21 +9,34 @@
 
 enum { Error = 127, Found = 126 };
 
+static void
+usage(void)
+{
+	eprintf("usage: %s command [argument...]\n", argv0);
+	exit(1);
+}
+
 int
 main(int argc, char *argv[])
 {
 	int fd;
 
-	if(getopt(argc, argv, "") != -1)
-		exit(Error);
-	if(optind == argc)
-		enprintf(Error, "usage: %s command [argument...]\n", argv[0]);
+	ARGBEGIN {
+	default:
+		usage();
+	} ARGEND;
+
+	if(argc == 0)
+		usage();
 
 	if(signal(SIGHUP, SIG_IGN) == SIG_ERR)
 		enprintf(Error, "signal HUP:");
+
 	if(isatty(STDOUT_FILENO)) {
-		if((fd = open("nohup.out", O_APPEND|O_CREAT, S_IRUSR|S_IWUSR)) == -1)
+		if((fd = open("nohup.out", O_APPEND|O_CREAT,
+						S_IRUSR|S_IWUSR)) == -1) {
 			enprintf(Error, "open nohup.out:");
+		}
 		if(dup2(fd, STDOUT_FILENO) == -1)
 			enprintf(Error, "dup2:");
 		close(fd);
@@ -32,7 +45,9 @@ main(int argc, char *argv[])
 		if(dup2(STDOUT_FILENO, STDERR_FILENO) == -1)
 			enprintf(Error, "dup2:");
 
-	execvp(argv[optind], &argv[optind]);
-	enprintf(errno == ENOENT ? Error : Found, "exec %s:", argv[optind]);
+	execvp(argv[0], &argv[0]);
+	enprintf(errno == ENOENT ? Error : Found, "exec %s:", argv[0]);
+
 	return Error;
 }
+
