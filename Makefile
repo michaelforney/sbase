@@ -51,6 +51,7 @@ SRC = \
 	paste.c    \
 	printenv.c \
 	pwd.c      \
+	readlink.c \
 	renice.c   \
 	rm.c       \
 	rmdir.c    \

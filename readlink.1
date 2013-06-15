@@ -1,0 +1,25 @@
+.TH READLINK 1 sbase\-VERSION
+.SH NAME
+readlink \- print value of a symbolic link or canonical file name
+.SH SYNOPSIS
+.B readlink
+.RB [ \-fn ]
+.IR file
+.SH DESCRIPTION
+The readlink utility when invoked with the pathname of a symbolic link as
+its argument dereferences the symbolic link and prints the name of target
+on standard output.  If the -f option is not specified and readlink is
+invoked with an argument other than the pathname of a symbolic link, it
+exits with a nonzero exit code without printing anything.
+.SH OPTIONS
+.TP
+.B \-f
+Canonicalize by following every symlink in every component of the
+given path recursively. The argument does not need to be a symbolic
+link.
+.TP
+.B \-n
+Do not output the trailing newline.
+.SH SEE ALSO
+.IR readlink (2),
+.IR realpath (3)
