@@ -35,6 +35,7 @@ SRC = \
 	dirname.c  \
 	echo.c     \
 	env.c      \
+	expand.c   \
 	false.c    \
 	fold.c     \
 	grep.c     \

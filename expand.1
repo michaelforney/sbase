@@ -1,0 +1,21 @@
+.TH EXPAND 1 sbase\-VERSION
+.SH NAME
+expand \- expand tabs to spaces
+.SH SYNOPSIS
+.B expand
+.RB [ \-t
+.IR n ]
+.RI [ file ...]
+.SH DESCRIPTION
+expand processes the named files or the standard input, writing the
+standard output with tabs changed into spaces.  Backspace characters
+are preserved into the output and decrement the column count for tab
+calculations.
+.SH OPTIONS
+.TP
+.BI \-t " n"
+Expand tabs to
+.I n
+spaces.  We currently support only a single numerical argument.
+.SH SEE ALSO
+.IR fold (1)
