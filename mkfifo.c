@@ -9,7 +9,6 @@ static void
 usage(void)
 {
 	eprintf("usage: %s name...\n", argv0);
-	exit(1);
 }
 
 int

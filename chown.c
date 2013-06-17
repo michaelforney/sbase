@@ -18,7 +18,6 @@ static void
 usage(void)
 {
 	eprintf("usage: %s [-r] [owner][:[group]] file...\n", argv0);
-	exit(1);
 }
 
 int

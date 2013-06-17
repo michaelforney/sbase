@@ -17,7 +17,6 @@ static void
 usage(void)
 {
 	eprintf("usage: %s [-r] mode [file...]\n", argv0);
-	exit(1);
 }
 
 int

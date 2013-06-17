@@ -18,7 +18,6 @@ static void
 usage(void)
 {
 	eprintf("usage: %s [-ru] [file...]\n", argv0);
-	exit(1);
 }
 
 int

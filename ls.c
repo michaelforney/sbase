@@ -39,7 +39,6 @@ static void
 usage(void)
 {
 	eprintf("usage: %s [-adlt] [FILE...]\n", argv0);
-	exit(1);
 }
 
 int

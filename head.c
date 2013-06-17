@@ -11,7 +11,6 @@ static void
 usage(void)
 {
 	eprintf("usage: %s [-n] [FILE...]\n", argv0);
-	exit(1);
 }
 
 int

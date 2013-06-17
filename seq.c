@@ -16,7 +16,6 @@ usage(void)
 {
 	eprintf("usage: %s [-f format] [-s sep] [-w width] first"
 		       " [inc [last]]\n", argv0);
-	exit(1);
 }
 
 int

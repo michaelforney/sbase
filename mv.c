@@ -13,7 +13,6 @@ static void
 usage(void)
 {
 	eprintf("usage: %s source... dest\n", argv0);
-	exit(1);
 }
 
 int

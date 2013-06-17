@@ -24,7 +24,6 @@ usage(void)
 {
 	eprintf("usage: %s [-s signal] [pid...]\n"
 	        "       %s -l [signum]\n", argv0, argv0);
-	exit(1);
 }
 
 int

@@ -23,7 +23,6 @@ static void
 usage(void)
 {
 	eprintf("usage: %s [-cdu] [input]]\n", argv0);
-	exit(1);
 }
 
 int

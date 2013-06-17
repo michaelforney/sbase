@@ -14,7 +14,6 @@ static void
 usage(void)
 {
 	eprintf("usage: %s [-p] directory...\n", argv0);
-	exit(1);
 }
 
 int

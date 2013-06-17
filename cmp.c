@@ -11,7 +11,6 @@ static void
 usage(void)
 {
 	enprintf(Error, "usage: %s [-ls] file1 file2\n", argv0);
-	exit(1);
 }
 
 int
