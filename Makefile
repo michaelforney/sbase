@@ -29,6 +29,7 @@ SRC = \
 	chvt.c     \
 	cksum.c    \
 	cmp.c      \
+	comm.c     \
 	cp.c       \
 	date.c     \
 	dirname.c  \

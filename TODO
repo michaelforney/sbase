@@ -1,7 +1,5 @@
 cal [-1] [-3] [-y] [year]
 
-comm [-123] file1 file2
-
 cut [-bcfs] [-d delim] list [file...]
 
 df [-shia] [path]

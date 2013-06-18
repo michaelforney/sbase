@@ -1,0 +1,33 @@
+.TH COMM 1 sbase\-VERSION
+.SH NAME
+comm \- select or reject lines common to two files
+.SH SYNOPSIS
+.B comm
+.RB [ \-123 ]
+.IR file1
+.IR file2
+.SH DESCRIPTION
+The comm utility reads
+.IR file1
+and
+.IR file2,
+which should be sorted lexically,
+and produces three text columns as output: lines only in
+.IR file1;
+lines only in
+.IR file2;
+and lines in both files.
+.SH OPTIONS
+.TP
+.BI \-1
+Suppress printing of column 1
+.TP
+.BI \-2
+Suppress printing of column 2
+.TP
+.BI \-3
+Suppress printing of column 3
+.SH SEE ALSO
+.IR cmp (1),
+.IR sort (1),
+.IR uniq (1)
