@@ -3,12 +3,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include "util.h"
 
-enum { Suppress1 = 1, Suppress2 = 2, Suppress3 = 4 };
+#define CLAMP(x, l, h) MIN(h, MAX(l, x))
 
-static void comm(FILE *fp1, const char *s1, FILE *fp2,
-		 const char *s2, int sflags);
+static void printline(int, char *);
+static char *nextline(char *, int, FILE *, char *);
+static void finish(int, FILE *, char *);
+
+static int show = 0x07;
 
 static void
 usage(void)
@@ -19,114 +23,84 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	int sflags = 0;
-	FILE *fp1, *fp2;
+	int i, dif = 0;
+	FILE *fp[2];
+	char lines[2][LINE_MAX+1];
 
 	ARGBEGIN {
 	case '1':
-		sflags |= Suppress1;
-		break;
 	case '2':
-		sflags |= Suppress2;
-		break;
 	case '3':
-		sflags |= Suppress3;
+		show &= 0x07 ^ (1 << (ARGC() - '1'));
 		break;
 	default:
 		usage();
 	} ARGEND;
 
-	if (argc < 2)
+	if(argc != 2)
 		usage();
 
-	if (!(fp1 = fopen(argv[0], "r")))
-		eprintf("fopen %s:", argv[0]);
-	if (!(fp2 = fopen(argv[1], "r")))
-		eprintf("fopen %s:", argv[1]);
+	for(i = 0; i < LEN(fp); i++) {
+		if(!(fp[i] = fopen(argv[i], "r")))
+			eprintf("comm: '%s':", argv[i]);
+	}
 
-	comm(fp1, argv[0], fp2, argv[1], sflags);
+	for(;;) {
+		if(dif <= 0) {
+			if(!nextline(lines[0], sizeof(lines[0]),
+						fp[0], argv[0])) {
+				finish(1, fp[1], argv[1]);
+			}
+		}
+		if(dif >= 0) {
+			if(!nextline(lines[1], sizeof(lines[1]),
+						fp[1], argv[1])) {
+				finish(0, fp[0], argv[0]);
+			}
+		}
+		dif = strcmp(lines[0], lines[1]);
+		dif = CLAMP(dif, -1, 1);
+		printline((2-dif) % 3, lines[MAX(0, dif)]);
+	}
 
 	return 0;
 }
 
-static void
-print_col1(const char *s, int sflags)
+void
+printline(int pos, char *line)
 {
-	if (sflags & Suppress1)
+	int i;
+
+	if(!(show & (0x1 << pos)))
 		return;
-	printf("%s", s);
-}
 
-static void
-print_col2(const char *s, int sflags)
-{
-	const char *tabs = "\t";
-	if (sflags & Suppress1)
-		tabs = "";
-	if (sflags & Suppress2)
-		return;
-	printf("%s%s", tabs, s);
-}
-
-static void
-print_col3(const char *s, int sflags)
-{
-	const char *tabs = "\t\t";
-	if (sflags & Suppress1)
-		tabs = "\t";
-	if (sflags & Suppress2)
-		tabs = "";
-	if (sflags & Suppress3)
-		return;
-	printf("%s%s", tabs, s);
-}
-
-static void
-comm(FILE *fp1, const char *s1, FILE *fp2, const char *s2, int sflags)
-{
-	char buf1[BUFSIZ], buf2[BUFSIZ];
-	bool eof1 = false, eof2 = false;
-	bool r1 = true, r2 = true;
-	int ret;
-
-	for (;;) {
-		if (r1)
-			if (!fgets(buf1, sizeof buf1, fp1))
-				eof1 = true;
-		if (r2)
-			if (!fgets(buf2, sizeof buf2, fp2))
-				eof2 = true;
-
-		/* If we reached EOF on fp1 then just dump fp2 */
-		if (eof1) {
-			do {
-				print_col2(buf2, sflags);
-			} while (fgets(buf2, sizeof buf2, fp2));
-			return;
-		}
-		/* If we reached EOF on fp2 then just dump fp1 */
-		if (eof2) {
-			do {
-				print_col1(buf1, sflags);
-			} while (fgets(buf1, sizeof buf1, fp1));
-			return;
-		}
-
-		ret = strcmp(buf1, buf2);
-		if (!ret) {
-			r1 = r2 = true;
-			print_col3(buf1, sflags);
-			continue;
-		} else if (ret < 0) {
-			r1 = true;
-			r2 = false;
-			print_col1(buf1, sflags);
-			continue;
-		} else {
-			r1 = false;
-			r2 = true;
-			print_col2(buf2, sflags);
-			continue;
-		}
+	for(i = 0; i < pos; i++) {
+		if(show & (0x1 << i))
+			putchar('\t');
 	}
+	printf("%s", line);
 }
+
+char *
+nextline(char *buf, int n, FILE *f, char *name)
+{
+	buf = fgets(buf, n, f);
+	if(!buf && !feof(f))
+		eprintf("comm: '%s':", name);
+	if(buf && !strchr(buf, '\n'))
+		eprintf("comm: '%s': line too long.\n", name);
+
+	return buf;
+}
+
+void
+finish(int pos, FILE *f, char *name)
+{
+	char buf[LINE_MAX+1];
+
+	while(nextline(buf, sizeof(buf), f, name))
+		printline(pos, buf);
+
+	exit(1);
+}
+
