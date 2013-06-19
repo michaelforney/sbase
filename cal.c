@@ -109,7 +109,7 @@ isleap(int year)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-c columns] [-m month] [-n number] [-y year]\n",
+	eprintf("usage: %s [-1] [-3] [-m] [-s] [-y] [-c columns] [-f firstday] [-n nmonths] [[[ day] month] year]\n",
 			argv0);
 }
 
