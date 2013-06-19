@@ -1,0 +1,42 @@
+.TH CAL 1 sbase\-VERSION
+.SH NAME
+cal \- print calendar
+.SH SYNOPSIS
+.B cal
+.RB [ \-c
+.IR columns ]
+.RB [ \-m
+.IR month ]
+.RB [ \-n
+.IR number ]
+.RB [ \-y
+.IR year ]
+.SH DESCRIPTION
+Beginning with
+.IR month
+and
+.IR year
+print
+.IR number
+of calendars side by side. Each row of calendars contains at most
+.IR columns
+number of calendars.
+.SH OPTIONS
+.TP
+.BI \-c " columns"
+print
+.IR columns
+number of calendars in a row. default is 3
+.TP
+.BI \-m " month"
+starting month. default is obtained from
+.IR localtime (3)
+.TP
+.BI \-n " number"
+number of calendars to print. default is 1
+.TP
+.BI \-y " year"
+starting year. default is obtained from
+.IR localtime (3)
+.SH SEE ALSO
+.IR localtime (3)

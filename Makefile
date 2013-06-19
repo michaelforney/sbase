@@ -21,6 +21,7 @@ LIB = \
 
 SRC = \
 	basename.c \
+	cal.c      \
 	cat.c      \
 	chgrp.c    \
 	chmod.c    \
