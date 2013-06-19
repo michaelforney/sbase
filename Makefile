@@ -15,6 +15,7 @@ LIB = \
 	util/estrtol.o   \
 	util/fnck.o      \
 	util/getlines.o  \
+	util/md5.o       \
 	util/putword.o   \
 	util/recurse.o   \
 	util/rm.o
@@ -45,6 +46,7 @@ SRC = \
 	ln.c       \
 	ls.c       \
 	mc.c       \
+	md5sum.c   \
 	mkdir.c    \
 	mkfifo.c   \
 	mknod.c    \
