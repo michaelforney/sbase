@@ -28,6 +28,8 @@ drawcal(int year, int month, int day, int ncols, int nmons, int fday)
 	int row = 0;
 	char *days[] = { "Su", "Mo", "Tu", "We", "Th", "Fr", "Sa", };
 
+        if(!ncols)
+            ncols = nmons;
 	while(nmons > 0) {
 		last = MIN(nmons, ncols);
 		for(i = 0; i < last; i++) {
@@ -179,8 +181,8 @@ main(int argc, char *argv[])
 		usage();
 	}
 
-	if(ncols < 0 || ncols > MONTHMAX || month < 1 || month > 12 \
-			|| nmons < 1 || fday < 0 || fday > 6) {
+	if(ncols < 0 || month < 1 || month > 12 || nmons < 1 \
+			|| nmons > MONTHMAX || fday < 0 || fday > 6) {
 		usage();
 	}
 
