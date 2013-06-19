@@ -3,13 +3,20 @@
 cal \- print calendar
 .SH SYNOPSIS
 .B cal
+.RB [ \-1 ]
+.RB [ \-3 ]
+.RB [ \-m ]
+.RB [ \-s ]
+.RB [ \-y ]
 .RB [ \-c
 .IR columns ]
-.RB [ \-m
-.IR month ]
+.RB [ \-f
+.IR firstday ]
 .RB [ \-n
-.IR number ]
-.RB [ \-y
+.IR nmonths ]
+.RB [ [ [
+.IR day ]
+.IR month ]
 .IR year ]
 .SH DESCRIPTION
 Beginning with
@@ -20,23 +27,34 @@ print
 .IR number
 of calendars side by side. Each row of calendars contains at most
 .IR columns
-number of calendars.
+number of calendars. The defaults are obtained using
+.IR localtime (3).
 .SH OPTIONS
 .TP
+.B \-1
+Print one single month.
+.TP
+.B \-3
+Print prev/current/nexth month.
+.TP
+.B \-m
+Print Monday as first day of week.
+.TP
+.B \-s
+Print Sunday as first day of week.
+.TP
+.B \-y
+Print a calendar of the current year.
+.TP
 .BI \-c " columns"
-print
+Print
 .IR columns
-number of calendars in a row. default is 3
+number of calendars in a row. The default is 3.
 .TP
-.BI \-m " month"
-starting month. default is obtained from
-.IR localtime (3)
+.BI \-f " firstday"
+Specify the first day of the week. 0 is Sunday and 6 is Saturday.
 .TP
-.BI \-n " number"
-number of calendars to print. default is 1
-.TP
-.BI \-y " year"
-starting year. default is obtained from
-.IR localtime (3)
+.BI \-n " nmonths"
+Specify the number months to print. The default is 1.
 .SH SEE ALSO
 .IR localtime (3)
