@@ -30,5 +30,3 @@ tr string1 [string2]
 
 unexpand [-a] [-t N] [file...]
 
-who 
-
