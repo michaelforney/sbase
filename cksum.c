@@ -100,7 +100,7 @@ cksum(int fd, const char *s)
 	for(i = len; i > 0; i >>= 8)
 		ck = (ck << 8) ^ crctab[(ck >> 24) ^ (i & 0xFF)];
 
-	printf("%u %lu", ~ck, len);
+	printf("%u %lu", ~ck, (unsigned long)len);
 	if(s != NULL)
 		printf(" %s", s);
 	putchar('\n');
