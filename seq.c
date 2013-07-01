@@ -14,8 +14,8 @@ static bool validfmt(const char *);
 static void
 usage(void)
 {
-	eprintf("usage: %s [-f format] [-s sep] [-w width] first"
-		       " [inc [last]]\n", argv0);
+	eprintf("usage: %s [-f fmt] [-s separator] [-w width] [start"
+		       " [step]] end\n", argv0);
 }
 
 int
@@ -23,14 +23,15 @@ main(int argc, char *argv[])
 {
 	const char *starts = "1", *steps = "1", *ends = "1", *sep = "\n";
 	bool wflag = false;
-	char ftmp[BUFSIZ], *fmt = ftmp;
+	char *tmp, ftmp[BUFSIZ], *fmt = ftmp;
 	double start, step, end, out, dir;
+	int left, right;
 
 	ARGBEGIN {
 	case 'f':
-		if(!validfmt(EARGF(usage())))
-			eprintf("%s: invalid format\n", ARGF());
-		fmt = ARGF();
+		if(!validfmt(tmp=EARGF(usage())))
+			eprintf("%s: invalid format\n", tmp);
+		fmt = tmp;
 		break;
 	case 's':
 		sep = EARGF(usage());
@@ -44,13 +45,9 @@ main(int argc, char *argv[])
 
 	switch(argc) {
 	case 3:
-		starts = argv[0];
-		argv++;
-		steps = argv[0];
-		argv++;
-		ends = argv[0];
-		argv++;
-		break;
+		steps = argv[1];
+		argv[1] = argv[2];
+		/* fallthrough */
 	case 2:
 		starts = argv[0];
 		argv++;
@@ -70,12 +67,12 @@ main(int argc, char *argv[])
 		return EXIT_FAILURE;
 
 	if(fmt == ftmp) {
-		int right = MAX(digitsright(starts),
+		right = MAX(digitsright(starts),
 		            MAX(digitsright(ends),
 		                digitsright(steps)));
 
 		if(wflag) {
-			int left = MAX(digitsleft(starts), digitsleft(ends));
+			left = MAX(digitsleft(starts), digitsleft(ends));
 
 			snprintf(ftmp, sizeof ftmp, "%%0%d.%df",
 					right+left+(right != 0), right);
