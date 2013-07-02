@@ -61,6 +61,7 @@ SRC = \
 	sleep.c    \
 	sort.c     \
 	split.c    \
+	sponge.c   \
 	sync.c     \
 	tail.c     \
 	tee.c      \
