@@ -17,11 +17,7 @@ int
 main(int argc, char **argv)
 {
 	mode_t type, mode = 0644;
-	mode_t types['u'+1];
 	dev_t dev;
-
-	types['u'] = types['c'] = S_IFCHR;
-	types['b'] = S_IFBLK;
 
 	ARGBEGIN {
 	case 'm':
@@ -36,7 +32,7 @@ main(int argc, char **argv)
 
 	if(strlen(argv[1]) != 1 || !strchr("ucb", argv[1][0]))
 		eprintf("mknod: '%s': invalid type\n", argv[1]);
-	type = types[(unsigned)argv[1][0]];
+	type = (argv[1][0] == 'b') ? S_IFBLK : S_IFCHR;
 
 	dev = makedev(estrtol(argv[2], 0), estrtol(argv[3], 0));
 
