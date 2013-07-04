@@ -18,7 +18,8 @@ LIB = \
 	util/md5.o       \
 	util/putword.o   \
 	util/recurse.o   \
-	util/rm.o
+	util/rm.o        \
+	util/sha1.o
 
 SRC = \
 	basename.c \
@@ -76,6 +77,7 @@ SRC = \
 	uniq.c     \
 	unlink.c   \
 	seq.c      \
+	sha1sum.c  \
 	wc.c       \
 	who.c      \
 	yes.c
