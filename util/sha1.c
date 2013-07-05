@@ -38,21 +38,21 @@ static void processblock(struct sha1 *s, const uint8_t *buf)
 		G0(c,d,e,a,b,i++);
 		G0(b,c,d,e,a,i++);
 	}
-	for (; i < 40; ) {
+	while (i < 40) {
 		G1(a,b,c,d,e,i++);
 		G1(e,a,b,c,d,i++);
 		G1(d,e,a,b,c,i++);
 		G1(c,d,e,a,b,i++);
 		G1(b,c,d,e,a,i++);
 	}
-	for (; i < 60; ) {
+	while (i < 60) {
 		G2(a,b,c,d,e,i++);
 		G2(e,a,b,c,d,i++);
 		G2(d,e,a,b,c,i++);
 		G2(c,d,e,a,b,i++);
 		G2(b,c,d,e,a,i++);
 	}
-	for (; i < 80; ) {
+	while (i < 80) {
 		G3(a,b,c,d,e,i++);
 		G3(e,a,b,c,d,i++);
 		G3(d,e,a,b,c,i++);
