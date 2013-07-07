@@ -89,8 +89,10 @@ static void pad(struct sha1 *s)
 	processblock(s, s->buf);
 }
 
-void sha1_init(struct sha1 *s)
+void sha1_init(void *ctx)
 {
+	struct sha1 *s = ctx;
+
 	s->len = 0;
 	s->h[0] = 0x67452301;
 	s->h[1] = 0xEFCDAB89;
@@ -99,8 +101,9 @@ void sha1_init(struct sha1 *s)
 	s->h[4] = 0xC3D2E1F0;
 }
 
-void sha1_sum(struct sha1 *s, uint8_t md[20])
+void sha1_sum(void *ctx, uint8_t md[20])
 {
+	struct sha1 *s = ctx;
 	int i;
 
 	pad(s);
@@ -112,8 +115,9 @@ void sha1_sum(struct sha1 *s, uint8_t md[20])
 	}
 }
 
-void sha1_update(struct sha1 *s, const void *m, unsigned long len)
+void sha1_update(void *ctx, const void *m, unsigned long len)
 {
+	struct sha1 *s = ctx;
 	const uint8_t *p = m;
 	unsigned r = s->len % 64;
 

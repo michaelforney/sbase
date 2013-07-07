@@ -3,13 +3,14 @@ include config.mk
 .POSIX:
 .SUFFIXES: .c .o
 
-HDR = fs.h text.h util.h arg.h
+HDR = crypt.h fs.h text.h md5.h sha1.h util.h arg.h
 LIB = \
 	util/afgets.o    \
 	util/agetcwd.o   \
 	util/apathmax.o  \
 	util/concat.o    \
 	util/cp.o        \
+	util/crypt.o     \
 	util/enmasse.o   \
 	util/eprintf.o   \
 	util/estrtol.o   \

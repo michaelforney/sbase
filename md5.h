@@ -9,10 +9,10 @@ struct md5 {
 enum { MD5_DIGEST_LENGTH = 16 };
 
 /* reset state */
-void md5_init(struct md5 *s);
+void md5_init(void *ctx);
 /* process message */
-void md5_update(struct md5 *s, const void *m, unsigned long len);
+void md5_update(void *ctx, const void *m, unsigned long len);
 /* get message digest */
 /* state is ruined after sum, keep a copy if multiple sum is needed */
 /* part of the message might be left in s, zero it if secrecy is needed */
-void md5_sum(struct md5 *s, uint8_t md[MD5_DIGEST_LENGTH]);
+void md5_sum(void *ctx, uint8_t md[MD5_DIGEST_LENGTH]);
