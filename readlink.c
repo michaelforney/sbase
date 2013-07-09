@@ -20,6 +20,7 @@ main(int argc, char *argv[])
 	char buf[PATH_MAX];
 	bool nflag = false;
 	bool fflag = false;
+	ssize_t n;
 
 	ARGBEGIN {
 	case 'f':
@@ -42,8 +43,9 @@ main(int argc, char *argv[])
 		if (realpath(argv[0], buf) == NULL)
 			exit(1);
 	} else {
-		if (readlink(argv[0], buf, sizeof(buf)) < 0)
+		if ((n = readlink(argv[0], buf, sizeof(buf) - 1)) < 0)
 			exit(1);
+		buf[n] = '\0';
 	}
 
 	printf("%s", buf);
