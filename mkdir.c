@@ -46,7 +46,7 @@ mkdirp(char *path)
 	char *p = path;
 
 	do {
-		if((p = strchr(&p[1], '/')))
+		if(*p && (p = strchr(&p[1], '/')))
 			*p = '\0';
 		if(mkdir(path, S_IRWXU|S_IRWXG|S_IRWXO) == -1 && errno != EEXIST)
 			eprintf("mkdir %s:", path);
