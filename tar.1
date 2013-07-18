@@ -1,0 +1,62 @@
+.TH TAR 1 sbase\-VERSION
+.SH NAME
+tar \- create, list or extract a tape archive
+.SH SYNOPSIS
+.B tar
+.RB [ \-f
+.IR tarfile]
+.RB [ \-C
+.IR dir ]
+.RB [ - ] x | t
+
+.B tar
+.RB [ \-f
+.IR tarfile]
+.RB [ \-C
+.IR dir ]
+.RB [ - ] c
+.I dir
+
+.B tar
+.RB [ \-C
+.IR dir ]
+.B cf
+.I tarfile
+.I dir
+
+.B tar
+.RB [ \-C
+.IR dir ]
+.B x|tf 
+.I tarfile
+
+.SH DESCRIPTION
+.B tar 
+is the standard file archiver. Generally the archives
+created with it are further compressed.
+.SH OPTIONS
+.TP
+.B x
+extract tarball from stdin
+.TP
+.B t
+list all files in tarball from stdin
+.TP
+.BI c\  path 
+creates tarball from 
+.I path 
+and prints it to stdout
+.TP
+.BI f\  tarfile
+Make
+.I tarfile
+be the archive, rather than stdin or stdout.
+.TP
+.BI C\ dir
+Change dierctory to
+.I dir
+before beginning.
+.SH SEE ALSO
+.IR ar (1)
+.IR gzip (1)
+.IR bzip2 (1)

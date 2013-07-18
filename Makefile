@@ -69,6 +69,7 @@ SRC = \
 	sponge.c   \
 	sync.c     \
 	tail.c     \
+	tar.c      \
 	tee.c      \
 	test.c     \
 	touch.c    \
