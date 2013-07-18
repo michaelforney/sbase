@@ -14,7 +14,8 @@ main(int argc, char **argv)
 {
 	ARGBEGIN {
 	case 'i':
-		clearenv();
+		if(environ)
+			*environ = NULL;
 		break;
 	case 'u':
 		unsetenv(EARGF(usage()));

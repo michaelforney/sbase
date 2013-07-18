@@ -88,10 +88,14 @@ OBJ = $(SRC:.c=.o) $(LIB)
 BIN = $(SRC:.c=)
 MAN = $(SRC:.c=.1)
 
-all: $(BIN)
+all: binlib
+
+binlib: util.a
+	$(MAKE) bin
+
+bin: $(BIN)
 
 $(OBJ): util.h config.mk
-$(BIN): util.a
 cat.o fold.o grep.o nl.o sort.o tail.o uniq.o: text.h
 cp.o mv.o rm.o: fs.h
 

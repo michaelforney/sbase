@@ -3,7 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
-#include <utmpx.h>
+#include <utmp.h>
 #include "util.h"
 
 static void usage(void);
@@ -11,21 +11,25 @@ static void usage(void);
 int
 main(int argc, char **argv)
 {
-	struct utmpx *ut;
+	struct utmp usr;
+	FILE *ufp;
 	time_t t;
 	char timebuf[sizeof "yyyy-mm-dd hh:mm"];
 
 	if(argc!=1)
 		usage();
 
-	while((ut=getutxent())) {
-		if(ut->ut_type != USER_PROCESS)
-			continue;
-		t = ut->ut_tv.tv_sec;
-		strftime(timebuf, sizeof timebuf, "%Y-%m-%d %H:%M", localtime(&t));
-		printf("%-8s %-12s %-16s\n", ut->ut_user, ut->ut_line, timebuf);
+	if (!(ufp = fopen(_PATH_UTMP, "r"))) {
+		eprintf("fopen:");
 	}
-	endutxent();
+	while(fread((char *)&usr, sizeof(usr), 1, ufp) == 1) {
+		if (!*usr.ut_name || !*usr.ut_line)
+			continue;
+		t = usr.ut_time;
+		strftime(timebuf, sizeof timebuf, "%Y-%m-%d %H:%M", localtime(&t));
+		printf("%-8s %-12s %-16s\n", usr.ut_name, usr.ut_line, timebuf);
+	}
+	fclose(ufp);
 	return 0;
 }
 
