@@ -22,29 +22,30 @@ typedef struct {
 	time_t mtime;
 } Entry;
 
-static int entcmp(Entry *, Entry *);
-static void ls(char *);
+static int entcmp(const void *, const void *);
+static void ls(Entry *);
 static void lsdir(const char *);
-static void mkent(Entry *, char *);
+static void mkent(Entry *, char *, bool);
 static void output(Entry *);
 
 static bool aflag = false;
 static bool dflag = false;
 static bool lflag = false;
 static bool tflag = false;
+static bool Uflag = false;
 static bool first = true;
 static bool many;
 
 static void
 usage(void)
 {
-	eprintf("usage: %s [-adlt] [FILE...]\n", argv0);
+	eprintf("usage: %s [-adltU] [FILE...]\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
-	int i, n;
+	int i;
 	Entry *ents;
 
 	ARGBEGIN {
@@ -60,31 +61,33 @@ main(int argc, char *argv[])
 	case 't':
 		tflag = true;
 		break;
+	case 'U':
+		Uflag = true;
+		break;
 	default:
 		usage();
 	} ARGEND;
 
 	many = (argc > 1);
+	if(argc == 0)
+		*--argv = ".", argc++;
 
-	if((n = argc) > 0) {
-		if(!(ents = malloc(n * sizeof *ents)))
-			eprintf("malloc:");
-		for(i = 0; i < n; i++)
-			mkent(&ents[i], argv[i]);
-		qsort(ents, n, sizeof *ents,
-				(int (*)(const void *, const void *))entcmp);
-		for(i = 0; i < n; i++)
-			ls(ents[i].name);
-	}
-	else
-		ls(".");
+	if(!(ents = malloc(argc * sizeof *ents)))
+		eprintf("malloc:");
+	for(i = 0; i < argc; i++)
+		mkent(&ents[i], argv[i], true);
+	qsort(ents, argc, sizeof *ents, entcmp);
+	for(i = 0; i < argc; i++)
+		ls(&ents[i]);
 
 	return 0;
 }
 
 int
-entcmp(Entry *a, Entry *b)
+entcmp(const void *va, const void *vb)
 {
+	const Entry *a = va, *b = vb;
+
 	if(tflag)
 		return b->mtime - a->mtime;
 	else
@@ -92,15 +95,13 @@ entcmp(Entry *a, Entry *b)
 }
 
 void
-ls(char *path)
+ls(Entry *ent)
 {
-	Entry ent;
-
-	mkent(&ent, path);
-	if(S_ISDIR(ent.mode) && !dflag)
-		lsdir(path);
-	else
-		output(&ent);
+	if(S_ISDIR(ent->mode) && !dflag) {
+		lsdir(ent->name);
+	} else {
+		output(ent);
+	}
 }
 
 void
@@ -110,7 +111,7 @@ lsdir(const char *path)
 	long i, n = 0;
 	struct dirent *d;
 	DIR *dp;
-	Entry *ents = NULL;
+	Entry ent, *ents = NULL;
 
 	cwd = agetcwd();
 	if(!(dp = opendir(path)))
@@ -118,28 +119,35 @@ lsdir(const char *path)
 	if(chdir(path) == -1)
 		eprintf("chdir %s:", path);
 
-	while((d = readdir(dp))) {
-		if(d->d_name[0] == '.' && !aflag)
-			continue;
-		if(!(ents = realloc(ents, ++n * sizeof *ents)))
-			eprintf("realloc:");
-		if(!(p = malloc(strlen(d->d_name)+1)))
-			eprintf("malloc:");
-		strcpy(p, d->d_name);
-		mkent(&ents[n-1], p);
-	}
-	closedir(dp);
-	qsort(ents, n, sizeof *ents, (int (*)(const void *, const void *))entcmp);
-
 	if(many) {
 		if(!first)
 			putchar('\n');
 		printf("%s:\n", path);
 		first = false;
 	}
-	for(i = 0; i < n; i++) {
-		output(&ents[i]);
-		free(ents[i].name);
+
+	while((d = readdir(dp))) {
+		if(d->d_name[0] == '.' && !aflag)
+			continue;
+		if(Uflag){
+			mkent(&ent, d->d_name, lflag);
+			output(&ent);
+		} else {
+			if(!(ents = realloc(ents, ++n * sizeof *ents)))
+				eprintf("realloc:");
+			if(!(p = malloc(strlen(d->d_name)+1)))
+				eprintf("malloc:");
+			strcpy(p, d->d_name);
+			mkent(&ents[n-1], p, tflag || lflag);
+		}
+	}
+	closedir(dp);
+	if(!Uflag){
+		qsort(ents, n, sizeof *ents, entcmp);
+		for(i = 0; i < n; i++) {
+			output(&ents[i]);
+			free(ents[i].name);
+		}
 	}
 	if(chdir(cwd) == -1)
 		eprintf("chdir %s:", cwd);
@@ -148,13 +156,15 @@ lsdir(const char *path)
 }
 
 void
-mkent(Entry *ent, char *path)
+mkent(Entry *ent, char *path, bool dostat)
 {
 	struct stat st;
 
+	ent->name   = path;
+	if(!dostat)
+		return;
 	if(lstat(path, &st) == -1)
 		eprintf("lstat %s:", path);
-	ent->name   = path;
 	ent->mode   = st.st_mode;
 	ent->nlink  = st.st_nlink;
 	ent->uid    = st.st_uid;

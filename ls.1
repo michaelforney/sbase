@@ -3,7 +3,7 @@
 ls \- list directory contents
 .SH SYNOPSIS
 .B ls
-.RB [ \-adlt ]
+.RB [ \-adltU ]
 .RI [ file ...]
 .SH DESCRIPTION
 .B ls
@@ -23,5 +23,8 @@ links, owner, group, size, and modification time.
 .TP
 .B \-t
 sorts files by modification time instead of by name.
+.TP
+.B \-U
+keeps the list unsorted.
 .SH SEE ALSO
 .IR stat (2)
