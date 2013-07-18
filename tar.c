@@ -61,7 +61,7 @@ usage(void)
 int 
 main(int argc, char *argv[])
 {
-	char *file, *dir, *ap;
+	char *file = NULL, *dir = ".", *ap;
 	char mode = '\0';
 
 	ARGBEGIN {
@@ -125,8 +125,7 @@ main(int argc, char *argv[])
 		tarfile = (mode == 'c') ? stdout : stdin;
 	}
 
-	if(dir)
-		chdir(dir);
+	chdir(dir);
 
 	if(mode == 'c') {
 		c(argv[0]);
