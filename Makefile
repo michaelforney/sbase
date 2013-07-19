@@ -20,7 +20,8 @@ LIB = \
 	util/putword.o   \
 	util/recurse.o   \
 	util/rm.o        \
-	util/sha1.o
+	util/sha1.o      \
+	util/sha256.o
 
 SRC = \
 	basename.c \
@@ -80,6 +81,7 @@ SRC = \
 	unlink.c   \
 	seq.c      \
 	sha1sum.c  \
+	sha256sum.c\
 	wc.c       \
 	who.c      \
 	yes.c
