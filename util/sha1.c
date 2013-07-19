@@ -101,7 +101,7 @@ void sha1_init(void *ctx)
 	s->h[4] = 0xC3D2E1F0;
 }
 
-void sha1_sum(void *ctx, uint8_t md[20])
+void sha1_sum(void *ctx, uint8_t md[SHA1_DIGEST_LENGTH])
 {
 	struct sha1 *s = ctx;
 	int i;

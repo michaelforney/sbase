@@ -105,7 +105,7 @@ void md5_init(void *ctx)
 	s->h[3] = 0x10325476;
 }
 
-void md5_sum(void *ctx, uint8_t md[16])
+void md5_sum(void *ctx, uint8_t md[MD5_DIGEST_LENGTH])
 {
 	struct md5 *s = ctx;
 	int i;
