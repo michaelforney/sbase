@@ -37,7 +37,7 @@ drawcal(int year, int month, int day, int ncols, int nmons, int fday)
 			cur = moff % 12;
 			yoff = year + moff / 12;
 
-			sprintf(str, "%s %d", smon[cur], yoff);
+			snprintf(str, sizeof(str), "%s %d", smon[cur], yoff);
 			printf("%-20s   ", str);
 			count[i] = 1;
 		}
