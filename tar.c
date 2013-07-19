@@ -35,8 +35,8 @@ enum {
 };
 
 enum Type {
-	REG = '0', HARDLINK = '1', SYMLINK = '2', CHARDEV = '3', 
-	BLOCKDEV = '4', DIRECTORY = '5', FIFO = '6' 
+	REG = '0', HARDLINK = '1', SYMLINK = '2', CHARDEV = '3',
+	BLOCKDEV = '4', DIRECTORY = '5', FIFO = '6'
 };
 
 static void putoctal(char *, unsigned, int);
@@ -49,7 +49,7 @@ static void xt(int (*)(char*, int, char[Blksiz]));
 
 static FILE *tarfile;
 
-static void 
+static void
 usage(void)
 {
 	eprintf("usage: tar [-f tarfile] [-C dir] [-]x|t\n"
@@ -58,7 +58,7 @@ usage(void)
 	        "       tar [-C dir] x|tf tarfile\n");
 }
 
-int 
+int
 main(int argc, char *argv[])
 {
 	char *file = NULL, *dir = ".", *ap;
@@ -142,13 +142,13 @@ putoctal(char *dst, unsigned num, int n)
 	snprintf(dst, n, "%.*o", n-1, num);
 }
 
-int 
+int
 strlcpy(char *dst, const char *src, int n)
 {
 	return snprintf(dst, n, "%s", src);
 }
 
-int 
+int
 archive(const char* path, const struct stat* sta, int type)
 {
 	unsigned char b[Blksiz];
@@ -209,10 +209,10 @@ archive(const char* path, const struct stat* sta, int type)
 		fwrite(b, Blksiz, 1, tarfile);
 	}
 	fclose(f);
-	return 0;	
+	return 0;
 }
 
-int 
+int
 unarchive(char *fname, int l, char b[Blksiz])
 {
 	char lname[101];
@@ -255,7 +255,7 @@ unarchive(char *fname, int l, char b[Blksiz])
 	default:
 		fprintf(stderr, "usupported tarfiletype %c\n", h->type);
 	}
-	if(getuid() == 0 && chown(fname, strtoul(h->uid, 0, 8), 
+	if(getuid() == 0 && chown(fname, strtoul(h->uid, 0, 8),
 	                                 strtoul(h->gid, 0, 8)))
 		perror(fname);
 
@@ -269,7 +269,7 @@ unarchive(char *fname, int l, char b[Blksiz])
 	return 0;
 }
 
-int 
+int
 print(char * fname, int l, char b[Blksiz])
 {
 	puts(fname);
