@@ -12,7 +12,7 @@ static void usage(void);
 
 static int base = 26, start = 'a';
 
-int 
+int
 main(int argc, char **argv)
 {
 	int plen, slen = 2;
@@ -36,7 +36,7 @@ main(int argc, char **argv)
 		tmp = ARGF();
 		if(tmp == NULL)
 			break;
-		
+
 		size = strtoull(tmp, &end, 10);
 		if(*end == '\0')
 			break;

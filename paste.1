@@ -22,7 +22,7 @@ of
 concatenates the corresponding  lines of the input files.
 The newline of every line except the line  from the last input file is
 replaced with a tab.
-If an end-of-file condition is detected on one or more input files, 
+If an end-of-file condition is detected on one or more input files,
 but not all input files,
 .B paste
 behaves as though empty lines were read from the files on which
@@ -35,17 +35,17 @@ option is specified.
 unless a backslash character appears in
 .I list
 each character is an element specifying a delimiter.
-If a backslash character appears, that and one or more characters 
+If a backslash character appears, that and one or more characters
 following it are an element specifying a delimiter.
-These elements specify one or more characters to use, 
-instead of the default tab, to replace the newline of the input 
+These elements specify one or more characters to use,
+instead of the default tab, to replace the newline of the input
 lines. The elements in
 .I list
-are used circularly; that is, when the 
+are used circularly; that is, when the
 .I list
 is exhausted the first element from the list is reused.
 When the
-.B \-s 
+.B \-s
 option is specified, the last newline in a file is not be modified.
 The delimiter is reset to the first element of list after each file
 operand is processed.
@@ -69,9 +69,9 @@ If Any other characters follow the backslash, results are unspecified.
 .RE
 .TP
 .B \-s
-concatenate all of the lines of each separate input file in command line 
+concatenate all of the lines of each separate input file in command line
 order. The newline of every line except the last line in each input file
-are replaced with the tab, unless otherwise specified by the 
+are replaced with the tab, unless otherwise specified by the
 .B \-d
 option.
 .PP

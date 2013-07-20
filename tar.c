@@ -40,7 +40,6 @@ enum Type {
 };
 
 static void putoctal(char *, unsigned, int);
-static int strlcpy(char *, const char *, int n);
 static int archive(const char *, const struct stat *, int);
 static int unarchive(char *, int, char[Blksiz]);
 static int print(char *, int , char[Blksiz]);
@@ -143,12 +142,6 @@ putoctal(char *dst, unsigned num, int n)
 }
 
 int
-strlcpy(char *dst, const char *src, int n)
-{
-	return snprintf(dst, n, "%s", src);
-}
-
-int
 archive(const char* path, const struct stat* sta, int type)
 {
 	unsigned char b[Blksiz];
@@ -166,7 +159,7 @@ archive(const char* path, const struct stat* sta, int type)
 	gr = getgrgid(st.st_gid);
 
 	memset(b, 0, sizeof b);
-	strlcpy (h->name,  path,                      sizeof h->name);
+	snprintf(h->name, sizeof h->name, "%s", path);
 	putoctal(h->mode,  (unsigned)st.st_mode&0777, sizeof h->mode);
 	putoctal(h->uid,   (unsigned)st.st_uid,       sizeof h->uid);
 	putoctal(h->gid,   (unsigned)st.st_gid,       sizeof h->gid);
@@ -174,8 +167,8 @@ archive(const char* path, const struct stat* sta, int type)
 	putoctal(h->mtime, (unsigned)st.st_mtime,     sizeof h->mtime);
 	memcpy(h->magic,   "ustar",                   sizeof h->magic);
 	memcpy(h->version, "00",                      sizeof h->version);
-	strlcpy(h->uname,  pw->pw_name,               sizeof h->uname);
-	strlcpy(h->gname,  gr->gr_name,               sizeof h->gname);
+	snprintf(h->uname, sizeof h->uname, "%s", pw->pw_name);
+	snprintf(h->gname, sizeof h->gname, "%s", gr->gr_name);
 
 	mode = st.st_mode;
 	if(S_ISREG(mode)) {
@@ -229,7 +222,7 @@ unarchive(char *fname, int l, char b[Blksiz])
 		break;
 	case HARDLINK:
 	case SYMLINK:
-		strlcpy(lname, h->link, sizeof lname);
+		snprintf(lname, sizeof lname, "%s", h->link);
 		if(!((h->type == HARDLINK) ? link : symlink)(lname, fname))
 			perror(fname);
 		break;
@@ -291,7 +284,7 @@ xt(int (*fn)(char*, int, char[Blksiz]))
 	Header *h = (void*)b;
 
 	while(fread(b, Blksiz, 1, tarfile) && h->name[0] != '\0') {
-		strlcpy(fname, h->name, sizeof fname);
+		snprintf(fname, sizeof fname, "%s", h->name);
 		fn(fname, strtol(h->size, 0, 8), b);
 	}
 }

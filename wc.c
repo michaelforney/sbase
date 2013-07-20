@@ -19,7 +19,7 @@ main(int argc, char *argv[])
 {
 	FILE *fp;
 	int i;
-	
+
 	ARGBEGIN {
 	case 'c':
 		cmode = 'c';
@@ -36,7 +36,7 @@ main(int argc, char *argv[])
 	default:
 		eprintf("usage: %s [-clmw] [files...]\n", argv0);
 	} ARGEND;
-	
+
 	if (argc == 0) {
 		wc(stdin, NULL);
 	} else {

@@ -33,7 +33,7 @@ main(int argc, char **argv)
 	return 0;
 }
 
-void 
+void
 usage(void)
 {
 	eprintf("usage: who\n");

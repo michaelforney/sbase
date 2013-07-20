@@ -33,7 +33,7 @@ main(int argc, char **argv)
 	}
 
 	while(environ && *environ)
-		printf("%s\n", *environ++);	
+		printf("%s\n", *environ++);
 
 	return 0;
 }
