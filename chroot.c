@@ -7,10 +7,10 @@ static void usage(void);
 int
 main(int argc, char **argv)
 {
-	char *shell[] = {"/bin/sh", "-i", NULL};
+	char *shell[] = {"/bin/sh", "-i", NULL}, *aux;
 
-	if(getenv("SHELL"))
-		shell[0] = getenv("SHELL");
+	if(aux = getenv("SHELL"))
+		shell[0] = aux;
 
 	if(argc < 2)
 		usage();
