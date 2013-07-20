@@ -6,23 +6,11 @@ diff [-ru] file1 file2
 
 du [-hdi] [path]
 
-expand [-i] [-t N] [file...]
-
 expr [expression]
-
-id [-gnru] [user]
 
 id [-ruGgn] username
 
-md5sum [-c] [file...]
-
-printf [format] [data...]
-
 printf format [argument...]
-
-readlink [-fem] file
-
-sha1sum [-c] [file...]
 
 test [expression...]
 
