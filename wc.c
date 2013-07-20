@@ -72,7 +72,7 @@ void
 wc(FILE *fp, const char *str)
 {
 	bool word = false;
-	char c;
+	int c;
 	long nc = 0, nl = 0, nw = 0;
 
 	while((c = getc(fp)) != EOF) {
