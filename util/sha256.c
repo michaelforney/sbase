@@ -1,20 +1,10 @@
-/*
- * public domain sha256 crypt implementation
- *
- * original sha crypt design: http://people.redhat.com/drepper/SHA-crypt.txt
- * in this implementation at least 32bit int is assumed,
- * key length is limited, the $5$ prefix is mandatory, '\n' and ':' is rejected
- * in the salt and rounds= setting must contain a valid iteration count,
- * on error "*" is returned.
- */
+/* public domain sha256 implementation based on fips180-3 */
 #include <ctype.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
 #include "../sha256.h"
-
-/* public domain sha256 implementation based on fips180-3 */
 
 static uint32_t ror(uint32_t n, int k) { return (n >> k) | (n << (32-k)); }
 #define Ch(x,y,z)  (z ^ (x & (y ^ z)))
