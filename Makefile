@@ -3,7 +3,7 @@ include config.mk
 .POSIX:
 .SUFFIXES: .c .o
 
-HDR = crypt.h fs.h text.h md5.h sha1.h util.h arg.h
+HDR = crypt.h fs.h text.h md5.h sha1.h sha256.h sha512.h util.h arg.h
 LIB = \
 	util/afgets.o    \
 	util/agetcwd.o   \
@@ -21,7 +21,8 @@ LIB = \
 	util/recurse.o   \
 	util/rm.o        \
 	util/sha1.o      \
-	util/sha256.o
+	util/sha256.o    \
+	util/sha512.o
 
 SRC = \
 	basename.c \
@@ -82,6 +83,7 @@ SRC = \
 	seq.c      \
 	sha1sum.c  \
 	sha256sum.c\
+	sha512sum.c\
 	wc.c       \
 	who.c      \
 	yes.c
