@@ -1,0 +1,66 @@
+.TH TEST 1 sbase\-VERSION
+.SH NAME
+test \- check file types and compare values
+.SH SYNOPSIS
+.B test
+.RB EXPRESSION
+.SH DESCRIPTION
+.B Exit with the status determined by EXPRESSION.
+.SH OPTIONS
+.TP
+.B ! EXPRESSION
+invert EXPORESSION
+.TP
+.B \-b FILE
+FILE exists and is block special
+.TP
+.B \-c FILE
+FILE exists and is character special
+.TP
+.B \-d FILE
+FILE exists and is a directory
+.TP
+.B \-e FILE
+FILE exists
+.TP
+.B \-f FILE
+ILE exists and is a regular file
+.TP
+.B \-g FILE
+FILE exists and is set-group-ID
+.TP
+.B \-h FILE
+FILE exists and is a symbolic link (same as -L)
+.TP
+.B \-L FILE
+FILE exists and is a symbolic link (same as -h)
+.TP
+.B \-n STRING
+the length of STRING is nonzero
+.TP
+.B \-p FILE
+FILE exists and is a named pipe
+.TP
+.B \-r FILE
+FILE exists and read permission is granted
+.TP
+.B \-S FILE
+FILE exists and is a socket
+.TP
+.B \-s FILE
+FILE exists and has a size greater than zero
+.TP
+.B \-t FD
+file descriptor FD is opened on a terminal
+.TP
+.B \-u FILE
+exists and its set-user-ID bit is set
+.TP
+.B \-w FILE
+FILE exists and write permission is granted
+.TP
+.B \-x FILE
+FILE exists and execute (or search) permission is granted
+.TP
+.B \-z STRING
+the length of STRING is zero
