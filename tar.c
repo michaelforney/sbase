@@ -48,6 +48,7 @@ static void xt(int (*)(char*, int, char[Blksiz]));
 
 static FILE *tarfile;
 static ino_t tarinode;
+static dev_t tardev;
 
 static void
 usage(void)
@@ -126,6 +127,7 @@ main(int argc, char *argv[])
 		if (lstat(file, &st) < 0)
 			eprintf("tar: stat '%s':", file);
 		tarinode = st.st_ino;
+		tardev = st.st_dev;
 	} else {
 		tarfile = (mode == 'c') ? stdout : stdin;
 	}
@@ -161,7 +163,7 @@ archive(const char* path, const struct stat* sta, int type)
 	mode_t mode;
 
 	lstat(path, &st);
-	if (st.st_ino == tarinode) {
+	if (st.st_ino == tarinode && st.st_dev == tardev) {
 		fprintf(stderr, "ignoring '%s'\n", path);
 		return 0;
 	}
