@@ -1,26 +1,38 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 #include <unistd.h>
 #include <time.h>
 #include <utmp.h>
 #include "util.h"
 
-static void usage(void);
+static void
+usage(void)
+{
+	eprintf("usage: who [-ml]\n");
+}
 
 int
 main(int argc, char **argv)
 {
 	struct utmp usr;
 	FILE *ufp;
-	time_t t;
 	char timebuf[sizeof "yyyy-mm-dd hh:mm"];
-	bool mflag = false;
+	char *tty, *ttmp;
+	int mflag = 0, lflag = 0;
+	time_t t;
 
 	ARGBEGIN {
 	case 'm':
-		mflag = true;
+		mflag = 1;
+		tty = ttyname(STDIN_FILENO);
+		if (!tty)
+			eprintf("who: stdin:");
+		if ((ttmp = strrchr(tty, '/')))
+			tty = ttmp+1;
+		break;
+	case 'l':
+		lflag = 1;
 		break;
 	default:
 		usage();
@@ -29,15 +41,16 @@ main(int argc, char **argv)
 	if (argc > 0)
 		usage();
 
-	if (!(ufp = fopen(_PATH_UTMP, "r"))) {
-		eprintf("fopen:");
-	}
+	if (!(ufp = fopen(_PATH_UTMP, "r")))
+		eprintf("who: '%s':", _PATH_UTMP);
+
 	while(fread(&usr, sizeof(usr), 1, ufp) == 1) {
 		if (!*usr.ut_name || !*usr.ut_line ||
 		    usr.ut_line[0] == '~')
 			continue;
-		if (mflag && strcmp(usr.ut_line,
-				    strrchr(ttyname(STDIN_FILENO), '/') + 1))
+		if (mflag && strcmp(usr.ut_line, tty))
+			continue;
+		if (strcmp(usr.ut_name, "LOGIN") == lflag)
 			continue;
 		t = usr.ut_time;
 		strftime(timebuf, sizeof timebuf, "%Y-%m-%d %H:%M", localtime(&t));
@@ -47,8 +60,3 @@ main(int argc, char **argv)
 	return 0;
 }
 
-void
-usage(void)
-{
-	eprintf("usage: who [-m]\n");
-}
