@@ -33,7 +33,8 @@ main(int argc, char **argv)
 		eprintf("fopen:");
 	}
 	while(fread(&usr, sizeof(usr), 1, ufp) == 1) {
-		if (!*usr.ut_name || !*usr.ut_line)
+		if (!*usr.ut_name || !*usr.ut_line ||
+		    usr.ut_line[0] == '~')
 			continue;
 		if (mflag && strcmp(usr.ut_line,
 				    strrchr(ttyname(STDIN_FILENO), '/') + 1))
