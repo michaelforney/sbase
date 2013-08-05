@@ -32,7 +32,7 @@ main(int argc, char **argv)
 	if (!(ufp = fopen(_PATH_UTMP, "r"))) {
 		eprintf("fopen:");
 	}
-	while(fread((char *)&usr, sizeof(usr), 1, ufp) == 1) {
+	while(fread(&usr, sizeof(usr), 1, ufp) == 1) {
 		if (!*usr.ut_name || !*usr.ut_line)
 			continue;
 		if (mflag && strcmp(usr.ut_line,
