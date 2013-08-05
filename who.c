@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <time.h>
 #include <utmp.h>
@@ -15,8 +16,17 @@ main(int argc, char **argv)
 	FILE *ufp;
 	time_t t;
 	char timebuf[sizeof "yyyy-mm-dd hh:mm"];
+	bool mflag = false;
 
-	if(argc!=1)
+	ARGBEGIN {
+	case 'm':
+		mflag = true;
+		break;
+	default:
+		usage();
+	} ARGEND;
+
+	if (argc > 0)
 		usage();
 
 	if (!(ufp = fopen(_PATH_UTMP, "r"))) {
@@ -24,6 +34,9 @@ main(int argc, char **argv)
 	}
 	while(fread((char *)&usr, sizeof(usr), 1, ufp) == 1) {
 		if (!*usr.ut_name || !*usr.ut_line)
+			continue;
+		if (mflag && strcmp(usr.ut_line,
+				    strrchr(ttyname(STDIN_FILENO), '/') + 1))
 			continue;
 		t = usr.ut_time;
 		strftime(timebuf, sizeof timebuf, "%Y-%m-%d %H:%M", localtime(&t));
@@ -36,6 +49,5 @@ main(int argc, char **argv)
 void
 usage(void)
 {
-	eprintf("usage: who\n");
+	eprintf("usage: who [-m]\n");
 }
-
