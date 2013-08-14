@@ -70,6 +70,7 @@ SRC = \
 	sort.c     \
 	split.c    \
 	sponge.c   \
+	strings.c  \
 	sync.c     \
 	tail.c     \
 	tar.c      \
