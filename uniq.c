@@ -22,7 +22,7 @@ static long prev_line_count = 0;
 static void
 usage(void)
 {
-	eprintf("usage: %s [-cdu] [input]]\n", argv0);
+	eprintf("usage: %s [-cdiu] [input]]\n", argv0);
 }
 
 int
@@ -31,6 +31,8 @@ main(int argc, char *argv[])
 	FILE *fp;
 
 	ARGBEGIN {
+	case 'i':
+		eprintf("not implemented\n");
 	case 'c':
 		countfmt = "%7ld ";
 		break;

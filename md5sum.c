@@ -17,7 +17,7 @@ struct crypt_ops md5_ops = {
 static void
 usage(void)
 {
-	eprintf("usage: %s [file...]\n", argv0);
+	eprintf("usage: %s [-c] [file...]\n", argv0);
 }
 
 int
@@ -27,6 +27,8 @@ main(int argc, char *argv[])
 	uint8_t md[MD5_DIGEST_LENGTH];
 
 	ARGBEGIN {
+	case 'c':
+		eprintf("not implemented\n");
 	default:
 		usage();
 	} ARGEND;

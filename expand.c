@@ -14,7 +14,7 @@ static int expand(Fdescr *f, int tabstop);
 static void
 usage(void)
 {
-	eprintf("usage: %s [-t n] [file...]\n", argv0);
+	eprintf("usage: %s [-i] [-t n] [file...]\n", argv0);
 }
 
 int
@@ -25,6 +25,8 @@ main(int argc, char *argv[])
 	int tabstop = 8;
 
 	ARGBEGIN {
+	case 'i':
+		eprintf("not implemented\n");
 	case 't':
 		tabstop = estrtol(EARGF(usage()), 0);
 		break;

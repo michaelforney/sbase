@@ -11,7 +11,7 @@
 static void
 usage(void)
 {
-	eprintf("usage: %s [-fn] file\n", argv0);
+	eprintf("usage: %s [-efmn] file\n", argv0);
 }
 
 int
@@ -23,6 +23,9 @@ main(int argc, char *argv[])
 	ssize_t n;
 
 	ARGBEGIN {
+	case 'e':
+	case 'm':
+		eprintf("not implemented\n");
 	case 'f':
 		fflag = true;
 		break;
