@@ -112,6 +112,7 @@ lsdir(const char *path)
 	struct dirent *d;
 	DIR *dp;
 	Entry ent, *ents = NULL;
+	size_t sz;
 
 	cwd = agetcwd();
 	if(!(dp = opendir(path)))
@@ -135,9 +136,9 @@ lsdir(const char *path)
 		} else {
 			if(!(ents = realloc(ents, ++n * sizeof *ents)))
 				eprintf("realloc:");
-			if(!(p = malloc(strlen(d->d_name)+1)))
+			if(!(p = malloc((sz = strlen(d->d_name)+1))))
 				eprintf("malloc:");
-			strcpy(p, d->d_name);
+			memcpy(p, d->d_name, sz);
 			mkent(&ents[n-1], p, tflag || lflag);
 		}
 	}

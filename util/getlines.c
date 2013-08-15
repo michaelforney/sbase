@@ -11,6 +11,7 @@ getlines(FILE *fp, struct linebuf *b)
 {
 	char *line = NULL, **nline;
 	size_t size = 0;
+	size_t linelen;
 
 	while(afgets(&line, &size, fp)) {
 		if(++b->nlines > b->capacity) {
@@ -20,9 +21,9 @@ getlines(FILE *fp, struct linebuf *b)
 				eprintf("realloc:");
 			b->lines = nline;
 		}
-		if(!(b->lines[b->nlines-1] = malloc(strlen(line)+1)))
+		if(!(b->lines[b->nlines-1] = malloc((linelen = strlen(line)+1))))
 			eprintf("malloc:");
-		strcpy(b->lines[b->nlines-1], line);
+		memcpy(b->lines[b->nlines-1], line, linelen);
 	}
 	free(line);
 }

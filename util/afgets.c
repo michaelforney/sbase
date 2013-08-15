@@ -17,7 +17,8 @@ afgets(char **p, size_t *size, FILE *fp)
 		if(len+1 > *size && !(*p = realloc(*p, len+1)))
 			eprintf("realloc:");
 
-		strcpy(&(*p)[len-n], buf);
+		memcpy(&(*p)[len-n], buf, n);
+		(*p)[len] = '\0';
 
 		if(buf[n-1] == '\n' || feof(fp))
 			break;
