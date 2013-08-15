@@ -146,13 +146,16 @@ sbase-box: $(SRC) util.a
 	@cp $(HDR) build
 	@for f in $(SRC); do sed "s/^main(/`basename $$f .c`_&/" < $$f > build/$$f; done
 	@echo '#include <libgen.h>'  > build/$@.c
+	@echo '#include <stdio.h>'  >> build/$@.c
 	@echo '#include <stdlib.h>' >> build/$@.c
 	@echo '#include <string.h>' >> build/$@.c
 	@echo '#include "util.h"'   >> build/$@.c
 	@for f in $(SRC); do echo "int `basename $$f .c`_main(int, char **);" >> build/$@.c; done
 	@echo 'int main(int argc, char *argv[]) { char *s = basename(argv[0]); if(0) ;' >> build/$@.c
 	@for f in $(SRC); do echo "else if(!strcmp(s, \"`basename $$f .c`\")) `basename $$f .c`_main(argc, argv);" >> build/$@.c; done
-	@printf 'else eprintf("%%s: unknown program\\n", s); return EXIT_SUCCESS; }\n' >> build/$@.c
+	@echo 'else {' >> build/$@.c
+	@for f in $(SRC); do echo "printf(\"`basename $$f .c`\"); putchar(' ');" >> build/$@.c; done
+	@echo "putchar(0xa); }; return EXIT_SUCCESS; }" >> build/$@.c
 	@echo LD $@
 	@$(LD) -o $@ build/*.c util.a $(CFLAGS) $(LDFLAGS)
 	@rm -r build
