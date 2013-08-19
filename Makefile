@@ -46,6 +46,7 @@ SRC = \
 	fold.c     \
 	grep.c     \
 	head.c     \
+	hostname.c \
 	id.c       \
 	kill.c     \
 	ln.c       \
