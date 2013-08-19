@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <sys/resource.h>
 #include <errno.h>
 #include <limits.h>
 #include <pwd.h>
@@ -6,7 +7,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/resource.h>
 #include "util.h"
 
 static int strtop(const char *);
@@ -100,7 +100,8 @@ renice(int which, int who, long adj)
 		return false;
 	}
 
-	adj = MAX(PRIO_MIN, MIN(adj, PRIO_MAX));
+	/* PRIO_{MIN,MAX} does not exist in musl libc */
+	adj = MAX(-20, MIN(adj, 20));
 	if(setpriority(which, who, (int)adj) == -1) {
 		fprintf(stderr, "can't set %d nice level: %s\n",
 		        who, strerror(errno));
