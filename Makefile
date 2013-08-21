@@ -68,6 +68,7 @@ SRC = \
 	rm.c       \
 	rmdir.c    \
 	sleep.c    \
+	setsid.c   \
 	sort.c     \
 	split.c    \
 	sponge.c   \
