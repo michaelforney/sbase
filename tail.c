@@ -21,11 +21,13 @@ main(int argc, char *argv[])
 	long n = 10;
 	FILE *fp;
 	void (*tail)(FILE *, const char *, long) = taketail;
+	char *lines;
 
 	ARGBEGIN {
 	case 'n':
-		n = abs(estrtol(EARGF(usage()), 0));
-		if(optarg[0] == '+')
+		lines = EARGF(usage());
+		n = abs(estrtol(lines, 0));
+		if(lines[0] == '+')
 			tail = dropinit;
 		break;
 	default:
@@ -79,4 +81,3 @@ taketail(FILE *fp, const char *str, long n)
 	free(ring);
 	free(size);
 }
-
