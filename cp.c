@@ -5,6 +5,12 @@
 #include "fs.h"
 #include "util.h"
 
+static void
+usage(void)
+{
+	eprintf("usage: %s source... dest\n", argv0);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -17,6 +23,9 @@ main(int argc, char *argv[])
 	default:
 		exit(EXIT_FAILURE);
 	} ARGEND;
+
+	if (argc < 2)
+		usage();
 
 	if(argc > 2 && !(stat(argv[argc-1], &st) == 0 && S_ISDIR(st.st_mode)))
 		eprintf("%s: not a directory\n", argv[argc-1]);

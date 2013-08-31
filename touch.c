@@ -35,6 +35,10 @@ main(int argc, char *argv[])
 	default:
 		usage();
 	} ARGEND;
+
+	if (argc < 1)
+		usage();
+
 	for(; argc > 0; argc--, argv++)
 		touch(argv[0]);
 

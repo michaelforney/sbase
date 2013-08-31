@@ -18,6 +18,10 @@ main(int argc, char *argv[])
 	default:
 		usage();
 	} ARGEND;
+
+	if (argc < 1)
+		usage();
+
 	for(; argc > 0; argc--, argv++) {
 		if(mkfifo(argv[0], S_IRUSR|S_IWUSR|S_IRGRP|\
 					S_IWGRP|S_IROTH|S_IWOTH) == -1) {
