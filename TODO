@@ -1,7 +1,5 @@
 cut [-bcfs] [-d delim] list [file...]
 
-df [-shia] [path]
-
 diff [-ru] file1 file2
 
 du [-hdi] [path]
