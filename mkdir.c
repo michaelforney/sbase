@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <sys/stat.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdbool.h>
@@ -13,17 +14,23 @@ static void mkdirp(char *);
 static void
 usage(void)
 {
-	eprintf("usage: %s [-p] directory...\n", argv0);
+	eprintf("usage: %s [-pm] directory...\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
 	bool pflag = false;
+	bool mflag = false;
+	int mode;
 
 	ARGBEGIN {
 	case 'p':
 		pflag = true;
+		break;
+	case 'm':
+		mflag = true;
+		mode = estrtol(EARGF(usage()), 10);
 		break;
 	default:
 		usage();
@@ -38,6 +45,9 @@ main(int argc, char *argv[])
 		} else if(mkdir(argv[0], S_IRWXU|S_IRWXG|S_IRWXO) == -1) {
 			eprintf("mkdir %s:", argv[0]);
 		}
+		if (mflag)
+			if (chmod(argv[0], mode) < 0)
+				eprintf("chmod %s:", argv[0]);
 	}
 
 	return 0;
