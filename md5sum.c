@@ -23,7 +23,6 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	FILE *fp;
 	uint8_t md[MD5_DIGEST_LENGTH];
 
 	ARGBEGIN {
@@ -33,19 +32,5 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc == 0) {
-		cryptsum(&md5_ops, stdin, "<stdin>", md);
-		mdprint(md, "<stdin>", sizeof(md));
-	} else {
-		for (; argc > 0; argc--) {
-			if ((fp = fopen(*argv, "r"))  == NULL)
-				eprintf("fopen %s:", *argv);
-			cryptsum(&md5_ops, fp, *argv, md);
-			mdprint(md, *argv, sizeof(md));
-			fclose(fp);
-			argv++;
-		}
-	}
-
-	return 0;
+	return cryptmain(argc, argv, &md5_ops, md, sizeof(md));
 }

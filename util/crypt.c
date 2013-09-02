@@ -5,6 +5,28 @@
 #include "../crypt.h"
 
 int
+cryptmain(int argc, char *argv[],
+	  struct crypt_ops *ops, uint8_t *md, size_t sz)
+{
+	FILE *fp;
+
+	if (argc == 0) {
+		cryptsum(ops, stdin, "<stdin>", md);
+		mdprint(md, "<stdin>", sz);
+	} else {
+		for (; argc > 0; argc--) {
+			if ((fp = fopen(*argv, "r"))  == NULL)
+				eprintf("fopen %s:", *argv);
+			cryptsum(ops, fp, *argv, md);
+			mdprint(md, *argv, sz);
+			fclose(fp);
+			argv++;
+		}
+	}
+	return 0;
+}
+
+int
 cryptsum(struct crypt_ops *ops, FILE *fp, const char *f,
 	 uint8_t *md)
 {
