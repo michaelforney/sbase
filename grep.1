@@ -4,6 +4,8 @@ grep \- search files for a pattern
 .SH SYNOPSIS
 .B grep
 .RB [ \-Ecilnqv ]
+.RB [ \-e
+.I pattern ]
 .I pattern
 .RI [ file ...]
 .SH DESCRIPTION
@@ -24,6 +26,13 @@ matches using extended regex.
 .TP
 .B \-c
 prints only a count of matching lines.
+.TP
+.B \-e pattern
+Specify a pattern used during the search of the input: an input
+line is selected if it matches any of the specified patterns.
+This option is most useful when multiple -e options are used to
+specify multiple patterns, or when a pattern begins with a dash
+(`-').
 .TP
 .B \-i
 matches lines case insensitively.
