@@ -20,6 +20,7 @@ typedef struct {
 	gid_t gid;
 	off_t size;
 	time_t mtime;
+	ino_t ino;
 } Entry;
 
 static int entcmp(const void *, const void *);
@@ -30,6 +31,7 @@ static void output(Entry *);
 
 static bool aflag = false;
 static bool dflag = false;
+static bool iflag = false;
 static bool lflag = false;
 static bool tflag = false;
 static bool Uflag = false;
@@ -39,7 +41,7 @@ static bool many;
 static void
 usage(void)
 {
-	eprintf("usage: %s [-adltU] [FILE...]\n", argv0);
+	eprintf("usage: %s [-adiltU] [FILE...]\n", argv0);
 }
 
 int
@@ -54,6 +56,9 @@ main(int argc, char *argv[])
 		break;
 	case 'd':
 		dflag = true;
+		break;
+	case 'i':
+		iflag = true;
 		break;
 	case 'l':
 		lflag = true;
@@ -131,7 +136,7 @@ lsdir(const char *path)
 		if(d->d_name[0] == '.' && !aflag)
 			continue;
 		if(Uflag){
-			mkent(&ent, d->d_name, lflag);
+			mkent(&ent, d->d_name, lflag || iflag);
 			output(&ent);
 		} else {
 			if(!(ents = realloc(ents, ++n * sizeof *ents)))
@@ -139,7 +144,7 @@ lsdir(const char *path)
 			if(!(p = malloc((sz = strlen(d->d_name)+1))))
 				eprintf("malloc:");
 			memcpy(p, d->d_name, sz);
-			mkent(&ents[n-1], p, tflag || lflag);
+			mkent(&ents[n-1], p, tflag || lflag || iflag);
 		}
 	}
 	closedir(dp);
@@ -172,6 +177,7 @@ mkent(Entry *ent, char *path, bool dostat)
 	ent->gid    = st.st_gid;
 	ent->size   = st.st_size;
 	ent->mtime  = st.st_mtime;
+	ent->ino    = st.st_ino;
 }
 
 void
@@ -183,6 +189,8 @@ output(Entry *ent)
 	struct group *gr;
 	struct passwd *pw;
 
+	if (iflag)
+		printf("%lu ", (unsigned long)ent->ino);
 	if(!lflag) {
 		puts(ent->name);
 		return;
