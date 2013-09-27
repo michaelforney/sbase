@@ -3,10 +3,12 @@
 mv \- move files and directories
 .SH SYNOPSIS
 .B mv
+.RB [ \-f ]
 .I file
 .RI [ name ]
 .P
 .B mv
+.RB [ \-f ]
 .RI [ file ...]
 .RI [ directory ]
 .SH DESCRIPTION
@@ -14,3 +16,7 @@ mv \- move files and directories
 moves or renames a given file or directory, naming it the given name.  If
 multiple files and directories are listed they will be moved into the given
 directory.
+.SH OPTIONS
+.TP
+.B \-f
+do not prompt for confirmation before overwriting the destination path.

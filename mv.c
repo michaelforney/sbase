@@ -12,7 +12,7 @@ int mv(const char *, const char *);
 static void
 usage(void)
 {
-	eprintf("usage: %s source... dest\n", argv0);
+	eprintf("usage: %s [-f] source... dest\n", argv0);
 }
 
 int
@@ -21,6 +21,8 @@ main(int argc, char *argv[])
 	struct stat st;
 
 	ARGBEGIN {
+	case 'f':
+		break;
 	default:
 		usage();
 	} ARGEND;
