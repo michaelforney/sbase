@@ -123,7 +123,7 @@ install: all
 	@cd $(DESTDIR)$(PREFIX)/bin && chmod 755 $(BIN)
 	@echo installing manual pages to $(DESTDIR)$(MANPREFIX)/man1
 	@mkdir -p $(DESTDIR)$(MANPREFIX)/man1
-	@cp -f $(MAN) $(DESTDIR)$(MANPREFIX)/man1
+	@for m in $(MAN); do sed "s/VERSION/$(VERSION)/g" < "$$m" > $(DESTDIR)$(MANPREFIX)/man1/"$$m"; done
 	@cd $(DESTDIR)$(MANPREFIX)/man1 && chmod 644 $(MAN)
 
 uninstall:
