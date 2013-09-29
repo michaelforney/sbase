@@ -41,8 +41,8 @@ main(int argc, char **argv)
 	if (argc > 0)
 		usage();
 
-	if (!(ufp = fopen(_PATH_UTMP, "r")))
-		eprintf("who: '%s':", _PATH_UTMP);
+	if (!(ufp = fopen("/var/run/utmp", "r")))
+		eprintf("who: '%s':", "/var/run/utmp");
 
 	while(fread(&usr, sizeof(usr), 1, ufp) == 1) {
 		if (!*usr.ut_name || !*usr.ut_line ||
