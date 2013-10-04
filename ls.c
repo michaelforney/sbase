@@ -35,6 +35,7 @@ static bool iflag = false;
 static bool lflag = false;
 static bool tflag = false;
 static bool Uflag = false;
+static int sortorder = 1;
 static bool first = true;
 static bool many;
 
@@ -62,6 +63,9 @@ main(int argc, char *argv[])
 		break;
 	case 'l':
 		lflag = true;
+		break;
+	case 'r':
+		sortorder = -1;
 		break;
 	case 't':
 		tflag = true;
@@ -94,9 +98,9 @@ entcmp(const void *va, const void *vb)
 	const Entry *a = va, *b = vb;
 
 	if(tflag)
-		return b->mtime - a->mtime;
+		return sortorder * (b->mtime - a->mtime);
 	else
-		return strcmp(a->name, b->name);
+		return sortorder * (strcmp(a->name, b->name));
 }
 
 void
