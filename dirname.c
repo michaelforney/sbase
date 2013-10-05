@@ -22,7 +22,7 @@ main(int argc, char *argv[])
 	if(argc < 1)
 		usage();
 
-	puts(dirname(argv[optind]));
+	puts(dirname(argv[0]));
 
 	return 0;
 }
