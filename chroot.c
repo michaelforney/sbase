@@ -9,7 +9,7 @@ main(int argc, char **argv)
 {
 	char *shell[] = {"/bin/sh", "-i", NULL}, *aux;
 
-	if(aux = getenv("SHELL"))
+	if((aux = getenv("SHELL")))
 		shell[0] = aux;
 
 	if(argc < 2)
