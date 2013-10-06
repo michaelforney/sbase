@@ -33,16 +33,16 @@ static bool aflag = false;
 static bool dflag = false;
 static bool iflag = false;
 static bool lflag = false;
+static bool rflag = false;
 static bool tflag = false;
 static bool Uflag = false;
-static int sortorder = 1;
 static bool first = true;
 static bool many;
 
 static void
 usage(void)
 {
-	eprintf("usage: %s [-adiltU] [FILE...]\n", argv0);
+	eprintf("usage: %s [-adilrtU] [FILE...]\n", argv0);
 }
 
 int
@@ -65,7 +65,7 @@ main(int argc, char *argv[])
 		lflag = true;
 		break;
 	case 'r':
-		sortorder = -1;
+		rflag = true;
 		break;
 	case 't':
 		tflag = true;
@@ -87,7 +87,7 @@ main(int argc, char *argv[])
 		mkent(&ents[i], argv[i], true);
 	qsort(ents, argc, sizeof *ents, entcmp);
 	for(i = 0; i < argc; i++)
-		ls(&ents[i]);
+		ls(&ents[rflag ? argc-i-1 : i]);
 
 	return 0;
 }
@@ -98,9 +98,9 @@ entcmp(const void *va, const void *vb)
 	const Entry *a = va, *b = vb;
 
 	if(tflag)
-		return sortorder * (b->mtime - a->mtime);
+		return b->mtime - a->mtime;
 	else
-		return sortorder * (strcmp(a->name, b->name));
+		return strcmp(a->name, b->name);
 }
 
 void
@@ -155,8 +155,8 @@ lsdir(const char *path)
 	if(!Uflag){
 		qsort(ents, n, sizeof *ents, entcmp);
 		for(i = 0; i < n; i++) {
-			output(&ents[i]);
-			free(ents[i].name);
+			output(&ents[rflag ? n-i-1 : i]);
+			free(ents[rflag ? n-i-1 : i].name);
 		}
 	}
 	if(chdir(cwd) == -1)
