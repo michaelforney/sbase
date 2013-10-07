@@ -100,8 +100,7 @@ renice(int which, int who, long adj)
 		return false;
 	}
 
-	/* PRIO_{MIN,MAX} does not exist in musl libc */
-	adj = MAX(-20, MIN(adj, 20));
+	adj = MAX(PRIO_MIN, MIN(adj, PRIO_MAX));
 	if(setpriority(which, who, (int)adj) == -1) {
 		fprintf(stderr, "can't set %d nice level: %s\n",
 		        who, strerror(errno));
