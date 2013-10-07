@@ -32,7 +32,6 @@ SRC = \
 	chmod.c    \
 	chown.c    \
 	chroot.c   \
-	chvt.c     \
 	cksum.c    \
 	cmp.c      \
 	comm.c     \
