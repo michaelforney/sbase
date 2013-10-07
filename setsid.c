@@ -1,5 +1,4 @@
-/* (C)opyright MMVI Anselm R. Garbe <garbeam at gmail dot com>
- * See LICENSE file for license details. */
+/* See LICENSE file for copyright and license details. */
 #include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
