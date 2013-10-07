@@ -14,6 +14,12 @@ static bool wflag = false;
 static char cmode = 0;
 static long tc = 0, tl = 0, tw = 0;
 
+static void
+usage(void)
+{
+	eprintf("usage: %s [-clmw] [files...]\n", argv0);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -34,7 +40,7 @@ main(int argc, char *argv[])
 		wflag = true;
 		break;
 	default:
-		eprintf("usage: %s [-clmw] [files...]\n", argv0);
+		usage();
 	} ARGEND;
 
 	if (argc == 0) {

@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include "util.h"
 
-static void eusage(void);
+static void usage(void);
 
 int
 main(int argc, char **argv)
@@ -15,15 +15,15 @@ main(int argc, char **argv)
 
 	ARGBEGIN {
 	case 'n':
-		val = estrtol(EARGF(eusage()), 10);
+		val = estrtol(EARGF(usage()), 10);
 		break;
 	default:
-		eusage();
+		usage();
 		break;
 	} ARGEND;
 
 	if(argc == 0)
-		eusage();
+		usage();
 
 	errno = 0;
 	nice((int)MAX(INT_MIN, MIN(val, INT_MAX)));
@@ -38,7 +38,7 @@ main(int argc, char **argv)
 }
 
 static void
-eusage(void)
+usage(void)
 {
 	eprintf("usage: nice [-n inc] command [options ...]\n");
 }

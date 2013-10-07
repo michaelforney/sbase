@@ -11,7 +11,7 @@
 
 static int strtop(const char *);
 static bool renice(int, int, long);
-static void eusage(void);
+static void usage(void);
 
 int
 main(int argc, char **argv)
@@ -22,7 +22,7 @@ main(int argc, char **argv)
 
 	ARGBEGIN {
 	case 'n':
-		adj = EARGF(eusage());
+		adj = EARGF(usage());
 		break;
 	case 'g':
 		which = PRIO_PGRP;
@@ -34,12 +34,12 @@ main(int argc, char **argv)
 		which = PRIO_USER;
 		break;
 	default:
-		eusage();
+		usage();
 		break;
 	} ARGEND;
 
 	if(argc == 0 || !adj)
-		eusage();
+		usage();
 
 	val = estrtol(adj, 10);
 	for(i = 0; i < argc; i++) {
@@ -112,7 +112,7 @@ renice(int which, int who, long adj)
 }
 
 static void
-eusage(void)
+usage(void)
 {
 	eprintf("renice -n inc [-g | -p | -u] ID ...\n");
 }
