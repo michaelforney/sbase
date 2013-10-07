@@ -1,5 +1,6 @@
 /* (C)opyright MMVI Anselm R. Garbe <garbeam at gmail dot com>
  * See LICENSE file for license details. */
+#include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -37,6 +38,5 @@ main(int argc, char *argv[])
 		eprintf("setsid:");
 	execvp(argv[0], argv);
 	eprintf("execvp:");
-	/* NOTREACHED */
-	return 0;
+	return (errno == ENOENT) ? 127 : 126;
 }
