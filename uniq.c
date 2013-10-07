@@ -57,7 +57,7 @@ main(int argc, char *argv[])
 		usage();
 	uniq_finish();
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 void

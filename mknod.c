@@ -38,5 +38,5 @@ main(int argc, char **argv)
 
 	if(mknod(argv[0], type|mode, dev) == -1)
 		eprintf("mknod: '%s':", argv[0]);
-	return 0;
+	return EXIT_SUCCESS;
 }

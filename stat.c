@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <inttypes.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 #include "util.h"
 
@@ -20,7 +21,7 @@ int
 main(int argc, char *argv[])
 {
 	struct stat st;
-	int i, ret = 0;
+	int i, ret = EXIT_SUCCESS;
 	int Lflag = 0;
 	int (*fn)(const char *, struct stat *);
 
@@ -44,7 +45,7 @@ main(int argc, char *argv[])
 			fprintf(stderr, "%s %s: ", Lflag ? "stat" : "lstat",
 				argv[i]);
 			perror(NULL);
-			ret = 1;
+			ret = EXIT_FAILURE;
 			continue;
 		}
 		show_stat(argv[i], &st);

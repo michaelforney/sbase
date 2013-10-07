@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <stdlib.h>
 #include "util.h"
 
 static void
@@ -16,6 +17,6 @@ main(int argc, char **argv)
 	if(unlink(argv[1]) == -1)
 		eprintf("unlink: '%s':", argv[1]);
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 

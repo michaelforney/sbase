@@ -31,7 +31,7 @@ main(int argc, char *argv[])
 		case 0:
 			break;
 		default:
-			exit(0);
+			return EXIT_SUCCESS;
 		}
 	}
 	if(setsid() < 0)

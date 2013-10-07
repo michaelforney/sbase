@@ -140,7 +140,7 @@ main(int argc, char *argv[])
 		xt((mode == 'x') ? unarchive : print);
 	}
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 void

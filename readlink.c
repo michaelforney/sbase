@@ -40,7 +40,7 @@ main(int argc, char *argv[])
 		usage();
 
 	if (strlen(argv[0]) > PATH_MAX - 1)
-		exit(1);
+		return EXIT_FAILURE;
 
 	if (fflag) {
 		if (realpath(argv[0], buf) == NULL)
@@ -55,5 +55,5 @@ main(int argc, char *argv[])
 	if (!nflag)
 		putchar('\n');
 
-	return 0;
+	return EXIT_SUCCESS;
 }

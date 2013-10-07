@@ -12,13 +12,13 @@ main(int argc, char **argv)
 		while(*environ)
 			printf("%s\n", *environ++);
 
-		return 0;
+		return EXIT_SUCCESS;
 	}
 	while(*++argv) {
 		if((var = getenv(*argv)))
 			printf("%s\n", var);
 	}
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 

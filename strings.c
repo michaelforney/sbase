@@ -31,7 +31,7 @@ main(int argc, char *argv[])
 		dostrings(stdin, "<stdin>");
 	}
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 static void

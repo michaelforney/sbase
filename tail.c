@@ -43,7 +43,7 @@ main(int argc, char *argv[])
 	} else
 		usage();
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 void

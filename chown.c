@@ -59,7 +59,7 @@ main(int argc, char *argv[])
 	for(; argc > 0; argc--, argv++)
 		chownpwgr(argv[0]);
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 void

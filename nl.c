@@ -56,7 +56,7 @@ main(int argc, char *argv[])
 		fclose(fp);
 	}
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 void

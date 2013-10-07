@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <ftw.h>
@@ -55,7 +56,7 @@ main(int argc, char **argv)
 		while(*++argv)
 			ftw(*argv, chgrp, FOPEN_MAX);
 
-		return 0;
+		return EXIT_SUCCESS;
 	}
 	while(*++argv) {
 		if(stat(*argv, &st) == -1) {

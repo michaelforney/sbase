@@ -28,6 +28,6 @@ main(int argc, char *argv[])
 			eprintf("mkfifo %s:", argv[0]);
 		}
 	}
-	return 0;
+	return EXIT_SUCCESS;
 }
 

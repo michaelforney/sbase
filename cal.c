@@ -189,6 +189,6 @@ main(int argc, char *argv[])
 
 	drawcal(year, month, day, ncols, nmons, fday);
 
-	exit(0);
+	return EXIT_SUCCESS;
 }
 

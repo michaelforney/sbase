@@ -34,7 +34,7 @@ main(int argc, char *argv[])
 		eprintf("%s: not a directory\n", argv[argc-1]);
 	enmasse(argc, &argv[0], mv);
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 int

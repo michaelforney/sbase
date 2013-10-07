@@ -94,7 +94,7 @@ Nextfile:
 		fclose(out);
 		break;
 	}
-	return 0;
+	return EXIT_SUCCESS;
 
 }
 

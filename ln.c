@@ -33,7 +33,7 @@ main(int argc, char *argv[])
 
 	enmasse(argc, &argv[0], ln);
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 int

@@ -37,6 +37,6 @@ main(int argc, char *argv[])
 
 	puts(s);
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 

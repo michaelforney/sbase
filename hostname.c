@@ -1,6 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 #include <unistd.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "util.h"
 
@@ -29,5 +30,5 @@ main(int argc, char *argv[])
 			eprintf("sethostname:");
 	}
 
-	return 0;
+	return EXIT_SUCCESS;
 }

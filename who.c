@@ -57,6 +57,6 @@ main(int argc, char **argv)
 		printf("%-8s %-12s %-16s\n", usr.ut_name, usr.ut_line, timebuf);
 	}
 	fclose(ufp);
-	return 0;
+	return EXIT_SUCCESS;
 }
 

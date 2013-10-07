@@ -89,7 +89,7 @@ main(int argc, char *argv[])
 	for(i = 0; i < argc; i++)
 		ls(&ents[rflag ? argc-i-1 : i]);
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 int

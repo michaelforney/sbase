@@ -18,7 +18,7 @@ main(int argc, char **argv)
 {
 	const char *adj = NULL;
 	long val;
-	int i, which = PRIO_PROCESS, status = 0;
+	int i, which = PRIO_PROCESS, status = EXIT_SUCCESS;
 
 	ARGBEGIN {
 	case 'n':
@@ -55,7 +55,7 @@ main(int argc, char **argv)
 				who = pwd->pw_uid;
 			else if(errno != 0) {
 				perror("can't read passwd");
-				status = 1;
+				status = EXIT_FAILURE;
 				continue;
 			}
 		}
@@ -63,7 +63,7 @@ main(int argc, char **argv)
 			who = strtop(argv[i]);
 
 		if(who < 0 || !renice(which, who, val))
-			status = 1;
+			status = EXIT_FAILURE;
 	}
 
 	return status;

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include "util.h"
 
@@ -15,6 +16,6 @@ main(int argc, char **argv)
 		usage();
 	sync();
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 

@@ -50,7 +50,7 @@ main(int argc, char *argv[])
 			argv++;
 		}
 	}
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 static wint_t

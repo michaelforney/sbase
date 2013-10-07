@@ -1,6 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 #include <stdio.h>
-
+#include <stdlib.h>
 #include "text.h"
 #include "util.h"
 
@@ -36,5 +36,5 @@ main(int argc, char *argv[])
 	fclose(fp);
 	fclose(tmpfp);
 
-	return 0;
+	return EXIT_SUCCESS;
 }

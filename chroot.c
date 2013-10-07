@@ -28,7 +28,7 @@ main(int argc, char **argv)
 	}
 
 	eprintf("chroot: '%s':", argv[2]);
-	return 1;
+	return EXIT_FAILURE;
 }
 
 void

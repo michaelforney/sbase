@@ -63,7 +63,7 @@ main(int argc, char *argv[])
 		for(l = 0; l < b.nlines; ++l) {
 			fputs(b.lines[l], stdout);
 		}
-		return 0;
+		return EXIT_SUCCESS;
 	}
 
 	if(!(space = malloc(maxlen + 2)))
@@ -82,6 +82,6 @@ main(int argc, char *argv[])
 		fputs("\n", stdout);
 	}
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 

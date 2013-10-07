@@ -100,7 +100,7 @@ main(int argc, char *argv[])
 	free(delim);
 	free(dsc);
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 

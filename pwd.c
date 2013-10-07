@@ -31,7 +31,7 @@ main(int argc, char *argv[])
 	cwd = agetcwd();
 	puts((mode == 'L') ? getpwd(cwd) : cwd);
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 const char *

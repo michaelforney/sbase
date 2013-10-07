@@ -24,6 +24,6 @@ main(int argc, char *argv[])
 
 	puts(dirname(argv[0]));
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 

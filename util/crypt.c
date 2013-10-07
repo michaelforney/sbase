@@ -23,7 +23,7 @@ cryptmain(int argc, char *argv[],
 			argv++;
 		}
 	}
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 int

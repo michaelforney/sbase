@@ -47,6 +47,6 @@ main(int argc, char *argv[])
 	if(ferror(stdin))
 		eprintf("<stdin>: read error:");
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 

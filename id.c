@@ -4,6 +4,7 @@
 #include <pwd.h>
 #include <grp.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <limits.h>
 #include "util.h"
 
@@ -66,5 +67,5 @@ main(int argc, char *argv[])
 		printf("(%s)", gr->gr_name);
 	}
 	putchar('\n');
-	return 0;
+	return EXIT_SUCCESS;
 }
