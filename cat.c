@@ -6,6 +6,12 @@
 #include "text.h"
 #include "util.h"
 
+static void
+usage(void)
+{
+	eprintf("usage: %s [file...]\n", argv0);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -14,7 +20,7 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	default:
-		eprintf("usage: %s [files...]\n", argv0);
+		usage();
 	} ARGEND;
 
 	if(argc == 0) {
