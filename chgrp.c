@@ -7,8 +7,8 @@
 #include <sys/types.h>
 #include "util.h"
 
-int gid;
-int failures = 0;
+static int gid;
+static int failures = 0;
 
 static void
 usage(void)
