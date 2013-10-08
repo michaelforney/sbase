@@ -36,6 +36,7 @@ SRC = \
 	cmp.c      \
 	comm.c     \
 	cp.c       \
+	cut.c      \
 	date.c     \
 	dirname.c  \
 	echo.c     \

@@ -1,0 +1,60 @@
+.TH CUT 1 sbase\-VERSION
+.SH NAME
+cut \- extract columns of data
+.SH SYNOPSIS
+.B cut \-b
+.I list
+.RB [ \-n ]
+.RI [ file ...]
+.br
+.B cut \-c
+.I list
+.RI [ file ...]
+.br
+.B cut \-f
+.I list
+.RB [ \-d
+.IR delim ]
+.RB [ \-s ]
+.RI [ file ...]
+.SH DESCRIPTION
+.B cut
+out bytes, characters, or delimited fields from each line of the given
+files and write to stdout. With no file, or when file is `-', cut reads
+from stdin.
+.P
+.I list
+is a comma or space separated list of numbers and ranges where numbering
+starts from 1. Ranges are on the form `N-M'. If N or M is missing, the
+beginning or end of line is assumed. Numbers and ranges may be repeated,
+overlapping, and in any order. Selected input is written in the same
+order that it is read, and is written exactly once.
+.SH OPTIONS
+.TP
+.BI \-b \ list
+The
+.I list
+specifies byte positions.
+.TP
+.BI \-c \ list
+The
+.I list
+specifies character positions.
+.TP
+.BI \-d \ delim
+Use first byte of
+.I delim
+as field delimiter, instead of tab.
+.TP
+.BI \-f \ list
+The
+.I list
+specifies field numbers. Lines not containing field delimiters are
+passed through untouched.
+.TP
+.B \-n
+Do not split characters. A character is output if its last byte is
+selected.
+.TP
+.B \-s
+Suppress lines not containing field delimiters.
