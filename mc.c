@@ -81,6 +81,7 @@ main(int argc, char *argv[])
 		}
 		fputs("\n", stdout);
 	}
+	free(space);
 
 	return EXIT_SUCCESS;
 }
