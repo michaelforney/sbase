@@ -60,16 +60,8 @@ parselist(char *str)
 	if(!(r = malloc(n * sizeof(Range))))
 		eprintf("malloc:");
 	for(s = str; n; n--, s++) {
-		if (*s == '-')
-			r->min = 1;
-		else
-			r->min = strtoul(s, &s, 10);
-		if (*s == '-') {
-			s++;
-			r->max = strtoul(s, &s, 10);
-		} else {
-			r->max = r->min;
-		}
+		r->min = (*s == '-') ? 1 : strtoul(s, &s, 10);
+		r->max = (*s == '-') ? strtoul(s + 1, &s, 10) : r->min;
 		r->next = NULL;
 		if(!r->min || (r->max && r->max < r->min) || (*s && *s != ','))
 			eprintf("cut: bad list value\n");
