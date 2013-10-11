@@ -46,6 +46,7 @@ main(int argc, char *argv[])
 	}
 	if(ferror(stdin))
 		eprintf("<stdin>: read error:");
+	free(fps);
 
 	return EXIT_SUCCESS;
 }
