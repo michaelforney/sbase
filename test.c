@@ -105,7 +105,43 @@ unary(const char *op, const char *arg)
 bool
 binary(const char *arg1, const char *op, const char *arg2)
 {
-	eprintf("not yet implemented\n");
+	int i;
+	long narg1, narg2;
+	enum operator { EQ, GE, GT, LE, LT, NE, STREQ, STRNE } oper;
+	char *optexts[] = { "-eq", "-ge", "-gt", "-le", "-lt", "-ne",
+		"=", "!="
+	};
+
+	for (i = 0; i < LEN(optexts); i++) {
+		if (strcmp(op, optexts[i]) == 0) {
+			oper = i;
+			switch (oper) {
+			case STREQ:
+				return strcmp(arg1, arg2) == 0;
+			case STRNE:
+				return strcmp(arg1, arg2) != 0;
+			default:
+				narg1 = estrtol(arg1, 0);
+				narg2 = estrtol(arg2, 0);
+				switch (oper) {
+				case EQ:
+					return narg1 == narg2;
+				case GE:
+					return narg1 >= narg2;
+				case GT:
+					return narg1 > narg2;
+				case LE:
+					return narg1 <= narg2;
+				case LT:
+					return narg1 < narg2;
+				case NE:
+					return narg1 != narg2;
+				default:
+					usage();
+				}
+			}
+		}
+	}
 	return false;
 }
 
