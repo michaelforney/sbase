@@ -39,6 +39,7 @@ SRC = \
 	cut.c      \
 	date.c     \
 	dirname.c  \
+	du.c       \
 	echo.c     \
 	env.c      \
 	expand.c   \

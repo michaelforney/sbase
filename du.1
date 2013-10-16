@@ -1,0 +1,18 @@
+.TH DU 1 sbase\-VERSION
+.SH NAME
+du \- display disk usage statistics
+.SH SYNOPSIS
+.B du
+.RB [ \-a ]
+.RI [ file ...]
+.SH DESCRIPTION
+.B du
+displays the file system block usage for each
+.I file
+argument and for each directory in the file hierarchy rooted in directory argument.
+If no file is specified, the block usage of the hierarchy rooted in the current
+directory is displayed.
+.SH OPTIONS
+.TP
+.BI \-a
+Display an entry for each file in the file hierarchy.
