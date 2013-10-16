@@ -15,6 +15,7 @@ static long blksize = 512;
 
 static bool aflag = false;
 static bool sflag = false;
+static bool kflag = false;
 
 static long du(const char *);
 static void print(long n, char *path);
@@ -38,6 +39,9 @@ main(int argc, char *argv[])
 	case 's':
 		sflag = true;
 		break;
+	case 'k':
+		kflag = true;
+		break;
 	default:
 		usage();
 	} ARGEND;
@@ -45,6 +49,9 @@ main(int argc, char *argv[])
 	bsize = getenv("BLOCKSIZE");
 	if (bsize)
 		blksize = estrtol(bsize, 0);
+
+	if (kflag)
+		blksize = 1024;
 
 	if (argc < 1) {
 		n = du(".");
