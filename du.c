@@ -14,8 +14,10 @@
 static long blksize = 512;
 
 static bool aflag = false;
+static bool sflag = false;
 
 static long du(const char *);
+static void print(long n, char *path);
 
 void
 usage(void)
@@ -27,10 +29,14 @@ int
 main(int argc, char *argv[])
 {
 	char *bsize;
+	long n;
 
 	ARGBEGIN {
 	case 'a':
 		aflag = true;
+		break;
+	case 's':
+		sflag = true;
 		break;
 	default:
 		usage();
@@ -41,10 +47,15 @@ main(int argc, char *argv[])
 		blksize = estrtol(bsize, 0);
 
 	if (argc < 1) {
-		du(".");
+		n = du(".");
+		if (sflag)
+			print(n, realpath(".", NULL));
 	} else {
-		for (; argc > 0; argc--, argv++)
-			du(argv[0]);
+		for (; argc > 0; argc--, argv++) {
+			n = du(argv[0]);
+			if (sflag)
+				print(n, realpath(argv[0], NULL));
+		}
 	}
 	return EXIT_SUCCESS;
 }
@@ -106,7 +117,7 @@ du(const char *path)
 				} else {
 					m = 512 * st.st_blocks / blksize;
 					n += m;
-					if (aflag)
+					if (aflag && !sflag)
 						print(m, realpath(dent->d_name, NULL));
 				}
 			}
@@ -115,6 +126,7 @@ du(const char *path)
 		}
 	}
 
-	print(n, realpath(path, NULL));
+	if (!sflag)
+		print(n, realpath(path, NULL));
 	return n;
 }
