@@ -12,6 +12,7 @@
 #include "util.h"
 
 static long blksize = 512;
+static char file[PATH_MAX];
 
 static bool aflag = false;
 static bool sflag = false;
@@ -59,12 +60,12 @@ main(int argc, char *argv[])
 	if (argc < 1) {
 		n = du(".");
 		if (sflag)
-			print(n, realpath(".", NULL));
+			print(n, realpath(".", file));
 	} else {
 		for (; argc > 0; argc--, argv++) {
 			n = du(argv[0]);
 			if (sflag)
-				print(n, realpath(argv[0], NULL));
+				print(n, realpath(argv[0], file));
 		}
 	}
 	return EXIT_SUCCESS;
@@ -74,7 +75,6 @@ static void
 print(long n, char *path)
 {
 	printf("%lu\t%s\n", n, path);
-	free(path);
 }
 
 static char *
@@ -127,8 +127,13 @@ du(const char *path)
 				} else {
 					m = 512 * st.st_blocks / blksize;
 					n += m;
-					if (aflag && !sflag)
-						print(m, realpath(dent->d_name, NULL));
+					if (aflag && !sflag) {
+						if (S_ISLNK(st.st_mode))
+							snprintf(file, sizeof(file), "%s/%s", cwd, dent->d_name);
+						else
+							realpath(dent->d_name, file);
+						print(m, file);
+					}
 				}
 			}
 			pop(cwd);
@@ -137,6 +142,6 @@ du(const char *path)
 	}
 
 	if (!sflag)
-		print(n, realpath(path, NULL));
+		print(n, realpath(path, file));
 	return n;
 }
