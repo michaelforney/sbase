@@ -23,7 +23,7 @@ static void print(long n, char *path);
 void
 usage(void)
 {
-	eprintf("usage: %s [-a] [file...]\n", argv0);
+	eprintf("usage: %s [-a | -s] [-k] [file...]\n", argv0);
 }
 
 int
@@ -45,6 +45,9 @@ main(int argc, char *argv[])
 	default:
 		usage();
 	} ARGEND;
+
+	if (aflag && sflag)
+		usage();
 
 	bsize = getenv("BLOCKSIZE");
 	if (bsize)
