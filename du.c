@@ -109,38 +109,42 @@ du(const char *path)
 		eprintf("stat: %s:", path);
 	n = 512 * st.st_blocks / blksize;
 
-	if (S_ISDIR(st.st_mode)) {
-		dp = opendir(path);
-		if (!dp) {
-			fprintf(stderr, "opendir: %s: %s\n", path,
-				strerror(errno));
-		} else {
-			cwd = push(path);
-			while ((dent = readdir(dp))) {
-				if (strcmp(dent->d_name, ".") == 0 ||
-				    strcmp(dent->d_name, "..") == 0)
-					continue;
-				if (lstat(dent->d_name, &st) < 0)
-					eprintf("stat: %s:", dent->d_name);
-				if (S_ISDIR(st.st_mode)) {
-					n += du(dent->d_name);
-				} else {
-					m = 512 * st.st_blocks / blksize;
-					n += m;
-					if (aflag && !sflag) {
-						if (S_ISLNK(st.st_mode))
-							snprintf(file, sizeof(file), "%s/%s", cwd, dent->d_name);
-						else
-							realpath(dent->d_name, file);
-						print(m, file);
-					}
-				}
-			}
-			pop(cwd);
-			closedir(dp);
-		}
+	if (!S_ISDIR(st.st_mode))
+		goto done;
+
+	dp = opendir(path);
+	if (!dp) {
+		fprintf(stderr, "opendir: %s: %s\n", path,
+			strerror(errno));
+		goto done;
 	}
 
+	cwd = push(path);
+	while ((dent = readdir(dp))) {
+		if (strcmp(dent->d_name, ".") == 0 ||
+		    strcmp(dent->d_name, "..") == 0)
+			continue;
+		if (lstat(dent->d_name, &st) < 0)
+			eprintf("stat: %s:", dent->d_name);
+		if (S_ISDIR(st.st_mode)) {
+			n += du(dent->d_name);
+			continue;
+		}
+		m = 512 * st.st_blocks / blksize;
+		n += m;
+		if (aflag && !sflag) {
+			if (S_ISLNK(st.st_mode))
+				snprintf(file, sizeof(file), "%s/%s",
+					 cwd, dent->d_name);
+			else
+				realpath(dent->d_name, file);
+			print(m, file);
+		}
+	}
+	pop(cwd);
+	closedir(dp);
+
+done:
 	if (!sflag)
 		print(n, realpath(path, file));
 	return n;
