@@ -97,6 +97,12 @@ pop(char *path)
 }
 
 static long
+nblks(struct stat *st)
+{
+	return (512 * st->st_blocks + blksize - 1) / blksize;
+}
+
+static long
 du(const char *path)
 {
 	DIR *dp;
@@ -107,7 +113,7 @@ du(const char *path)
 
 	if (lstat(path, &st) < 0)
 		eprintf("stat: %s:", path);
-	n = 512 * st.st_blocks / blksize;
+	n = nblks(&st);
 
 	if (!S_ISDIR(st.st_mode))
 		goto done;
@@ -130,7 +136,7 @@ du(const char *path)
 			n += du(dent->d_name);
 			continue;
 		}
-		m = 512 * st.st_blocks / blksize;
+		m = nblks(&st);
 		n += m;
 		if (aflag && !sflag) {
 			if (S_ISLNK(st.st_mode))
