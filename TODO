@@ -1,7 +1,5 @@
 diff [-ru] file1 file2
 
-du [-hdi] [path]
-
 expr [expression]
 
 id [-ruGgn] username
@@ -14,3 +12,22 @@ tr string1 [string2]
 
 unexpand [-a] [-t N] [file...]
 
+od/hd
+
+logname
+
+uuencode
+
+uudecode
+
+mktemp
+
+passwd (maybe a candidate for ubase instead?)
+
+sed
+
+patch
+
+ed
+
+awk
