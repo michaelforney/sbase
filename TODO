@@ -31,3 +31,13 @@ patch
 ed
 
 awk
+
+bc/dc
+
+fmt
+
+install
+
+find (bare minimum)
+
+xargs (bare minimum)
