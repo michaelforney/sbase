@@ -9,7 +9,7 @@ chmod \- change file mode
 .P
 .B chmod
 .RB [ \-r ]
-.RB [ ugoa ]*[ +-= ][ rwxs ]*
+.RB [ ugoa ]*[ +-= ][ rwxst ]*
 .RI [ file ...]
 .SH DESCRIPTION
 .B chmod
@@ -18,7 +18,7 @@ changes the file mode for the given files.
 If the mode is an
 .I octal
 number, the modes are set according to that number's comprising bits. The first
-digit defines the setuid (4) and setgid (2) attributes.  The second digit
+digit defines the setuid (4), setgid (2), and sticky (1) attributes.  The second digit
 defines the owner's permissions: read (4), write (2), and execute (1); the third
 defines permissions for others in the file's group; and the fourth for all other
 users. Leading zeroes may be omitted.
@@ -62,6 +62,9 @@ execute permissions.
 .TP
 .B s
 setuid and setgid attributes.
+.TP
+.B t
+sticky attribute.
 .PD
 .SH OPTIONS
 .TP
