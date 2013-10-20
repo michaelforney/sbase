@@ -30,7 +30,7 @@ main(int argc, char *argv[])
 		break;
 	case 'm':
 		mflag = true;
-		mode = estrtol(EARGF(usage()), 10);
+		mode = estrtol(EARGF(usage()), 8);
 		break;
 	default:
 		usage();
