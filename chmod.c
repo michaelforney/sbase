@@ -95,6 +95,7 @@ parsemode(const char *str)
 	if(*end == '\0') {
 		if(octal & 04000) mode |= S_ISUID;
 		if(octal & 02000) mode |= S_ISGID;
+		if(octal & 01000) mode |= S_ISVTX;
 		if(octal & 00400) mode |= S_IRUSR;
 		if(octal & 00200) mode |= S_IWUSR;
 		if(octal & 00100) mode |= S_IXUSR;
@@ -140,7 +141,10 @@ parsemode(const char *str)
 		case 's':
 			mode |= S_ISUID|S_ISGID;
 			break;
-		/* error */
+		case 't':
+			mode |= S_ISVTX;
+			break;
+			/* error */
 		default:
 			eprintf("%s: invalid mode\n", str);
 		}
