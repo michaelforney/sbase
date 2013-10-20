@@ -31,9 +31,9 @@ main(int argc, char *argv[])
 			case 'R':
 				rflag = true;
 				break;
-			case 'r': case 'w': case 'x': case 's':
+			case 'r': case 'w': case 'x': case 's': case 't':
 				/*
-				 * -[rwxs] are valid modes so do not interpret
+				 * -[rwxst] are valid modes so do not interpret
 				 * them as options - in any case we are done if
 				 * we hit this case
 				 */
