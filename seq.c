@@ -98,7 +98,7 @@ digitsleft(const char *d)
 	if(*d == '+')
 		d++;
 	exp = strpbrk(d, "eE");
-	shift = exp ? atoi(&exp[1]) : 0;
+	shift = exp ? estrtol(&exp[1], 10) : 0;
 
 	return MAX(0, strspn(d, "-0123456789")+shift);
 }
@@ -110,7 +110,7 @@ digitsright(const char *d)
 	int shift, after;
 
 	exp = strpbrk(d, "eE");
-	shift = exp ? atoi(&exp[1]) : 0;
+	shift = exp ? estrtol(&exp[1], 10) : 0;
 	after = (d = strchr(d, '.')) ? strspn(&d[1], "0123456789") : 0;
 
 	return MAX(0, after-shift);
