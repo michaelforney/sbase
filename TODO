@@ -14,8 +14,6 @@ unexpand [-a] [-t N] [file...]
 
 od/hd
 
-logname
-
 uuencode
 
 uudecode
