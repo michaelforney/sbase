@@ -8,8 +8,6 @@
 
 extern char *argv0;
 
-#define USED(x)		((void)(x))
-
 /* use main(int argc, char *argv[]) */
 #define ARGBEGIN	for (argv0 = *argv, argv++, argc--;\
 					argv[0] && argv[0][1]\
@@ -32,10 +30,7 @@ extern char *argv0;
 					switch (_argc)
 
 #define ARGEND			}\
-				USED(_argc);\
-			}\
-			USED(argv);\
-			USED(argc);
+			}
 
 #define ARGC()		_argc
 
