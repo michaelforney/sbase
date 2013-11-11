@@ -113,32 +113,32 @@ binary(const char *arg1, const char *op, const char *arg2)
 	};
 
 	for (i = 0; i < LEN(optexts); i++) {
-		if (strcmp(op, optexts[i]) == 0) {
-			oper = i;
+		if (strcmp(op, optexts[i]) != 0)
+			continue;
+		oper = i;
+		switch (oper) {
+		case STREQ:
+			return strcmp(arg1, arg2) == 0;
+		case STRNE:
+			return strcmp(arg1, arg2) != 0;
+		default:
+			narg1 = estrtol(arg1, 0);
+			narg2 = estrtol(arg2, 0);
 			switch (oper) {
-			case STREQ:
-				return strcmp(arg1, arg2) == 0;
-			case STRNE:
-				return strcmp(arg1, arg2) != 0;
+			case EQ:
+				return narg1 == narg2;
+			case GE:
+				return narg1 >= narg2;
+			case GT:
+				return narg1 > narg2;
+			case LE:
+				return narg1 <= narg2;
+			case LT:
+				return narg1 < narg2;
+			case NE:
+				return narg1 != narg2;
 			default:
-				narg1 = estrtol(arg1, 0);
-				narg2 = estrtol(arg2, 0);
-				switch (oper) {
-				case EQ:
-					return narg1 == narg2;
-				case GE:
-					return narg1 >= narg2;
-				case GT:
-					return narg1 > narg2;
-				case LE:
-					return narg1 <= narg2;
-				case LT:
-					return narg1 < narg2;
-				case NE:
-					return narg1 != narg2;
-				default:
-					usage();
-				}
+				usage();
 			}
 		}
 	}
