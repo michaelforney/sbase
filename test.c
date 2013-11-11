@@ -40,7 +40,7 @@ main(int argc, char *argv[])
 		ret = binary(argv[1], argv[2], argv[3]);
 		break;
 	default:
-		usage();
+		break;
 	}
 	if(not)
 		ret = !ret;
