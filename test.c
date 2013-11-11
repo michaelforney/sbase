@@ -108,7 +108,9 @@ binary(const char *arg1, const char *op, const char *arg2)
 	int i;
 	long narg1, narg2;
 	enum operator { EQ, GE, GT, LE, LT, NE, STREQ, STRNE } oper;
-	char *optexts[] = { "-eq", "-ge", "-gt", "-le", "-lt", "-ne",
+	char *optexts[] = {
+		"-eq", "-ge", "-gt",
+		"-le", "-lt", "-ne",
 		"=", "!="
 	};
 
