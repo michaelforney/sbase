@@ -57,7 +57,7 @@ unary(const char *op, const char *arg)
 		usage();
 	switch(op[1]) {
 	case 'b': case 'c': case 'd': case 'f': case 'g':
-	case 'p': case 'S': case 's': case 'u':
+	case 'k': case 'p': case 'S': case 's': case 'u':
 		if((r = stat(arg, &st)) == -1)
 			return false; /* -e */
 		switch(op[1]) {
@@ -71,6 +71,8 @@ unary(const char *op, const char *arg)
 			return S_ISREG(st.st_mode);
 		case 'g':
 			return st.st_mode & S_ISGID;
+		case 'k':
+			return st.st_mode & S_ISVTX;
 		case 'p':
 			return S_ISFIFO(st.st_mode);
 		case 'S':
@@ -153,5 +155,5 @@ usage(void)
 	const char *ket = (*argv0 == '[') ? " ]" : "";
 
 	eprintf("usage: %s string%s\n"
-	        "       %s [!] [-bcdefghLnprSstuwxz] string%s\n", argv0, ket, argv0, ket);
+	        "       %s [!] [-bcdefgkhLnprSstuwxz] string%s\n", argv0, ket, argv0, ket);
 }
