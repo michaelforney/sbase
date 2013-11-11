@@ -30,6 +30,9 @@ main(int argc, char *argv[])
 		if(lines[0] == '+')
 			tail = dropinit;
 		break;
+	ARGNUM:
+		n = ARGNUMF(0);
+		break;
 	default:
 		usage();
 	} ARGEND;

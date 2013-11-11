@@ -29,10 +29,24 @@ extern char *argv0;
 					_argc = argv[0][0];\
 					switch (_argc)
 
+/* Handles obsolete -NUM syntax */
+#define ARGNUM				case '0':\
+					case '1':\
+					case '2':\
+					case '3':\
+					case '4':\
+					case '5':\
+					case '6':\
+					case '7':\
+					case '8':\
+					case '9'
+
 #define ARGEND			}\
 			}
 
 #define ARGC()		_argc
+
+#define ARGNUMF(base)	(brk = 1, estrtol(argv[0], (base)))
 
 #define EARGF(x)	((argv[0][1] == '\0' && argv[1] == NULL)?\
 				((x), abort(), (char *)0) :\
@@ -47,4 +61,3 @@ extern char *argv0;
 					(argc--, argv++, argv[0])))
 
 #endif
-

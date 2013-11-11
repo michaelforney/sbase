@@ -35,6 +35,9 @@ main(int argc, char *argv[])
 	case 'w':
 		width = estrtol(EARGF(usage()), 0);
 		break;
+	ARGNUM:
+		width = ARGNUMF(0);
+		break;
 	default:
 		usage();
 	} ARGEND;
@@ -102,4 +105,3 @@ foldline(const char *str, long width)
 			putchar('\n');
 	} while(str[i = n] && str[i] != '\n');
 }
-

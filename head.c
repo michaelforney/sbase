@@ -23,6 +23,9 @@ main(int argc, char *argv[])
 	case 'n':
 		n = estrtol(EARGF(usage()), 0);
 		break;
+	ARGNUM:
+		n = ARGNUMF(0);
+		break;
 	default:
 		usage();
 	} ARGEND;
@@ -53,4 +56,3 @@ head(FILE *fp, const char *str, long n)
 	if(ferror(fp))
 		eprintf("%s: read error:", str);
 }
-
