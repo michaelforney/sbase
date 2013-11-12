@@ -20,8 +20,6 @@ uudecode
 
 mktemp
 
-passwd (maybe a candidate for ubase instead?)
-
 sed
 
 patch
