@@ -1,11 +1,11 @@
 /* See LICENSE file for copyright and license details. */
-#include <fcntl.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include <string.h>
 #include "util.h"
 
-static void cksum(int, const char *);
+static void cksum(FILE *, const char *);
 static void usage(void);
 
 static const unsigned long crctab[] = {         0x00000000,
@@ -65,36 +65,43 @@ static const unsigned long crctab[] = {         0x00000000,
 int
 main(int argc, char *argv[])
 {
-	int i, fd;
+	FILE *fp;
 
 	ARGBEGIN {
 	default:
 		usage();
 	} ARGEND;
 
-	if(argc == 0)
-		cksum(STDIN_FILENO, NULL);
-	else for(i = 0; i < argc; i++) {
-		if((fd = open(argv[i], O_RDONLY)) == -1)
-			eprintf("open %s:", argv[i]);
-		cksum(fd, argv[i]);
-		close(fd);
+	if(argc == 0) {
+		cksum(stdin, NULL);
+	} else {
+		for(; argc > 0; argc--, argv++) {
+			if (!(fp = fopen(argv[0], "r"))) {
+				fprintf(stderr, "fopen %s: %s\n", argv[0],
+					strerror(errno));
+				continue;
+			}
+			cksum(fp, argv[0]);
+			fclose(fp);
+		}
 	}
 	return EXIT_SUCCESS;
 }
 
 void
-cksum(int fd, const char *s)
+cksum(FILE *fp, const char *s)
 {
 	unsigned char buf[BUFSIZ];
 	unsigned int ck = 0;
-	size_t len;
-	int i, n;
+	size_t len = 0;
+	size_t i, n;
 
-	for(len = 0; (n = read(fd, buf, sizeof buf)) > 0; len += n)
+	while ((n = fread(buf, 1, sizeof(buf), fp)) > 0) {
 		for(i = 0; i < n; i++)
 			ck = (ck << 8) ^ crctab[(ck >> 24) ^ buf[i]];
-	if(n < 0)
+		len += n;
+	}
+	if (ferror(fp))
 		eprintf("%s: read error:", s ? s : "<stdin>");
 
 	for(i = len; i > 0; i >>= 8)
