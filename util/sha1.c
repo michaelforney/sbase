@@ -13,7 +13,8 @@ static uint32_t rol(uint32_t n, int k) { return (n << k) | (n >> (32-k)); }
 #define G2(a,b,c,d,e,i) e += rol(a,5)+F2(b,c,d)+W[i]+0x8F1BBCDC; b = rol(b,30)
 #define G3(a,b,c,d,e,i) e += rol(a,5)+F3(b,c,d)+W[i]+0xCA62C1D6; b = rol(b,30)
 
-static void processblock(struct sha1 *s, const uint8_t *buf)
+static void
+processblock(struct sha1 *s, const uint8_t *buf)
 {
 	uint32_t W[80], a, b, c, d, e;
 	int i;
@@ -66,7 +67,8 @@ static void processblock(struct sha1 *s, const uint8_t *buf)
 	s->h[4] += e;
 }
 
-static void pad(struct sha1 *s)
+static void
+pad(struct sha1 *s)
 {
 	unsigned r = s->len % 64;
 
@@ -89,7 +91,8 @@ static void pad(struct sha1 *s)
 	processblock(s, s->buf);
 }
 
-void sha1_init(void *ctx)
+void
+sha1_init(void *ctx)
 {
 	struct sha1 *s = ctx;
 
@@ -101,7 +104,8 @@ void sha1_init(void *ctx)
 	s->h[4] = 0xC3D2E1F0;
 }
 
-void sha1_sum(void *ctx, uint8_t md[SHA1_DIGEST_LENGTH])
+void
+sha1_sum(void *ctx, uint8_t md[SHA1_DIGEST_LENGTH])
 {
 	struct sha1 *s = ctx;
 	int i;
@@ -115,7 +119,8 @@ void sha1_sum(void *ctx, uint8_t md[SHA1_DIGEST_LENGTH])
 	}
 }
 
-void sha1_update(void *ctx, const void *m, unsigned long len)
+void
+sha1_update(void *ctx, const void *m, unsigned long len)
 {
 	struct sha1 *s = ctx;
 	const uint8_t *p = m;

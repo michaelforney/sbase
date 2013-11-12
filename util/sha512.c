@@ -38,7 +38,8 @@ static const uint64_t K[80] = {
 0x4cc5d4becb3e42b6ULL, 0x597f299cfc657e2aULL, 0x5fcb6fab3ad6faecULL, 0x6c44198c4a475817ULL
 };
 
-static void processblock(struct sha512 *s, const uint8_t *buf)
+static void
+processblock(struct sha512 *s, const uint8_t *buf)
 {
 	uint64_t W[80], t1, t2, a, b, c, d, e, f, g, h;
 	int i;
@@ -85,7 +86,8 @@ static void processblock(struct sha512 *s, const uint8_t *buf)
 	s->h[7] += h;
 }
 
-static void pad(struct sha512 *s)
+static void
+pad(struct sha512 *s)
 {
 	unsigned r = s->len % 128;
 
@@ -108,7 +110,8 @@ static void pad(struct sha512 *s)
 	processblock(s, s->buf);
 }
 
-void sha512_init(void *ctx)
+void
+sha512_init(void *ctx)
 {
 	struct sha512 *s = ctx;
 	s->len = 0;
@@ -122,7 +125,8 @@ void sha512_init(void *ctx)
 	s->h[7] = 0x5be0cd19137e2179ULL;
 }
 
-void sha512_sum(void *ctx, uint8_t md[SHA512_DIGEST_LENGTH])
+void
+sha512_sum(void *ctx, uint8_t md[SHA512_DIGEST_LENGTH])
 {
 	struct sha512 *s = ctx;
 	int i;
@@ -140,7 +144,8 @@ void sha512_sum(void *ctx, uint8_t md[SHA512_DIGEST_LENGTH])
 	}
 }
 
-void sha512_update(void *ctx, const void *m, unsigned long len)
+void
+sha512_update(void *ctx, const void *m, unsigned long len)
 {
 	struct sha512 *s = ctx;
 	const uint8_t *p = m;

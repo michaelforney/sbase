@@ -24,7 +24,8 @@ static const uint32_t tab[64] = {
 	0x6fa87e4f, 0xfe2ce6e0, 0xa3014314, 0x4e0811a1, 0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391
 };
 
-static void processblock(struct md5 *s, const uint8_t *buf)
+static void
+processblock(struct md5 *s, const uint8_t *buf)
 {
 	uint32_t i, W[16], a, b, c, d;
 
@@ -72,7 +73,8 @@ static void processblock(struct md5 *s, const uint8_t *buf)
 	s->h[3] += d;
 }
 
-static void pad(struct md5 *s)
+static void
+pad(struct md5 *s)
 {
 	unsigned r = s->len % 64;
 
@@ -95,7 +97,8 @@ static void pad(struct md5 *s)
 	processblock(s, s->buf);
 }
 
-void md5_init(void *ctx)
+void
+md5_init(void *ctx)
 {
 	struct md5 *s = ctx;
 	s->len = 0;
@@ -105,7 +108,8 @@ void md5_init(void *ctx)
 	s->h[3] = 0x10325476;
 }
 
-void md5_sum(void *ctx, uint8_t md[MD5_DIGEST_LENGTH])
+void
+md5_sum(void *ctx, uint8_t md[MD5_DIGEST_LENGTH])
 {
 	struct md5 *s = ctx;
 	int i;
@@ -119,7 +123,8 @@ void md5_sum(void *ctx, uint8_t md[MD5_DIGEST_LENGTH])
 	}
 }
 
-void md5_update(void *ctx, const void *m, unsigned long len)
+void
+md5_update(void *ctx, const void *m, unsigned long len)
 {
 	struct md5 *s = ctx;
 	const uint8_t *p = m;

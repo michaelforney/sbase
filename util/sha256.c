@@ -25,7 +25,8 @@ static const uint32_t K[64] = {
 0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 };
 
-static void processblock(struct sha256 *s, const uint8_t *buf)
+static void
+processblock(struct sha256 *s, const uint8_t *buf)
 {
 	uint32_t W[64], t1, t2, a, b, c, d, e, f, g, h;
 	int i;
@@ -68,7 +69,8 @@ static void processblock(struct sha256 *s, const uint8_t *buf)
 	s->h[7] += h;
 }
 
-static void pad(struct sha256 *s)
+static void
+pad(struct sha256 *s)
 {
 	unsigned r = s->len % 64;
 
@@ -91,7 +93,8 @@ static void pad(struct sha256 *s)
 	processblock(s, s->buf);
 }
 
-void sha256_init(void *ctx)
+void
+sha256_init(void *ctx)
 {
 	struct sha256 *s = ctx;
 	s->len = 0;
@@ -105,7 +108,8 @@ void sha256_init(void *ctx)
 	s->h[7] = 0x5be0cd19;
 }
 
-void sha256_sum(void *ctx, uint8_t md[SHA256_DIGEST_LENGTH])
+void
+sha256_sum(void *ctx, uint8_t md[SHA256_DIGEST_LENGTH])
 {
 	struct sha256 *s = ctx;
 	int i;
@@ -119,7 +123,8 @@ void sha256_sum(void *ctx, uint8_t md[SHA256_DIGEST_LENGTH])
 	}
 }
 
-void sha256_update(void *ctx, const void *m, unsigned long len)
+void
+sha256_update(void *ctx, const void *m, unsigned long len)
 {
 	struct sha256 *s = ctx;
 	const uint8_t *p = m;
