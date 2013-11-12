@@ -57,6 +57,7 @@ SRC = \
 	mkdir.c    \
 	mkfifo.c   \
 	mknod.c    \
+	mktemp.c   \
 	mv.c       \
 	nice.c     \
 	nl.c       \

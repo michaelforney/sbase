@@ -1,0 +1,20 @@
+.TH MKTEMP 1 sbase\-VERSION
+.SH NAME
+mktemp \- make temporary filename
+.SH SYNOPSIS
+.B mktemp
+.RB [ \-d ]
+.RB [ template ]
+.SH DESCRIPTION
+.B mktemp
+takes the given filename template and overwrites a portion of it
+to create a unique filename.  The template may be any filename with at least
+six `Xs' appended to it.  If no template is specified a default of
+`tmp.XXXXXXXXXX' is used and the tmpdir is currently fixed to `/tmp'.
+.SH OPTIONS
+.TP
+.B \-d
+Make a directory instead of a file
+.SH SEE ALSO
+.IR mkdtemp (3),
+.IR mkstemp (3)
