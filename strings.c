@@ -26,8 +26,10 @@ main(int argc, char *argv[])
 		dostrings(stdin, "<stdin>");
 	} else {
 		for (; argc > 0; argc--, argv++) {
-			if (!(fp = fopen(argv[0], "r")))
-				eprintf("open %s:", argv[0]);
+			if (!(fp = fopen(argv[0], "r"))) {
+				weprintf("fopen %s:", argv[0]);
+				continue;
+			}
 			dostrings(fp, argv[0]);
 			fclose(fp);
 		}

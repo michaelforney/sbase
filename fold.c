@@ -1,10 +1,8 @@
 /* See LICENSE file for copyright and license details. */
 #include <ctype.h>
-#include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 #include "text.h"
 #include "util.h"
@@ -48,8 +46,7 @@ main(int argc, char *argv[])
 		fold(stdin, width);
 	} else for(; argc > 0; argc--, argv++) {
 		if(!(fp = fopen(argv[0], "r"))) {
-			fprintf(stderr, "fopen %s: %s\n", argv[0],
-				strerror(errno));
+			weprintf("fopen %s:", argv[0]);
 			continue;
 		}
 		fold(fp, width);

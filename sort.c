@@ -40,8 +40,10 @@ main(int argc, char *argv[])
 	if(argc == 0) {
 		getlines(stdin, &linebuf);
 	} else for(; argc > 0; argc--, argv++) {
-		if(!(fp = fopen(argv[0], "r")))
-			eprintf("fopen %s:", argv[0]);
+		if(!(fp = fopen(argv[0], "r"))) {
+			weprintf("fopen %s:", argv[0]);
+			continue;
+		}
 		getlines(fp, &linebuf);
 		fclose(fp);
 	}

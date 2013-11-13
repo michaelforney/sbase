@@ -1,5 +1,4 @@
 /* See LICENSE file for copyright and license details. */
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -77,8 +76,7 @@ main(int argc, char *argv[])
 	} else {
 		for(; argc > 0; argc--, argv++) {
 			if (!(fp = fopen(argv[0], "r"))) {
-				fprintf(stderr, "fopen %s: %s\n", argv[0],
-					strerror(errno));
+				weprintf("fopen %s:", argv[0]);
 				continue;
 			}
 			cksum(fp, argv[0]);

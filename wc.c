@@ -47,8 +47,10 @@ main(int argc, char *argv[])
 		wc(stdin, NULL);
 	} else {
 		for (i = 0; i < argc; i++) {
-			if(!(fp = fopen(argv[i], "r")))
-				eprintf("fopen %s:", argv[i]);
+			if(!(fp = fopen(argv[i], "r"))) {
+				weprintf("fopen %s:", argv[i]);
+				continue;
+			}
 			wc(fp, argv[i]);
 			fclose(fp);
 		}

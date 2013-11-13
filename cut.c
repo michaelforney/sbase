@@ -155,8 +155,10 @@ main(int argc, char *argv[])
 	if(!argc)
 		cut(stdin);
 	else for(; argc--; argv++) {
-		if(!(fp = strcmp(*argv, "-") ? fopen(*argv, "r") : stdin))
-			eprintf("fopen %s:", *argv);
+		if(!(fp = strcmp(*argv, "-") ? fopen(*argv, "r") : stdin)) {
+			weprintf("fopen %s:", *argv);
+			continue;
+		}
 		cut(fp);
 		fclose(fp);
 	}

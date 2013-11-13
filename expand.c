@@ -41,7 +41,8 @@ main(int argc, char *argv[])
 	} else {
 		for (; argc > 0; argc--) {
 			if (!(fp = fopen(*argv, "r"))) {
-				eprintf("fopen %s:", *argv);
+				weprintf("fopen %s:", *argv);
+				continue;
 			}
 			dsc.name = *argv;
 			dsc.fp = fp;

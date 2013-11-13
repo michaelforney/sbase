@@ -42,9 +42,7 @@ main(int argc, char *argv[])
 	for (i = 0; i < argc; i++) {
 		fn = Lflag ? stat : lstat;
 		if (fn(argv[i], &st) == -1) {
-			fprintf(stderr, "%s %s: ", Lflag ? "stat" : "lstat",
-				argv[i]);
-			perror(NULL);
+			weprintf("%s %s:", Lflag ? "stat" : "lstat", argv[i]);
 			ret = EXIT_FAILURE;
 			continue;
 		}

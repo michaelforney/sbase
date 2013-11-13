@@ -3,7 +3,6 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <unistd.h>
-#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -120,8 +119,7 @@ du(const char *path)
 
 	dp = opendir(path);
 	if (!dp) {
-		fprintf(stderr, "opendir: %s: %s\n", path,
-			strerror(errno));
+		weprintf("opendir %s:", path);
 		goto done;
 	}
 
