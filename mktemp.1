@@ -3,7 +3,7 @@
 mktemp \- make temporary filename
 .SH SYNOPSIS
 .B mktemp
-.RB [ \-d ]
+.RB [ \-dq ]
 .RB [ template ]
 .SH DESCRIPTION
 .B mktemp
@@ -15,6 +15,10 @@ six `Xs' appended to it.  If no template is specified a default of
 .TP
 .B \-d
 Make a directory instead of a file
+.TP
+.B \-q
+Fail silently if an error occurs.  This is useful if a script
+does not want error output to go to standard error.
 .SH SEE ALSO
 .IR mkdtemp (3),
 .IR mkstemp (3)

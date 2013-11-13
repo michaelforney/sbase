@@ -9,10 +9,11 @@
 static void
 usage(void)
 {
-	eprintf("usage: %s [-d] [template]\n", argv0);
+	eprintf("usage: %s [-dq] [template]\n", argv0);
 }
 
 static int dflag = 0;
+static int qflag = 0;
 
 int
 main(int argc, char *argv[])
@@ -26,6 +27,9 @@ main(int argc, char *argv[])
 	case 'd':
 		dflag = 1;
 		break;
+	case 'q':
+		qflag = 1;
+		break;
 	default:
 		usage();
 	} ARGEND;
@@ -37,11 +41,17 @@ main(int argc, char *argv[])
 
 	snprintf(tmppath, sizeof(tmppath), "%s/%s", tmpdir, template);
 	if (dflag) {
-		if (!mkdtemp(tmppath))
-			eprintf("mkdtemp %s:", tmppath);
+		if (!mkdtemp(tmppath)) {
+			if (!qflag)
+				eprintf("mkdtemp %s:", tmppath);
+			exit(EXIT_FAILURE);
+		}
 	} else {
-		if ((fd = mkstemp(tmppath)) < 0)
-			eprintf("mkstemp %s:", tmppath);
+		if ((fd = mkstemp(tmppath)) < 0) {
+			if (!qflag)
+				eprintf("mkstemp %s:", tmppath);
+			exit(EXIT_FAILURE);
+		}
 		close(fd);
 	}
 	puts(tmppath);
