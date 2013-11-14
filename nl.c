@@ -70,9 +70,9 @@ nl(FILE *fp)
 
 	while(afgets(&buf, &size, fp)) {
 		if((mode == 'a')
-				|| (mode == 'p'
-					&& !regexec(&preg, buf, 0, NULL, 0))
-				|| (mode == 't' && buf[0] != '\n')) {
+		   || (mode == 'p'
+		       && !regexec(&preg, buf, 0, NULL, 0))
+		   || (mode == 't' && buf[0] != '\n')) {
 			printf("%6ld%s%s", n += incr, sep, buf);
 		} else {
 			printf("       %s", buf);
