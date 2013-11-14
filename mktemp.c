@@ -19,7 +19,7 @@ int
 main(int argc, char *argv[])
 {
 	char *template = "tmp.XXXXXXXXXX";
-	char *tmpdir = "/tmp";
+	char *tmpdir = "/tmp", *p;
 	char tmppath[PATH_MAX];
 	int fd;
 
@@ -38,6 +38,9 @@ main(int argc, char *argv[])
 		usage();
 	else if (argc == 1)
 		template = argv[0];
+
+	if ((p = getenv("TMPDIR")))
+		tmpdir = p;
 
 	snprintf(tmppath, sizeof(tmppath), "%s/%s", tmpdir, template);
 	if (dflag) {
