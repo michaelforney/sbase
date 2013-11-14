@@ -10,7 +10,8 @@ mktemp \- make temporary filename
 takes the given filename template and overwrites a portion of it
 to create a unique filename.  The template may be any filename with at least
 six `Xs' appended to it.  If no template is specified a default of
-`tmp.XXXXXXXXXX' is used and the tmpdir is currently fixed to `/tmp'.
+`tmp.XXXXXXXXXX' is used and the tmpdir is set to `/tmp' unless the
+TMPDIR envrionment variable has been set.
 .SH OPTIONS
 .TP
 .B \-d
