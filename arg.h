@@ -13,21 +13,21 @@ extern char *argv0;
 					argv[0] && argv[0][1]\
 					&& argv[0][0] == '-';\
 					argc--, argv++) {\
-				char _argc;\
-				char **_argv;\
-				int _brk;\
+				char argc_;\
+				char **argv_;\
+				int brk_;\
 				if (argv[0][1] == '-' && argv[0][2] == '\0') {\
 					argv++;\
 					argc--;\
 					break;\
 				}\
-				for (_brk = 0, argv[0]++, _argv = argv;\
-						argv[0][0] && !_brk;\
+				for (brk_ = 0, argv[0]++, argv_ = argv;\
+						argv[0][0] && !brk_;\
 						argv[0]++) {\
-					if (_argv != argv)\
+					if (argv_ != argv)\
 						break;\
-					_argc = argv[0][0];\
-					switch (_argc)
+					argc_ = argv[0][0];\
+					switch (argc_)
 
 /* Handles obsolete -NUM syntax */
 #define ARGNUM				case '0':\
@@ -44,19 +44,19 @@ extern char *argv0;
 #define ARGEND			}\
 			}
 
-#define ARGC()		_argc
+#define ARGC()		argc_
 
-#define ARGNUMF(base)	(_brk = 1, estrtol(argv[0], (base)))
+#define ARGNUMF(base)	(brk_ = 1, estrtol(argv[0], (base)))
 
 #define EARGF(x)	((argv[0][1] == '\0' && argv[1] == NULL)?\
 				((x), abort(), (char *)0) :\
-				(_brk = 1, (argv[0][1] != '\0')?\
+				(brk_ = 1, (argv[0][1] != '\0')?\
 					(&argv[0][1]) :\
 					(argc--, argv++, argv[0])))
 
 #define ARGF()		((argv[0][1] == '\0' && argv[1] == NULL)?\
 				(char *)0 :\
-				(_brk = 1, (argv[0][1] != '\0')?\
+				(brk_ = 1, (argv[0][1] != '\0')?\
 					(&argv[0][1]) :\
 					(argc--, argv++, argv[0])))
 
