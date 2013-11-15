@@ -81,6 +81,7 @@ SRC = \
 	tee.c      \
 	test.c     \
 	touch.c    \
+	tr.c       \
 	true.c     \
 	tty.c      \
 	uname.c    \

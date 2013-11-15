@@ -1,0 +1,50 @@
+.TH TR 1 sbase\-VERSION
+.SH NAME
+tr \- translate characters
+.SH SYNOPSIS
+.B tr
+.RB set1
+.RI [ set2 ]
+.SH DESCRIPTION
+.B tr
+reads input from stdin replacing every character in
+.B set1
+with the character at the same index in
+.B set2.
+If set2 is not given
+.B tr
+deletes the characters in set1 from the input.
+
+Sets are specified as strings of characters. Almost all represent themselves. The following ones will be interpreted:
+.TP
+\e\e
+backslash
+.TP
+\ea
+audible BEL
+.TP
+\ef
+form feed
+.TP
+\en
+new line
+.TP
+\er
+return
+.TP
+\et
+horizontal tab
+.TP
+\ev
+vertical tab
+.PP
+If set1 is longer than set2
+.B tr
+will map all the remaining characters to the last one in set2. In case set2 is longer than set1, the remaining characters from set2 will be ignored.
+.B
+.SH NOTES
+.B tr
+is Unicode-aware but does not yet handle character classes (e.g. [:alnum:] or [:digit:]).
+.SH SEE ALSO
+.IR sed(1)
+.IR awk(1)
