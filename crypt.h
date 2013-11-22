@@ -6,8 +6,7 @@ struct crypt_ops {
 	void *s;
 };
 
-int cryptmain(int argc, char *argv[],
-	      struct crypt_ops *ops, uint8_t *md, size_t sz);
-int cryptsum(struct crypt_ops *ops, FILE *fp, const char *f,
-	     uint8_t *md);
-void mdprint(const uint8_t *md, const char *f, size_t len);
+int cryptmain(int argc, char **,
+	      struct crypt_ops *, uint8_t *, size_t);
+int cryptsum(struct crypt_ops *, FILE *, const char *, uint8_t *);
+void mdprint(const uint8_t *, const char *, size_t);
