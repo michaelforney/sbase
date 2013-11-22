@@ -31,7 +31,7 @@ int
 cryptsum(struct crypt_ops *ops, FILE *fp, const char *f,
 	 uint8_t *md)
 {
-	unsigned char buf[BUFSIZ];
+	uint8_t buf[BUFSIZ];
 	size_t n;
 
 	ops->init(ops->s);
