@@ -3,8 +3,8 @@
  * by 20h
  */
 
-#ifndef __ARG_H__
-#define __ARG_H__
+#ifndef ARG_H__
+#define ARG_H__
 
 extern char *argv0;
 
