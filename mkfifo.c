@@ -8,13 +8,19 @@
 static void
 usage(void)
 {
-	eprintf("usage: %s name...\n", argv0);
+	eprintf("usage: %s [-m mode] name...\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
+	mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP |
+		S_IWGRP | S_IROTH | S_IWOTH;
+
 	ARGBEGIN {
+	case 'm':
+		mode = estrtol(EARGF(usage()), 8);
+		break;
 	default:
 		usage();
 	} ARGEND;
@@ -22,12 +28,9 @@ main(int argc, char *argv[])
 	if (argc < 1)
 		usage();
 
-	for(; argc > 0; argc--, argv++) {
-		if(mkfifo(argv[0], S_IRUSR|S_IWUSR|S_IRGRP|\
-					S_IWGRP|S_IROTH|S_IWOTH) == -1) {
+	for(; argc > 0; argc--, argv++)
+		if(mkfifo(argv[0], mode) == -1)
 			eprintf("mkfifo %s:", argv[0]);
-		}
-	}
 	return EXIT_SUCCESS;
 }
 

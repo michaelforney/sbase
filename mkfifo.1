@@ -3,9 +3,17 @@
 mkfifo \- make named pipe
 .SH SYNOPSIS
 .B mkfifo
-.RI [ name ...]
+.RB [ \-m
+.IR mode ]
+.I name ...
 .SH DESCRIPTION
 .B mkfifo
 creates named pipes (FIFOs) with the given names.
+.SH OPTIONS
+.TP
+.B \-m
+Set the file permission bits of newly created FIFOs to mode.  The mode
+is specified in octal as we do not currently support all the formats that
+the chmod(1) utility supports.
 .SH SEE ALSO
 .IR mkfifo (3)
