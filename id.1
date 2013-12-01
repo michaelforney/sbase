@@ -1,8 +1,12 @@
 .TH ID 1 sbase\-VERSION
 .SH NAME
 id \- print real and effective user and group IDs
-.SH DESCRIPTION
+.SH SYNOPSIS
 .B id
-Print user and group information for the current user.
+.RB [ user ]
+.SH DESCRIPTION
+Print user and group information of the calling process to standard output.
+If a login name is specified, the user and group information of that user
+is displayed.
 .SH SEE ALSO
 .IR who(1)
