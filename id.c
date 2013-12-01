@@ -7,21 +7,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <ctype.h>
 #include "util.h"
 
 static void user(struct passwd *pw);
+static void userid(uid_t id);
+static void usernam(const char *nam);
 
 static void
 usage(void)
 {
-	eprintf("usage: %s [user]\n", argv0);
+	eprintf("usage: %s [user | uid]\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
-	struct passwd *pw;
-
 	ARGBEGIN {
 	default:
 		usage();
@@ -30,26 +31,46 @@ main(int argc, char *argv[])
 	errno = 0;
 	switch (argc) {
 	case 0:
-		pw = getpwuid(getuid());
-		if (errno != 0)
-			eprintf("getpwuid %d:", getuid());
-		else if (!pw)
-			eprintf("getpwuid %d: no such user\n", getuid());
-		user(pw);
+		userid(getuid());
 		break;
 	case 1:
-		pw = getpwnam(argv[0]);
-		if (errno != 0)
-			eprintf("getpwnam %s:", argv[0]);
-		else if (!pw)
-			eprintf("getpwnam %s: no such user\n", argv[0]);
-		user(pw);
+		/* user names can't begin [0-9] */
+		if (isdigit(argv[0][0]))
+			userid(estrtol(argv[0], 0));
+		else
+			usernam(argv[0]);
 		break;
 	default:
 		usage();
 	}
 
 	return EXIT_SUCCESS;
+}
+
+static void usernam(const char *nam)
+{
+	struct passwd *pw;
+
+	errno = 0;
+	pw = getpwnam(nam);
+	if (errno != 0)
+		eprintf("getpwnam %s:", nam);
+	else if (!pw)
+		eprintf("getpwnam %s: no such user\n", nam);
+	user(pw);
+}
+
+static void userid(uid_t id)
+{
+	struct passwd *pw;
+
+	errno = 0;
+	pw = getpwuid(id);
+	if (errno != 0)
+		eprintf("getpwuid %d:", id);
+	else if (!pw)
+		eprintf("getpwuid %d: no such user\n", id);
+	user(pw);
 }
 
 static void
