@@ -8,6 +8,8 @@
 #include <limits.h>
 #include "util.h"
 
+static void curproc(void);
+
 static void
 usage(void)
 {
@@ -17,17 +19,25 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
+	ARGBEGIN {
+	default:
+		usage();
+	} ARGEND;
+
+	curproc();
+
+	return EXIT_SUCCESS;
+}
+
+static void
+curproc(void)
+{
 	struct passwd *pw;
 	struct group *gr;
 	uid_t uid, euid;
 	gid_t gid, egid, groups[NGROUPS_MAX];
 	int ngroups;
 	int i;
-
-	ARGBEGIN {
-	default:
-		usage();
-	} ARGEND;
 
 	/* Print uid/euid info */
 	uid = getuid();
@@ -67,5 +77,4 @@ main(int argc, char *argv[])
 		printf("(%s)", gr->gr_name);
 	}
 	putchar('\n');
-	return EXIT_SUCCESS;
 }
