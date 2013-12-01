@@ -3,10 +3,16 @@
 id \- print real and effective user and group IDs
 .SH SYNOPSIS
 .B id
+.RB [ -G ]
 .RB [ user | uid ]
 .SH DESCRIPTION
 Print user and group information of the calling process to standard output.
 If a login name or uid is specified, the user and group information of that
 user is displayed.
+.SH OPTIONS
+.TP
+.B \-G
+Display group information as whitespace separated numbers, in no particular
+order.
 .SH SEE ALSO
 .IR who(1)

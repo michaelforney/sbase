@@ -10,6 +10,7 @@
 #include <ctype.h>
 #include "util.h"
 
+static void groupid(struct passwd *pw);
 static void user(struct passwd *pw);
 static void userid(uid_t id);
 static void usernam(const char *nam);
@@ -17,13 +18,18 @@ static void usernam(const char *nam);
 static void
 usage(void)
 {
-	eprintf("usage: %s [user | uid]\n", argv0);
+	eprintf("usage: %s [-G] [user | uid]\n", argv0);
 }
+
+static int Gflag = 0;
 
 int
 main(int argc, char *argv[])
 {
 	ARGBEGIN {
+	case 'G':
+		Gflag = 1;
+		break;
 	default:
 		usage();
 	} ARGEND;
@@ -47,7 +53,26 @@ main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-static void usernam(const char *nam)
+static void
+groupid(struct passwd *pw)
+{
+	gid_t gid, groups[NGROUPS_MAX];
+	int ngroups;
+	int i;
+
+	ngroups = NGROUPS_MAX;
+	getgrouplist(pw->pw_name, pw->pw_gid, groups, &ngroups);
+	for (i = 0; i < ngroups; i++) {
+		gid = groups[i];
+		printf("%u", gid);
+		if (i < ngroups - 1)
+			putchar(' ');
+	}
+	putchar('\n');
+}
+
+static void
+usernam(const char *nam)
 {
 	struct passwd *pw;
 
@@ -57,10 +82,14 @@ static void usernam(const char *nam)
 		eprintf("getpwnam %s:", nam);
 	else if (!pw)
 		eprintf("getpwnam %s: no such user\n", nam);
-	user(pw);
+	if (Gflag)
+		groupid(pw);
+	else
+		user(pw);
 }
 
-static void userid(uid_t id)
+static void
+userid(uid_t id)
 {
 	struct passwd *pw;
 
@@ -70,7 +99,10 @@ static void userid(uid_t id)
 		eprintf("getpwuid %d:", id);
 	else if (!pw)
 		eprintf("getpwuid %d: no such user\n", id);
-	user(pw);
+	if (Gflag)
+		groupid(pw);
+	else
+		user(pw);
 }
 
 static void
