@@ -22,7 +22,7 @@ main(int argc, char *argv[])
 		cp_rflag = true;
 		break;
 	default:
-		exit(EXIT_FAILURE);
+		usage();
 	} ARGEND;
 
 	if (argc < 2)
