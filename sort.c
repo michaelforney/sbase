@@ -11,13 +11,14 @@ static int linecmp(const char **, const char **);
 
 static bool rflag = false;
 static bool uflag = false;
+static bool nflag = false;
 
 static struct linebuf linebuf = EMPTY_LINEBUF;
 
 static void
 usage(void)
 {
-	eprintf("usage: %s [-ru] [file...]\n", argv0);
+	eprintf("usage: %s [-nru] [file...]\n", argv0);
 }
 
 int
@@ -27,6 +28,9 @@ main(int argc, char *argv[])
 	FILE *fp;
 
 	ARGBEGIN {
+	case 'n':
+		nflag = true;
+		break;
 	case 'r':
 		rflag = true;
 		break;
@@ -63,6 +67,12 @@ main(int argc, char *argv[])
 int
 linecmp(const char **a, const char **b)
 {
+	if (nflag) {
+		if (rflag)
+			return strtoul(*b, 0, 10) - strtoul(*a, 0, 10);
+		else
+			return strtoul(*a, 0, 10) - strtoul(*b, 0, 10);
+	}
 	return strcmp(*a, *b) * (rflag ? -1 : +1);
 }
 

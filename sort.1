@@ -3,13 +3,16 @@
 sort \- sort lines
 .SH SYNOPSIS
 .B sort
-.RB [ \-ru ]
+.RB [ \-nru ]
 .RI [ file ...]
 .SH DESCRIPTION
 .B sort
 writes the sorted concatenation of the given files to stdout.  If no file is
 given, sort reads from stdin.
 .SH OPTIONS
+.TP
+.B \-n
+perform a numeric sort.
 .TP
 .B \-r
 reverses the sort.
