@@ -10,7 +10,7 @@
 static void
 usage(void)
 {
-	eprintf("usage: %s [-fr] FILE...\n", argv0);
+	eprintf("usage: %s [-fRr] FILE...\n", argv0);
 }
 
 int
@@ -20,6 +20,7 @@ main(int argc, char *argv[])
 	case 'f':
 		rm_fflag = true;
 		break;
+	case 'R':
 	case 'r':
 		rm_rflag = true;
 		break;

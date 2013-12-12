@@ -3,7 +3,7 @@
 rm \- remove files and directories
 .SH SYNOPSIS
 .B rm
-.RB [ \-fr ]
+.RB [ \-fRr ]
 .RI [ file ...]
 .SH DESCRIPTION
 .B rm
@@ -12,6 +12,9 @@ removes the given files and directories.
 .TP
 .B \-f
 ignore files that cannot be removed.
+.TP
+.B \-R
+equivalent to -r.
 .TP
 .B \-r
 remove directories recursively.
