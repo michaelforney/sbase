@@ -93,6 +93,7 @@ SRC = \
 	stat.c     \
 	wc.c       \
 	who.c      \
+	xargs.c    \
 	yes.c
 
 OBJ = $(SRC:.c=.o) $(LIB)

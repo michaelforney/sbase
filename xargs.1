@@ -1,0 +1,28 @@
+.TH XARGS 1 sbase\-VERSION
+.SH NAME
+xargs \- constuct argument list(s) and execute command
+.SH SYNOPSIS
+.B xargs
+.RB [ \-r ]
+.RI [ cmd
+.RI [arg... ] ]
+.SH DESCRIPTION
+xargs reads space, tab, newline and EOF delimited strings from stdin
+and executes the specified cmd with the strings as arguments.
+
+Any arguments specified on the command line are given to the command upon
+each invocation, followed by some number of the arguments read from
+stdin.  The command is repeatedly executed one or more times until stdin
+is exhausted.
+
+Spaces, tabs and newlines may be embedded in arguments using single (`'')
+or double (`"') quotes or backslashes ('\\').  Single quotes escape all
+non-single quote characters, excluding newlines, up to the matching single
+quote.  Double quotes escape all non-double quote characters, excluding
+newlines, up to the matching double quote.  Any single character, including
+newlines, may be escaped by a backslash.
+.SH OPTIONS
+.TP
+.BI \-r
+Do not run the command if there are no arguments.  Normally the command is
+executed at least once even if there are no arguments.
