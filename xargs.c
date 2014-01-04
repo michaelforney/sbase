@@ -222,15 +222,16 @@ static void
 runcmd(void)
 {
 	pid_t pid;
-	int status;
+	int status, saved_errno;
 
 	pid = fork();
 	if (pid < 0)
 		eprintf("fork:");
 	if (pid == 0) {
 		execvp(*cmd, cmd);
+		saved_errno = errno;
 		weprintf("execvp %s:", *cmd);
-		_exit(errno == ENOENT ? 127 : 126);
+		_exit(saved_errno == ENOENT ? 127 : 126);
 	}
 	wait(&status);
 	if (WIFEXITED(status)) {
