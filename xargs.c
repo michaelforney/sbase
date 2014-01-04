@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,7 +20,7 @@ static int parsequote(int);
 static void parseescape(void);
 static char *poparg(void);
 static void pusharg(char *);
-static int runcmd(void);
+static void runcmd(void);
 
 static char **cmd;
 static char *argb;
@@ -85,11 +86,7 @@ main(int argc, char *argv[])
 			i++;
 		}
 		cmd[i] = NULL;
-		if (i == 1 && rflag == 1)
-			;
-		else
-			if (runcmd() == -1)
-				arg = NULL;
+		if (i == 1 && rflag == 1); else runcmd();
 		for (; i >= 0; i--)
 			free(cmd[i]);
 	} while (arg);
@@ -221,7 +218,7 @@ pusharg(char *arg)
 		deinputc(*p);
 }
 
-static int
+static void
 runcmd(void)
 {
 	pid_t pid;
@@ -233,9 +230,9 @@ runcmd(void)
 	if (pid == 0) {
 		execvp(*cmd, cmd);
 		eprintf("execvp %s:", *cmd);
+		_exit(errno == ENOENT ? 127 : 126);
 	}
 	wait(&status);
 	if (WIFEXITED(status) && WEXITSTATUS(status) == 255)
-		return -1;
-	return 0;
+		exit(124);
 }
