@@ -229,10 +229,15 @@ runcmd(void)
 		eprintf("fork:");
 	if (pid == 0) {
 		execvp(*cmd, cmd);
-		eprintf("execvp %s:", *cmd);
+		weprintf("execvp %s:", *cmd);
 		_exit(errno == ENOENT ? 127 : 126);
 	}
 	wait(&status);
-	if (WIFEXITED(status) && WEXITSTATUS(status) == 255)
-		exit(124);
+	if (WIFEXITED(status)) {
+		if (WEXITSTATUS(status) == 255)
+			exit(124);
+		if (WEXITSTATUS(status) == 127 ||
+		    WEXITSTATUS(status) == 126)
+			exit(WEXITSTATUS(status));
+	}
 }
