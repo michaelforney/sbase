@@ -241,4 +241,6 @@ runcmd(void)
 		    WEXITSTATUS(status) == 126)
 			exit(WEXITSTATUS(status));
 	}
+	if (WIFSIGNALED(status))
+		exit(125);
 }
