@@ -26,6 +26,7 @@ static char **cmd;
 static char *argb;
 static size_t argbsz = 1;
 static size_t argbpos;
+static int nerrors = 0;
 static int rflag = 0;
 
 static void
@@ -93,7 +94,8 @@ main(int argc, char *argv[])
 
 	free(argb);
 	free(cmd);
-	return 0;
+
+	return nerrors > 0 ? 123 : 0;
 }
 
 static int
@@ -245,6 +247,8 @@ runcmd(void)
 		if (WEXITSTATUS(status) == 127 ||
 		    WEXITSTATUS(status) == 126)
 			exit(WEXITSTATUS(status));
+		if (status != 0)
+			nerrors++;
 	}
 	if (WIFSIGNALED(status))
 		exit(125);
