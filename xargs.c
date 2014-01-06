@@ -17,7 +17,7 @@ static void deinputc(int);
 static void fillbuf(int);
 static int eatspace(void);
 static int parsequote(int);
-static void parseescape(void);
+static int parseescape(void);
 static char *poparg(void);
 static void pusharg(char *);
 static void runcmd(void);
@@ -160,7 +160,7 @@ parsequote(int q)
 	return -1;
 }
 
-static void
+static int
 parseescape(void)
 {
 	int ch;
@@ -168,9 +168,9 @@ parseescape(void)
 	if ((ch = inputc()) != EOF) {
 		fillbuf(ch);
 		argbpos++;
-		return;
+		return ch;
 	}
-	enprintf(EXIT_FAILURE, "backslash at EOF\n");
+	return -1;
 }
 
 static char *
@@ -198,7 +198,8 @@ poparg(void)
 					 "unterminated double quote\n");
 			break;
 		case '\\':
-			parseescape();
+			if (parseescape() == -1)
+				enprintf(EXIT_FAILURE, "backslash at EOF\n");
 			break;
 		default:
 			fillbuf(ch);
