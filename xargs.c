@@ -15,7 +15,7 @@ enum {
 static int inputc(void);
 static void deinputc(int);
 static void fillbuf(int);
-static void eatspace(void);
+static int eatspace(void);
 static int parsequote(int);
 static void parseescape(void);
 static char *poparg(void);
@@ -125,7 +125,7 @@ fillbuf(int ch)
 	argb[argbpos] = ch;
 }
 
-static void
+static int
 eatspace(void)
 {
 	int ch;
@@ -136,9 +136,10 @@ eatspace(void)
 			break;
 		default:
 			deinputc(ch);
-			return;
+			return ch;
 		}
 	}
+	return -1;
 }
 
 static int
@@ -176,7 +177,8 @@ poparg(void)
 	int ch;
 
 	argbpos = 0;
-	eatspace();
+	if (eatspace() == -1)
+		return NULL;
 	while ((ch = inputc()) != EOF) {
 		switch (ch) {
 		case ' ': case '\t': case '\n':
