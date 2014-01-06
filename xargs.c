@@ -168,7 +168,9 @@ parseescape(void)
 	if ((ch = inputc()) != EOF) {
 		fillbuf(ch);
 		argbpos++;
+		return;
 	}
+	enprintf(EXIT_FAILURE, "backslash at EOF\n");
 }
 
 static char *
