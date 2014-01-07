@@ -27,12 +27,13 @@ static char *argb;
 static size_t argbsz = 1;
 static size_t argbpos;
 static int nerrors = 0;
+static char *eofstr;
 static int rflag = 0;
 
 static void
 usage(void)
 {
-	eprintf("usage: %s [-r] [cmd [arg...]]\n", argv0);
+	eprintf("usage: %s [-r] [-E eofstr] [cmd [arg...]]\n", argv0);
 }
 
 int
@@ -45,6 +46,9 @@ main(int argc, char *argv[])
 	ARGBEGIN {
 	case 'r':
 		rflag = 1;
+		break;
+	case 'E':
+		eofstr = EARGF(usage());
 		break;
 	default:
 		usage();
@@ -186,9 +190,8 @@ poparg(void)
 	while ((ch = inputc()) != EOF) {
 		switch (ch) {
 		case ' ': case '\t': case '\n':
-			fillbuf('\0');
 			deinputc(ch);
-			return argb;
+			goto out;
 		case '\'':
 			if (parsequote('\'') == -1)
 				enprintf(EXIT_FAILURE,
@@ -209,8 +212,11 @@ poparg(void)
 			break;
 		}
 	}
+out:
 	if (argbpos > 0) {
 		fillbuf('\0');
+		if (eofstr && strcmp(argb, eofstr) == 0)
+			return NULL;
 		return argb;
 	}
 	return NULL;

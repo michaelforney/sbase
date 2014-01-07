@@ -4,8 +4,10 @@ xargs \- constuct argument list(s) and execute command
 .SH SYNOPSIS
 .B xargs
 .RB [ \-r ]
+.RB [ \-E
+.IR eofstr ]
 .RI [ cmd
-.RI [arg... ] ]
+.IR [arg... ] ]
 .SH DESCRIPTION
 xargs reads space, tab, newline and EOF delimited strings from stdin
 and executes the specified cmd with the strings as arguments.
@@ -26,6 +28,9 @@ newlines, may be escaped by a backslash.
 .BI \-r
 Do not run the command if there are no arguments.  Normally the command is
 executed at least once even if there are no arguments.
+.TP
+.B \-E eofstr
+Use eofstr as a logical EOF marker.
 .SH EXIT STATUS
 xargs exits with one of the following values:
 
