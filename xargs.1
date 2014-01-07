@@ -26,3 +26,15 @@ newlines, may be escaped by a backslash.
 .BI \-r
 Do not run the command if there are no arguments.  Normally the command is
 executed at least once even if there are no arguments.
+.SH EXIT STATUS
+xargs exits with one of the following values:
+
+           0       All invocations of command returned a zero exit
+                   status.
+           123     One or more invocations of command returned a
+                   nonzero exit status.
+           124     The command exited with a 255 exit status.
+           125     The command was killed or stopped by a signal.
+           126     The command was found but could not be executed.
+           127     The command could not be found.
+           1       Some other error occurred.
