@@ -20,6 +20,7 @@ static int parsequote(int);
 static int parseescape(void);
 static char *poparg(void);
 static void pusharg(char *);
+static void waitchld(void);
 static void runcmd(void);
 
 static char **cmd;
@@ -232,20 +233,10 @@ pusharg(char *arg)
 }
 
 static void
-runcmd(void)
+waitchld(void)
 {
-	pid_t pid;
-	int status, saved_errno;
+	int status;
 
-	pid = fork();
-	if (pid < 0)
-		eprintf("fork:");
-	if (pid == 0) {
-		execvp(*cmd, cmd);
-		saved_errno = errno;
-		weprintf("execvp %s:", *cmd);
-		_exit(saved_errno == ENOENT ? 127 : 126);
-	}
 	wait(&status);
 	if (WIFEXITED(status)) {
 		if (WEXITSTATUS(status) == 255)
@@ -258,4 +249,22 @@ runcmd(void)
 	}
 	if (WIFSIGNALED(status))
 		exit(125);
+}
+
+static void
+runcmd(void)
+{
+	pid_t pid;
+	int saved_errno;
+
+	pid = fork();
+	if (pid < 0)
+		eprintf("fork:");
+	if (pid == 0) {
+		execvp(*cmd, cmd);
+		saved_errno = errno;
+		weprintf("execvp %s:", *cmd);
+		_exit(saved_errno == ENOENT ? 127 : 126);
+	}
+	waitchld();
 }
