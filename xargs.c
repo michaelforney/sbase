@@ -14,7 +14,7 @@ enum {
 
 static int inputc(void);
 static void deinputc(int);
-static void fillbuf(int);
+static void fillargbuf(int);
 static int eatspace(void);
 static int parsequote(int);
 static int parseescape(void);
@@ -121,7 +121,7 @@ deinputc(int ch)
 }
 
 static void
-fillbuf(int ch)
+fillargbuf(int ch)
 {
 	if (argbpos >= argbsz) {
 		argbsz *= 2;
@@ -156,11 +156,11 @@ parsequote(int q)
 
 	while ((ch = inputc()) != EOF) {
 		if (ch == q) {
-			fillbuf('\0');
+			fillargbuf('\0');
 			return 0;
 		}
 		if (ch != '\n') {
-			fillbuf(ch);
+			fillargbuf(ch);
 			argbpos++;
 		}
 	}
@@ -173,7 +173,7 @@ parseescape(void)
 	int ch;
 
 	if ((ch = inputc()) != EOF) {
-		fillbuf(ch);
+		fillargbuf(ch);
 		argbpos++;
 		return ch;
 	}
@@ -208,14 +208,14 @@ poparg(void)
 				enprintf(EXIT_FAILURE, "backslash at EOF\n");
 			break;
 		default:
-			fillbuf(ch);
+			fillargbuf(ch);
 			argbpos++;
 			break;
 		}
 	}
 out:
 	if (argbpos > 0) {
-		fillbuf('\0');
+		fillargbuf('\0');
 		if (eofstr && strcmp(argb, eofstr) == 0)
 			return NULL;
 		return argb;
