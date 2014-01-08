@@ -21,7 +21,7 @@ static int parseescape(void);
 static char *poparg(void);
 static void deinputstr(char *);
 static void waitchld(void);
-static void runcmd(void);
+static void spawn(void);
 
 static char **cmd;
 static char *argb;
@@ -94,7 +94,7 @@ main(int argc, char *argv[])
 			i++;
 		}
 		cmd[i] = NULL;
-		if (i == 1 && rflag == 1); else runcmd();
+		if (i == 1 && rflag == 1); else spawn();
 		for (; i >= 0; i--)
 			free(cmd[i]);
 	} while (arg);
@@ -248,7 +248,7 @@ waitchld(void)
 }
 
 static void
-runcmd(void)
+spawn(void)
 {
 	pid_t pid;
 	int saved_errno;
