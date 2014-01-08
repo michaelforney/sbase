@@ -14,7 +14,6 @@ enum {
 
 static int inputc(void);
 static void deinputc(int);
-static void deinputstr(char *);
 static void fillargbuf(int);
 static int eatspace(void);
 static int parsequote(int);
@@ -40,6 +39,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
+	int leftover;
 	long argsz, argmaxsz;
 	char *arg;
 	int i;
@@ -65,6 +65,7 @@ main(int argc, char *argv[])
 	if (!cmd)
 		eprintf("malloc:");
 
+	leftover = 0;
 	do {
 		argsz = 0; i = 0;
 		if (argc > 0) {
@@ -77,17 +78,18 @@ main(int argc, char *argv[])
 			argsz += strlen(cmd[i]) + 1;
 			i++;
 		}
-		while ((arg = poparg())) {
+		while (leftover == 1 || (arg = poparg())) {
 			if (argsz + strlen(arg) + 1 > argmaxsz ||
 			    i >= NARGS - 1) {
 				if (strlen(arg) + 1 > argmaxsz)
 					enprintf(EXIT_FAILURE, "insufficient argument space\n");
-				deinputstr(arg);
+				leftover = 1;
 				break;
 			}
 			cmd[i] = strdup(arg);
 			argsz += strlen(cmd[i]) + 1;
 			i++;
+			leftover = 0;
 		}
 		cmd[i] = NULL;
 		if (i == 1 && rflag == 1); else spawn();
@@ -116,15 +118,6 @@ static void
 deinputc(int ch)
 {
 	ungetc(ch, stdin);
-}
-
-static void
-deinputstr(char *arg)
-{
-	char *p;
-
-	for (p = &arg[strlen(arg) - 1]; p >= arg; p--)
-		deinputc(*p);
 }
 
 static void
