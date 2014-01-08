@@ -25,7 +25,7 @@ static void spawn(void);
 
 static char **cmd;
 static char *argb;
-static size_t argbsz = 1;
+static size_t argbsz;
 static size_t argbpos;
 static int nerrors = 0;
 static char *eofstr;
@@ -63,10 +63,6 @@ main(int argc, char *argv[])
 
 	cmd = malloc(NARGS * sizeof(*cmd));
 	if (!cmd)
-		eprintf("malloc:");
-
-	argb = malloc(argbsz);
-	if (!argb)
 		eprintf("malloc:");
 
 	do {
@@ -135,7 +131,7 @@ static void
 fillargbuf(int ch)
 {
 	if (argbpos >= argbsz) {
-		argbsz *= 2;
+		argbsz = argbpos == 0 ? 1 : argbsz * 2;
 		argb = realloc(argb, argbsz);
 		if (!argb)
 			eprintf("realloc:");
