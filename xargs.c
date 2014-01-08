@@ -84,6 +84,8 @@ main(int argc, char *argv[])
 		while ((arg = poparg())) {
 			if (argsz + strlen(arg) + 1 > argmaxsz ||
 			    i >= NARGS - 1) {
+				if (strlen(arg) + 1 > argmaxsz)
+					enprintf(EXIT_FAILURE, "insufficient argument space\n");
 				pusharg(arg);
 				break;
 			}
