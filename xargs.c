@@ -200,7 +200,6 @@ poparg(void)
 	while ((ch = inputc()) != EOF) {
 		switch (ch) {
 		case ' ': case '\t': case '\n':
-			deinputc(ch);
 			goto out;
 		case '\'':
 			if (parsequote('\'') == -1)
@@ -223,13 +222,10 @@ poparg(void)
 		}
 	}
 out:
-	if (argbpos > 0) {
-		fillargbuf('\0');
-		if (eofstr && strcmp(argb, eofstr) == 0)
-			return NULL;
-		return argb;
-	}
-	return NULL;
+	fillargbuf('\0');
+	if (eofstr && strcmp(argb, eofstr) == 0)
+		return NULL;
+	return argb;
 }
 
 static void
