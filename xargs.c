@@ -14,12 +14,12 @@ enum {
 
 static int inputc(void);
 static void deinputc(int);
+static void deinputstr(char *);
 static void fillargbuf(int);
 static int eatspace(void);
 static int parsequote(int);
 static int parseescape(void);
 static char *poparg(void);
-static void deinputstr(char *);
 static void waitchld(void);
 static void spawn(void);
 
