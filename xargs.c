@@ -19,7 +19,7 @@ static int eatspace(void);
 static int parsequote(int);
 static int parseescape(void);
 static char *poparg(void);
-static void pusharg(char *);
+static void deinputstr(char *);
 static void waitchld(void);
 static void runcmd(void);
 
@@ -86,7 +86,7 @@ main(int argc, char *argv[])
 			    i >= NARGS - 1) {
 				if (strlen(arg) + 1 > argmaxsz)
 					enprintf(EXIT_FAILURE, "insufficient argument space\n");
-				pusharg(arg);
+				deinputstr(arg);
 				break;
 			}
 			cmd[i] = strdup(arg);
@@ -120,6 +120,15 @@ static void
 deinputc(int ch)
 {
 	ungetc(ch, stdin);
+}
+
+static void
+deinputstr(char *arg)
+{
+	char *p;
+
+	for (p = &arg[strlen(arg) - 1]; p >= arg; p--)
+		deinputc(*p);
 }
 
 static void
@@ -157,10 +166,8 @@ parsequote(int q)
 	int ch;
 
 	while ((ch = inputc()) != EOF) {
-		if (ch == q) {
-			fillargbuf('\0');
+		if (ch == q)
 			return 0;
-		}
 		if (ch != '\n') {
 			fillargbuf(ch);
 			argbpos++;
@@ -223,15 +230,6 @@ out:
 		return argb;
 	}
 	return NULL;
-}
-
-static void
-pusharg(char *arg)
-{
-	char *p;
-
-	for (p = &arg[strlen(arg) - 1]; p >= arg; p--)
-		deinputc(*p);
 }
 
 static void
