@@ -95,6 +95,8 @@ wc(FILE *fp, const char *str)
 			nw++;
 		}
 	}
+	if (word)
+		nw++;
 	tc += nc;
 	tl += nl;
 	tw += nw;
