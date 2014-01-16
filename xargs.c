@@ -9,7 +9,7 @@
 #include "util.h"
 
 enum {
-	NARGS = 5000
+	NARGS = 10000
 };
 
 static int inputc(void);
