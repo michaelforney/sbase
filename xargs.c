@@ -22,7 +22,7 @@ static char *poparg(void);
 static void waitchld(void);
 static void spawn(void);
 
-static char **cmd;
+static char *cmd[NARGS];
 static char *argb;
 static size_t argbsz;
 static size_t argbpos;
@@ -61,10 +61,6 @@ main(int argc, char *argv[])
 	/* Leave some room for environment variables */
 	argmaxsz -= 4 * 1024;
 
-	cmd = malloc(NARGS * sizeof(*cmd));
-	if (!cmd)
-		eprintf("malloc:");
-
 	leftover = 0;
 	do {
 		argsz = 0; i = 0;
@@ -98,7 +94,6 @@ main(int argc, char *argv[])
 	} while (arg);
 
 	free(argb);
-	free(cmd);
 
 	return nerrors > 0 ? 123 : 0;
 }
