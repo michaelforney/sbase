@@ -74,7 +74,6 @@ main(int argc, char *argv[])
 	n_rows = (b.nlines + (n_columns - 1)) / n_columns;
 	for(i = 0; i < n_rows; ++i) {
 		for(l = i, col = 1; l < b.nlines; l += n_rows, ++col) {
-			/*sprintf(b.lines[l], "%ld,%ld$", i, col);*/
 			fputs(b.lines[l], stdout);
 			if(col < n_columns)
 				fputs(space + strlen(b.lines[l]), stdout);
