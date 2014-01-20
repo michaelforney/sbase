@@ -5,10 +5,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/ioctl.h>
 #include "text.h"
 #include "util.h"
 
 static long chars = 65;
+static int cflag;
 static struct linebuf b = EMPTY_LINEBUF;
 
 static long n_columns;
@@ -26,10 +28,12 @@ main(int argc, char *argv[])
 	long i, l, col;
 	size_t maxlen = 0;
 	char *space;
+	struct winsize w;
 	FILE *fp;
 
 	ARGBEGIN {
 	case 'c':
+		cflag = 1;
 		chars = estrtol(EARGF(usage()), 0);
 		if(chars < 3)
 			eprintf("%d: too few character columns");
@@ -37,6 +41,12 @@ main(int argc, char *argv[])
 	default:
 		usage();
 	} ARGEND;
+
+	if (cflag == 0) {
+		ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+		if (w.ws_col != 0)
+			chars = w.ws_col;
+	}
 
 	/* XXX librarify this chunk, too?  only useful in sponges though */
 	if(argc == 0) {
@@ -84,4 +94,3 @@ main(int argc, char *argv[])
 
 	return EXIT_SUCCESS;
 }
-

@@ -19,9 +19,9 @@ If no file is given, mc reads from stdin.
 specifies the maximum number of character columns to use
 (unless the input contains lines longer than
 .I chars
-characters).
-.I chars
-defaults to 65.
+characters).  By default mc tries to figure out the width
+of the output device, if that fails it defaults to 65
+chars.
 .SH BUGS
 This implementation of
 .B mc
@@ -32,5 +32,4 @@ or TAB characters correctly.
 .B mc
 currently mangles files which contain embedded NULs.
 .B mc
-does not attempt to determine the width of its output device,
-nor does it allow the user to set a default width in its environment.
+does not allow the user to set a default width in its environment.
