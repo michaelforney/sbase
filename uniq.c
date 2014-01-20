@@ -8,16 +8,16 @@
 #include "text.h"
 #include "util.h"
 
-static void uniq_line(char *);
+static void uniqline(char *);
 static void uniq(FILE *, const char *);
-static void uniq_finish(void);
+static void uniqfinish(void);
 
 static const char *countfmt = "";
 static bool dflag = false;
 static bool uflag = false;
 
-static char *prev_line = NULL;
-static long prev_line_count = 0;
+static char *prevline = NULL;
+static long prevlinecount = 0;
 
 static void
 usage(void)
@@ -55,36 +55,36 @@ main(int argc, char *argv[])
 		fclose(fp);
 	} else
 		usage();
-	uniq_finish();
+	uniqfinish();
 
 	return EXIT_SUCCESS;
 }
 
 void
-uniq_line(char *l)
+uniqline(char *l)
 {
-	bool lines_equal = ((l == NULL) || (prev_line == NULL))
-		? l == prev_line
-		: !strcmp(l, prev_line);
+	bool linesequal = ((l == NULL) || (prevline == NULL))
+		? l == prevline
+		: !strcmp(l, prevline);
 
-	if(lines_equal) {
-		++prev_line_count;
+	if(linesequal) {
+		++prevlinecount;
 		return;
 	}
 
-	if(prev_line != NULL) {
-		if((prev_line_count == 1 && !dflag) ||
-		   (prev_line_count != 1 && !uflag)) {
-			printf(countfmt, prev_line_count);
-			fputs(prev_line, stdout);
+	if(prevline != NULL) {
+		if((prevlinecount == 1 && !dflag) ||
+		   (prevlinecount != 1 && !uflag)) {
+			printf(countfmt, prevlinecount);
+			fputs(prevline, stdout);
 		}
-		free(prev_line);
-		prev_line = NULL;
+		free(prevline);
+		prevline = NULL;
 	}
 
-	if(l && !(prev_line = strdup(l)))
+	if(l && !(prevline = strdup(l)))
 		eprintf("strdup:");
-	prev_line_count = 1;
+	prevlinecount = 1;
 }
 
 void
@@ -94,12 +94,11 @@ uniq(FILE *fp, const char *str)
 	size_t size = 0;
 
 	while(afgets(&buf, &size, fp))
-		uniq_line(buf);
+		uniqline(buf);
 }
 
 void
-uniq_finish()
+uniqfinish()
 {
-	uniq_line(NULL);
+	uniqline(NULL);
 }
-
