@@ -124,6 +124,8 @@ main(int argc, char *argv[])
 
 	mappings = (wchar_t *)mmap(NULL, 0x110000 * sizeof(wchar_t),
 				   PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE, -1, 0);
+	if (mappings == MAP_FAILED)
+		eprintf("mmap:");
 
 	ARGBEGIN {
 	default:
@@ -146,6 +148,8 @@ main(int argc, char *argv[])
 	free(buf);
 	if(ferror(stdin))
 		eprintf("<stdin>: read error:");
+
+	munmap(mappings, 0x110000 * sizeof(wchar_t));
 
 	return EXIT_SUCCESS;
 }
