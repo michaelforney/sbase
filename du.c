@@ -26,6 +26,17 @@ usage(void)
 	eprintf("usage: %s [-a | -s] [-k] [file...]\n", argv0);
 }
 
+static char *
+xrealpath(const char *pathname, char *resolved)
+{
+	char *r;
+
+	r = realpath(pathname, resolved);
+	if (!r)
+		eprintf("realpath: %s:");
+	return r;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -59,12 +70,12 @@ main(int argc, char *argv[])
 	if (argc < 1) {
 		n = du(".");
 		if (sflag)
-			print(n, realpath(".", file));
+			print(n, xrealpath(".", file));
 	} else {
 		for (; argc > 0; argc--, argv++) {
 			n = du(argv[0]);
 			if (sflag)
-				print(n, realpath(argv[0], file));
+				print(n, xrealpath(argv[0], file));
 		}
 	}
 	return EXIT_SUCCESS;
@@ -142,7 +153,7 @@ du(const char *path)
 					     cwd, dent->d_name) >= sizeof(file))
 					enprintf(EXIT_FAILURE, "path too long\n");
 			} else {
-				realpath(dent->d_name, file);
+				xrealpath(dent->d_name, file);
 			}
 			print(m, file);
 		}
@@ -152,6 +163,6 @@ du(const char *path)
 
 done:
 	if (!sflag)
-		print(n, realpath(path, file));
+		print(n, xrealpath(path, file));
 	return n;
 }
