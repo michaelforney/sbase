@@ -137,11 +137,13 @@ du(const char *path)
 		m = nblks(&st);
 		n += m;
 		if (aflag && !sflag) {
-			if (S_ISLNK(st.st_mode))
-				snprintf(file, sizeof(file), "%s/%s",
-					 cwd, dent->d_name);
-			else
+			if (S_ISLNK(st.st_mode)) {
+				if (snprintf(file, sizeof(file), "%s/%s",
+					     cwd, dent->d_name) >= sizeof(file))
+					enprintf(EXIT_FAILURE, "path too long\n");
+			} else {
 				realpath(dent->d_name, file);
+			}
 			print(m, file);
 		}
 	}
