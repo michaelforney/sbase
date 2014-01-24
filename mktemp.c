@@ -43,7 +43,7 @@ main(int argc, char *argv[])
 		tmpdir = p;
 
 	if (snprintf(tmppath, sizeof(tmppath), "%s/%s", tmpdir, template) >= sizeof(tmppath))
-		eprintf(EXIT_FAILURE, "path too long\n");
+		enprintf(EXIT_FAILURE, "path too long\n");
 	if (dflag) {
 		if (!mkdtemp(tmppath)) {
 			if (!qflag)
