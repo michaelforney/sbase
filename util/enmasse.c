@@ -26,7 +26,7 @@ enmasse(int argc, char **argv, int (*fn)(const char *, const char *))
 
 	apathmax(&buf, &size);
 	for(i = 0; i < argc; i++) {
-		if(snprintf(buf, size, "%s/%s", dir, basename(argv[i])) > size) {
+		if(snprintf(buf, size, "%s/%s", dir, basename(argv[i])) >= size) {
 			eprintf("%s/%s: filename too long\n", dir,
 					basename(argv[i]));
 		}

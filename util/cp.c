@@ -40,13 +40,13 @@ cp(const char *s1, const char *s2)
 				if(strcmp(d->d_name, ".")
 						&& strcmp(d->d_name, "..")) {
 					if(snprintf(ns1, size1, "%s/%s", s1,
-							d->d_name) > size1) {
+							d->d_name) >= size1) {
 						eprintf("%s/%s: filename too long\n",
 								s1, d->d_name);
 					}
 
 					if(snprintf(ns2, size2, "%s/%s", s2,
-							d->d_name) > size2) {
+							d->d_name) >= size2) {
 						eprintf("%s/%s: filename too long\n",
 								s2, d->d_name);
 					}
