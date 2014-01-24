@@ -42,7 +42,8 @@ main(int argc, char *argv[])
 	if ((p = getenv("TMPDIR")))
 		tmpdir = p;
 
-	snprintf(tmppath, sizeof(tmppath), "%s/%s", tmpdir, template);
+	if (snprintf(tmppath, sizeof(tmppath), "%s/%s", tmpdir, template) >= sizeof(tmppath))
+		eprintf(EXIT_FAILURE, "path too long\n");
 	if (dflag) {
 		if (!mkdtemp(tmppath)) {
 			if (!qflag)
