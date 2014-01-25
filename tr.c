@@ -15,7 +15,7 @@ usage(void)
 	eprintf("usage: %s set1 [set2]\n", argv0);
 }
 
-void
+static void
 handleescapes(char *s)
 {
 	switch(*s) {
@@ -46,7 +46,7 @@ handleescapes(char *s)
 	}
 }
 
-void
+static void
 parsemapping(const char *set1, const char *set2, wchar_t *mappings)
 {
 	char *s;
@@ -78,7 +78,7 @@ parsemapping(const char *set1, const char *set2, wchar_t *mappings)
 	}
 }
 
-void
+static void
 maptonull(const wchar_t *mappings, char *in)
 {
 	const char *s;
@@ -94,7 +94,7 @@ maptonull(const wchar_t *mappings, char *in)
 	}
 }
 
-void
+static void
 maptoset(const wchar_t *mappings, char *in)
 {
 	const char *s;
