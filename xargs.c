@@ -235,16 +235,16 @@ static void
 spawn(void)
 {
 	pid_t pid;
-	int saved_errno;
+	int savederrno;
 
 	pid = fork();
 	if (pid < 0)
 		eprintf("fork:");
 	if (pid == 0) {
 		execvp(*cmd, cmd);
-		saved_errno = errno;
+		savederrno = errno;
 		weprintf("execvp %s:", *cmd);
-		_exit(saved_errno == ENOENT ? 127 : 126);
+		_exit(savederrno == ENOENT ? 127 : 126);
 	}
 	waitchld();
 }
