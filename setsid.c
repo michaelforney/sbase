@@ -15,6 +15,8 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
+	int savederrno;
+
 	ARGBEGIN {
 	default:
 		usage();
@@ -36,6 +38,7 @@ main(int argc, char *argv[])
 	if(setsid() < 0)
 		eprintf("setsid:");
 	execvp(argv[0], argv);
-	eprintf("execvp:");
-	return (errno == ENOENT) ? 127 : 126;
+	savederrno = errno;
+	weprintf("execvp %s:", argv[0]);
+	return (savederrno == ENOENT) ? 127 : 126;
 }
