@@ -245,12 +245,14 @@ unarchive(char *fname, int l, char b[Blksiz])
 		break;
 	case CHARDEV:
 	case BLOCKDEV:
+#ifdef makedev
 		mode = strtoul(h->mode, 0, 8);
 		major = strtoul(h->major, 0, 8);
 		minor = strtoul(h->mode, 0, 8);
 		type = (h->type == CHARDEV) ? S_IFCHR : S_IFBLK;
 		if(mknod(fname, type | mode, makedev(major, minor)))
 			perror(fname);
+#endif
 		break;
 	case FIFO:
 		mode = strtoul(h->mode, 0, 8);
