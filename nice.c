@@ -3,6 +3,8 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/resource.h>
+#include <sys/time.h>
 #include <unistd.h>
 #include "util.h"
 
@@ -12,6 +14,7 @@ int
 main(int argc, char **argv)
 {
 	long val = 10;
+	int savederrno;
 
 	ARGBEGIN {
 	case 'n':
@@ -26,15 +29,18 @@ main(int argc, char **argv)
 		usage();
 
 	errno = 0;
-	nice((int)MAX(INT_MIN, MIN(val, INT_MAX)));
-	if(errno != 0)
-		perror("can't adjust niceness");
+	val += getpriority(PRIO_PROCESS, 0);
+	if (errno != 0)
+		weprintf("getpriority:");
+	val = MAX(PRIO_MIN, MIN(val, PRIO_MAX));
+	if (setpriority(PRIO_PROCESS, 0, val) != 0)
+		weprintf("setpriority:");
 
 	/* POSIX specifies the nice failure still invokes the command */
 	execvp(argv[0], argv);
-	/* reached only on failure */
-	perror(argv[0]);
-	return (errno == ENOENT)? 127 : 126;
+	savederrno = errno;
+	weprintf("execvp %s:", argv[0]);
+	return (savederrno == ENOENT)? 127 : 126;
 }
 
 static void
