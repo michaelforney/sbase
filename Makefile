@@ -56,7 +56,6 @@ SRC = \
 	md5sum.c   \
 	mkdir.c    \
 	mkfifo.c   \
-	mknod.c    \
 	mktemp.c   \
 	mv.c       \
 	nice.c     \
