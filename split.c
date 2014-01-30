@@ -45,7 +45,7 @@ main(int argc, char **argv)
 			usage();
 		scale = sizes[toupper(*end)];
 		if(size > (UINT64_MAX/scale))
-			eprintf("split: '%s': out of range\n", tmp);
+			eprintf("'%s': out of range\n", tmp);
 		size *= scale;
 		break;
 	case 'l':
@@ -74,13 +74,13 @@ main(int argc, char **argv)
 
 	plen = strlen(prefix);
 	if(plen+slen > NAME_MAX)
-		eprintf("split: names cannot exceed %d bytes", NAME_MAX);
+		eprintf("names cannot exceed %d bytes\n", NAME_MAX);
 	strcpy(name, prefix);
 
 	if(file && strcmp(file, "-") != 0) {
 		in = fopen(file, "r");
 		if(!in)
-			eprintf("split: '%s':", file);
+			eprintf("'%s':", file);
 	}
 
 Nextfile:
@@ -133,7 +133,6 @@ nextfile(FILE *f, char *buf, int plen, int slen)
 
 	f = fopen(buf, "w");
 	if(!f)
-		eprintf("split: '%s':", buf);
+		eprintf("'%s':", buf);
 	return f;
 }
-
