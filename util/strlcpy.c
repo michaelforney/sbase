@@ -1,6 +1,7 @@
 /* Taken from OpenBSD */
 #include <sys/types.h>
 #include <string.h>
+#include "../util.h"
 
 /*
  * Copy src to string dst of size siz.  At most siz-1 characters

@@ -1,6 +1,7 @@
 /* Taken from OpenBSD */
 #include <sys/types.h>
 #include <string.h>
+#include "../util.h"
 
 /*
  * Appends src to string dst of size siz (unlike strncat, siz is the
