@@ -151,7 +151,7 @@ du(const char *path)
 			if (S_ISLNK(st.st_mode)) {
 				if (snprintf(file, sizeof(file), "%s/%s",
 					     cwd, dent->d_name) >= sizeof(file))
-					enprintf(EXIT_FAILURE, "path too long\n");
+					eprintf("path too long\n");
 			} else {
 				xrealpath(dent->d_name, file);
 			}

@@ -34,7 +34,7 @@ recurse(const char *path, void (*fn)(const char *))
 		while (--p >= buf && *p == '/') *p ='\0';
 		strlcat(buf, "/", sizeof(buf));
 		if (strlcat(buf, d->d_name, sizeof(buf)) >= sizeof(buf))
-			enprintf(EXIT_FAILURE, "path too long\n");
+			eprintf("path too long\n");
 		fn(buf);
 	}
 

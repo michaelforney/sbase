@@ -78,7 +78,7 @@ main(int argc, char *argv[])
 			if (argsz + strlen(arg) + 1 > argmaxsz ||
 			    i >= NARGS - 1) {
 				if (strlen(arg) + 1 > argmaxsz)
-					enprintf(EXIT_FAILURE, "insufficient argument space\n");
+					eprintf("insufficient argument space\n");
 				leftover = 1;
 				break;
 			}
@@ -187,17 +187,15 @@ poparg(void)
 			goto out;
 		case '\'':
 			if (parsequote('\'') == -1)
-				enprintf(EXIT_FAILURE,
-					 "unterminated single quote\n");
+				eprintf("unterminated single quote\n");
 			break;
 		case '\"':
 			if (parsequote('\"') == -1)
-				enprintf(EXIT_FAILURE,
-					 "unterminated double quote\n");
+				eprintf("unterminated double quote\n");
 			break;
 		case '\\':
 			if (parseescape() == -1)
-				enprintf(EXIT_FAILURE, "backslash at EOF\n");
+				eprintf("backslash at EOF\n");
 			break;
 		default:
 			fillargbuf(ch);
