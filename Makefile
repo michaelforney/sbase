@@ -22,7 +22,9 @@ LIB = \
 	util/rm.o        \
 	util/sha1.o      \
 	util/sha256.o    \
-	util/sha512.o
+	util/sha512.o    \
+	util/strlcat.o   \
+	util/strlcpy.o
 
 SRC = \
 	basename.c \

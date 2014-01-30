@@ -1,17 +1,19 @@
 /* See LICENSE file for copyright and license details. */
 #include <dirent.h>
-#include <errno.h>
+#include <limits.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "../util.h"
 
 void
 recurse(const char *path, void (*fn)(const char *))
 {
-	char *cwd;
+	char buf[PATH_MAX], *p;
 	struct dirent *d;
 	struct stat st;
 	DIR *dp;
@@ -22,19 +24,19 @@ recurse(const char *path, void (*fn)(const char *))
 		eprintf("opendir %s:", path);
 	}
 
-	cwd = agetcwd();
-	if(chdir(path) == -1)
-		eprintf("chdir %s:", path);
-
 	while((d = readdir(dp))) {
-		if(strcmp(d->d_name, ".") && strcmp(d->d_name, ".."))
-			fn(d->d_name);
+		if (strcmp(d->d_name, ".") == 0 ||
+		    strcmp(d->d_name, "..") == 0)
+			continue;
+		strlcpy(buf, path, sizeof(buf));
+		p = strrchr(buf, '\0');
+		/* remove all trailing slashes */
+		while (--p >= buf && *p == '/') *p ='\0';
+		strlcat(buf, "/", sizeof(buf));
+		if (strlcat(buf, d->d_name, sizeof(buf)) >= sizeof(buf))
+			enprintf(EXIT_FAILURE, "path too long\n");
+		fn(buf);
 	}
 
 	closedir(dp);
-	if(chdir(cwd) == -1)
-		eprintf("chdir %s:", cwd);
-
-	free(cwd);
 }
-

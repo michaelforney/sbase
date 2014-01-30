@@ -1,5 +1,5 @@
 /* See LICENSE file for copyright and license details. */
-
+#include <stddef.h>
 #include "arg.h"
 
 #define UTF8_POINT(c) (((c) & 0xc0) != 0x80)
@@ -20,4 +20,6 @@ long estrtol(const char *, int);
 void fnck(const char *, const char *, int (*)(const char *, const char *));
 void putword(const char *);
 void recurse(const char *, void (*)(const char *));
+size_t strlcat(char *, const char *, size_t);
+size_t strlcpy(char *, const char *, size_t);
 void weprintf(const char *, ...);
