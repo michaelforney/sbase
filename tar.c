@@ -6,7 +6,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <limits.h>
-#include <ftw.h>
 #include <grp.h>
 #include <pwd.h>
 #include "util.h"
@@ -40,10 +39,10 @@ enum Type {
 };
 
 static void putoctal(char *, unsigned, int);
-static int archive(const char *, const struct stat *, int);
+static int archive(const char *);
 static int unarchive(char *, int, char[Blksiz]);
 static int print(char *, int , char[Blksiz]);
-static void c(char *);
+static void c(const char *);
 static void xt(int (*)(char*, int, char[Blksiz]));
 
 static FILE *tarfile;
@@ -150,7 +149,7 @@ putoctal(char *dst, unsigned num, int n)
 }
 
 int
-archive(const char* path, const struct stat* sta, int type)
+archive(const char* path)
 {
 	unsigned char b[Blksiz];
 	unsigned chksum;
@@ -286,9 +285,10 @@ print(char * fname, int l, char b[Blksiz])
 }
 
 void
-c(char * dir)
+c(const char * path)
 {
-	ftw(dir, archive, FOPEN_MAX);
+	archive(path);
+	recurse(path, c);
 }
 
 void
