@@ -20,6 +20,8 @@ long estrtol(const char *, int);
 void fnck(const char *, const char *, int (*)(const char *, const char *));
 void putword(const char *);
 void recurse(const char *, void (*)(const char *));
+#undef strlcat
 size_t strlcat(char *, const char *, size_t);
+#undef strlcpy
 size_t strlcpy(char *, const char *, size_t);
 void weprintf(const char *, ...);
