@@ -193,8 +193,12 @@ archive(const char* path)
 		readlink(path, h->link, (sizeof h->link)-1);
 	} else if(S_ISCHR(mode) || S_ISBLK(mode)) {
 		h->type = S_ISCHR(mode) ? CHARDEV : BLOCKDEV;
+#if defined(major) && defined(minor)
 		putoctal(h->major, (unsigned)major(st.st_dev), sizeof h->major);
 		putoctal(h->minor, (unsigned)minor(st.st_dev), sizeof h->minor);
+#else
+		return 0;
+#endif
 	} else if(S_ISFIFO(mode)) {
 		h->type = FIFO;
 	}
