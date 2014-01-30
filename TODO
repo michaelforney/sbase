@@ -33,3 +33,5 @@ fmt
 install
 
 find (bare minimum)
+
+implement -c for all *sum tools
