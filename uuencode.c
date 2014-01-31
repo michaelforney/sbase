@@ -44,14 +44,14 @@ static void
 uuencode(FILE *fp, const char *name, const char *s)
 {
 	struct stat st;
-	unsigned char buf[80], *p;
+	unsigned char buf[45], *p;
 	ssize_t n;
 	int ch;
 
 	if (fstat(fileno(fp), &st) < 0)
 		eprintf("fstat %s:", s);
 	fprintf(stdout, "begin %o %s\n", st.st_mode & 0777, name);
-	while ((n = fread(buf, 1, 45, fp))) {
+	while ((n = fread(buf, 1, sizeof(buf), fp))) {
 		ch = ' ' + (n & 0x3f);
 		putchar(ch == ' ' ? '`' : ch);
 		for (p = buf; n > 0; n -= 3, p += 3) {
