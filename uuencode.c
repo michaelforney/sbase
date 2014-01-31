@@ -50,7 +50,7 @@ uuencode(FILE *fp, const char *name, const char *s)
 
 	if (fstat(fileno(fp), &st) < 0)
 		eprintf("fstat %s:", s);
-	fprintf(stdout, "begin %o %s\n", st.st_mode & 0777, name);
+	printf("begin %o %s\n", st.st_mode & 0777, name);
 	while ((n = fread(buf, 1, sizeof(buf), fp))) {
 		ch = ' ' + (n & 0x3f);
 		putchar(ch == ' ' ? '`' : ch);
@@ -73,5 +73,5 @@ uuencode(FILE *fp, const char *name, const char *s)
 	}
 	if (ferror(fp))
 		eprintf("'%s' read error:", s);
-	fprintf(stdout, "%c\nend\n", '`');
+	printf("%c\nend\n", '`');
 }
