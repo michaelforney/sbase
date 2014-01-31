@@ -85,6 +85,7 @@ SRC = \
 	tr.c       \
 	true.c     \
 	tty.c      \
+	uuencode.c \
 	uname.c    \
 	uniq.c     \
 	unlink.c   \
