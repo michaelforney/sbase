@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -90,7 +91,7 @@ void
 cksum(FILE *fp, const char *s)
 {
 	unsigned char buf[BUFSIZ];
-	unsigned int ck = 0;
+	uint32_t ck = 0;
 	size_t len = 0;
 	size_t i, n;
 
@@ -105,7 +106,7 @@ cksum(FILE *fp, const char *s)
 	for(i = len; i > 0; i >>= 8)
 		ck = (ck << 8) ^ crctab[(ck >> 24) ^ (i & 0xFF)];
 
-	printf("%u %lu", ~ck, (unsigned long)len);
+	printf("%lu %lu", (unsigned long)~ck, (unsigned long)len);
 	if(s != NULL)
 		printf(" %s", s);
 	putchar('\n');
