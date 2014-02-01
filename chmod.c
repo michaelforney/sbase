@@ -93,6 +93,7 @@ parsemode(const char *str)
 
 	octal = strtol(str, &end, 8);
 	if(*end == '\0') {
+		if( octal < 0 || octal > 07777) eprintf("invalid mode\n");
 		if(octal & 04000) mode |= S_ISUID;
 		if(octal & 02000) mode |= S_ISGID;
 		if(octal & 01000) mode |= S_ISVTX;
@@ -106,6 +107,8 @@ parsemode(const char *str)
 		if(octal & 00002) mode |= S_IWOTH;
 		if(octal & 00001) mode |= S_IXOTH;
 		return;
+	} else {
+		eprintf("not octal\n");
 	}
 	for(p = str; *p; p++)
 		switch(*p) {
