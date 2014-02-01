@@ -1,5 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 #include <stdint.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -106,7 +107,7 @@ cksum(FILE *fp, const char *s)
 	for(i = len; i > 0; i >>= 8)
 		ck = (ck << 8) ^ crctab[(ck >> 24) ^ (i & 0xFF)];
 
-	printf("%lu %lu", (unsigned long)~ck, (unsigned long)len);
+	printf("%"PRIu32" %lu", ~ck, (unsigned long)len);
 	if(s != NULL)
 		printf(" %s", s);
 	putchar('\n');
