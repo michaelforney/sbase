@@ -204,5 +204,5 @@ uudecode(FILE *fp, FILE *outfp)
 	/* check for end or fail */
 	afgets(&bufb, &n, fp);
 	if (strnlen(bufb, 3) < 3 || strncmp(bufb, "end", 3) != 0 || bufb[3] != '\n')
-		eprintf("valid uudecode footer \"end\" not found\n");
+		eprintf("invalid uudecode footer \"end\" not found\n");
 }
