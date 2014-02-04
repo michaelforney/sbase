@@ -40,23 +40,19 @@ main(int argc, char *argv[])
 
 	if (argc == 0) {
 		checkheader(stdin, "<stdin>", "begin ", &mode, &fname);
-		nfp = checkfile(fname);
-		if (nfp == NULL)
+		if ((nfp = checkfile(fname)) == NULL)
 			eprintf("fopen %s:", fname);
 		uudecode(stdin, nfp);
 		fclose(nfp);
 	} else {
-		if (!(fp = fopen(argv[0], "r")))
+		if ((fp = fopen(argv[0], "r")) == NULL)
 			eprintf("fopen %s:", argv[0]);
 		checkheader(fp, argv[0], "begin ", &mode, &fname);
-		nfp = checkfile(fname);
-		if (nfp == NULL) {
-			fclose(fp);
+		if ((nfp = checkfile(fname)) == NULL)
 			eprintf("fopen %s:", fname);
-		}
 		uudecode(fp, nfp);
-		fclose(fp);
 		fclose(nfp);
+		fclose(fp);
 	}
 	if (fchmod(fileno(nfp), mode) < 0)
 		eprintf("chmod %s:", fname);
@@ -70,7 +66,7 @@ checkfile(const char *fname)
 	struct stat st;
 	int ret;
 
-	if (strcmp(fname,"/dev/stdout") == 0)
+	if (strcmp(fname, "/dev/stdout") == 0)
 		return stdout;
 	ret = lstat(fname, &st);
 	/* if it is a new file, try to open it */
@@ -112,7 +108,7 @@ checkheader(FILE *fp, const char *s, const char *header, mode_t *mode, char **fn
 	/* now mode should be null terminated, q points to fname */
 	checkmode(p,mode);
         n = strlen(q);
-        while (n > 0 && (q[n-1] == '\n' || q[n-1] == '\r'))
+        while (n > 0 && (q[n - 1] == '\n' || q[n - 1] == '\r'))
 	        q[--n] = '\0';
         if (n > 0)
 		*fname = q;
@@ -126,9 +122,8 @@ checkmode(const char *str,mode_t *validmode)
 
 	if (str == NULL || str == '\0')
 		eprintf("invalid mode\n");
-
 	octal = strtol(str, &end, 8);
-	if (*end == '\0') { /* successful conversion from a valid str */
+	if (*end == '\0') {
 		if (octal >= 0 && octal <= 07777) {
 			if(octal & 04000) *validmode |= S_ISUID;
 			if(octal & 02000) *validmode |= S_ISGID;
@@ -142,7 +137,6 @@ checkmode(const char *str,mode_t *validmode)
 			if(octal & 00004) *validmode |= S_IROTH;
 			if(octal & 00002) *validmode |= S_IWOTH;
 			if(octal & 00001) *validmode |= S_IXOTH;
-			*validmode &= 07777;
 		}
 	}
 }
@@ -150,11 +144,11 @@ checkmode(const char *str,mode_t *validmode)
 static void
 uudecode(FILE *fp, FILE *outfp)
 {
-	char *bufb=NULL, *p,*nl;
+	char *bufb = NULL, *p, *nl;
 	size_t n=0;
-	int ch , i;
+	int ch, i;
 
-#define DEC(c)  (((c) - ' ') & 077)             /* single character decode */
+#define DEC(c)  (((c) - ' ') & 077) /* single character decode */
 #define IS_DEC(c) ( (((c) - ' ') >= 0) && (((c) - ' ') <= 077 + 1) )
 #define OUT_OF_RANGE(c) do {						\
 		eprintf("character %c out of range: [%d-%d]",(c), 1+' ',077+' '+1); \
@@ -163,11 +157,12 @@ uudecode(FILE *fp, FILE *outfp)
 	while (afgets(&bufb,&n,fp)) {
 		p = bufb;
 		/* trim newlines */
-		if ((nl=strchr(bufb, '\n')) != NULL)
+		if ((nl = strchr(bufb, '\n')) != NULL)
 			*nl = '\0';
 		else
 			eprintf("no newline found, aborting\n");
-		if ((i = DEC(*p)) <= 0) /* check for last line */
+		/* check for last line */
+		if ((i = DEC(*p)) <= 0)
 			break;
 		for (++p; i > 0; p += 4, i -= 3) {
 			if (i >= 3) {
@@ -203,7 +198,7 @@ uudecode(FILE *fp, FILE *outfp)
 			eprintf("read error:");
 	}
 	/* check for end or fail */
-	afgets(&bufb,&n,fp);
-	if (strnlen(bufb,3) < 3 || strncmp(bufb, "end", 3) != 0 || bufb[3] != '\n')
+	afgets(&bufb, &n, fp);
+	if (strnlen(bufb, 3) < 3 || strncmp(bufb, "end", 3) != 0 || bufb[3] != '\n')
 		eprintf("valid uudecode footer \"end\" not found\n");
 }
