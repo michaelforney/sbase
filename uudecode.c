@@ -56,6 +56,7 @@ main(int argc, char *argv[])
 		}
 		uudecode(fp, nfp);
 		fclose(fp);
+		fclose(nfp);
 	}
 	if (fchmod(fileno(nfp), mode) < 0)
 		eprintf("chmod %s:", fname);
