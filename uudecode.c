@@ -24,7 +24,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	FILE *fp, *nfp;
+	FILE *fp = NULL, *nfp = NULL;
 	char *fname;
 	mode_t mode = 0;
 
@@ -43,7 +43,6 @@ main(int argc, char *argv[])
 		if ((nfp = parsefile(fname)) == NULL)
 			eprintf("fopen %s:", fname);
 		uudecode(stdin, nfp);
-		fclose(nfp);
 	} else {
 		if ((fp = fopen(argv[0], "r")) == NULL)
 			eprintf("fopen %s:", argv[0]);
@@ -51,11 +50,14 @@ main(int argc, char *argv[])
 		if ((nfp = parsefile(fname)) == NULL)
 			eprintf("fopen %s:", fname);
 		uudecode(fp, nfp);
-		fclose(nfp);
-		fclose(fp);
 	}
+
 	if (chmod(fname, mode) < 0)
 		eprintf("chmod %s:", fname);
+	if (fp)
+		fclose(fp);
+	if (nfp)
+		fclose(nfp);
 
 	return EXIT_SUCCESS;
 }
