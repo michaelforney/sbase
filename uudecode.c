@@ -139,6 +139,8 @@ parsemode(const char *str, mode_t *validmode)
 			if(octal & 00004) *validmode |= S_IROTH;
 			if(octal & 00002) *validmode |= S_IWOTH;
 			if(octal & 00001) *validmode |= S_IXOTH;
+		} else {
+			eprintf("invalid mode\n");
 		}
 	}
 }
