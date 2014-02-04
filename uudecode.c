@@ -54,7 +54,7 @@ main(int argc, char *argv[])
 		fclose(nfp);
 		fclose(fp);
 	}
-	if (fchmod(fileno(nfp), mode) < 0)
+	if (chmod(fname, mode) < 0)
 		eprintf("chmod %s:", fname);
 
 	return EXIT_SUCCESS;
