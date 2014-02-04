@@ -95,12 +95,11 @@ checkheader(FILE *fp, const char *s, const char *header, mode_t *mode, char **fn
 	char *p, *q;
 	size_t n;
 
-	if (fgets(bufs, sizeof(bufs), fp) == NULL) {
+	if (fgets(bufs, sizeof(bufs), fp) == NULL)
 		if (ferror(fp))
 			eprintf("%s: read error:", s);
-		else
-			eprintf("empty or null header string\n");
-	}
+	if (bufs[0] == '\0' || feof(fp))
+		eprintf("empty or nil header string\n");
 	if ((p = strchr(bufs, '\n')) == NULL)
 		eprintf("header string too long or non-newline terminated file\n");
 	p = bufs;
