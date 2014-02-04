@@ -11,9 +11,9 @@
 #include "text.h"
 
 static void uudecode(FILE *, FILE *);
-static void checkheader(FILE *, const char *, const char *, mode_t *, char **);
-static void checkmode(const char *, mode_t *);
-static FILE *checkfile(const char *);
+static void parseheader(FILE *, const char *, const char *, mode_t *, char **);
+static void parsemode(const char *, mode_t *);
+static FILE *parsefile(const char *);
 
 static void
 usage(void)
@@ -39,16 +39,16 @@ main(int argc, char *argv[])
 		usage();
 
 	if (argc == 0) {
-		checkheader(stdin, "<stdin>", "begin ", &mode, &fname);
-		if ((nfp = checkfile(fname)) == NULL)
+		parseheader(stdin, "<stdin>", "begin ", &mode, &fname);
+		if ((nfp = parsefile(fname)) == NULL)
 			eprintf("fopen %s:", fname);
 		uudecode(stdin, nfp);
 		fclose(nfp);
 	} else {
 		if ((fp = fopen(argv[0], "r")) == NULL)
 			eprintf("fopen %s:", argv[0]);
-		checkheader(fp, argv[0], "begin ", &mode, &fname);
-		if ((nfp = checkfile(fname)) == NULL)
+		parseheader(fp, argv[0], "begin ", &mode, &fname);
+		if ((nfp = parsefile(fname)) == NULL)
 			eprintf("fopen %s:", fname);
 		uudecode(fp, nfp);
 		fclose(nfp);
@@ -61,7 +61,7 @@ main(int argc, char *argv[])
 }
 
 static FILE *
-checkfile(const char *fname)
+parsefile(const char *fname)
 {
 	struct stat st;
 	int ret;
@@ -85,7 +85,7 @@ tropen:
 }
 
 static void
-checkheader(FILE *fp, const char *s, const char *header, mode_t *mode, char **fname)
+parseheader(FILE *fp, const char *s, const char *header, mode_t *mode, char **fname)
 {
 	char bufs[PATH_MAX + 11]; /* len header + mode + maxname */
 	char *p, *q;
@@ -106,7 +106,7 @@ checkheader(FILE *fp, const char *s, const char *header, mode_t *mode, char **fn
 		eprintf("malformed mode string in header\n");
 	*q++ = '\0';
 	/* now mode should be null terminated, q points to fname */
-	checkmode(p,mode);
+	parsemode(p, mode);
         n = strlen(q);
         while (n > 0 && (q[n - 1] == '\n' || q[n - 1] == '\r'))
 	        q[--n] = '\0';
@@ -115,7 +115,7 @@ checkheader(FILE *fp, const char *s, const char *header, mode_t *mode, char **fn
 }
 
 static void
-checkmode(const char *str,mode_t *validmode)
+parsemode(const char *str, mode_t *validmode)
 {
 	char *end;
 	int octal;
