@@ -1,0 +1,49 @@
+sbase - suckless unix tools
+===========================
+
+sbase  is a  collection of  unix  tools that  are inherently  portable
+across UNIX and UNIX-like systems.
+
+The following programs are currently implemented:
+
+    basename cal  cat chgrp chmod chown  chroot cksum cmp comm  cp cut
+    date dirname du  echo env expand false fold grep  head hostname id
+    kill ln  ls mc md5sum mkdir  mkfifo mktemp mv nice  nl nohup paste
+    printenv  pwd readlink  renice rm  rmdir sleep  setsid sort  split
+    sponge strings sync  tail tar tee test touch tr  true tty uudecode
+    uuencode uname uniq unlink seq  sha1sum sha256sum sha512sum wc who
+    xargs yes
+
+sbase is mostly following POSIX but we deviate wherever we think it is
+appropriate.
+
+The  complement of  sbase  is  ubase[1] which  is  Linux specific  and
+provides all  the non-portable tools.   Together they are  intended to
+form a base system similar to busybox but much smaller and suckless.
+
+Building
+--------
+
+To  build sbase,  simply  type  make.  You  may  have  to fiddle  with
+config.mk depending on your system.
+
+You  can  also  build  sbase-box,  which  generates  a  single  binary
+containing  all  the  required  tools.    You  can  then  symlink  the
+individual tools to sbase-box.
+
+Ideally you will  want to statically link sbase.  If  you are on Linux
+we recommend using musl-libc[2].
+
+Portability
+-----------
+
+sbase has been  compiled on a variety of  different operating systems,
+including Linux, *BSD, OSX, Haiku, Solaris, SCO OpenServer and others.
+
+Various combinations of operating  systems and architectures have also
+been built.
+
+You can build sbase with gcc, clang, tcc, nwcc and pcc.
+
+[1] http://git.suckless.org/ubase/
+[2] http://www.musl-libc.org/
