@@ -17,7 +17,7 @@ The following programs are currently implemented:
 sbase is mostly following POSIX but we deviate wherever we think it is
 appropriate.
 
-The  complement of  sbase  is  ubase[1] which  is  Linux specific  and
+The  complement of  sbase  is  ubase[1] which  is  Linux-specific  and
 provides all  the non-portable tools.   Together they are  intended to
 form a base system similar to busybox but much smaller and suckless.
 
