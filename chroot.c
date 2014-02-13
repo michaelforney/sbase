@@ -8,27 +8,32 @@ static void usage(void);
 int
 main(int argc, char **argv)
 {
-	char *shell[] = {"/bin/sh", "-i", NULL}, *aux;
+	char *shell[] = { "/bin/sh", "-i", NULL }, *aux;
+
+	ARGBEGIN {
+	default:
+		usage();
+	} ARGEND;
+
+	if(argc < 1)
+		usage();
 
 	if((aux = getenv("SHELL")))
 		shell[0] = aux;
 
-	if(argc < 2)
-		usage();
-
-	if(chroot(argv[1]) == -1)
-		eprintf("chroot: '%s':", argv[1]);
+	if(chroot(argv[0]) == -1)
+		eprintf("chroot: '%s':", argv[0]);
 
 	if(chdir("/") == -1)
 		eprintf("chroot:");
 
-	if(argc == 2) {
+	if(argc == 1) {
 		execvp(*shell, shell);
 	} else {
-		execvp(argv[2], argv+2);
+		execvp(argv[1], argv+1);
 	}
 
-	eprintf("chroot: '%s':", argv[2]);
+	eprintf("chroot: '%s':", argv[1]);
 	return EXIT_FAILURE;
 }
 
