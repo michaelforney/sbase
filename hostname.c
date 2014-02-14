@@ -36,7 +36,7 @@ main(int argc, char *argv[])
 			eprintf("gethostname:");
 		puts(host);
 	} else {
-		if (sethostname(argv[0], sz + 1) < 0)
+		if (sethostname(argv[0], strlen(argv[0])) < 0)
 			eprintf("sethostname:");
 	}
 
