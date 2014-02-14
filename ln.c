@@ -41,13 +41,11 @@ ln(const char *s1, const char *s2)
 {
 	int (*flink)(const char *, const char *) = sflag ? symlink : link;
 
+	if (fflag)
+		if (remove(s2) == -1)
+			eprintf("remove %s:", s2);
 	if(flink(s1, s2) == 0)
 		return 0;
-	if(fflag && errno == EEXIST) {
-		if(remove(s2) == -1)
-			eprintf("remove %s:", s2);
-		return flink(s1, s2);
-	}
 	return -1;
 }
 
