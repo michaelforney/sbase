@@ -95,7 +95,6 @@ SRC = \
 	sha256sum.c\
 	sha512sum.c\
 	wc.c       \
-	who.c      \
 	xargs.c    \
 	yes.c
 
