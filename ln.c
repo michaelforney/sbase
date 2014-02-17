@@ -6,11 +6,6 @@
 #include <unistd.h>
 #include "util.h"
 
-static int ln(const char *, const char *);
-
-static bool sflag = false;
-static bool fflag = false;
-
 static void
 usage(void)
 {
@@ -20,6 +15,11 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
+	int (*flink)(const char *, const char *);
+	char *fname;
+	bool sflag = false;
+	bool fflag = false;
+
 	ARGBEGIN {
 	case 'f':
 		fflag = true;
@@ -31,19 +31,14 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	enmasse(argc, &argv[0], ln);
+	flink = sflag ? symlink : link;
+	fname = sflag ? "symlink" : "link";
+
+	if (fflag == true)
+		remove(argv[1]);
+	if (flink(argv[0], argv[1]) < 0)
+		eprintf("%s:", fname);
 
 	return EXIT_SUCCESS;
 }
 
-int
-ln(const char *s1, const char *s2)
-{
-	int (*flink)(const char *, const char *) = sflag ? symlink : link;
-
-	if (fflag)
-		remove(s2);
-	if(flink(s1, s2) == 0)
-		return 0;
-	return -1;
-}
