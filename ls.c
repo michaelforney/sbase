@@ -31,6 +31,7 @@ static void output(Entry *);
 
 static bool aflag = false;
 static bool dflag = false;
+static bool Fflag = false;
 static bool iflag = false;
 static bool lflag = false;
 static bool rflag = false;
@@ -42,7 +43,7 @@ static bool many;
 static void
 usage(void)
 {
-	eprintf("usage: %s [-adilrtU] [FILE...]\n", argv0);
+	eprintf("usage: %s [-adFilrtU] [FILE...]\n", argv0);
 }
 
 int
@@ -57,6 +58,9 @@ main(int argc, char *argv[])
 		break;
 	case 'd':
 		dflag = true;
+		break;
+	case 'F':
+		Fflag = true;
 		break;
 	case 'i':
 		iflag = true;
@@ -140,7 +144,7 @@ lsdir(const char *path)
 		if(d->d_name[0] == '.' && !aflag)
 			continue;
 		if(Uflag){
-			mkent(&ent, d->d_name, lflag || iflag);
+			mkent(&ent, d->d_name, Fflag || lflag || iflag);
 			output(&ent);
 		} else {
 			if(!(ents = realloc(ents, ++n * sizeof *ents)))
@@ -148,7 +152,7 @@ lsdir(const char *path)
 			if(!(p = malloc((sz = strlen(d->d_name)+1))))
 				eprintf("malloc:");
 			memcpy(p, d->d_name, sz);
-			mkent(&ents[n-1], p, tflag || lflag || iflag);
+			mkent(&ents[n-1], p, tflag || Fflag || lflag || iflag);
 		}
 	}
 	closedir(dp);
@@ -184,6 +188,28 @@ mkent(Entry *ent, char *path, bool dostat)
 	ent->ino    = st.st_ino;
 }
 
+char *
+indicator(mode_t mode)
+{
+	if(!Fflag)
+		return "";
+
+	if(S_ISLNK(mode))
+		return "@";
+	else if(S_ISDIR(mode))
+		return "/";
+	else if(S_ISFIFO(mode))
+		return "|";
+	else if(S_ISSOCK(mode))
+		return "=";
+	else if(mode & S_IXUSR ||
+		mode & S_IXGRP ||
+		mode & S_IXOTH)
+		return "*";
+	else
+		return "";
+}
+
 void
 output(Entry *ent)
 {
@@ -192,11 +218,12 @@ output(Entry *ent)
 	ssize_t len;
 	struct group *gr;
 	struct passwd *pw;
+	Entry entlnk;
 
 	if (iflag)
 		printf("%lu ", (unsigned long)ent->ino);
 	if(!lflag) {
-		puts(ent->name);
+		printf("%s%s\n", ent->name, indicator(ent->mode));
 		return;
 	}
 	if(S_ISREG(ent->mode))
@@ -250,13 +277,14 @@ output(Entry *ent)
 		fmt = "%b %d %H:%M";
 
 	strftime(buf, sizeof buf, fmt, localtime(&ent->mtime));
-	printf("%s %2ld %-4s %-5s %6lu %s %s", mode, (long)ent->nlink, pw->pw_name,
-	       gr->gr_name, (unsigned long)ent->size, buf, ent->name);
+	printf("%s %2ld %-4s %-5s %6lu %s %s%s", mode, (long)ent->nlink, pw->pw_name,
+	       gr->gr_name, (unsigned long)ent->size, buf, ent->name, indicator(ent->mode));
 	if(S_ISLNK(ent->mode)) {
 		if((len = readlink(ent->name, buf, sizeof buf)) == -1)
 			eprintf("readlink %s:", ent->name);
 		buf[len] = '\0';
-		printf(" -> %s", buf);
+		mkent(&entlnk, buf, Fflag);
+		printf(" -> %s%s", buf, indicator(entlnk.mode));
 	}
 	putchar('\n');
 }
