@@ -66,9 +66,9 @@ cp(const char *s1, const char *s2)
 		eprintf("fopen %s:", s2);
 
 	concat(f1, s1, f2, s2);
+	fchmod(fileno(f2), st.st_mode);
 	fclose(f2);
 	fclose(f1);
 
 	return 0;
 }
-
