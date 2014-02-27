@@ -100,7 +100,7 @@ renice(int which, int who, long adj)
 		return false;
 	}
 
-	adj = MAX(PRIO_MIN, MIN(adj, PRIO_MAX));
+	adj = MAX(-NZERO, MIN(adj, NZERO - 1));
 	if(setpriority(which, who, (int)adj) == -1) {
 		fprintf(stderr, "can't set %d nice level: %s\n",
 		        who, strerror(errno));
