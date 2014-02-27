@@ -50,7 +50,6 @@ SRC = \
 	grep.c     \
 	head.c     \
 	hostname.c \
-	id.c       \
 	kill.c     \
 	ln.c       \
 	ls.c       \
