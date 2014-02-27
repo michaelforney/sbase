@@ -40,6 +40,10 @@ Portability
 sbase has been  compiled on a variety of  different operating systems,
 including Linux, *BSD, OSX, Haiku, Solaris, SCO OpenServer and others.
 
+sbase  also compiles  and runs  on minix3  with slight  modifications.
+They do  not provide mmap()/munmap()  so you need to  use minix_mmap()
+and minix_munmap() respectively.
+
 Various combinations of operating  systems and architectures have also
 been built.
 
