@@ -56,7 +56,7 @@ main(int argc, char *argv[])
 		for(i = 0; i < 2; i++)
 			if(b[i] == EOF)
 				enprintf(Diff, "cmp: EOF on %s\n",
-					 !argv[i] ? "<stdin>" : argv[1]);
+					 !argv[i] ? "<stdin>" : argv[i]);
 		if(!lflag) {
 			if(!sflag)
 				printf("%s %s differ: char %ld, line %ld\n",
