@@ -107,8 +107,6 @@ parsemode(const char *str)
 		if(octal & 00002) mode |= S_IWOTH;
 		if(octal & 00001) mode |= S_IXOTH;
 		return;
-	} else {
-		eprintf("not octal\n");
 	}
 	for(p = str; *p; p++)
 		switch(*p) {
