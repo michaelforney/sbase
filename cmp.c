@@ -10,7 +10,7 @@ enum { Same = 0, Diff = 1, Error = 2 };
 static void
 usage(void)
 {
-	enprintf(Error, "usage: %s [-ls] file1 file2\n", argv0);
+	enprintf(Error, "usage: %s [-ls] file1 [file2]\n", argv0);
 }
 
 int
@@ -34,13 +34,19 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(argc < 2)
+	if (argc < 1 || argc > 2)
 		usage();
 
-	for(i = 0; i < 2; i++) {
-		if(!(fp[i] = fopen(argv[i], "r")))
-			enprintf(Error, "fopen %s:", argv[i]);
-	}
+	fp[0] = fopen(argv[0], "r");
+	if (!fp[0])
+		enprintf(Error, "fopen %s:", argv[0]);
+	fp[1] = stdin;
+
+	if (argc == 2)
+		fp[1] = fopen(argv[1], "r");
+		if (!fp[1])
+			enprintf(Error, "fopen %s:", argv[1]);
+
 	for(n = 1; ((b[0] = getc(fp[0])) != EOF) \
 			| ((b[1] = getc(fp[1])) != EOF); n++) {
 		if(b[0] == '\n')
@@ -49,11 +55,12 @@ main(int argc, char *argv[])
 			continue;
 		for(i = 0; i < 2; i++)
 			if(b[i] == EOF)
-				enprintf(Diff, "cmp: EOF on %s\n", argv[i]);
+				enprintf(Diff, "cmp: EOF on %s\n",
+					 !argv[i] ? "<stdin>" : argv[1]);
 		if(!lflag) {
 			if(!sflag)
 				printf("%s %s differ: char %ld, line %ld\n",
-				       argv[0], argv[1], n, line);
+				       argv[0], !argv[1] ? "<stdin>" : argv[1], n, line);
 			exit(Diff);
 		} else {
 			printf("%4ld %3o %3o\n", n, b[0], b[1]);
@@ -62,4 +69,3 @@ main(int argc, char *argv[])
 	}
 	return same ? Same : Diff;
 }
-
