@@ -57,7 +57,7 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(argc < 2)
+	if(argc < 1)
 		usage();
 
 	if(lflag) {
