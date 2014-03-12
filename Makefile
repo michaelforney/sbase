@@ -36,6 +36,7 @@ SRC = \
 	chroot.c   \
 	cksum.c    \
 	cmp.c      \
+	cols.c     \
 	comm.c     \
 	cp.c       \
 	cut.c      \
@@ -53,7 +54,6 @@ SRC = \
 	kill.c     \
 	ln.c       \
 	ls.c       \
-	mc.c       \
 	md5sum.c   \
 	mkdir.c    \
 	mkfifo.c   \
