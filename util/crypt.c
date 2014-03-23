@@ -16,8 +16,10 @@ cryptmain(int argc, char *argv[],
 		mdprint(md, "<stdin>", sz);
 	} else {
 		for (; argc > 0; argc--) {
-			if ((fp = fopen(*argv, "r"))  == NULL)
-				eprintf("fopen %s:", *argv);
+			if((fp = fopen(*argv, "r")) == NULL) {
+				weprintf("fopen %s:", *argv);
+				continue;
+			}
 			cryptsum(ops, fp, *argv, md);
 			mdprint(md, *argv, sz);
 			fclose(fp);
@@ -38,7 +40,7 @@ cryptsum(struct crypt_ops *ops, FILE *fp, const char *f,
 	while ((n = fread(buf, 1, sizeof(buf), fp)) > 0)
 		ops->update(ops->s, buf, n);
 	if (ferror(fp)) {
-		eprintf("%s: read error:", f);
+		eprintf("read error: %s:", f);
 		return 1;
 	}
 	ops->sum(ops->s, md);
