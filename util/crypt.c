@@ -39,14 +39,14 @@ cryptcheck(char *sumfile, int argc, char *argv[],
 	  struct crypt_ops *ops, uint8_t *md, size_t sz)
 {
 	FILE *cfp, *fp;
-	char *buf = NULL, *line, *file, *p;
+	char *line = NULL, *file, *p;
 	int r, nonmatch = 0, formatsucks = 0, noread = 0, ret = EXIT_SUCCESS;
 	size_t bufsiz = 0;
 
 	if(!(cfp = fopen(sumfile, "r")))
 		eprintf("fopen %s:", sumfile);
 
-	while((line = afgets(&buf, &bufsiz, cfp))) {
+	while(afgets(&line, &bufsiz, cfp)) {
 		if(!(file = strstr(line, "  "))) {
 			formatsucks++;
 			continue;
@@ -77,6 +77,7 @@ cryptcheck(char *sumfile, int argc, char *argv[],
 		fclose(fp);
 	}
 	fclose(cfp);
+	free(line);
 	if(formatsucks > 0) {
 		weprintf("WARNING: %d lines are improperly formatted\n", formatsucks);
 		ret = EXIT_FAILURE;
