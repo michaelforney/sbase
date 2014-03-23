@@ -24,13 +24,16 @@ int
 main(int argc, char *argv[])
 {
 	uint8_t md[SHA256_DIGEST_LENGTH];
+	char *checkfile = NULL;
 
 	ARGBEGIN {
 	case 'c':
-		eprintf("not implemented\n");
+		checkfile = EARGF(usage());
 	default:
 		usage();
 	} ARGEND;
 
+	if(checkfile)
+		return cryptcheck(checkfile, argc, argv, &sha256_ops, md, sizeof(md));
 	return cryptmain(argc, argv, &sha256_ops, md, sizeof(md));
 }

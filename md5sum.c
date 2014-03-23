@@ -24,13 +24,17 @@ int
 main(int argc, char *argv[])
 {
 	uint8_t md[MD5_DIGEST_LENGTH];
+	char *checkfile = NULL;
 
 	ARGBEGIN {
 	case 'c':
-		eprintf("not implemented\n");
+		checkfile = EARGF(usage());
+		break;
 	default:
 		usage();
 	} ARGEND;
 
+	if(checkfile)
+		return cryptcheck(checkfile, argc, argv, &md5_ops, md, sizeof(md));
 	return cryptmain(argc, argv, &md5_ops, md, sizeof(md));
 }
