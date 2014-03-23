@@ -79,15 +79,15 @@ cryptcheck(char *sumfile, int argc, char *argv[],
 	fclose(cfp);
 	free(line);
 	if(formatsucks > 0) {
-		weprintf("WARNING: %d lines are improperly formatted\n", formatsucks);
+		weprintf("%d lines are improperly formatted\n", formatsucks);
 		ret = EXIT_FAILURE;
 	}
 	if(noread > 0) {
-		weprintf("WARNING: %d listed file could not be read\n", noread);
+		weprintf("%d listed file could not be read\n", noread);
 		ret = EXIT_FAILURE;
 	}
 	if(nonmatch > 0) {
-		weprintf("WARNING: %d computed checksums did NOT match\n", nonmatch);
+		weprintf("%d computed checksums did NOT match\n", nonmatch);
 		ret = EXIT_FAILURE;
 	}
 	return ret;
