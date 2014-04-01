@@ -52,6 +52,7 @@ main(int argc, char *argv[])
 		b[1] = getc(fp[1]);
 		if(b[0] == EOF && b[1] == EOF)
 			break;
+		if(b[0] == '\n' && b[1] == '\n')
 			line++;
 		if(b[0] == b[1])
 			continue;
