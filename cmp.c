@@ -47,9 +47,11 @@ main(int argc, char *argv[])
 		if (!fp[1])
 			enprintf(Error, "fopen %s:", argv[1]);
 
-	for(n = 1; ((b[0] = getc(fp[0])) != EOF) \
-			| ((b[1] = getc(fp[1])) != EOF); n++) {
-		if(b[0] == '\n')
+	for(n = 1; ; n++) {
+		b[0] = getc(fp[0]);
+		b[1] = getc(fp[1]);
+		if(b[0] == EOF && b[1] == EOF)
+			break;
 			line++;
 		if(b[0] == b[1])
 			continue;
