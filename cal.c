@@ -28,8 +28,8 @@ drawcal(int year, int month, int day, int ncols, int nmons, int fday)
 	int row = 0;
 	char *days[] = { "Su", "Mo", "Tu", "We", "Th", "Fr", "Sa", };
 
-        if(!ncols)
-            ncols = nmons;
+	if(!ncols)
+		ncols = nmons;
 	while(nmons > 0) {
 		last = MIN(nmons, ncols);
 		for(i = 0; i < last; i++) {
@@ -76,7 +76,6 @@ drawcal(int year, int month, int day, int ncols, int nmons, int fday)
 	}
 }
 
-
 static int
 dayofweek(int year, int month, int day, int fday)
 {
@@ -96,7 +95,7 @@ isleap(int year)
 {
 	bool leap = false;
 
-	if(year % 4   == 0)
+	if(year % 4 == 0)
 		leap = true;
 	if(year % 100 == 0)
 		leap = false;
@@ -104,7 +103,6 @@ isleap(int year)
 		leap = true;
 	return leap;
 }
-
 
 static void
 usage(void)

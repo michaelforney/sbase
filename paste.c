@@ -103,7 +103,6 @@ main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-
 static size_t
 unescape(wchar_t *delim)
 {

@@ -109,10 +109,10 @@ parseheader(FILE *fp, const char *s, const char *header, mode_t *mode, char **fn
 	*q++ = '\0';
 	/* now mode should be null terminated, q points to fname */
 	parsemode(p, mode);
-        n = strlen(q);
-        while (n > 0 && (q[n - 1] == '\n' || q[n - 1] == '\r'))
-	        q[--n] = '\0';
-        if (n > 0)
+	n = strlen(q);
+	while (n > 0 && (q[n - 1] == '\n' || q[n - 1] == '\r'))
+		q[--n] = '\0';
+	if (n > 0)
 		*fname = q;
 }
 

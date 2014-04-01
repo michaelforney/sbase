@@ -27,7 +27,7 @@ main(int argc, char **argv)
 	int always = 0;
 	FILE *in=stdin, *out=NULL;
 
-       	sizes['K'] = 1024;
+	sizes['K'] = 1024;
 	sizes['M'] = 1024L*1024L;
 	sizes['G'] = 1024L*1024L*1024L;
 
@@ -96,7 +96,6 @@ Nextfile:
 		break;
 	}
 	return EXIT_SUCCESS;
-
 }
 
 void
@@ -104,7 +103,6 @@ usage(void)
 {
 	eprintf("usage: split [-d] [-a len] [-b [bytes[k|m|g]]] [-l [lines]] [input [prefix]]\n");
 }
-
 
 int
 itostr(char *str, int x, int n)
