@@ -42,10 +42,10 @@ main(int argc, char *argv[])
 		enprintf(Error, "fopen %s:", argv[0]);
 	fp[1] = stdin;
 
-	if (argc == 2)
-		fp[1] = fopen(argv[1], "r");
-		if (!fp[1])
+	if (argc == 2) {
+		if(!(fp[1] = fopen(argv[1], "r")))
 			enprintf(Error, "fopen %s:", argv[1]);
+	}
 
 	for(n = 1; ; n++) {
 		b[0] = getc(fp[0]);
