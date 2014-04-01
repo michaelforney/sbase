@@ -64,6 +64,7 @@ main(int argc, char *argv[])
 				exit(Diff);
 			}
 		}
+		if(!lflag) {
 			if(!sflag)
 				printf("%s %s differ: char %ld, line %ld\n",
 				       argv[0], !argv[1] ? "<stdin>" : argv[1], n, line);
