@@ -22,14 +22,9 @@ main(int argc, char **argv)
 	char *prefix = "x";
 	char *file = NULL;
 	char *tmp, *end;
-	uint64_t sizes['M'+1];
 	uint64_t size = 1000, scale, n;
 	int always = 0;
 	FILE *in=stdin, *out=NULL;
-
-	sizes['K'] = 1024;
-	sizes['M'] = 1024L*1024L;
-	sizes['G'] = 1024L*1024L*1024L;
 
 	ARGBEGIN {
 	case 'b':
@@ -41,9 +36,19 @@ main(int argc, char **argv)
 		size = strtoull(tmp, &end, 10);
 		if(*end == '\0')
 			break;
-		if(strchr("KMG", toupper(*end)) == NULL || end[1] != '\0')
+		switch(toupper(*end)) {
+		case 'K':
+			scale = 1024;
+			break;
+		case 'M':
+			scale = 1024L * 1024L;
+			break;
+		case 'G':
+			scale = 1024L * 1024L * 1024L;
+			break;
+		default:
 			usage();
-		scale = sizes[toupper(*end)];
+		}
 		if(size > (UINT64_MAX/scale))
 			eprintf("'%s': out of range\n", tmp);
 		size *= scale;
