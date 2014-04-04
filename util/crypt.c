@@ -8,7 +8,8 @@
 #include "../crypt.h"
 
 static int
-hexdec(int c) {
+hexdec(int c)
+{
 	if(c >= '0' && c <= '9')
 		return c - '0';
 	else if(c >= 'A' && c <= 'F')
@@ -19,7 +20,8 @@ hexdec(int c) {
 }
 
 static int
-mdcheckline(const char *s, uint8_t *md, size_t sz) {
+mdcheckline(const char *s, uint8_t *md, size_t sz)
+{
 	size_t i;
 	int b1, b2;
 
