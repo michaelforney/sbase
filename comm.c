@@ -23,7 +23,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	int i, dif = 0;
+	int i, diff = 0;
 	FILE *fp[2];
 	char lines[2][LINE_MAX+1];
 
@@ -46,21 +46,21 @@ main(int argc, char *argv[])
 	}
 
 	for(;;) {
-		if(dif <= 0) {
+		if(diff <= 0) {
 			if(!nextline(lines[0], sizeof(lines[0]),
 						fp[0], argv[0])) {
 				finish(1, fp[1], argv[1]);
 			}
 		}
-		if(dif >= 0) {
+		if(diff >= 0) {
 			if(!nextline(lines[1], sizeof(lines[1]),
 						fp[1], argv[1])) {
 				finish(0, fp[0], argv[0]);
 			}
 		}
-		dif = strcmp(lines[0], lines[1]);
-		dif = CLAMP(dif, -1, 1);
-		printline((2-dif) % 3, lines[MAX(0, dif)]);
+		diff = strcmp(lines[0], lines[1]);
+		diff = CLAMP(diff, -1, 1);
+		printline((2-diff) % 3, lines[MAX(0, diff)]);
 	}
 
 	return EXIT_SUCCESS;
