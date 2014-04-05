@@ -218,6 +218,8 @@ output(Entry *ent)
 	ssize_t len;
 	struct group *gr;
 	struct passwd *pw;
+	char pwname[_SC_LOGIN_NAME_MAX];
+	char grname[_SC_LOGIN_NAME_MAX];
 	Entry entlnk;
 
 	if (iflag)
@@ -259,17 +261,17 @@ output(Entry *ent)
 
 	errno = 0;
 	pw = getpwuid(ent->uid);
-	if(errno)
-		eprintf("getpwuid %d:", ent->uid);
-	else if(!pw)
-		eprintf("getpwuid %d: no such user\n", ent->uid);
+	if(errno || !pw)
+		snprintf(pwname, sizeof(pwname), "%d", ent->uid);
+	else
+		snprintf(pwname, sizeof(pwname), "%s", pw->pw_name);
 
 	errno = 0;
 	gr = getgrgid(ent->gid);
-	if(errno)
-		eprintf("getgrgid %d:", ent->gid);
-	else if(!gr)
-		eprintf("getgrgid %d: no such group\n", ent->gid);
+	if(errno || !gr)
+		snprintf(grname, sizeof(grname), "%d", ent->gid);
+	else
+		snprintf(grname, sizeof(grname), "%s", gr->gr_name);
 
 	if(time(NULL) > ent->mtime + (180*24*60*60)) /* 6 months ago? */
 		fmt = "%b %d  %Y";
@@ -277,8 +279,8 @@ output(Entry *ent)
 		fmt = "%b %d %H:%M";
 
 	strftime(buf, sizeof buf, fmt, localtime(&ent->mtime));
-	printf("%s %2ld %-4s %-5s %6lu %s %s%s", mode, (long)ent->nlink, pw->pw_name,
-	       gr->gr_name, (unsigned long)ent->size, buf, ent->name, indicator(ent->mode));
+	printf("%s %2ld %-4s %-5s %6lu %s %s%s", mode, (long)ent->nlink, pwname,
+	       grname, (unsigned long)ent->size, buf, ent->name, indicator(ent->mode));
 	if(S_ISLNK(ent->mode)) {
 		if((len = readlink(ent->name, buf, sizeof buf)) == -1)
 			eprintf("readlink %s:", ent->name);
