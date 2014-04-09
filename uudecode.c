@@ -12,7 +12,6 @@
 
 static void uudecode(FILE *, FILE *);
 static void parseheader(FILE *, const char *, const char *, mode_t *, char **);
-static void parsemode(const char *, mode_t *);
 static FILE *parsefile(const char *);
 
 static void
@@ -108,41 +107,12 @@ parseheader(FILE *fp, const char *s, const char *header, mode_t *mode, char **fn
 		eprintf("malformed mode string in header\n");
 	*q++ = '\0';
 	/* now mode should be null terminated, q points to fname */
-	parsemode(p, mode);
+	parsemode(p, mode, NULL);
 	n = strlen(q);
 	while (n > 0 && (q[n - 1] == '\n' || q[n - 1] == '\r'))
 		q[--n] = '\0';
 	if (n > 0)
 		*fname = q;
-}
-
-static void
-parsemode(const char *str, mode_t *validmode)
-{
-	char *end;
-	int octal;
-
-	if (str == NULL || str == '\0')
-		eprintf("invalid mode\n");
-	octal = strtol(str, &end, 8);
-	if (*end == '\0') {
-		if (octal >= 0 && octal <= 07777) {
-			if(octal & 04000) *validmode |= S_ISUID;
-			if(octal & 02000) *validmode |= S_ISGID;
-			if(octal & 01000) *validmode |= S_ISVTX;
-			if(octal & 00400) *validmode |= S_IRUSR;
-			if(octal & 00200) *validmode |= S_IWUSR;
-			if(octal & 00100) *validmode |= S_IXUSR;
-			if(octal & 00040) *validmode |= S_IRGRP;
-			if(octal & 00020) *validmode |= S_IWGRP;
-			if(octal & 00010) *validmode |= S_IXGRP;
-			if(octal & 00004) *validmode |= S_IROTH;
-			if(octal & 00002) *validmode |= S_IWOTH;
-			if(octal & 00001) *validmode |= S_IXOTH;
-		} else {
-			eprintf("invalid mode\n");
-		}
-	}
 }
 
 static void

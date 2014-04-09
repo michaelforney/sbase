@@ -17,6 +17,7 @@ LIB = \
 	util/fnck.o      \
 	util/getlines.o  \
 	util/md5.o       \
+	util/mode.o      \
 	util/putword.o   \
 	util/recurse.o   \
 	util/rm.o        \

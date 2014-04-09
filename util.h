@@ -1,5 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 #include <stddef.h>
+#include <sys/stat.h>
 #include "arg.h"
 
 #define UTF8_POINT(c) (((c) & 0xc0) != 0x80)
@@ -25,3 +26,5 @@ size_t strlcat(char *, const char *, size_t);
 #undef strlcpy
 size_t strlcpy(char *, const char *, size_t);
 void weprintf(const char *, ...);
+
+void parsemode(const char *, mode_t *, int *);
