@@ -26,14 +26,15 @@ static char *cmd[NARGS];
 static char *argb;
 static size_t argbsz;
 static size_t argbpos;
+static long maxargs = 0;
 static int nerrors = 0;
 static char *eofstr;
-static int rflag = 0;
+static int rflag = 0, nflag = 0;
 
 static void
 usage(void)
 {
-	eprintf("usage: %s [-r] [-E eofstr] [cmd [arg...]]\n", argv0);
+	eprintf("usage: %s [n maxargs] [-r] [-E eofstr] [cmd [arg...]]\n", argv0);
 }
 
 int
@@ -42,9 +43,14 @@ main(int argc, char *argv[])
 	int leftover;
 	long argsz, argmaxsz;
 	char *arg;
-	int i;
+	int i, a;
 
 	ARGBEGIN {
+	case 'n':
+		nflag = 1;
+		if((maxargs = strtol(EARGF(usage()), NULL, 10)) <= 0)
+			eprintf("%s: value for -n option should be >= 1\n", argv0);
+		break;
 	case 'r':
 		rflag = 1;
 		break;
@@ -63,7 +69,7 @@ main(int argc, char *argv[])
 
 	leftover = 0;
 	do {
-		argsz = 0; i = 0;
+		argsz = 0; i = 0; a = 0;
 		if (argc > 0) {
 			for (; i < argc; i++) {
 				cmd[i] = strdup(argv[i]);
@@ -85,10 +91,18 @@ main(int argc, char *argv[])
 			cmd[i] = strdup(arg);
 			argsz += strlen(cmd[i]) + 1;
 			i++;
+			a++;
 			leftover = 0;
+			if(nflag == 1 && a >= maxargs)
+				break;
 		}
 		cmd[i] = NULL;
-		if (i == 1 && rflag == 1); else spawn();
+		if(a >= maxargs && nflag == 1)
+			spawn();
+		else if(!a || (i == 1 && rflag == 1))
+			;
+		else
+			spawn();
 		for (; i >= 0; i--)
 			free(cmd[i]);
 	} while (arg);
