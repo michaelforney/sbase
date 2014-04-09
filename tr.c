@@ -49,32 +49,30 @@ handleescapes(char *s)
 static void
 parsemapping(const char *set1, const char *set2, wchar_t *mappings)
 {
-	char *s;
+	char *s1, *s2;
 	wchar_t runeleft;
 	wchar_t runeright;
 	int leftbytes;
 	int rightbytes;
-	size_t n = 0;
-	size_t lset2;
 
-	if(set2) {
-		lset2 = strnlen(set2, 255 * sizeof(wchar_t));
-	} else {
-		set2 = &set1[0];
-		lset2 = 0;
-	}
+	s1 = (char *)set1;
+	if(set2)
+		s2 = (char *)set2;
+	else
+		s2 = (char *)set1;
 
-	s = (char *)set1;
-	while(*s) {
-		if(*s == '\\')
-			handleescapes(++s);
-		leftbytes = mbtowc(&runeleft, s, 4);
-		if(set2[n] != '\0')
-			rightbytes = mbtowc(&runeright, set2 + n, 4);
+	while(*s1) {
+		if(*s1 == '\\')
+			handleescapes(++s1);
+		leftbytes = mbtowc(&runeleft, s1, 4);
+		s1 += leftbytes;
+		if(*s2 == '\\')
+			handleescapes(++s2);
+		if(*s2 != '\0') {
+			rightbytes = mbtowc(&runeright, s2, 4);
+			s2 += rightbytes;
+		}
 		mappings[runeleft] = runeright;
-		s += leftbytes;
-		if(n < lset2)
-			n += rightbytes;
 	}
 }
 
