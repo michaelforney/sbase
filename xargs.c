@@ -34,7 +34,7 @@ static int rflag = 0, nflag = 0;
 static void
 usage(void)
 {
-	eprintf("usage: %s [n maxargs] [-r] [-E eofstr] [cmd [arg...]]\n", argv0);
+	eprintf("usage: %s [-n maxargs] [-r] [-E eofstr] [cmd [arg...]]\n", argv0);
 }
 
 int
