@@ -12,7 +12,7 @@
 static void
 usage(void)
 {
-	eprintf("usage: %s set1 [set2]\n", argv0);
+	eprintf("usage: %s [-d] set1 [set2]\n", argv0);
 }
 
 static void
@@ -117,6 +117,7 @@ main(int argc, char *argv[])
 	char *buf = NULL;
 	size_t size = 0;
 	void (*mapfunc)(const wchar_t*, char*);
+	int dflag = 0;
 
 	setlocale(LC_ALL, "");
 
@@ -126,6 +127,9 @@ main(int argc, char *argv[])
 		eprintf("mmap:");
 
 	ARGBEGIN {
+	case 'd':
+		dflag = 1;
+		break;
 	default:
 		usage();
 	} ARGEND;
@@ -133,12 +137,16 @@ main(int argc, char *argv[])
 	if(argc == 0)
 		usage();
 
-	if(argc >= 2) {
-		parsemapping(argv[0], argv[1], mappings);
-		mapfunc = maptoset;
-	} else {
+	if(dflag) {
+		if(argc >= 2)
+			usage();
 		parsemapping(argv[0], NULL, mappings);
 		mapfunc = maptonull;
+	} else {
+		if(argc != 2)
+			usage();
+		parsemapping(argv[0], argv[1], mappings);
+		mapfunc = maptoset;
 	}
 
 	while(afgets(&buf, &size, stdin))
