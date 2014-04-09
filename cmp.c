@@ -38,13 +38,19 @@ main(int argc, char *argv[])
 		usage();
 
 	fp[0] = fopen(argv[0], "r");
-	if (!fp[0])
-		enprintf(Error, "fopen %s:", argv[0]);
+	if (!fp[0]) {
+		if(!sflag)
+			weprintf("fopen %s:", argv[0]);
+		exit(Error);
+	}
 	fp[1] = stdin;
 
 	if (argc == 2) {
-		if(!(fp[1] = fopen(argv[1], "r")))
-			enprintf(Error, "fopen %s:", argv[1]);
+		if(!(fp[1] = fopen(argv[1], "r"))) {
+			if(!sflag)
+				weprintf("fopen %s:", argv[1]);
+			exit(Error);
+		}
 	}
 
 	for(n = 1; ; n++) {
