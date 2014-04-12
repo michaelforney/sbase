@@ -121,8 +121,8 @@ main(int argc, char *argv[])
 
 	setlocale(LC_ALL, "");
 
-	mappings = (wchar_t *)mmap(NULL, 0x110000 * sizeof(wchar_t),
-				   PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE, -1, 0);
+	mappings = mmap(NULL, 0x110000 * sizeof(wchar_t),
+			PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE, -1, 0);
 	if (mappings == MAP_FAILED)
 		eprintf("mmap:");
 
