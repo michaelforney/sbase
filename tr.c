@@ -46,6 +46,17 @@ handleescapes(char *s)
 	}
 }
 
+static int
+xmbtowc(wchar_t *unicodep, const char *s)
+{
+	int rv;
+
+	rv = mbtowc(unicodep, s, 4);
+	if (rv < 0)
+			eprintf("mbtowc:");
+	return rv;
+}
+
 static void
 parsemapping(const char *set1, const char *set2, wchar_t *mappings)
 {
@@ -64,12 +75,12 @@ parsemapping(const char *set1, const char *set2, wchar_t *mappings)
 	while(*s1) {
 		if(*s1 == '\\')
 			handleescapes(++s1);
-		leftbytes = mbtowc(&runeleft, s1, 4);
+		leftbytes = xmbtowc(&runeleft, s1);
 		s1 += leftbytes;
 		if(*s2 == '\\')
 			handleescapes(++s2);
 		if(*s2 != '\0') {
-			rightbytes = mbtowc(&runeright, s2, 4);
+			rightbytes = xmbtowc(&runeright, s2);
 			s2 += rightbytes;
 		}
 		mappings[runeleft] = runeright;
@@ -85,7 +96,7 @@ maptonull(const wchar_t *mappings, char *in)
 
 	s = in;
 	while(*s) {
-		leftbytes = mbtowc(&runeleft, s, 4);
+		leftbytes = xmbtowc(&runeleft, s);
 		if(!mappings[runeleft])
 			putwchar(runeleft);
 		s += leftbytes;
@@ -101,7 +112,7 @@ maptoset(const wchar_t *mappings, char *in)
 
 	s = in;
 	while(*s) {
-		leftbytes = mbtowc(&runeleft, s, 4);
+		leftbytes = xmbtowc(&runeleft, s);
 		if(!mappings[runeleft])
 			putwchar(runeleft);
 		else
