@@ -8,15 +8,15 @@ printf format [argument...]
 
 test [expression...]
 
-tr string1 [string2]
+tr:
+	support for character classes [:alnum:]
 
 unexpand [-a] [-t N] [file...]
 
 od/hd
 
-uuencode
-
-uudecode
+uuencode, uudecode:
+	missing options for base64
 
 sed
 
@@ -33,5 +33,3 @@ fmt
 install
 
 find (bare minimum)
-
-implement -c for all *sum tools
