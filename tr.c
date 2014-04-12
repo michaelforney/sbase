@@ -137,8 +137,8 @@ main(int argc, char *argv[])
 	if(argc == 0)
 		usage();
 
-	if(dflag) {
-		if(argc >= 2)
+	if(dflag || argc == 1) {
+		if(argc != 1)
 			usage();
 		parsemapping(argv[0], NULL, mappings);
 		mapfunc = maptonull;
