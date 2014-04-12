@@ -3,6 +3,8 @@
 xargs \- constuct argument list(s) and execute command
 .SH SYNOPSIS
 .B xargs
+.RB [\-n
+.IR maxargs ]
 .RB [ \-r ]
 .RB [ \-E
 .IR eofstr ]
@@ -24,6 +26,9 @@ quote.  Double quotes escape all non-double quote characters, excluding
 newlines, up to the matching double quote.  Any single character, including
 newlines, may be escaped by a backslash.
 .SH OPTIONS
+.TP
+.B \-n maxargs
+Use at most maxargs arguments per command line.
 .TP
 .BI \-r
 Do not run the command if there are no arguments.  Normally the command is

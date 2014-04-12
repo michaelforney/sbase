@@ -3,6 +3,10 @@
 sha1sum \- compute SHA-1 message digest
 .SH SYNOPSIS
 .B sha1sum
+.RB [\-c]
 .RI [ file ...]
+.TP
+.B \-c
+read list of SHA1 checksums from file and check them
 .SH DESCRIPTION
 Print SHA-1 (160-bit) checksums. With no file, read standard input.
