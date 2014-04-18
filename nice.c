@@ -11,7 +11,7 @@
 static void usage(void);
 
 int
-main(int argc, char **argv)
+main(int argc, char *argv[])
 {
 	long val = 10;
 	int savederrno;

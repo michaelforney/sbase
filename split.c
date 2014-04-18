@@ -14,7 +14,7 @@ static void usage(void);
 static int base = 26, start = 'a';
 
 int
-main(int argc, char **argv)
+main(int argc, char *argv[])
 {
 	int plen, slen = 2;
 	int ch;

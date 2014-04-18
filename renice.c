@@ -14,7 +14,7 @@ static bool renice(int, int, long);
 static void usage(void);
 
 int
-main(int argc, char **argv)
+main(int argc, char *argv[])
 {
 	const char *adj = NULL;
 	long val;

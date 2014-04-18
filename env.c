@@ -11,7 +11,7 @@ extern char **environ;
 static void usage(void);
 
 int
-main(int argc, char **argv)
+main(int argc, char *argv[])
 {
 	ARGBEGIN {
 	case 'i':

@@ -32,7 +32,7 @@ chgrp(const char *path)
 }
 
 int
-main(int argc, char **argv)
+main(int argc, char *argv[])
 {
 	struct group *gr;
 
@@ -67,4 +67,3 @@ main(int argc, char **argv)
 
 	return failures;
 }
-

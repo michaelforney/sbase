@@ -11,7 +11,7 @@ usage(void)
 }
 
 int
-main(int argc, char **argv)
+main(int argc, char *argv[])
 {
 	if(argc != 1)
 		usage();
@@ -19,4 +19,3 @@ main(int argc, char **argv)
 
 	return EXIT_SUCCESS;
 }
-

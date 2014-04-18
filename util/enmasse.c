@@ -9,7 +9,7 @@
 #include "../util.h"
 
 void
-enmasse(int argc, char **argv, int (*fn)(const char *, const char *))
+enmasse(int argc, char *argv[], int (*fn)(const char *, const char *))
 {
 	char *buf, *dir;
 	int i;
@@ -34,4 +34,3 @@ enmasse(int argc, char **argv, int (*fn)(const char *, const char *))
 	}
 	free(buf);
 }
-

@@ -7,7 +7,7 @@
 static void usage(void);
 
 int
-main(int argc, char **argv)
+main(int argc, char *argv[])
 {
 	char *shell[] = { "/bin/sh", "-i", NULL }, *aux, *p;
 	int savederrno;
