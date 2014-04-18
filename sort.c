@@ -198,6 +198,7 @@ columns(char *line, const struct keydef *kd)
 	char *rest;
 	char *start, *end;
 	unsigned i;
+
 	for(rest = line, i = 0; i < kd->start_column; i++) {
 		if(i != 0)
 			rest = next_blank(rest);
@@ -212,11 +213,10 @@ columns(char *line, const struct keydef *kd)
 				rest = next_blank(rest);
 			rest = next_nonblank(rest);
 		}
-		if(kd->end_char) {
+		if(kd->end_char)
 			for(i = 1; i < kd->end_char && *rest && !isblank(*rest); i++, rest++);
-		} else {
+		else
 			rest = next_blank(rest);
-		}
 		end = rest;
 	} else {
 		end = rest + strlen(rest);
