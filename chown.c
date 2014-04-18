@@ -26,6 +26,7 @@ main(int argc, char *argv[])
 	char *owner, *group;
 
 	ARGBEGIN {
+	case 'R':
 	case 'r':
 		rflag = true;
 		break;
