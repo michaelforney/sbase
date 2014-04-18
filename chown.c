@@ -32,11 +32,13 @@ main(int argc, char *argv[])
 	default:
 		usage();
 	} ARGEND;
+
 	if(argc == 0)
 		usage();
 
 	owner = argv[0];
 	argv++;
+	argc--;
 	if((group = strchr(owner, ':')))
 		*group++ = '\0';
 
