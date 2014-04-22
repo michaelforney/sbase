@@ -11,7 +11,12 @@
 
 static int strtop(const char *);
 static bool renice(int, int, long);
-static void usage(void);
+
+static void
+usage(void)
+{
+	eprintf("renice -n inc [-g | -p | -u] ID ...\n");
+}
 
 int
 main(int argc, char *argv[])
@@ -110,8 +115,3 @@ renice(int which, int who, long adj)
 	return true;
 }
 
-static void
-usage(void)
-{
-	eprintf("renice -n inc [-g | -p | -u] ID ...\n");
-}

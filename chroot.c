@@ -4,7 +4,11 @@
 #include <unistd.h>
 #include "util.h"
 
-static void usage(void);
+static void
+usage(void)
+{
+	eprintf("usage: chroot dir [command [arg...]]\n");
+}
 
 int
 main(int argc, char *argv[])
@@ -43,8 +47,3 @@ main(int argc, char *argv[])
 	return EXIT_FAILURE;
 }
 
-void
-usage(void)
-{
-	eprintf("usage: chroot dir [command [arg...]]\n");
-}

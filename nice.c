@@ -8,7 +8,11 @@
 #include <unistd.h>
 #include "util.h"
 
-static void usage(void);
+static void
+usage(void)
+{
+	eprintf("usage: nice [-n inc] command [options ...]\n");
+}
 
 int
 main(int argc, char *argv[])
@@ -43,8 +47,3 @@ main(int argc, char *argv[])
 	return (savederrno == ENOENT)? 127 : 126;
 }
 
-static void
-usage(void)
-{
-	eprintf("usage: nice [-n inc] command [options ...]\n");
-}

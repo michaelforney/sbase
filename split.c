@@ -9,7 +9,12 @@
 
 static int itostr(char *, int, int);
 static FILE *nextfile(FILE *, char *, int, int);
-static void usage(void);
+
+static void
+usage(void)
+{
+	eprintf("usage: split [-d] [-a len] [-b [bytes[k|m|g]]] [-l [lines]] [input [prefix]]\n");
+}
 
 static int base = 26, start = 'a';
 
@@ -101,12 +106,6 @@ Nextfile:
 		break;
 	}
 	return EXIT_SUCCESS;
-}
-
-void
-usage(void)
-{
-	eprintf("usage: split [-d] [-a len] [-b [bytes[k|m|g]]] [-l [lines]] [input [prefix]]\n");
 }
 
 int
