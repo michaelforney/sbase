@@ -77,7 +77,7 @@ chmodr(const char *path)
 		break;
 	}
 	if(chmod(path, st.st_mode) == -1)
-		eprintf("chmod %s:", path);
+		weprintf("chmod %s:", path);
 	if(rflag)
 		recurse(path, chmodr);
 }

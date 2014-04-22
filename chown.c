@@ -70,8 +70,7 @@ chownpwgr(const char *path)
 {
 	if(chown(path, pw ? pw->pw_uid : (uid_t)-1,
 	               gr ? gr->gr_gid : (gid_t)-1) == -1)
-		eprintf("chown %s:", path);
+		weprintf("chown %s:", path);
 	if(rflag)
 		recurse(path, chownpwgr);
 }
-
