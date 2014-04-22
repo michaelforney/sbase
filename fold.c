@@ -44,13 +44,15 @@ main(int argc, char *argv[])
 
 	if(argc == 0) {
 		fold(stdin, width);
-	} else for(; argc > 0; argc--, argv++) {
-		if(!(fp = fopen(argv[0], "r"))) {
-			weprintf("fopen %s:", argv[0]);
-			continue;
+	} else {
+		for(; argc > 0; argc--, argv++) {
+			if(!(fp = fopen(argv[0], "r"))) {
+				weprintf("fopen %s:", argv[0]);
+				continue;
+			}
+			fold(fp, width);
+			fclose(fp);
 		}
-		fold(fp, width);
-		fclose(fp);
 	}
 
 	return EXIT_SUCCESS;

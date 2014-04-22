@@ -32,13 +32,15 @@ main(int argc, char *argv[])
 
 	if(argc == 0) {
 		head(stdin, "<stdin>", n);
-	} else for(; argc > 0; argc--, argv++) {
-		if(!(fp = fopen(argv[0], "r"))) {
-			weprintf("fopen %s:", argv[0]);
-			continue;
+	} else {
+		for(; argc > 0; argc--, argv++) {
+			if(!(fp = fopen(argv[0], "r"))) {
+				weprintf("fopen %s:", argv[0]);
+				continue;
+			}
+			head(fp, argv[0], n);
+			fclose(fp);
 		}
-		head(fp, argv[0], n);
-		fclose(fp);
 	}
 
 	return EXIT_SUCCESS;
