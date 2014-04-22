@@ -9,7 +9,15 @@
 
 static bool unary(const char *, const char *);
 static bool binary(const char *, const char *, const char *);
-static void usage(void);
+
+static void
+usage(void)
+{
+	const char *ket = (*argv0 == '[') ? " ]" : "";
+
+	eprintf("usage: %s string%s\n"
+		"       %s [!] [-bcdefgkhLnprSstuwxz] string%s\n", argv0, ket, argv0, ket);
+}
 
 int
 main(int argc, char *argv[])
@@ -149,11 +157,3 @@ binary(const char *arg1, const char *op, const char *arg2)
 	return false;
 }
 
-void
-usage(void)
-{
-	const char *ket = (*argv0 == '[') ? " ]" : "";
-
-	eprintf("usage: %s string%s\n"
-	        "       %s [!] [-bcdefgkhLnprSstuwxz] string%s\n", argv0, ket, argv0, ket);
-}

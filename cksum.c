@@ -7,7 +7,12 @@
 #include "util.h"
 
 static void cksum(FILE *, const char *);
-static void usage(void);
+
+static void
+usage(void)
+{
+	eprintf("usage: %s [files...]\n", argv0);
+}
 
 static const unsigned long crctab[] = {         0x00000000,
 0x04c11db7, 0x09823b6e, 0x0d4326d9, 0x130476dc, 0x17c56b6b,
@@ -113,8 +118,3 @@ cksum(FILE *fp, const char *s)
 	putchar('\n');
 }
 
-void
-usage(void)
-{
-	eprintf("usage: %s [files...]\n", argv0);
-}

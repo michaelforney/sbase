@@ -20,7 +20,7 @@ static bool kflag = false;
 static long du(const char *);
 static void print(long n, char *path);
 
-void
+static void
 usage(void)
 {
 	eprintf("usage: %s [-a | -s] [-k] [file...]\n", argv0);

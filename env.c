@@ -8,7 +8,11 @@
 
 extern char **environ;
 
-static void usage(void);
+static void
+usage(void)
+{
+	eprintf("usage: env [-i] [-u name]... [name=value]... [cmd [arg...]]\n");
+}
 
 int
 main(int argc, char *argv[])
@@ -39,8 +43,3 @@ main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-void
-usage(void)
-{
-	eprintf("usage: env [-i] [-u name]... [name=value]... [cmd [arg...]]\n");
-}

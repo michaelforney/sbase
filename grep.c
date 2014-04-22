@@ -12,7 +12,6 @@ enum { Match = 0, NoMatch = 1, Error = 2 };
 
 static void addpattern(const char *);
 static bool grep(FILE *, const char *);
-static void usage(void);
 
 static bool eflag = false;
 static bool vflag = false;
@@ -24,6 +23,12 @@ static struct plist {
 	regex_t preg;
 	struct plist *next;
 } *phead;
+
+static void
+usage(void)
+{
+	enprintf(Error, "usage: %s [-Ecilnqv] [-e pattern] pattern [files...]\n", argv0);
+}
 
 int
 main(int argc, char *argv[])
@@ -158,8 +163,3 @@ end:
 	return match;
 }
 
-void
-usage(void)
-{
-	enprintf(Error, "usage: %s [-Ecilnqv] [-e pattern] pattern [files...]\n", argv0);
-}

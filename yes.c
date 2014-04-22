@@ -3,7 +3,11 @@
 #include <stdlib.h>
 #include "util.h"
 
-static void usage(void);
+static void
+usage(void)
+{
+	eprintf("usage: %s [string]\n", argv0);
+}
 
 int
 main(int argc, char *argv[])
@@ -18,8 +22,3 @@ main(int argc, char *argv[])
 	return EXIT_FAILURE; /* should not reach */
 }
 
-void
-usage(void)
-{
-	eprintf("usage: %s [string]\n", argv0);
-}
