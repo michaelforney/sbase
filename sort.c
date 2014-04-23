@@ -197,7 +197,7 @@ columns(char *line, const struct keydef *kd)
 {
 	char *rest;
 	char *start, *end;
-	unsigned i;
+	unsigned int i;
 
 	for(rest = line, i = 0; i < kd->start_column; i++) {
 		if(i != 0)
