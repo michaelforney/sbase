@@ -13,6 +13,7 @@ static void chownpwgr(const char *);
 static bool rflag = false;
 static struct passwd *pw = NULL;
 static struct group *gr = NULL;
+static int ret = EXIT_SUCCESS;
 
 static void
 usage(void)
@@ -62,15 +63,17 @@ main(int argc, char *argv[])
 	for(; argc > 0; argc--, argv++)
 		chownpwgr(argv[0]);
 
-	return EXIT_SUCCESS;
+	return ret;
 }
 
 void
 chownpwgr(const char *path)
 {
 	if(chown(path, pw ? pw->pw_uid : (uid_t)-1,
-	               gr ? gr->gr_gid : (gid_t)-1) == -1)
+	               gr ? gr->gr_gid : (gid_t)-1) == -1) {
 		weprintf("chown %s:", path);
+		ret = EXIT_FAILURE;
+	}
 	if(rflag)
 		recurse(path, chownpwgr);
 }
