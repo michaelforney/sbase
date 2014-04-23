@@ -9,8 +9,8 @@
 static void chmodr(const char *);
 
 static bool rflag = false;
-static int oper = '=';
-static mode_t mode = 0;
+static char *modestr = "";
+static mode_t mask = 0;
 
 static void
 usage(void)
@@ -45,7 +45,8 @@ main(int argc, char *argv[])
 	}
 
 done:
-	parsemode(argv[0], &mode, &oper);
+	mask = getumask();
+	modestr = argv[0];
 	argv++;
 	argc--;
 
@@ -61,22 +62,13 @@ void
 chmodr(const char *path)
 {
 	struct stat st;
+	mode_t m;
 
 	if(stat(path, &st) == -1)
 		eprintf("stat %s:", path);
 
-	switch(oper) {
-	case '+':
-		st.st_mode |= mode;
-		break;
-	case '-':
-		st.st_mode &= ~mode;
-		break;
-	case '=':
-		st.st_mode = mode;
-		break;
-	}
-	if(chmod(path, st.st_mode) == -1)
+	m = parsemode(modestr, st.st_mode, mask);
+	if(chmod(path, m) == -1)
 		weprintf("chmod %s:", path);
 	if(rflag)
 		recurse(path, chmodr);

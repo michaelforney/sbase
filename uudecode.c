@@ -107,7 +107,7 @@ parseheader(FILE *fp, const char *s, const char *header, mode_t *mode, char **fn
 		eprintf("malformed mode string in header\n");
 	*q++ = '\0';
 	/* now mode should be null terminated, q points to fname */
-	parsemode(p, mode, NULL);
+	*mode = parsemode(p, *mode, 0);
 	n = strlen(q);
 	while (n > 0 && (q[n - 1] == '\n' || q[n - 1] == '\r'))
 		q[--n] = '\0';

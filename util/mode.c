@@ -4,74 +4,98 @@
 #include <sys/stat.h>
 #include "../util.h"
 
-void
-parsemode(const char *str, mode_t *mode, int *oper)
+mode_t
+getumask(void)
+{
+    mode_t mask = umask(0);
+    umask(mask);
+    return mask;
+}
+
+mode_t
+parsemode(const char *str, mode_t mode, mode_t mask)
 {
 	char *end;
 	const char *p;
-	int octal;
-	mode_t mask = 0;
+	int octal, op = '+';
+	mode_t gmask = 0, m = 0;
 
 	octal = strtol(str, &end, 8);
 	if(*end == '\0') {
-		if(octal < 0 || octal > 07777)
+		if(octal < 0 || octal > 07777) {
 			eprintf("%s: invalid mode\n", str);
-		if(octal & 04000) *mode |= S_ISUID;
-		if(octal & 02000) *mode |= S_ISGID;
-		if(octal & 01000) *mode |= S_ISVTX;
-		if(octal & 00400) *mode |= S_IRUSR;
-		if(octal & 00200) *mode |= S_IWUSR;
-		if(octal & 00100) *mode |= S_IXUSR;
-		if(octal & 00040) *mode |= S_IRGRP;
-		if(octal & 00020) *mode |= S_IWGRP;
-		if(octal & 00010) *mode |= S_IXGRP;
-		if(octal & 00004) *mode |= S_IROTH;
-		if(octal & 00002) *mode |= S_IWOTH;
-		if(octal & 00001) *mode |= S_IXOTH;
-		return;
+			return -1;
+		}
+		mode = 0;
+		if(octal & 04000) mode |= S_ISUID;
+		if(octal & 02000) mode |= S_ISGID;
+		if(octal & 01000) mode |= S_ISVTX;
+		if(octal & 00400) mode |= S_IRUSR;
+		if(octal & 00200) mode |= S_IWUSR;
+		if(octal & 00100) mode |= S_IXUSR;
+		if(octal & 00040) mode |= S_IRGRP;
+		if(octal & 00020) mode |= S_IWGRP;
+		if(octal & 00010) mode |= S_IXGRP;
+		if(octal & 00004) mode |= S_IROTH;
+		if(octal & 00002) mode |= S_IWOTH;
+		if(octal & 00001) mode |= S_IXOTH;
+		return mode;
 	}
-	for(p = str; *p; p++)
+	for(p = str; *p; p++) {
 		switch(*p) {
 		/* masks */
 		case 'u':
-			mask |= S_IRWXU;
+			gmask |= S_IRWXU;
 			break;
 		case 'g':
-			mask |= S_IRWXG;
+			gmask |= S_IRWXG;
 			break;
 		case 'o':
-			mask |= S_IRWXO;
+			gmask |= S_IRWXO;
 			break;
 		case 'a':
-			mask |= S_IRWXU|S_IRWXG|S_IRWXO;
+			gmask |= S_IRWXU|S_IRWXG|S_IRWXO;
 			break;
 		/* opers */
+		case '=':
 		case '+':
 		case '-':
-		case '=':
-			if(oper)
-				*oper = (int)*p;
+			op = (int)*p;
 			break;
 		/* modes */
 		case 'r':
-			*mode |= S_IRUSR|S_IRGRP|S_IROTH;
+			m |= S_IRUSR|S_IRGRP|S_IROTH;
 			break;
 		case 'w':
-			*mode |= S_IWUSR|S_IWGRP|S_IWOTH;
+			m |= S_IWUSR|S_IWGRP|S_IWOTH;
 			break;
 		case 'x':
-			*mode |= S_IXUSR|S_IXGRP|S_IXOTH;
+			m |= S_IXUSR|S_IXGRP|S_IXOTH;
 			break;
 		case 's':
-			*mode |= S_ISUID|S_ISGID;
+			m |= S_ISUID|S_ISGID;
 			break;
 		case 't':
-			*mode |= S_ISVTX;
+			m |= S_ISVTX;
 			break;
-			/* error */
 		default:
 			eprintf("%s: invalid mode\n", str);
+			return -1;
 		}
-	if(mask)
-		*mode &= mask;
+		/* apply */
+		switch(op) {
+		case '+':
+			mode |= (m & ((~mask) & 0777));
+			break;
+		case '-':
+			mode &= (~(m & ((~mask) & 0777)));
+			break;
+		case '=':
+			mode = (m & ((~mask) & 0777));
+			break;
+		}
+	}
+	if(gmask && op != '=')
+		mode &= ~gmask;
+	return mode;
 }

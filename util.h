@@ -27,4 +27,5 @@ size_t strlcat(char *, const char *, size_t);
 size_t strlcpy(char *, const char *, size_t);
 void weprintf(const char *, ...);
 
-void parsemode(const char *, mode_t *, int *);
+mode_t getumask(void);
+mode_t parsemode(const char *, mode_t, mode_t);
