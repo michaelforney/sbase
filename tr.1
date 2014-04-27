@@ -9,6 +9,10 @@ tr \- translate characters
 .B tr
 .RB set1
 .RI set2
+.SH OPTIONS
+.TP
+.B \-d
+For compatibility. If given, characters in set1 will be deleted from the input and specifying set2 will result in an error.
 .SH DESCRIPTION
 .B tr
 reads input from stdin replacing every character in
@@ -19,7 +23,7 @@ If set2 is not given
 .B tr
 deletes the characters in set1 from the input.
 
-Sets are specified as strings of characters. Almost all represent themselves. The following ones will be interpreted:
+Sets are specified as strings of characters. Almost all represent themselves but the following ones will be interpreted:
 .TP
 \e\e
 backslash
