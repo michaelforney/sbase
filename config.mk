@@ -15,5 +15,5 @@ LDFLAGS  = -g
 #CC = tcc
 #LD = $(CC)
 #CPPFLAGS = -D_POSIX_C_SOURCE=200112L
-#CFLAGS   = -Os -Wall $(CPPFLAGS)
+#CFLAGS   = -Os -Wall $(CPPFLAGS) -D_GNU_SOURCE
 #LDFLAGS  =
