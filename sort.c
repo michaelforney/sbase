@@ -181,14 +181,16 @@ parse_keydef(struct keydef *kd, char *s)
 static char *
 next_nonblank(char *s)
 {
-	for(; *s && isblank(*s); s++);
+	while(*s && isblank(*s))
+		s++;
 	return s;
 }
 
 static char *
 next_blank(char *s)
 {
-	for(; *s && !isblank(*s); s++);
+	while(*s && !isblank(*s))
+		s++;
 	return s;
 }
 
@@ -197,29 +199,35 @@ columns(char *line, const struct keydef *kd)
 {
 	char *rest;
 	char *start, *end;
+	char *res;
 	unsigned int i;
 
-	for(rest = line, i = 0; i < kd->start_column; i++) {
+	rest = line;
+	for(i = 0; i < kd->start_column; i++) {
 		if(i != 0)
 			rest = next_blank(rest);
 		rest = next_nonblank(rest);
 	}
-	for(i = 1; i < kd->start_char && !isblank(*rest); i++, rest++);
+	for(i = 1; i < kd->start_char && *rest && !isblank(*rest); i++)
+		rest++;
 	start = rest;
 
 	if(kd->end_column) {
-		for(rest = line, i = 0; i < kd->end_column; i++) {
+		rest = line;
+		for(i = 0; i < kd->end_column; i++) {
 			if(i != 0)
 				rest = next_blank(rest);
 			rest = next_nonblank(rest);
 		}
 		if(kd->end_char)
-			for(i = 1; i < kd->end_char && *rest && !isblank(*rest); i++, rest++);
+			for(i = 1; i < kd->end_char && *rest && !isblank(*rest); i++)
+				rest++;
 		else
 			rest = next_blank(rest);
-		end = rest;
-	} else {
+		end = rest - 1;
+	} else
 		end = rest + strlen(rest);
-	}
-	return strndup(start, end - start);
+	if((res = strndup(start, end - start)) == NULL)
+		enprintf(2, "strndup:");
+	return res;
 }
