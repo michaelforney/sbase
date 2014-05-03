@@ -213,17 +213,14 @@ columns(char *line, const struct keydef *kd)
 {
 	char *start, *end;
 	char *res;
-	unsigned int i;
 
 	start = skip_columns(line, kd->start_column);
-	for(i = 1; i < kd->start_char && *start && !isblank(*start); i++)
-		start++;
+	start += MIN(kd->start_char, next_blank(start) - start) - 1;
 
 	if(kd->end_column) {
 		end = skip_columns(line, kd->end_column);
 		if(kd->end_char)
-			for(i = 1; i < kd->end_char && *end && !isblank(*end); i++)
-				end++;
+			end += MIN(kd->end_char, next_blank(end) - end);
 		else
 			end = next_blank(end);
 	} else {
