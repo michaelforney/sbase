@@ -103,7 +103,7 @@ addkeydef(char *def)
 	if(!head)
 		head = node;
 	if(parse_keydef(&node->keydef, def))
-		enprintf(2, "parse_keydef:");
+		enprintf(2, "faulty key definition\n");
 	if(curr)
 		curr->next = node;
 	node->next = NULL;
@@ -155,6 +155,7 @@ static int
 parse_keydef(struct keydef *kd, char *s)
 {
 	char *rest = s;
+
 	kd->start_column = 1;
 	kd->start_char = 1;
 	/* 0 means end of line */
@@ -170,9 +171,9 @@ parse_keydef(struct keydef *kd, char *s)
 		kd->end_column = strtoul(rest+1, &rest, 10);
 		if(kd->end_column < kd->start_column)
 			enprintf(2, ",%u is too small\n", kd->end_column);
+		if(*rest == '.')
+			kd->end_char = strtoul(rest+1, &rest, 10);
 	}
-	if(*rest == '.')
-		kd->end_char = strtoul(rest+1, &rest, 10);
 	if(*rest != '\0')
 		return -1;
 	return 0;
