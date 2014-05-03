@@ -30,11 +30,13 @@ static char *next_nonblank(char *);
 static char *next_blank(char *);
 static int parse_keydef(struct keydef *, char *);
 static char *skip_columns(char *, size_t);
+static char *end_column(char *);
 static char *columns(char *, const struct keydef *);
 
 static bool rflag = false;
 static bool uflag = false;
 static bool nflag = false;
+static bool bflag = false;
 
 static void
 usage(void)
@@ -58,6 +60,9 @@ main(int argc, char *argv[])
 		break;
 	case 'u':
 		uflag = true;
+		break;
+	case 'b':
+		bflag = true;
 		break;
 	case 'k':
 		addkeydef(EARGF(usage()));
@@ -169,7 +174,7 @@ parse_keydef(struct keydef *kd, char *s)
 		kd->start_char = strtoul(rest+1, &rest, 10);
 	if(*rest == ',') {
 		kd->end_column = strtoul(rest+1, &rest, 10);
-		if(kd->end_column < kd->start_column)
+		if(kd->end_column && kd->end_column < kd->start_column)
 			enprintf(2, ",%u is too small\n", kd->end_column);
 		if(*rest == '.')
 			kd->end_char = strtoul(rest+1, &rest, 10);
@@ -201,12 +206,28 @@ skip_columns(char *s, size_t n)
 	size_t i;
 
 	for(i = 0; i < n; i++) {
-		if(i != 0)
+		if(bflag) {
+			if(i != 0)
+				s = next_blank(s);
+			s = next_nonblank(s);
+		} else {
+			if(i == 0)
+				continue;
+			s = next_nonblank(s);
 			s = next_blank(s);
-		s = next_nonblank(s);
+		}
 	}
 
 	return s;
+}
+
+static char *
+end_column(char *s)
+{
+	if(bflag)
+		return next_blank(s);
+	else
+		return next_blank(next_nonblank(s));
 }
 
 static char *
@@ -216,14 +237,14 @@ columns(char *line, const struct keydef *kd)
 	char *res;
 
 	start = skip_columns(line, kd->start_column);
-	start += MIN(kd->start_char, next_blank(start) - start) - 1;
+	start += MIN(kd->start_char, end_column(start) - start) - 1;
 
 	if(kd->end_column) {
 		end = skip_columns(line, kd->end_column);
 		if(kd->end_char)
-			end += MIN(kd->end_char, next_blank(end) - end);
+			end += MIN(kd->end_char, end_column(end) - end);
 		else
-			end = next_blank(end);
+			end = end_column(end);
 	} else {
 		end = line + strlen(line);
 	}
