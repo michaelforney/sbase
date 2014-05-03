@@ -206,16 +206,10 @@ skip_columns(char *s, size_t n)
 	size_t i;
 
 	for(i = 0; i < n; i++) {
-		if(bflag) {
-			if(i != 0)
-				s = next_blank(s);
+		if(i > 0)
+			s = end_column(s);
+		if(bflag)
 			s = next_nonblank(s);
-		} else {
-			if(i == 0)
-				continue;
-			s = next_nonblank(s);
-			s = next_blank(s);
-		}
 	}
 
 	return s;
