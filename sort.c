@@ -29,6 +29,7 @@ static int linecmp(const char **, const char **);
 static char *next_nonblank(char *);
 static char *next_blank(char *);
 static int parse_keydef(struct keydef *, char *);
+static char *skip_columns(char *, size_t);
 static char *columns(char *, const struct keydef *);
 
 static bool rflag = false;
@@ -194,6 +195,20 @@ next_blank(char *s)
 }
 
 static char *
+skip_columns(char *s, size_t n)
+{
+	size_t i;
+
+	for(i = 0; i < n; i++) {
+		if(i != 0)
+			s = next_blank(s);
+		s = next_nonblank(s);
+	}
+
+	return s;
+}
+
+static char *
 columns(char *line, const struct keydef *kd)
 {
 	char *rest;
@@ -201,31 +216,23 @@ columns(char *line, const struct keydef *kd)
 	char *res;
 	unsigned int i;
 
-	rest = line;
-	for(i = 0; i < kd->start_column; i++) {
-		if(i != 0)
-			rest = next_blank(rest);
-		rest = next_nonblank(rest);
-	}
+	rest = skip_columns(line, kd->start_column);
 	for(i = 1; i < kd->start_char && *rest && !isblank(*rest); i++)
 		rest++;
 	start = rest;
 
 	if(kd->end_column) {
-		rest = line;
-		for(i = 0; i < kd->end_column; i++) {
-			if(i != 0)
-				rest = next_blank(rest);
-			rest = next_nonblank(rest);
-		}
+		rest = skip_columns(line, kd->end_column);
 		if(kd->end_char)
 			for(i = 1; i < kd->end_char && *rest && !isblank(*rest); i++)
 				rest++;
 		else
 			rest = next_blank(rest);
 		end = rest - 1;
-	} else
+	} else {
 		end = rest + strlen(rest);
+	}
+
 	if((res = strndup(start, end - start)) == NULL)
 		enprintf(2, "strndup:");
 	return res;
