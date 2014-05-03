@@ -211,26 +211,23 @@ skip_columns(char *s, size_t n)
 static char *
 columns(char *line, const struct keydef *kd)
 {
-	char *rest;
 	char *start, *end;
 	char *res;
 	unsigned int i;
 
-	rest = skip_columns(line, kd->start_column);
-	for(i = 1; i < kd->start_char && *rest && !isblank(*rest); i++)
-		rest++;
-	start = rest;
+	start = skip_columns(line, kd->start_column);
+	for(i = 1; i < kd->start_char && *start && !isblank(*start); i++)
+		start++;
 
 	if(kd->end_column) {
-		rest = skip_columns(line, kd->end_column);
+		end = skip_columns(line, kd->end_column);
 		if(kd->end_char)
-			for(i = 1; i < kd->end_char && *rest && !isblank(*rest); i++)
-				rest++;
+			for(i = 1; i < kd->end_char && *end && !isblank(*end); i++)
+				end++;
 		else
-			rest = next_blank(rest);
-		end = rest - 1;
+			end = next_blank(end);
 	} else {
-		end = rest + strlen(rest);
+		end = line + strlen(line);
 	}
 
 	if((res = strndup(start, end - start)) == NULL)
