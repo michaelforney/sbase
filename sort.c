@@ -41,7 +41,7 @@ static bool bflag = false;
 static void
 usage(void)
 {
-	enprintf(2, "usage: %s [-nru] [-k def]... [file...]\n", argv0);
+	enprintf(2, "usage: %s [-bnru] [-k def]... [file...]\n", argv0);
 }
 
 int
