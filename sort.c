@@ -35,8 +35,6 @@ static bool rflag = false;
 static bool uflag = false;
 static bool nflag = false;
 
-static struct linebuf linebuf = EMPTY_LINEBUF;
-
 static void
 usage(void)
 {
@@ -48,6 +46,7 @@ main(int argc, char *argv[])
 {
 	long i;
 	FILE *fp;
+	struct linebuf linebuf = EMPTY_LINEBUF;
 
 	ARGBEGIN {
 	case 'n':
