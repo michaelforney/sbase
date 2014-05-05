@@ -18,4 +18,3 @@ fnck(const char *a, const char *b, int (*fn)(const char *, const char *))
 	if(fn(a, b) == -1)
 		eprintf("%s -> %s:", a, b);
 }
-

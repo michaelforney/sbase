@@ -8,7 +8,7 @@
 static void
 usage(void)
 {
-	eprintf("usage: %s [-Rr] source... dest\n", argv0);
+	eprintf("usage: %s [-fRr] source... dest\n", argv0);
 }
 
 int
@@ -17,6 +17,9 @@ main(int argc, char *argv[])
 	struct stat st;
 
 	ARGBEGIN {
+	case 'f':
+		cp_fflag = true;
+		break;
 	case 'R':
 	case 'r':
 		cp_rflag = true;
