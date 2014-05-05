@@ -45,7 +45,9 @@ cryptcheck(char *sumfile, int argc, char *argv[],
 	int r, nonmatch = 0, formatsucks = 0, noread = 0, ret = EXIT_SUCCESS;
 	size_t bufsiz = 0;
 
-	if(!(cfp = fopen(sumfile, "r")))
+	if(sumfile == NULL)
+		cfp = stdin;
+	else if(!(cfp = fopen(sumfile, "r")))
 		eprintf("fopen %s:", sumfile);
 
 	while(afgets(&line, &bufsiz, cfp)) {
@@ -78,7 +80,8 @@ cryptcheck(char *sumfile, int argc, char *argv[],
 		}
 		fclose(fp);
 	}
-	fclose(cfp);
+	if(sumfile != NULL)
+		fclose(cfp);
 	free(line);
 	if(formatsucks > 0) {
 		weprintf("%d lines are improperly formatted\n", formatsucks);
