@@ -64,10 +64,13 @@ cp(const char *s1, const char *s2)
 		eprintf("fopen %s:", s1);
 
 	if(!(f2 = fopen(s2, "w"))) {
-		if (cp_fflag == true)
+		if (cp_fflag == true) {
 			unlink(s2);
-		if (!(f2 = fopen(s2, "w")))
+			if (!(f2 = fopen(s2, "w")))
+				eprintf("fopen %s:", s2);
+		} else {
 			eprintf("fopen %s:", s2);
+		}
 	}
 
 	concat(f1, s1, f2, s2);
