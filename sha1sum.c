@@ -29,6 +29,7 @@ main(int argc, char *argv[])
 	ARGBEGIN {
 	case 'c':
 		checkfile = EARGF(usage());
+		break;
 	default:
 		usage();
 	} ARGEND;
