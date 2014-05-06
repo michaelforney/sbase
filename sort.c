@@ -29,7 +29,7 @@ struct kdlist {
 };
 
 static struct kdlist *head = NULL;
-static struct kdlist *curr = NULL;
+static struct kdlist *tail = NULL;
 
 static void addkeydef(char *, int);
 static void freelist(void);
@@ -118,10 +118,10 @@ addkeydef(char *def, int flags)
 		head = node;
 	if(parse_keydef(&node->keydef, def, flags))
 		enprintf(2, "faulty key definition\n");
-	if(curr)
-		curr->next = node;
+	if(tail)
+		tail->next = node;
 	node->next = NULL;
-	curr = node;
+	tail = node;
 }
 
 static void
@@ -147,13 +147,10 @@ linecmp(const char **a, const char **b)
 		s1 = columns((char *)*a, &node->keydef);
 		s2 = columns((char *)*b, &node->keydef);
 
-		/* don't consider modifiers if it's the default key
-		 * definition that was implicitly added */
-		/* if -u is given, don't use default */
-		if(uflag && !(node == head) && !node->next)
+		/* if -u is given, don't use default key definition
+		 * unless it is the only one */
+		if(uflag && node == tail && head != tail)
 			res = 0;
-		else if(!(node == head) && !node->next)
-			res = strcmp(s1, s2);
 		else if(node->keydef.flags & MOD_N)
 			res = strtol(s1, 0, 10) - strtol(s2, 0, 10);
 		else
