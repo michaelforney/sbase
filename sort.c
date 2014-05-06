@@ -9,10 +9,10 @@
 #include "util.h"
 
 struct keydef {
-	unsigned start_column;
-	unsigned end_column;
-	unsigned start_char;
-	unsigned end_char;
+	int start_column;
+	int end_column;
+	int start_char;
+	int end_char;
 };
 
 struct kdlist {
@@ -146,7 +146,7 @@ linecmp(const char **a, const char **b)
 		else if(!(node == head) && !node->next)
 			res = strcmp(s1, s2);
 		else if(nflag)
-			res = strtoul(s1, 0, 10) - strtoul(s2, 0, 10);
+			res = strtol(s1, 0, 10) - strtol(s2, 0, 10);
 		else
 			res = strcmp(s1, s2);
 
@@ -167,17 +167,22 @@ parse_keydef(struct keydef *kd, char *s)
 	kd->end_column = 0;
 	kd->end_char = 0;
 
-	kd->start_column = strtoul(rest, &rest, 10);
-	if(!kd->start_column)
-		enprintf(2, "starting column cannot be 0\n");
+	kd->start_column = strtol(rest, &rest, 10);
+	if(kd->start_column < 1)
+		return -1;
 	if(*rest == '.')
-		kd->start_char = strtoul(rest+1, &rest, 10);
+		kd->start_char = strtol(rest+1, &rest, 10);
+	if(kd->start_char < 1)
+		return -1;
 	if(*rest == ',') {
-		kd->end_column = strtoul(rest+1, &rest, 10);
+		kd->end_column = strtol(rest+1, &rest, 10);
 		if(kd->end_column && kd->end_column < kd->start_column)
-			enprintf(2, ",%u is too small\n", kd->end_column);
-		if(*rest == '.')
-			kd->end_char = strtoul(rest+1, &rest, 10);
+			return -1;
+		if(*rest == '.') {
+			kd->end_char = strtol(rest+1, &rest, 10);
+			if(kd->end_char < 1)
+				return -1;
+		}
 	}
 	if(*rest != '\0')
 		return -1;
