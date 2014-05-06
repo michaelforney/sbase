@@ -13,6 +13,14 @@ struct keydef {
 	int end_column;
 	int start_char;
 	int end_char;
+	int flags;
+};
+
+enum {
+	MOD_N      = 1 << 1,
+	MOD_STARTB = 1 << 2,
+	MOD_ENDB   = 1 << 3,
+	MOD_R      = 1 << 4
 };
 
 struct kdlist {
@@ -23,20 +31,18 @@ struct kdlist {
 static struct kdlist *head = NULL;
 static struct kdlist *curr = NULL;
 
-static void addkeydef(char *);
+static void addkeydef(char *, int);
 static void freelist(void);
 static int linecmp(const char **, const char **);
 static char *next_nonblank(char *);
 static char *next_blank(char *);
-static int parse_keydef(struct keydef *, char *);
-static char *skip_columns(char *, size_t);
+static int parse_flags(char **, int *, int);
+static int parse_keydef(struct keydef *, char *, int);
+static char *skip_columns(char *, size_t, bool);
 static char *end_column(char *);
 static char *columns(char *, const struct keydef *);
 
-static bool rflag = false;
 static bool uflag = false;
-static bool nflag = false;
-static bool bflag = false;
 
 static void
 usage(void)
@@ -50,28 +56,31 @@ main(int argc, char *argv[])
 	long i;
 	FILE *fp;
 	struct linebuf linebuf = EMPTY_LINEBUF;
+	int global_flags = 0;
 
 	ARGBEGIN {
 	case 'n':
-		nflag = true;
+		global_flags |= MOD_N;
 		break;
 	case 'r':
-		rflag = true;
+		global_flags |= MOD_R;
 		break;
 	case 'u':
 		uflag = true;
 		break;
 	case 'b':
-		bflag = true;
+		global_flags |= MOD_STARTB | MOD_ENDB;
 		break;
 	case 'k':
-		addkeydef(EARGF(usage()));
+		addkeydef(EARGF(usage()), global_flags);
 		break;
 	default:
 		usage();
 	} ARGEND;
 
-	addkeydef("1");
+	if(!head && global_flags)
+		addkeydef("1", global_flags);
+	addkeydef("1", global_flags & MOD_R);
 
 	if(argc == 0) {
 		getlines(stdin, &linebuf);
@@ -98,7 +107,7 @@ main(int argc, char *argv[])
 }
 
 static void
-addkeydef(char *def)
+addkeydef(char *def, int flags)
 {
 	struct kdlist *node;
 
@@ -107,7 +116,7 @@ addkeydef(char *def)
 		enprintf(2, "malloc:");
 	if(!head)
 		head = node;
-	if(parse_keydef(&node->keydef, def))
+	if(parse_keydef(&node->keydef, def, flags))
 		enprintf(2, "faulty key definition\n");
 	if(curr)
 		curr->next = node;
@@ -145,19 +154,42 @@ linecmp(const char **a, const char **b)
 			res = 0;
 		else if(!(node == head) && !node->next)
 			res = strcmp(s1, s2);
-		else if(nflag)
+		else if(node->keydef.flags & MOD_N)
 			res = strtol(s1, 0, 10) - strtol(s2, 0, 10);
 		else
 			res = strcmp(s1, s2);
 
+		if(node->keydef.flags & MOD_R)
+			res = -res;
+
 		free(s1);
 		free(s2);
 	}
-	return rflag ? -res : res;
+	return res;
 }
 
 static int
-parse_keydef(struct keydef *kd, char *s)
+parse_flags(char **s, int *flags, int bflag)
+{
+	while(isalpha(**s))
+		switch(*((*s)++)) {
+		case 'b':
+			*flags |= bflag;
+			break;
+		case 'n':
+			*flags |= MOD_N;
+			break;
+		case 'r':
+			*flags |= MOD_R;
+			break;
+		default:
+			return -1;
+		}
+	return 0;
+}
+
+static int
+parse_keydef(struct keydef *kd, char *s, int flags)
 {
 	char *rest = s;
 
@@ -166,6 +198,7 @@ parse_keydef(struct keydef *kd, char *s)
 	/* 0 means end of line */
 	kd->end_column = 0;
 	kd->end_char = 0;
+	kd->flags = flags;
 
 	kd->start_column = strtol(rest, &rest, 10);
 	if(kd->start_column < 1)
@@ -173,6 +206,8 @@ parse_keydef(struct keydef *kd, char *s)
 	if(*rest == '.')
 		kd->start_char = strtol(rest+1, &rest, 10);
 	if(kd->start_char < 1)
+		return -1;
+	if(parse_flags(&rest, &kd->flags, MOD_STARTB) == -1)
 		return -1;
 	if(*rest == ',') {
 		kd->end_column = strtol(rest+1, &rest, 10);
@@ -183,6 +218,8 @@ parse_keydef(struct keydef *kd, char *s)
 			if(kd->end_char < 1)
 				return -1;
 		}
+		if(parse_flags(&rest, &kd->flags, MOD_ENDB) == -1)
+			return -1;
 	}
 	if(*rest != '\0')
 		return -1;
@@ -206,7 +243,7 @@ next_blank(char *s)
 }
 
 static char *
-skip_columns(char *s, size_t n)
+skip_columns(char *s, size_t n, bool bflag)
 {
 	size_t i;
 
@@ -223,10 +260,9 @@ skip_columns(char *s, size_t n)
 static char *
 end_column(char *s)
 {
-	if(bflag)
-		return next_blank(s);
-	else
-		return next_blank(next_nonblank(s));
+	if(isblank(*s))
+		s = next_nonblank(s);
+	return next_blank(s);
 }
 
 static char *
@@ -235,11 +271,11 @@ columns(char *line, const struct keydef *kd)
 	char *start, *end;
 	char *res;
 
-	start = skip_columns(line, kd->start_column);
+	start = skip_columns(line, kd->start_column, kd->flags & MOD_STARTB);
 	start += MIN(kd->start_char, end_column(start) - start) - 1;
 
 	if(kd->end_column) {
-		end = skip_columns(line, kd->end_column);
+		end = skip_columns(line, kd->end_column, kd->flags & MOD_ENDB);
 		if(kd->end_char)
 			end += MIN(kd->end_char, end_column(end) - end);
 		else

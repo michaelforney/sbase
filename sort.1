@@ -1,4 +1,4 @@
-.TH NL 1 sbase\-VERSION
+.TH SORT 1 sbase\-VERSION
 .SH NAME
 sort \- sort lines
 .SH SYNOPSIS
@@ -27,15 +27,26 @@ reverses the sort.
 prints equal lines only once.
 .TP
 .B \-k key
-specifies a key definition of the form \fBS\fR[.\fBs\fR][,\fBE\fR[.\fBe\fR]],
+specifies a key definition of the form
+.BR S [. s ][ f ][, E [. e ][ f ]]
 where
-.B S,
-.B s,
-.B E,
+.BR S ,
+.BR s ,
+.BR E ,
 and
 .B e
 are the starting column, starting character in that column, ending column and
 the ending character of that column respectively.  If they are not specified,
-s refers to the first character of the specified starting column, E refers to
-the last column of every line, and e refers to the last character of that last
-column.
+.B s
+refers to the first character of the specified starting column,
+.B E
+refers to the last column of every line, and
+.B e
+refers to the last character of that last column.
+.B f
+can be used to specify options
+.RB ( n ,
+.BR b )
+that only apply to this key definition.
+.B b
+is special in that it only applies to the column that it was specified after.
