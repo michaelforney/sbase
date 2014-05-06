@@ -245,7 +245,8 @@ columns(char *line, const struct keydef *kd)
 		else
 			end = end_column(end);
 	} else {
-		end = line + strlen(line);
+		if((end = strchr(line, '\n')) == NULL)
+			end = strchr(line, '\0');
 	}
 
 	if((res = strndup(start, end - start)) == NULL)
