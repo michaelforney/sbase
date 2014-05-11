@@ -112,6 +112,7 @@ addpattern(const char *pattern)
 bool
 grep(FILE *fp, const char *str, int flags)
 {
+	char err[BUFSIZ];
 	char *buf = NULL;
 	long n, c = 0;
 	int r;
@@ -123,8 +124,6 @@ grep(FILE *fp, const char *str, int flags)
 	for(n = 1; afgets(&buf, &size, fp); n++) {
 		for(pnode = phead; pnode; pnode = pnode->next) {
 			if((r = regcomp(&preg, pnode->pattern, flags)) != 0) {
-				char err[BUFSIZ];
-
 				regerror(r, &preg, err, sizeof err);
 				enprintf(Error, "invalid pattern: %s\n", err);
 			}
