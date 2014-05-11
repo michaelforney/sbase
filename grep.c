@@ -11,7 +11,7 @@
 enum { Match = 0, NoMatch = 1, Error = 2 };
 
 static void addpattern(const char *);
-static bool grep(FILE *, const char *);
+static bool grep(FILE *, const char *, int);
 
 static bool eflag = false;
 static bool vflag = false;
@@ -20,7 +20,6 @@ static char mode = 0;
 
 static struct plist {
 	char *pattern;
-	regex_t preg;
 	struct plist *next;
 } *phead;
 
@@ -35,7 +34,7 @@ main(int argc, char *argv[])
 {
 	bool match = false;
 	struct plist *pnode, *tmp;
-	int i, n, flags = REG_NOSUB;
+	int i, flags = REG_NOSUB;
 	FILE *fp;
 
 	ARGBEGIN {
@@ -62,8 +61,9 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
+	/* no pattern */
 	if(argc == 0 && !eflag)
-		usage(); /* no pattern */
+		usage();
 
 	/* If -e is not specified treat it as if it were */
 	if(!eflag) {
@@ -72,23 +72,14 @@ main(int argc, char *argv[])
 		argv++;
 	}
 
-	/* Compile regex for all search patterns */
-	for(pnode = phead; pnode; pnode = pnode->next) {
-		if((n = regcomp(&pnode->preg, pnode->pattern, flags)) != 0) {
-			char buf[BUFSIZ];
-
-			regerror(n, &pnode->preg, buf, sizeof buf);
-			enprintf(Error, "invalid pattern: %s\n", buf);
-		}
-	}
 	many = (argc > 1);
 	if(argc == 0) {
-		match = grep(stdin, "<stdin>");
+		match = grep(stdin, "<stdin>", flags);
 	} else {
 		for(i = 0; i < argc; i++) {
 			if(!(fp = fopen(argv[i], "r")))
 				enprintf(Error, "fopen %s:", argv[i]);
-			if(grep(fp, argv[i]))
+			if(grep(fp, argv[i], flags))
 				match = true;
 			fclose(fp);
 		}
@@ -96,7 +87,6 @@ main(int argc, char *argv[])
 	pnode = phead;
 	while(pnode) {
 		tmp = pnode->next;
-		regfree(&pnode->preg);
 		free(pnode->pattern);
 		free(pnode);
 		pnode = tmp;
@@ -120,20 +110,30 @@ addpattern(const char *pattern)
 }
 
 bool
-grep(FILE *fp, const char *str)
+grep(FILE *fp, const char *str, int flags)
 {
 	char *buf = NULL;
 	long n, c = 0;
+	int r;
+	static regex_t preg;
 	size_t size = 0, len;
 	struct plist *pnode;
 	bool match = false;
 
 	for(n = 1; afgets(&buf, &size, fp); n++) {
 		for(pnode = phead; pnode; pnode = pnode->next) {
+			if((r = regcomp(&preg, pnode->pattern, flags)) != 0) {
+				char err[BUFSIZ];
+
+				regerror(r, &preg, err, sizeof err);
+				enprintf(Error, "invalid pattern: %s\n", err);
+			}
 			if(buf[(len = strlen(buf))-1] == '\n')
 				buf[--len] = '\0';
-			if(regexec(&pnode->preg, buf, 0, NULL, 0) ^ vflag)
+			if(regexec(&preg, buf, 0, NULL, 0) ^ vflag){
+				regfree(&preg);
 				continue;
+			}
 			switch(mode) {
 			case 'c':
 				c++;
@@ -159,7 +159,7 @@ grep(FILE *fp, const char *str)
 end:
 	if(ferror(fp))
 		enprintf(Error, "%s: read error:", str);
+	regfree(&preg);
 	free(buf);
 	return match;
 }
-
