@@ -40,9 +40,9 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	int leftover;
+	int leftover = 0;
 	long argsz, argmaxsz;
-	char *arg;
+	char *arg = "";
 	int i, a;
 
 	ARGBEGIN {
@@ -67,7 +67,6 @@ main(int argc, char *argv[])
 	/* Leave some room for environment variables */
 	argmaxsz -= 4 * 1024;
 
-	leftover = 0;
 	do {
 		argsz = 0; i = 0; a = 0;
 		if (argc > 0) {

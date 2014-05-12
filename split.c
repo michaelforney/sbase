@@ -27,9 +27,9 @@ main(int argc, char *argv[])
 	char *prefix = "x";
 	char *file = NULL;
 	char *tmp, *end;
-	uint64_t size = 1000, scale, n;
+	uint64_t size = 1000, scale = 1, n;
 	int always = 0;
-	FILE *in=stdin, *out=NULL;
+	FILE *in = stdin, *out = NULL;
 
 	ARGBEGIN {
 	case 'b':
