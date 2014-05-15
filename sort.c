@@ -34,20 +34,19 @@ static struct kdlist *tail = NULL;
 static void addkeydef(char *, int);
 static void freelist(void);
 static int linecmp(const char **, const char **);
-static char *next_nonblank(char *);
-static char *next_blank(char *);
+static char *skipblank(char *);
 static int parse_flags(char **, int *, int);
 static int parse_keydef(struct keydef *, char *, int);
-static char *skip_columns(char *, size_t, bool);
-static char *end_column(char *);
+static char *nextcol(char *);
 static char *columns(char *, const struct keydef *);
 
 static bool uflag = false;
+static char *fieldsep = NULL;
 
 static void
 usage(void)
 {
-	enprintf(2, "usage: %s [-bnru] [-k def]... [file...]\n", argv0);
+	enprintf(2, "usage: %s [-bnru] [-t delim] [-k def]... [file...]\n", argv0);
 }
 
 int
@@ -59,20 +58,25 @@ main(int argc, char *argv[])
 	int global_flags = 0;
 
 	ARGBEGIN {
+	case 'b':
+		global_flags |= MOD_STARTB | MOD_ENDB;
+		break;
+	case 'k':
+		addkeydef(EARGF(usage()), global_flags);
+		break;
 	case 'n':
 		global_flags |= MOD_N;
 		break;
 	case 'r':
 		global_flags |= MOD_R;
 		break;
+	case 't':
+		fieldsep = EARGF(usage());
+		if(strlen(fieldsep) != 1)
+			usage();
+		break;
 	case 'u':
 		uflag = true;
-		break;
-	case 'b':
-		global_flags |= MOD_STARTB | MOD_ENDB;
-		break;
-	case 'k':
-		addkeydef(EARGF(usage()), global_flags);
 		break;
 	default:
 		usage();
@@ -224,7 +228,7 @@ parse_keydef(struct keydef *kd, char *s, int flags)
 }
 
 static char *
-next_nonblank(char *s)
+skipblank(char *s)
 {
 	while(*s && isblank(*s))
 		s++;
@@ -232,34 +236,19 @@ next_nonblank(char *s)
 }
 
 static char *
-next_blank(char *s)
+nextcol(char *s)
 {
-	while(*s && !isblank(*s))
-		s++;
-	return s;
-}
-
-static char *
-skip_columns(char *s, size_t n, bool bflag)
-{
-	size_t i;
-
-	for(i = 0; i < n; i++) {
-		if(i > 0)
-			s = end_column(s);
-		if(bflag)
-			s = next_nonblank(s);
+	if(fieldsep == NULL) {
+		s = skipblank(s);
+		while(*s && !isblank(*s))
+			s++;
+	} else {
+		if(strchr(s, *fieldsep) == NULL)
+			s = strchr(s, '\0');
+		else
+			s = strchr(s, *fieldsep) + 1;
 	}
-
 	return s;
-}
-
-static char *
-end_column(char *s)
-{
-	if(isblank(*s))
-		s = next_nonblank(s);
-	return next_blank(s);
 }
 
 static char *
@@ -267,16 +256,23 @@ columns(char *line, const struct keydef *kd)
 {
 	char *start, *end;
 	char *res;
+	int i;
 
-	start = skip_columns(line, kd->start_column, kd->flags & MOD_STARTB);
-	start += MIN(kd->start_char, end_column(start) - start) - 1;
+	for(i = 1, start = line; i < kd->start_column; i++)
+		start = nextcol(start);
+	if(kd->flags & MOD_STARTB)
+		start = skipblank(start);
+	start += MIN(kd->start_char, nextcol(start) - start) - 1;
 
 	if(kd->end_column) {
-		end = skip_columns(line, kd->end_column, kd->flags & MOD_ENDB);
+		for(i = 1, end = line; i < kd->end_column; i++)
+			end = nextcol(end);
+		if(kd->flags & MOD_ENDB)
+			end = skipblank(end);
 		if(kd->end_char)
-			end += MIN(kd->end_char, end_column(end) - end);
+			end += MIN(kd->end_char, nextcol(end) - end);
 		else
-			end = end_column(end);
+			end = nextcol(end);
 	} else {
 		if((end = strchr(line, '\n')) == NULL)
 			end = strchr(line, '\0');

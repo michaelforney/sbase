@@ -4,9 +4,10 @@ sort \- sort lines
 .SH SYNOPSIS
 .B sort
 .RB [ \-bnru ]
+.RB [ \-t
+.IR delim ]
 .RB [ \-k
-.I key
-.R ]...
+.IR key ]...
 .RI [ file ...]
 .SH DESCRIPTION
 .B sort
@@ -17,16 +18,7 @@ given, sort reads from stdin.
 .B \-b
 skip leading whitespace of columns when sorting.
 .TP
-.B \-n
-perform a numeric sort.
-.TP
-.B \-r
-reverses the sort.
-.TP
-.B \-u
-prints equal lines only once.
-.TP
-.B \-k key
+.BI \-k \ key
 specifies a key definition of the form
 .BR S [. s ][ f ][, E [. e ][ f ]]
 where
@@ -50,3 +42,15 @@ can be used to specify options
 that only apply to this key definition.
 .B b
 is special in that it only applies to the column that it was specified after.
+.TP
+.B \-n
+perform a numeric sort.
+.TP
+.B \-r
+reverses the sort.
+.TP
+.BI \-t \ delim
+specifies the field delimiter.
+.TP
+.B \-u
+prints equal lines only once.
