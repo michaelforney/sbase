@@ -9,7 +9,7 @@ MANPREFIX = $(PREFIX)/share/man
 #CC = musl-gcc
 LD = $(CC)
 CPPFLAGS = -D_BSD_SOURCE -D_GNU_SOURCE
-CFLAGS   = -g -ansi -Wall -Wno-long-long -pedantic $(CPPFLAGS)
+CFLAGS   = -g -std=c99 -Wall -pedantic $(CPPFLAGS)
 LDFLAGS  = -g
 
 #CC = tcc
