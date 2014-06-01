@@ -17,6 +17,7 @@ void apathmax(char **, long *);
 void enmasse(int, char **, int (*)(const char *, const char *));
 void eprintf(const char *, ...);
 void enprintf(int, const char *, ...);
+double estrtod(const char *);
 long estrtol(const char *, int);
 void fnck(const char *, const char *, int (*)(const char *, const char *));
 void putword(const char *);

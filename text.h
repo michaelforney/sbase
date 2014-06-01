@@ -9,4 +9,5 @@ struct linebuf {
 void getlines(FILE *, struct linebuf *);
 
 char *afgets(char **, size_t *, FILE *);
+ssize_t agetline(char **, size_t *, FILE *);
 void concat(FILE *, const char *, FILE *, const char *);

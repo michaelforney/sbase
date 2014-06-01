@@ -8,7 +8,6 @@
 
 static int digitsleft(const char *);
 static int digitsright(const char *);
-static double estrtod(const char *);
 static bool validfmt(const char *);
 
 static void
@@ -75,7 +74,7 @@ main(int argc, char *argv[])
 			left = MAX(digitsleft(starts), digitsleft(ends));
 
 			snprintf(ftmp, sizeof ftmp, "%%0%d.%df",
-					right+left+(right != 0), right);
+					right + left + (right != 0), right);
 		} else
 			snprintf(ftmp, sizeof ftmp, "%%.%df", right);
 	}
@@ -89,7 +88,7 @@ main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-int
+static int
 digitsleft(const char *d)
 {
 	char *exp;
@@ -100,10 +99,10 @@ digitsleft(const char *d)
 	exp = strpbrk(d, "eE");
 	shift = exp ? estrtol(&exp[1], 10) : 0;
 
-	return MAX(0, strspn(d, "-0123456789")+shift);
+	return MAX(0, strspn(d, "-0123456789") + shift);
 }
 
-int
+static int
 digitsright(const char *d)
 {
 	char *exp;
@@ -113,22 +112,10 @@ digitsright(const char *d)
 	shift = exp ? estrtol(&exp[1], 10) : 0;
 	after = (d = strchr(d, '.')) ? strspn(&d[1], "0123456789") : 0;
 
-	return MAX(0, after-shift);
+	return MAX(0, after - shift);
 }
 
-double
-estrtod(const char *s)
-{
-	char *end;
-	double d;
-
-	d = strtod(s, &end);
-	if(end == s || *end != '\0')
-		eprintf("%s: not a real number\n", s);
-	return d;
-}
-
-bool
+static bool
 validfmt(const char *fmt)
 {
 	int occur = 0;
@@ -164,4 +151,3 @@ format:
 		return false;
 	}
 }
-

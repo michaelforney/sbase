@@ -7,12 +7,14 @@ HDR = crypt.h fs.h text.h md5.h sha1.h sha256.h sha512.h util.h arg.h
 LIB = \
 	util/afgets.o    \
 	util/agetcwd.o   \
+	util/agetline.o  \
 	util/apathmax.o  \
 	util/concat.o    \
 	util/cp.o        \
 	util/crypt.o     \
 	util/enmasse.o   \
 	util/eprintf.o   \
+	util/estrtod.o   \
 	util/estrtol.o   \
 	util/fnck.o      \
 	util/getlines.o  \
