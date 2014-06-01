@@ -11,7 +11,7 @@
 enum { Match = 0, NoMatch = 1, Error = 2 };
 
 static void addpattern(const char *);
-static bool grep(FILE *, const char *);
+static int grep(FILE *, const char *);
 
 static bool eflag = false;
 static bool vflag = false;
@@ -33,9 +33,9 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	bool match = false;
 	struct plist *pnode, *tmp;
-	int i, n, flags = REG_NOSUB;
+	int i, n, m, flags = REG_NOSUB, match = NoMatch;
+	char buf[BUFSIZ];
 	FILE *fp;
 
 	ARGBEGIN {
@@ -75,8 +75,6 @@ main(int argc, char *argv[])
 	/* Compile regex for all search patterns */
 	for(pnode = phead; pnode; pnode = pnode->next) {
 		if((n = regcomp(&pnode->preg, pnode->pattern, flags)) != 0) {
-			char buf[BUFSIZ];
-
 			regerror(n, &pnode->preg, buf, sizeof buf);
 			enprintf(Error, "invalid pattern: %s\n", buf);
 		}
@@ -86,10 +84,14 @@ main(int argc, char *argv[])
 		match = grep(stdin, "<stdin>");
 	} else {
 		for(i = 0; i < argc; i++) {
-			if(!(fp = fopen(argv[i], "r")))
-				enprintf(Error, "fopen %s:", argv[i]);
-			if(grep(fp, argv[i]))
-				match = true;
+			if(!(fp = fopen(argv[i], "r"))) {
+				weprintf("fopen %s:", argv[i]);
+				match = Error;
+				continue;
+			}
+			m = grep(fp, argv[i]);
+			if(m == Error || (match != Error && m == Match))
+				match = m;
 			fclose(fp);
 		}
 	}
@@ -101,37 +103,33 @@ main(int argc, char *argv[])
 		free(pnode);
 		pnode = tmp;
 	}
-	return match ? Match : NoMatch;
+	return match;
 }
 
-void
+static void
 addpattern(const char *pattern)
 {
 	struct plist *pnode;
 
-	pnode = malloc(sizeof(*pnode));
-	if(!pnode)
+	if(!(pnode = malloc(sizeof(*pnode))))
 		eprintf("malloc:");
-	pnode->pattern = strdup(pattern);
-	if(!pnode->pattern)
+	if(!(pnode->pattern = strdup(pattern)))
 		eprintf("strdup:");
 	pnode->next = phead;
 	phead = pnode;
 }
 
-bool
+static int
 grep(FILE *fp, const char *str)
 {
 	char *buf = NULL;
-	long n, c = 0;
-	size_t size = 0, len;
+	size_t len = 0, size = 0;
+	long c = 0, n;
 	struct plist *pnode;
-	bool match = false;
+	int match = NoMatch;
 
-	for(n = 1; afgets(&buf, &size, fp); n++) {
+	for(n = 1; (len = agetline(&buf, &size, fp)) != -1; n++) {
 		for(pnode = phead; pnode; pnode = pnode->next) {
-			if(buf[(len = strlen(buf))-1] == '\n')
-				buf[--len] = '\0';
 			if(regexec(&pnode->preg, buf, 0, NULL, 0) ^ vflag)
 				continue;
 			switch(mode) {
@@ -148,17 +146,21 @@ grep(FILE *fp, const char *str)
 					printf("%s:", str);
 				if(mode == 'n')
 					printf("%ld:", n);
-				printf("%s\n", buf);
+				printf("%s", buf);
+				if(len && buf[len - 1] != '\n')
+					putchar('\n');
 				break;
 			}
-			match = true;
+			match = Match;
 		}
 	}
 	if(mode == 'c')
 		printf("%ld\n", c);
 end:
-	if(ferror(fp))
-		enprintf(Error, "%s: read error:", str);
+	if(ferror(fp)) {
+		weprintf("%s: read error:", str);
+		match = Error;
+	}
 	free(buf);
 	return match;
 }
