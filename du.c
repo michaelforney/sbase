@@ -120,6 +120,7 @@ du(const char *path)
 	struct dirent *dent;
 	struct stat st;
 	long n = 0, m;
+	int r;
 
 	if (lstat(path, &st) < 0)
 		eprintf("stat: %s:", path);
@@ -149,8 +150,9 @@ du(const char *path)
 		n += m;
 		if (aflag && !sflag) {
 			if (S_ISLNK(st.st_mode)) {
-				if (snprintf(file, sizeof(file), "%s/%s",
-					     cwd, dent->d_name) >= sizeof(file))
+				r = snprintf(file, sizeof(file), "%s/%s",
+					     cwd, dent->d_name);
+				if(r >= sizeof(file) || r < 0)
 					eprintf("path too long\n");
 			} else {
 				xrealpath(dent->d_name, file);

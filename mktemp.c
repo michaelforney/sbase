@@ -21,7 +21,7 @@ main(int argc, char *argv[])
 	char *template = "tmp.XXXXXXXXXX";
 	char *tmpdir = "/tmp", *p;
 	char tmppath[PATH_MAX];
-	int fd;
+	int fd, r;
 
 	ARGBEGIN {
 	case 'd':
@@ -42,8 +42,9 @@ main(int argc, char *argv[])
 	if ((p = getenv("TMPDIR")))
 		tmpdir = p;
 
-	if (snprintf(tmppath, sizeof(tmppath),
-		     "%s/%s", tmpdir, template) >= sizeof(tmppath))
+	r = snprintf(tmppath, sizeof(tmppath),
+		     "%s/%s", tmpdir, template);
+	if (r >= sizeof(tmppath) || r < 0)
 		eprintf("path too long\n");
 	if (dflag) {
 		if (!mkdtemp(tmppath)) {

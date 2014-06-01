@@ -24,6 +24,7 @@ cp(const char *s1, const char *s2)
 	struct dirent *d;
 	struct stat st;
 	DIR *dp;
+	int r;
 
 	if (stat(s1, &st) == 0 && S_ISDIR(st.st_mode)) {
 		if (!cp_rflag)
@@ -40,14 +41,13 @@ cp(const char *s1, const char *s2)
 		while((d = readdir(dp))) {
 			if(strcmp(d->d_name, ".")
 			   && strcmp(d->d_name, "..")) {
-				if(snprintf(ns1, size1, "%s/%s", s1,
-					    d->d_name) >= size1) {
+				r = snprintf(ns1, size1, "%s/%s", s1, d->d_name);
+				if(r >= size1 || r < 0) {
 					eprintf("%s/%s: filename too long\n",
 						s1, d->d_name);
 				}
-
-				if(snprintf(ns2, size2, "%s/%s", s2,
-					    d->d_name) >= size2) {
+				r = snprintf(ns2, size2, "%s/%s", s2, d->d_name);
+				if(r >= size2 || r < 0) {
 					eprintf("%s/%s: filename too long\n",
 						s2, d->d_name);
 				}
