@@ -31,19 +31,23 @@ insert(Range *r)
 	Range *l, *p, *t;
 
 	for(p = NULL, l = list; l; p = l, l = l->next) {
-		if(r->max && r->max+1 < l->min) {
+		if(r->max && r->max + 1 < l->min) {
 			r->next = l;
 			break;
-		} else if(!l->max || r->min < l->max+2) {
+		} else if(!l->max || r->min < l->max + 2) {
 			l->min = MIN(r->min, l->min);
 			for(p = l, t = l->next; t; p = t, t = t->next)
-				if(r->max && r->max+1 < t->min) break;
+				if(r->max && r->max + 1 < t->min)
+					break;
 			l->max = (p->max && r->max) ? MAX(p->max, r->max) : 0;
 			l->next = t;
 			return;
 		}
 	}
-	if(p) p->next = r; else list = r;
+	if(p)
+		p->next = r;
+	else
+		list = r;
 }
 
 static void
@@ -54,8 +58,10 @@ parselist(char *str)
 	Range *r;
 
 	for(s = str; *s; s++) {
-		if(*s == ' ') *s = ',';
-		if(*s == ',') n++;
+		if(*s == ' ')
+			*s = ',';
+		if(*s == ',')
+			n++;
 	}
 	if(!(r = malloc(n * sizeof(Range))))
 		eprintf("malloc:");
@@ -69,6 +75,18 @@ parselist(char *str)
 	}
 }
 
+static void
+freelist(void) {
+	Range *l = list, *next;
+
+	while(l) {
+		next = l->next;
+		free(l);
+		l->next = NULL;
+		l = next;
+	}
+}
+
 static size_t
 seek(const char *s, size_t pos, size_t *prev, size_t count)
 {
@@ -79,15 +97,18 @@ seek(const char *s, size_t pos, size_t *prev, size_t count)
 		if((t = memchr(s, 0, n)))
 			return t - s;
 		if(nflag)
-			while(n && !UTF8_POINT(s[n])) n--;
+			while(n && !UTF8_POINT(s[n]))
+				n--;
 		*prev += n;
 		return n;
 	} else if(mode == 'c') {
 		for(n++, t = s; *t; t++)
-			if(UTF8_POINT(*t) && !--n) break;
+			if(UTF8_POINT(*t) && !--n)
+				break;
 	} else {
-		for(t = (count < 2) ? s : s+1; n && *t; t++)
-			if(*t == delim && !--n && count) break;
+		for(t = (count < 2) ? s : s + 1; n && *t; t++)
+			if(*t == delim && !--n && count)
+				break;
 	}
 	*prev = pos;
 	return t - s;
@@ -96,15 +117,14 @@ seek(const char *s, size_t pos, size_t *prev, size_t count)
 static void
 cut(FILE *fp)
 {
-	char *buf = NULL;
-	size_t size = 0;
-	char *s;
-	size_t i, n, p;
+	char *buf = NULL, *s;
+	size_t size = 0, i, n, p;
+	ssize_t len;
 	Range *r;
 
-	while(afgets(&buf, &size, fp)) {
-		if(buf[i = strlen(buf)-1] == '\n')
-			buf[i] = 0;
+	while((len = agetline(&buf, &size, fp)) != -1) {
+		if(len && buf[len - 1] == '\n')
+			buf[len - 1] = '\0';
 		if(mode == 'f' && !strchr(buf, delim)) {
 			if(!sflag)
 				puts(buf);
@@ -112,7 +132,8 @@ cut(FILE *fp)
 		}
 		for(i = 0, p = 1, s = buf, r = list; r; r = r->next, s += n) {
 			s += seek(s, r->min, &p, i++);
-			if(!*s) break;
+			if(!*s)
+				break;
 			if(!r->max) {
 				fputs(s, stdout);
 				break;
@@ -155,13 +176,21 @@ main(int argc, char *argv[])
 		usage();
 	if(!argc)
 		cut(stdin);
-	else for(; argc--; argv++) {
-		if(!(fp = strcmp(*argv, "-") ? fopen(*argv, "r") : stdin)) {
-			weprintf("fopen %s:", *argv);
-			continue;
+	else {
+		for(; argc--; argv++) {
+			if(strcmp(*argv, "-"))
+				fp = fopen(*argv, "r");
+			else
+				fp = stdin;
+			if(!fp) {
+				weprintf("fopen %s:", *argv);
+				continue;
+			}
+			cut(fp);
+			if(fp != stdin)
+				fclose(fp);
 		}
-		cut(fp);
-		fclose(fp);
 	}
+	freelist();
 	return EXIT_SUCCESS;
 }
