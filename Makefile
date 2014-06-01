@@ -5,7 +5,6 @@ include config.mk
 
 HDR = crypt.h fs.h text.h md5.h sha1.h sha256.h sha512.h util.h arg.h
 LIB = \
-	util/afgets.o    \
 	util/agetcwd.o   \
 	util/agetline.o  \
 	util/apathmax.o  \
