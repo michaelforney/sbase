@@ -45,7 +45,7 @@ main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-void
+static void
 touch(const char *str)
 {
 	int fd;
@@ -69,4 +69,3 @@ touch(const char *str)
 	close(fd);
 	touch(str);
 }
-

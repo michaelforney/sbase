@@ -60,14 +60,14 @@ main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-void
+static void
 uniqline(char *l)
 {
-	bool linesequal = ((l == NULL) || (prevline == NULL))
+	bool linesequel = ((l == NULL) || (prevline == NULL))
 		? l == prevline
 		: !strcmp(l, prevline);
 
-	if(linesequal) {
+	if(linesequel) {
 		++prevlinecount;
 		return;
 	}
@@ -87,7 +87,7 @@ uniqline(char *l)
 	prevlinecount = 1;
 }
 
-void
+static void
 uniq(FILE *fp, const char *str)
 {
 	char *buf = NULL;
@@ -97,8 +97,8 @@ uniq(FILE *fp, const char *str)
 		uniqline(buf);
 }
 
-void
-uniqfinish()
+static void
+uniqfinish(void)
 {
 	uniqline(NULL);
 }

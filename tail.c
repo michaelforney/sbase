@@ -52,7 +52,7 @@ main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-void
+static void
 dropinit(FILE *fp, const char *str, long n)
 {
 	char buf[BUFSIZ];
@@ -64,7 +64,7 @@ dropinit(FILE *fp, const char *str, long n)
 	concat(fp, str, stdout, "<stdout>");
 }
 
-void
+static void
 taketail(FILE *fp, const char *str, long n)
 {
 	char **ring;

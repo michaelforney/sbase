@@ -58,7 +58,7 @@ main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-void
+static void
 fold(FILE *fp, long width)
 {
 	char *buf = NULL;
@@ -69,7 +69,7 @@ fold(FILE *fp, long width)
 	free(buf);
 }
 
-void
+static void
 foldline(const char *str, long width)
 {
 	bool space;

@@ -96,7 +96,7 @@ main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-int
+static int
 entcmp(const void *va, const void *vb)
 {
 	const Entry *a = va, *b = vb;
@@ -107,7 +107,7 @@ entcmp(const void *va, const void *vb)
 		return strcmp(a->name, b->name);
 }
 
-void
+static void
 ls(Entry *ent)
 {
 	if(S_ISDIR(ent->mode) && !dflag) {
@@ -117,7 +117,7 @@ ls(Entry *ent)
 	}
 }
 
-void
+static void
 lsdir(const char *path)
 {
 	char *cwd, *p;
@@ -169,7 +169,7 @@ lsdir(const char *path)
 	free(cwd);
 }
 
-void
+static void
 mkent(Entry *ent, char *path, bool dostat)
 {
 	struct stat st;
@@ -188,7 +188,7 @@ mkent(Entry *ent, char *path, bool dostat)
 	ent->ino    = st.st_ino;
 }
 
-char *
+static char *
 indicator(mode_t mode)
 {
 	if(!Fflag)
@@ -210,7 +210,7 @@ indicator(mode_t mode)
 		return "";
 }
 
-void
+static void
 output(Entry *ent)
 {
 	char buf[BUFSIZ], *fmt;
@@ -290,4 +290,3 @@ output(Entry *ent)
 	}
 	putchar('\n');
 }
-

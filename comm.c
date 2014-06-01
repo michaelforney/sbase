@@ -66,7 +66,7 @@ main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-void
+static void
 printline(int pos, char *line)
 {
 	int i;
@@ -81,7 +81,7 @@ printline(int pos, char *line)
 	printf("%s", line);
 }
 
-char *
+static char *
 nextline(char *buf, int n, FILE *f, char *name)
 {
 	buf = fgets(buf, n, f);
@@ -93,7 +93,7 @@ nextline(char *buf, int n, FILE *f, char *name)
 	return buf;
 }
 
-void
+static void
 finish(int pos, FILE *f, char *name)
 {
 	char buf[LINE_MAX+1];
@@ -103,4 +103,3 @@ finish(int pos, FILE *f, char *name)
 
 	exit(EXIT_FAILURE);
 }
-

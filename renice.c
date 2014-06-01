@@ -114,4 +114,3 @@ renice(int which, int who, long adj)
 
 	return true;
 }
-

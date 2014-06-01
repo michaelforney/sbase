@@ -46,4 +46,3 @@ main(int argc, char *argv[])
 	_exit(savederrno == ENOENT ? 127 : 126);
 	return EXIT_FAILURE;
 }
-

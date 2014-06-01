@@ -46,4 +46,3 @@ main(int argc, char *argv[])
 	weprintf("execvp %s:", argv[0]);
 	return (savederrno == ENOENT)? 127 : 126;
 }
-

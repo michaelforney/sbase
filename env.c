@@ -34,7 +34,7 @@ main(int argc, char *argv[])
 
 	if(*argv) {
 		execvp(*argv, argv);
-		enprintf(127-(errno!=EEXIST), "env: '%s':", *argv);
+		enprintf(127 - (errno != EEXIST), "env: '%s':", *argv);
 	}
 
 	while(environ && *environ)
@@ -42,4 +42,3 @@ main(int argc, char *argv[])
 
 	return EXIT_SUCCESS;
 }
-

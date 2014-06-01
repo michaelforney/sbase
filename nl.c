@@ -80,4 +80,3 @@ nl(FILE *fp)
 	}
 	free(buf);
 }
-

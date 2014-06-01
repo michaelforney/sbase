@@ -34,7 +34,7 @@ main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-const char *
+static const char *
 getpwd(const char *cwd)
 {
 	const char *pwd;
@@ -49,4 +49,3 @@ getpwd(const char *cwd)
 	else
 		return cwd;
 }
-

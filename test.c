@@ -55,7 +55,7 @@ main(int argc, char *argv[])
 	return ret ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-bool
+static bool
 unary(const char *op, const char *arg)
 {
 	struct stat st;
@@ -112,7 +112,7 @@ unary(const char *op, const char *arg)
 	return false; /* should not reach */
 }
 
-bool
+static bool
 binary(const char *arg1, const char *op, const char *arg2)
 {
 	int i;
@@ -156,4 +156,3 @@ binary(const char *arg1, const char *op, const char *arg2)
 	}
 	return false;
 }
-

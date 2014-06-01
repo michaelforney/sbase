@@ -26,9 +26,8 @@ cp(const char *s1, const char *s2)
 	DIR *dp;
 
 	if (stat(s1, &st) == 0 && S_ISDIR(st.st_mode)) {
-		if (!cp_rflag) {
+		if (!cp_rflag)
 			eprintf("%s: is a directory\n", s1);
-		}
 
 		if(!(dp = opendir(s1)))
 			eprintf("opendir %s:", s1);

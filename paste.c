@@ -30,9 +30,9 @@ main(int argc, char *argv[])
 {
 	const char *adelim = NULL;
 	bool seq = false;
-	wchar_t *delim;
+	wchar_t *delim = NULL;
 	size_t len;
-	Fdescr *dsc;
+	Fdescr *dsc = NULL;
 	int i;
 
 	setlocale(LC_CTYPE, "");
@@ -59,8 +59,7 @@ main(int argc, char *argv[])
 	if(len == (size_t)-1)
 		eprintf("invalid delimiter\n");
 
-	delim = malloc((len + 1) * sizeof(*delim));
-	if(!delim)
+	if(!(delim = malloc((len + 1) * sizeof(*delim))))
 		eprintf("out of memory\n");
 
 	mbstowcs(delim, adelim, len);
@@ -69,22 +68,19 @@ main(int argc, char *argv[])
 		eprintf("no delimiters specified\n");
 
 	/* populate file list */
-	dsc = malloc(argc * sizeof(*dsc));
-	if(!dsc)
+	if(!(dsc = malloc(argc * sizeof(*dsc))))
 		eprintf("out of memory\n");
 
 	for(i = 0; i < argc; i++) {
-		const char *name = argv[i];
-
-		if(strcmp(name, "-") == 0)
+		if(strcmp(argv[i], "-") == 0)
 			dsc[i].fp = stdin;
 		else
-			dsc[i].fp = fopen(name, "r");
+			dsc[i].fp = fopen(argv[i], "r");
 
 		if(!dsc[i].fp)
-			eprintf("can't open '%s':", name);
+			eprintf("can't open '%s':", argv[i]);
 
-		dsc[i].name = name;
+		dsc[i].name = argv[i];
 	}
 
 	if(seq)
@@ -160,10 +156,12 @@ static void
 sequential(Fdescr *dsc, int len, const wchar_t *delim, size_t cnt)
 {
 	int i;
+	size_t d;
+	wint_t c, last;
 
 	for(i = 0; i < len; i++) {
-		size_t d = 0;
-		wint_t c, last = WEOF;
+		d = 0;
+		last = WEOF;
 
 		while((c = in(&dsc[i])) != WEOF) {
 			if(last == '\n') {
@@ -188,19 +186,17 @@ sequential(Fdescr *dsc, int len, const wchar_t *delim, size_t cnt)
 static void
 parallel(Fdescr *dsc, int len, const wchar_t *delim, size_t cnt)
 {
-	int last;
+	int last, i;
+	wint_t c, o;
+	wchar_t d;
 
 	do {
-		int i;
-
 		last = 0;
 		for(i = 0; i < len; i++) {
-			wint_t c;
-			wchar_t d = delim[i % cnt];
+			d = delim[i % cnt];
 
 			do {
-				wint_t o = in(&dsc[i]);
-
+				o = in(&dsc[i]);
 				c = o;
 				switch(c) {
 				case WEOF:
@@ -212,7 +208,6 @@ parallel(Fdescr *dsc, int len, const wchar_t *delim, size_t cnt)
 				case '\n':
 					if(i != len - 1)
 						o = d;
-
 					break;
 				default:
 					break;
@@ -224,11 +219,9 @@ parallel(Fdescr *dsc, int len, const wchar_t *delim, size_t cnt)
 						if(d != '\0')
 							out(d);
 					}
-
 					out((wchar_t)o);
 				}
 			} while(c != '\n' && c != WEOF);
 		}
 	} while(last > 0);
 }
-

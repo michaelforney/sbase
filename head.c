@@ -46,7 +46,7 @@ main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-void
+static void
 head(FILE *fp, const char *str, long n)
 {
 	char buf[BUFSIZ];

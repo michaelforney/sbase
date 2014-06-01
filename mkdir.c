@@ -53,7 +53,7 @@ main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-void
+static void
 mkdirp(char *path)
 {
 	char *p = path;
@@ -67,4 +67,3 @@ mkdirp(char *path)
 			*p = '/';
 	} while(p);
 }
-

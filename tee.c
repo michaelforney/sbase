@@ -18,7 +18,7 @@ main(int argc, char *argv[])
 	char buf[BUFSIZ];
 	int i, nfps = 1;
 	size_t n;
-	FILE **fps;
+	FILE **fps = NULL;
 
 	ARGBEGIN {
 	case 'a':
@@ -50,4 +50,3 @@ main(int argc, char *argv[])
 
 	return EXIT_SUCCESS;
 }
-

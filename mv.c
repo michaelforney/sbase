@@ -7,7 +7,7 @@
 #include "fs.h"
 #include "util.h"
 
-int mv(const char *, const char *);
+static int mv(const char *, const char *);
 
 static void
 usage(void)
@@ -37,7 +37,7 @@ main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-int
+static int
 mv(const char *s1, const char *s2)
 {
 	if (rename(s1, s2) == 0)
@@ -51,4 +51,3 @@ mv(const char *s1, const char *s2)
 	}
 	return -1;
 }
-

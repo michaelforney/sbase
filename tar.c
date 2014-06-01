@@ -61,6 +61,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
+	struct stat st;
 	char *file = NULL, *dir = ".", *ap;
 	char mode = '\0';
 
@@ -118,8 +119,6 @@ main(int argc, char *argv[])
 		usage();
 
 	if(file) {
-		struct stat st;
-
 		tarfile = fopen(file, (mode == 'c') ? "wb" : "rb");
 		if(!tarfile)
 			eprintf("tar: open '%s':", file);
@@ -142,13 +141,13 @@ main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-void
+static void
 putoctal(char *dst, unsigned num, int n)
 {
 	snprintf(dst, n, "%.*o", n-1, num);
 }
 
-int
+static int
 archive(const char* path)
 {
 	unsigned char b[Blksiz];
@@ -220,7 +219,7 @@ archive(const char* path)
 	return 0;
 }
 
-int
+static int
 unarchive(char *fname, int l, char b[Blksiz])
 {
 	char lname[101];
@@ -279,7 +278,7 @@ unarchive(char *fname, int l, char b[Blksiz])
 	return 0;
 }
 
-int
+static int
 print(char * fname, int l, char b[Blksiz])
 {
 	puts(fname);
@@ -288,14 +287,14 @@ print(char * fname, int l, char b[Blksiz])
 	return 0;
 }
 
-void
+static void
 c(const char * path)
 {
 	archive(path);
 	recurse(path, c);
 }
 
-void
+static void
 xt(int (*fn)(char*, int, char[Blksiz]))
 {
 	char b[Blksiz], fname[101];

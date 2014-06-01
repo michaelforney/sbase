@@ -7,9 +7,9 @@
 mode_t
 getumask(void)
 {
-    mode_t mask = umask(0);
-    umask(mask);
-    return mask;
+	mode_t mask = umask(0);
+	umask(mask);
+	return mask;
 }
 
 mode_t

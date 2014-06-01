@@ -93,7 +93,7 @@ main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-void
+static void
 cksum(FILE *fp, const char *s)
 {
 	unsigned char buf[BUFSIZ];
@@ -117,4 +117,3 @@ cksum(FILE *fp, const char *s)
 		printf(" %s", s);
 	putchar('\n');
 }
-
