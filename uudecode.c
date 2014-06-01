@@ -118,19 +118,20 @@ parseheader(FILE *fp, const char *s, const char *header, mode_t *mode, char **fn
 static void
 uudecode(FILE *fp, FILE *outfp)
 {
-	char *bufb = NULL, *p, *nl;
-	size_t n=0;
+	char *bufb = NULL, *p;
+	size_t n = 0;
+	ssize_t len;
 	int ch, i;
 
 #define DEC(c)  (((c) - ' ') & 077) /* single character decode */
 #define IS_DEC(c) ( (((c) - ' ') >= 0) && (((c) - ' ') <= 077 + 1) )
 #define OUT_OF_RANGE(c) eprintf("character %c out of range: [%d-%d]", (c), 1 + ' ', 077 + ' ' + 1)
 
-	while (afgets(&bufb,&n,fp)) {
+	while((len = agetline(&bufb, &n, fp)) != -1) {
 		p = bufb;
 		/* trim newlines */
-		if ((nl = strchr(bufb, '\n')) != NULL)
-			*nl = '\0';
+		if(len && bufb[len - 1] != '\n')
+			bufb[len - 1] = '\0';
 		else
 			eprintf("no newline found, aborting\n");
 		/* check for last line */
@@ -170,8 +171,8 @@ uudecode(FILE *fp, FILE *outfp)
 			eprintf("read error:");
 	}
 	/* check for end or fail */
-	afgets(&bufb, &n, fp);
-	if (strnlen(bufb, 3) < 3 || strncmp(bufb, "end", 3) != 0 || bufb[3] != '\n')
+	len = agetline(&bufb, &n, fp);
+	if(len < 3 || strncmp(bufb, "end", 3) != 0 || bufb[3] != '\n')
 		eprintf("invalid uudecode footer \"end\" not found\n");
 	free(bufb);
 }

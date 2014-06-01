@@ -55,25 +55,28 @@ main(int argc, char *argv[])
 static void
 dropinit(FILE *fp, const char *str, long n)
 {
-	char buf[BUFSIZ];
-	long i = 0;
+	char *buf = NULL;
+	size_t size = 0;
+	ssize_t len;
+	unsigned long i = 0;
 
-	while(i < n && fgets(buf, sizeof buf, fp))
-		if(buf[strlen(buf)-1] == '\n')
+	while(i < n && ((len = agetline(&buf, &size, fp) != -1)))
+		if(len && buf[len - 1] == '\n')
 			i++;
+	free(buf);
 	concat(fp, str, stdout, "<stdout>");
 }
 
 static void
 taketail(FILE *fp, const char *str, long n)
 {
-	char **ring;
+	char **ring = NULL;
 	long i, j;
 	size_t *size = NULL;
 
 	if(!(ring = calloc(n, sizeof *ring)) || !(size = calloc(n, sizeof *size)))
 		eprintf("calloc:");
-	for(i = j = 0; afgets(&ring[i], &size[i], fp); i = j = (i+1)%n)
+	for(i = j = 0; agetline(&ring[i], &size[i], fp) != -1; i = j = (i + 1) % n)
 		;
 	if(ferror(fp))
 		eprintf("%s: read error:", str);

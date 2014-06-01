@@ -64,7 +64,7 @@ fold(FILE *fp, long width)
 	char *buf = NULL;
 	size_t size = 0;
 
-	while(afgets(&buf, &size, fp))
+	while(agetline(&buf, &size, fp) != -1)
 		foldline(buf, width);
 	free(buf);
 }

@@ -50,7 +50,7 @@ cryptcheck(char *sumfile, int argc, char *argv[],
 	else if(!(cfp = fopen(sumfile, "r")))
 		eprintf("fopen %s:", sumfile);
 
-	while(afgets(&line, &bufsiz, cfp)) {
+	while(agetline(&line, &bufsiz, cfp) != -1) {
 		if(!(file = strstr(line, "  "))) {
 			formatsucks++;
 			continue;

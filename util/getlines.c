@@ -10,10 +10,10 @@ void
 getlines(FILE *fp, struct linebuf *b)
 {
 	char *line = NULL, **nline;
-	size_t size = 0;
-	size_t linelen;
+	size_t size = 0, linelen;
+	ssize_t len;
 
-	while(afgets(&line, &size, fp)) {
+	while((len = agetline(&line, &size, fp)) != -1) {
 		if(++b->nlines > b->capacity) {
 			b->capacity += 512;
 			nline = realloc(b->lines, b->capacity * sizeof(*b->lines));
@@ -21,10 +21,10 @@ getlines(FILE *fp, struct linebuf *b)
 				eprintf("realloc:");
 			b->lines = nline;
 		}
-		if(!(b->lines[b->nlines-1] = malloc((linelen = strlen(line)+1))))
+		linelen = len + 1;
+		if(!(b->lines[b->nlines-1] = malloc(linelen)))
 			eprintf("malloc:");
 		memcpy(b->lines[b->nlines-1], line, linelen);
 	}
 	free(line);
 }
-

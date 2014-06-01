@@ -160,7 +160,7 @@ main(int argc, char *argv[])
 		mapfunc = maptoset;
 	}
 
-	while(afgets(&buf, &size, stdin))
+	while(agetline(&buf, &size, stdin) != -1)
 		mapfunc(mappings, buf);
 	free(buf);
 	if(ferror(stdin))
