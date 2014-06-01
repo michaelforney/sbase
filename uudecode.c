@@ -173,4 +173,5 @@ uudecode(FILE *fp, FILE *outfp)
 	afgets(&bufb, &n, fp);
 	if (strnlen(bufb, 3) < 3 || strncmp(bufb, "end", 3) != 0 || bufb[3] != '\n')
 		eprintf("invalid uudecode footer \"end\" not found\n");
+	free(bufb);
 }

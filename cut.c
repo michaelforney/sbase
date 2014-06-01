@@ -96,8 +96,8 @@ seek(const char *s, size_t pos, size_t *prev, size_t count)
 static void
 cut(FILE *fp)
 {
-	static char *buf = NULL;
-	static size_t size = 0;
+	char *buf = NULL;
+	size_t size = 0;
 	char *s;
 	size_t i, n, p;
 	Range *r;
@@ -123,6 +123,7 @@ cut(FILE *fp)
 		}
 		putchar('\n');
 	}
+	free(buf);
 }
 
 int
