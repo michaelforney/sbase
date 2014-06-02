@@ -16,7 +16,7 @@ main(int argc, char *argv[])
 {
 	bool aflag = false;
 	char buf[BUFSIZ];
-	int i, nfps = 1;
+	int i, nfps;
 	size_t n;
 	FILE **fps = NULL;
 
@@ -28,16 +28,15 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(!(fps = malloc(sizeof *fps)))
-		eprintf("malloc:");
-	fps[nfps-1] = stdout;
+	nfps = argc + 1;
+	if(!(fps = calloc(nfps, sizeof *fps)))
+		eprintf("calloc:");
 
-	for(; argc > 0; argc--, argv++) {
-		if(!(fps = realloc(fps, ++nfps * sizeof *fps)))
-			eprintf("realloc:");
-		if(!(fps[nfps-1] = fopen(argv[0], aflag ? "a" : "w")))
-			eprintf("fopen %s:", argv[0]);
-	}
+	for(i = 0; argc > 0; argc--, argv++, i++)
+		if(!(fps[i] = fopen(*argv, aflag ? "a" : "w")))
+			eprintf("fopen %s:", *argv);
+	fps[i] = stdout;
+
 	while((n = fread(buf, 1, sizeof buf, stdin)) > 0) {
 		for(i = 0; i < nfps; i++) {
 			if(fwrite(buf, 1, n, fps[i]) != n)
