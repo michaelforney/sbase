@@ -26,8 +26,8 @@ int
 main(int argc, char *argv[])
 {
 	long i, l, col;
-	size_t maxlen = 0;
-	char *space;
+	size_t len;
+	int maxlen = 0;
 	struct winsize w;
 	FILE *fp;
 
@@ -59,7 +59,7 @@ main(int argc, char *argv[])
 	}
 
 	for(l = 0; l < b.nlines; ++l) {
-		size_t len = strlen(b.lines[l]);
+		len = strlen(b.lines[l]);
 		if(len > 0 && b.lines[l][len-1] == '\n')
 			b.lines[l][--len] = '\0';
 		if(len > maxlen)
@@ -76,21 +76,16 @@ main(int argc, char *argv[])
 		return EXIT_SUCCESS;
 	}
 
-	if(!(space = malloc(maxlen + 2)))
-		eprintf("malloc:");
-	memset(space, ' ', maxlen + 1);
-	space[maxlen + 1] = '\0';
-
 	n_rows = (b.nlines + (n_columns - 1)) / n_columns;
 	for(i = 0; i < n_rows; ++i) {
 		for(l = i, col = 1; l < b.nlines; l += n_rows, ++col) {
+			len = strlen(b.lines[l]);
 			fputs(b.lines[l], stdout);
 			if(col < n_columns)
-				fputs(space + strlen(b.lines[l]), stdout);
+				printf("%*s", maxlen + 1 - (int)len, "");
 		}
 		fputs("\n", stdout);
 	}
-	free(space);
 
 	return EXIT_SUCCESS;
 }
