@@ -39,7 +39,7 @@ main(int argc, char *argv[])
 		dsc.fp = stdin;
 		expand(&dsc, tabstop);
 	} else {
-		for (; argc > 0; argc--) {
+		for (; argc > 0; argc--, argv++) {
 			if (!(fp = fopen(*argv, "r"))) {
 				weprintf("fopen %s:", *argv);
 				continue;
@@ -48,7 +48,6 @@ main(int argc, char *argv[])
 			dsc.fp = fp;
 			expand(&dsc, tabstop);
 			fclose(fp);
-			argv++;
 		}
 	}
 	return EXIT_SUCCESS;
