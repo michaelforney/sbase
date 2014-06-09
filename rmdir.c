@@ -15,15 +15,18 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	argv++;;
-	if(!*argv)
+	ARGBEGIN {
+	default:
+		usage();
+	} ARGEND;
+
+	if (argc < 1)
 		usage();
 
-	while(*argv) {
-		if(rmdir(*argv++) == -1)
+	for(; argc > 0; argc--, argv++)
+		if(rmdir(argv[0]) == -1)
 			fprintf(stderr, "rmdir: '%s': %s\n",
-					argv[-1], strerror(errno));
-	}
+				argv[0], strerror(errno));
 
 	return EXIT_SUCCESS;
 }
