@@ -1,0 +1,25 @@
+.TH EXPAND 1 sbase\-VERSION
+.SH NAME
+unexpand \- convert blanks to tabs
+.SH SYNOPSIS
+.B unexpand
+.RB [ \-a ]
+.RB [ \-t
+.IR n ]
+.RI [ file ...]
+.SH DESCRIPTION
+unexpand processes the named files or the standard input, writing the
+standard output with consecutive blanks (spaces and tabs) converted
+into tabs. Backspace characters are preserved into the output and
+decrement the column count for tab calculations.
+.SH OPTIONS
+.TP
+.BI \-a
+convert blanks to tabs everywhere, not just at the start of lines
+.TP
+.BI \-t " n"
+set tab size to
+.I n
+spaces (default: 8)
+.SH SEE ALSO
+.IR expand (1)

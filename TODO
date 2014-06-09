@@ -11,8 +11,6 @@ test [expression...]
 tr:
 	support for character classes [:alnum:]
 
-unexpand [-a] [-t N] [file...]
-
 od/hd
 
 uuencode, uudecode:

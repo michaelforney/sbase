@@ -89,6 +89,7 @@ SRC = \
 	uudecode.c \
 	uuencode.c \
 	uname.c    \
+	unexpand.c \
 	uniq.c     \
 	unlink.c   \
 	seq.c      \
