@@ -1,6 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 #include <stddef.h>
-#include <sys/stat.h>
+#include <sys/types.h>
 #include "arg.h"
 
 #define UTF8_POINT(c) (((c) & 0xc0) != 0x80)
