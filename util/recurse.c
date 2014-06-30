@@ -13,26 +13,26 @@
 void
 recurse(const char *path, void (*fn)(const char *))
 {
-	char buf[PATH_MAX], *p;
+	char buf[PATH_MAX];
 	struct dirent *d;
 	struct stat st;
 	DIR *dp;
 
-	if(lstat(path, &st) == -1 || !S_ISDIR(st.st_mode)) {
+	if (lstat(path, &st) == -1 || S_ISDIR(st.st_mode) == 0)
 		return;
-	} else if(!(dp = opendir(path))) {
-		eprintf("opendir %s:", path);
-	}
 
-	while((d = readdir(dp))) {
+	if (!(dp = opendir(path)))
+		eprintf("opendir %s:", path);
+
+	while ((d = readdir(dp))) {
 		if (strcmp(d->d_name, ".") == 0 ||
 		    strcmp(d->d_name, "..") == 0)
 			continue;
-		strlcpy(buf, path, sizeof(buf));
-		p = strrchr(buf, '\0');
-		/* remove all trailing slashes */
-		while (--p >= buf && *p == '/') *p ='\0';
-		strlcat(buf, "/", sizeof(buf));
+		if (strlcpy(buf, path, sizeof(buf)) >= sizeof(buf))
+			eprintf("path too long\n");
+		if (buf[strlen(buf) - 1] != '/')
+			if (strlcat(buf, "/", sizeof(buf)) >= sizeof(buf))
+				eprintf("path too long\n");
 		if (strlcat(buf, d->d_name, sizeof(buf)) >= sizeof(buf))
 			eprintf("path too long\n");
 		fn(buf);
