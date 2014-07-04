@@ -79,15 +79,11 @@ drawcal(int year, int month, int day, int ncols, int nmons, int fday)
 static int
 dayofweek(int year, int month, int day, int fday)
 {
-	int a, y, m, d;
+	static int t[] = { 0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4 };
 
-	month++;
-	a = (14 - month) / 12;
-	y = year + 4800 - a;
-	m = month + 12 * a - 3;
-	d = (day + (153 * m + 2) / 5 + 365 * y + y / 4 - y / 100 + y \
-			/ 400 - 32045 + 1) % 7;
-	return (fday > d)? (7 - d) : (d - fday);
+	day += 7 - fday;
+	year -= month < 2;
+	return (year + year / 4 - year / 100 + year / 400 + t[month] + day) % 7;
 }
 
 static bool
