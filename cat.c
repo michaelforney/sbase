@@ -30,7 +30,7 @@ main(int argc, char *argv[])
 		for(i = 0; i < argc; i++) {
 			p = argv[i];
 			if (argv[i][0] == '-')
-				p = "/dev/stdin";
+				p = "/dev/fd/0";
 			if(!(fp = fopen(p, "r"))) {
 				weprintf("fopen %s:", argv[i]);
 				continue;
