@@ -93,15 +93,11 @@ dayofweek(int year, int month, int day, int fday)
 static bool
 isleap(int year)
 {
-	bool leap = false;
-
-	if(year % 4 == 0)
-		leap = true;
-	if(year % 100 == 0)
-		leap = false;
 	if(year % 400 == 0)
-		leap = true;
-	return leap;
+		return true;
+	if(year % 100 == 0)
+		return false;
+	return (year % 4 == 0);
 }
 
 static void
