@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <libgen.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,8 +21,8 @@ main(int argc, char *argv[])
 {
 	char *template = "tmp.XXXXXXXXXX";
 	char *tmpdir = "/tmp", *p;
-	char tmppath[PATH_MAX];
-	int fd, r;
+	char path[PATH_MAX], tmp[PATH_MAX];
+	int fd;
 
 	ARGBEGIN {
 	case 'd':
@@ -42,24 +43,35 @@ main(int argc, char *argv[])
 	if ((p = getenv("TMPDIR")))
 		tmpdir = p;
 
-	r = snprintf(tmppath, sizeof(tmppath),
-		     "%s/%s", tmpdir, template);
-	if (r >= sizeof(tmppath) || r < 0)
+	if (strlcpy(tmp, template, sizeof(tmp)) >= sizeof(tmp))
 		eprintf("path too long\n");
+	p = dirname(tmp);
+	if (p[0] != '.') {
+		if (strlcpy(path, template, sizeof(path)) >= sizeof(path))
+			eprintf("path too long\n");
+	} else {
+		if (strlcpy(path, tmpdir, sizeof(path)) >= sizeof(path))
+			eprintf("path too long\n");
+		if (strlcat(path, "/", sizeof(path)) >= sizeof(path))
+			eprintf("path too long\n");
+		if (strlcat(path, template, sizeof(path)) >= sizeof(path))
+			eprintf("path too long\n");
+	}
+
 	if (dflag) {
-		if (!mkdtemp(tmppath)) {
+		if (!mkdtemp(path)) {
 			if (!qflag)
-				eprintf("mkdtemp %s:", tmppath);
+				eprintf("mkdtemp %s:", path);
 			exit(EXIT_FAILURE);
 		}
 	} else {
-		if ((fd = mkstemp(tmppath)) < 0) {
+		if ((fd = mkstemp(path)) < 0) {
 			if (!qflag)
-				eprintf("mkstemp %s:", tmppath);
+				eprintf("mkstemp %s:", path);
 			exit(EXIT_FAILURE);
 		}
 		close(fd);
 	}
-	puts(tmppath);
+	puts(path);
 	return EXIT_SUCCESS;
 }
