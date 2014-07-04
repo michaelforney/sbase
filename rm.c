@@ -28,8 +28,12 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc < 1)
-		usage();
+	if (argc < 1) {
+		if (rm_fflag == false)
+			usage();
+		else
+			return EXIT_SUCCESS;
+	}
 
 	for(; argc > 0; argc--, argv++)
 		rm(argv[0]);
