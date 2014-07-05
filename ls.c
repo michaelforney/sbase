@@ -43,7 +43,7 @@ static bool many;
 static void
 usage(void)
 {
-	eprintf("usage: %s [-adFilrtU] [FILE...]\n", argv0);
+	eprintf("usage: %s [-1adFilrtU] [FILE...]\n", argv0);
 }
 
 int
@@ -53,6 +53,9 @@ main(int argc, char *argv[])
 	Entry *ents;
 
 	ARGBEGIN {
+	case '1':
+		/* ignore */
+		break;
 	case 'a':
 		aflag = true;
 		break;
