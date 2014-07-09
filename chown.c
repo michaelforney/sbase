@@ -47,18 +47,22 @@ main(int argc, char *argv[])
 	if(owner && *owner) {
 		errno = 0;
 		pw = getpwnam(owner);
-		if(errno != 0)
-			eprintf("getpwnam %s:", owner);
-		else if(!pw)
-			eprintf("getpwnam %s: no such user\n", owner);
+		if (!pw) {
+			if(errno != 0)
+				eprintf("getpwnam %s:", owner);
+			else
+				eprintf("getpwnam %s: no such user\n", owner);
+		}
 	}
 	if(group && *group) {
 		errno = 0;
 		gr = getgrnam(group);
-		if(errno != 0)
-			eprintf("getgrnam %s:", group);
-		else if(!gr)
-			eprintf("getgrnam %s: no such group\n", group);
+		if (!gr) {
+			if(errno != 0)
+				eprintf("getgrnam %s:", group);
+			else
+				eprintf("getgrnam %s: no such group\n", group);
+		}
 	}
 	for(; argc > 0; argc--, argv++)
 		chownpwgr(argv[0]);
