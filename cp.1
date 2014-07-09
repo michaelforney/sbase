@@ -8,7 +8,7 @@ cp \- copy files and directories
 .RI [ name ]
 .P
 .B cp
-.RB [ \-Rr ]
+.RB [ \-adpRr ]
 .RI [ file ...]
 .RI [ directory ]
 .SH DESCRIPTION
@@ -16,6 +16,16 @@ cp \- copy files and directories
 copies a given file, naming it the given name.  If multiple files are listed
 they will be copied into the given directory.
 .SH OPTIONS
+.TP
+.B \-a
+preserve mode, timestamp, links and permissions.
+Implies \-d, \-p, \-r.
+.TP
+.B \-d
+don't dereference links. preserve links.
+.TP
+.B \-p
+preserve mode, timestamp, links and permissions.
 .TP
 .B \-f
 if an existing destination file cannot be opened, remove it and try again.

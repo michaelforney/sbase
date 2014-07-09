@@ -8,7 +8,7 @@
 static void
 usage(void)
 {
-	eprintf("usage: %s [-fRr] source... dest\n", argv0);
+	eprintf("usage: %s [-adfpRr] source... dest\n", argv0);
 }
 
 int
@@ -17,6 +17,18 @@ main(int argc, char *argv[])
 	struct stat st;
 
 	ARGBEGIN {
+	case 'a':
+		cp_aflag = true; /* implies -dpr */
+		cp_dflag = true;
+		cp_pflag = true;
+		cp_rflag = true;
+		break;
+	case 'd':
+		cp_dflag = true;
+		break;
+	case 'p':
+		cp_pflag = true;
+		break;
 	case 'f':
 		cp_fflag = true;
 		break;
