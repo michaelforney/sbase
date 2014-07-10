@@ -18,7 +18,7 @@ static int ret = EXIT_SUCCESS;
 static void
 usage(void)
 {
-	eprintf("usage: %s [-r] [owner][:[group]] file...\n", argv0);
+	eprintf("usage: %s [-Rr] [owner][:[group]] file...\n", argv0);
 }
 
 int

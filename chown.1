@@ -3,13 +3,16 @@
 chown \- change file ownership
 .SH SYNOPSIS
 .B chown
-.RB [ \-r ]
+.RB [ \-Rr ]
 .RI [ owner ][: group ]
 .RI [ file ...]
 .SH DESCRIPTION
 .B chown
 changes the user or group ownership for the given files.
 .SH OPTIONS
+.TP
+.B \-R
+equivalent to -r.
 .TP
 .B \-r
 change directory ownership recursively.
