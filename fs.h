@@ -6,6 +6,7 @@ extern bool cp_dflag;
 extern bool cp_fflag;
 extern bool cp_pflag;
 extern bool cp_rflag;
+extern bool cp_vflag;
 
 extern bool rm_fflag;
 extern bool rm_rflag;

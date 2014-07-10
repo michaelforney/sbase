@@ -8,7 +8,7 @@
 static void
 usage(void)
 {
-	eprintf("usage: %s [-adfpRr] source... dest\n", argv0);
+	eprintf("usage: %s [-adfpRrv] source... dest\n", argv0);
 }
 
 int
@@ -35,6 +35,9 @@ main(int argc, char *argv[])
 	case 'R':
 	case 'r':
 		cp_rflag = true;
+		break;
+	case 'v':
+		cp_vflag = true;
 		break;
 	default:
 		usage();

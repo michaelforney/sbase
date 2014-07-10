@@ -8,7 +8,7 @@ cp \- copy files and directories
 .RI [ name ]
 .P
 .B cp
-.RB [ \-adpRr ]
+.RB [ \-adpRrv ]
 .RI [ file ...]
 .RI [ directory ]
 .SH DESCRIPTION
@@ -25,7 +25,7 @@ Implies \-d, \-p, \-r.
 don't dereference links. preserve links.
 .TP
 .B \-p
-preserve mode, timestamp, links and permissions.
+preserve mode, timestamp and permissions.
 .TP
 .B \-f
 if an existing destination file cannot be opened, remove it and try again.
@@ -36,3 +36,7 @@ equivalent to -r.
 .B \-r
 copies directories recursively.  If this flag is not specified, directories are
 not copied.
+.TP
+.B \-v
+print names of source and destination per file to stdout. In the format:
+"source \-> destination".

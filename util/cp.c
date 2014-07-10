@@ -20,6 +20,7 @@ bool cp_dflag = false;
 bool cp_fflag = false;
 bool cp_pflag = false;
 bool cp_rflag = false;
+bool cp_vflag = false;
 
 int
 cp(const char *s1, const char *s2)
@@ -38,6 +39,9 @@ cp(const char *s1, const char *s2)
 		r = lstat(s1, &st);
 	else
 		r = stat(s1, &st);
+
+	if(cp_vflag)
+		printf("'%s' -> '%s'\n", s1, s2);
 
 	if(r == 0) {
 		if(cp_dflag == true && S_ISLNK(st.st_mode)) {
@@ -86,7 +90,6 @@ cp(const char *s1, const char *s2)
 			free(ns1);
 			free(ns2);
 			goto preserve;
-			return 0;
 		}
 	}
 	if(!(f1 = fopen(s1, "r")))
