@@ -4,19 +4,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include "util.h"
 
 static void
 usage(void)
 {
-	eprintf("usage: %s [-fs] target linkname\n", argv0);
+	eprintf("usage: %s [-fs] target [linkname]\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
 	int (*flink)(const char *, const char *);
-	char *fname;
+	char *fname, *to;
 	bool sflag = false;
 	bool fflag = false;
 
@@ -31,12 +32,24 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	flink = sflag ? symlink : link;
-	fname = sflag ? "symlink" : "link";
+	if(sflag) {
+		flink = symlink;
+		fname = "symlink";
+	} else {
+		flink = link;
+		fname = "link";
+	}
+
+	if(argc < 2) {
+		if((to = strrchr(argv[0], '/')))
+			to++;
+	} else {
+		to = argv[1];
+	}
 
 	if (fflag == true)
 		remove(argv[1]);
-	if (flink(argv[0], argv[1]) < 0)
+	if (flink(argv[0], to) < 0)
 		eprintf("%s:", fname);
 
 	return EXIT_SUCCESS;
