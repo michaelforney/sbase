@@ -3,7 +3,7 @@
 tr \- translate characters
 .SH SYNOPSIS
 .B tr
-.RB [ \-d ]
+.RB [ \-d ] [ \-c ]
 .RB set1
 .P
 .B tr
@@ -13,6 +13,9 @@ tr \- translate characters
 .TP
 .B \-d
 For compatibility. If given, characters in set1 will be deleted from the input and specifying set2 will result in an error.
+.B \-c
+Complementary, causes the specified character set to be inverted, this is all the characters not specified belong to it.
+It only works in conjunction with \-d, because order doesn't make much sense with translation.
 .SH DESCRIPTION
 .B tr
 reads input from stdin replacing every character in
@@ -50,9 +53,15 @@ If set1 is longer than set2
 .B tr
 will map all the remaining characters to the last one in set2. In case set2 is longer than set1, the remaining characters from set2 will be ignored.
 .B
+Character escape sequences, be them characters or octal numbers, are done preceding the token with a "\\". You may specify three digits or less for it,
+digits will stop being read when a non-octal character or when three characters are read.
+.B
+Use "A-B" for ordered sets fom A to B.
+.B
 .SH NOTES
 .B tr
-is Unicode-aware but does not yet handle character classes (e.g. [:alnum:] or [:digit:]).
+is Unicode-aware, but only if you don't specify characters in octal (for example \\012), because else it is not predictable. Does not support character
+classes.
 .SH SEE ALSO
 .IR sed(1)
 .IR awk(1)
