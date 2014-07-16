@@ -204,7 +204,7 @@ is_mapping_wide(const char *set1, const char *set2)
 			set_state_defaults(&ss2);
 			ss2.s = (char *) set2;
 			/* if the character returned is from an octal triplet, it might be null
- 				and still need to continue */
+			 * and still need to continue */
 			while((wc1 = (unsigned char) get_next_char(&ss1)) || ss1.prev_was_octal ) {
 				if(!(wc2 = (unsigned char) get_next_char(&ss2)))
 					wc2 = last_wc2;
