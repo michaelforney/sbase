@@ -282,7 +282,7 @@ output(Entry *ent)
 		fmt = "%b %d %H:%M";
 
 	strftime(buf, sizeof buf, fmt, localtime(&ent->mtime));
-	printf("%s %2ld %-4s %-5s %6lu %s %s%s", mode, (long)ent->nlink, pwname,
+	printf("%s %4ld %-8.8s %-8.8s %10lu %s %s%s", mode, (long)ent->nlink, pwname,
 	       grname, (unsigned long)ent->size, buf, ent->name, indicator(ent->mode));
 	if(S_ISLNK(ent->mode)) {
 		if((len = readlink(ent->name, buf, sizeof buf)) == -1)
