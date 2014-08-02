@@ -105,16 +105,24 @@ cp(const char *s1, const char *s2)
 		}
 	}
 
-	if(!(f1 = fopen(s1, "r")))
-		eprintf("fopen %s:", s1);
+	if(!(f1 = fopen(s1, "r"))) {
+		weprintf("fopen %s:", s1);
+		cp_status = EXIT_FAILURE;
+		return 0;
+	}
 
 	if(!(f2 = fopen(s2, "w"))) {
 		if (cp_fflag == true) {
 			unlink(s2);
-			if(!(f2 = fopen(s2, "w")))
-				eprintf("fopen %s:", s2);
+			if(!(f2 = fopen(s2, "w"))) {
+				weprintf("fopen %s:", s2);
+				cp_status = EXIT_FAILURE;
+				return 0;
+			}
 		} else {
-			eprintf("fopen %s:", s2);
+			weprintf("fopen %s:", s2);
+			cp_status = EXIT_FAILURE;
+			return 0;
 		}
 	}
 	concat(f1, s1, f2, s2);
