@@ -172,7 +172,7 @@ linecmp(const char **a, const char **b)
 static int
 parse_flags(char **s, int *flags, int bflag)
 {
-	while(isalpha(**s))
+	while(isalpha((int)**s))
 		switch(*((*s)++)) {
 		case 'b':
 			*flags |= bflag;

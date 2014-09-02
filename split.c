@@ -41,7 +41,7 @@ main(int argc, char *argv[])
 		size = strtoull(tmp, &end, 10);
 		if(*end == '\0')
 			break;
-		switch(toupper(*end)) {
+		switch(toupper((int)*end)) {
 		case 'K':
 			scale = 1024;
 			break;

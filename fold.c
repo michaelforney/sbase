@@ -75,21 +75,23 @@ foldline(const char *str, long width)
 	bool space;
 	long col, j;
 	size_t i = 0, n = 0;
+	int c;
 
 	do {
 		space = false;
 		for(j = i, col = 0; str[j] && col <= width; j++) {
-			if(!UTF8_POINT(str[j]) && !bflag)
+			c = str[j];
+			if(!UTF8_POINT(c) && !bflag)
 				continue;
-			if(sflag && isspace(str[j])) {
+			if(sflag && isspace(c)) {
 				space = true;
 				n = j+1;
 			}
 			else if(!space)
 				n = j;
 
-			if(!bflag && iscntrl(str[j]))
-				switch(str[j]) {
+			if(!bflag && iscntrl(c))
+				switch(c) {
 				case '\b':
 					col--;
 					break;
