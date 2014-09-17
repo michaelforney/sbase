@@ -60,7 +60,7 @@ dropinit(FILE *fp, const char *str, long n)
 	ssize_t len;
 	unsigned long i = 0;
 
-	while(i < n && ((len = agetline(&buf, &size, fp) != -1)))
+	while(i < n && ((len = agetline(&buf, &size, fp)) != -1))
 		if(len && buf[len - 1] == '\n')
 			i++;
 	free(buf);
