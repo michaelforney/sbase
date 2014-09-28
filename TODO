@@ -4,8 +4,6 @@ expr [expression]
 
 id [-ruGgn] username
 
-printf format [argument...]
-
 test [expression...]
 
 tr:

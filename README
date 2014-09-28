@@ -43,6 +43,7 @@ nl
 nohup
 paste
 printenv
+printf
 pwd
 readlink
 renice
