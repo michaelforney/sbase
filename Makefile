@@ -66,6 +66,7 @@ SRC = \
 	nohup.c    \
 	paste.c    \
 	printenv.c \
+	printf.c   \
 	pwd.c      \
 	readlink.c \
 	renice.c   \
