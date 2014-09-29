@@ -38,6 +38,7 @@ SRC = \
 	chroot.c   \
 	cksum.c    \
 	cmp.c      \
+	col.c      \
 	cols.c     \
 	comm.c     \
 	cp.c       \
