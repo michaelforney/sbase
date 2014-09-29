@@ -25,6 +25,7 @@ du
 echo
 env
 expand
+expr
 false
 fold
 grep

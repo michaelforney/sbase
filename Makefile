@@ -48,6 +48,7 @@ SRC = \
 	echo.c     \
 	env.c      \
 	expand.c   \
+	expr.c     \
 	false.c    \
 	fold.c     \
 	grep.c     \

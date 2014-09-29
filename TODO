@@ -1,7 +1,5 @@
 diff [-ru] file1 file2
 
-expr [expression]
-
 id [-ruGgn] username
 
 test [expression...]
