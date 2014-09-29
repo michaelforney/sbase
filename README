@@ -15,6 +15,7 @@ chown
 chroot
 cksum
 cmp
+col
 cols
 comm
 cp
