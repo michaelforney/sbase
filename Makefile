@@ -170,7 +170,7 @@ sbase-box: $(SRC) util.a
 	@for f in $(SRC); do echo "else if(!strcmp(s, \"`basename $$f .c`\")) `basename $$f .c`_main(argc, argv);" >> build/$@.c; done
 	@echo 'else {' >> build/$@.c
 	@for f in $(SRC); do echo "printf(\"`basename $$f .c`\"); putchar(' ');" >> build/$@.c; done
-	@echo "putchar(0xa); }; return EXIT_SUCCESS; }" >> build/$@.c
+	@echo "putchar(0xa); }; return 0; }" >> build/$@.c
 	@echo LD $@
 	@$(LD) -o $@ build/*.c util.a $(CFLAGS) $(LDFLAGS)
 	@rm -r build
