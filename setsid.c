@@ -32,7 +32,7 @@ main(int argc, char *argv[])
 		case 0:
 			break;
 		default:
-			return EXIT_SUCCESS;
+			return 0;
 		}
 	}
 	if(setsid() < 0)

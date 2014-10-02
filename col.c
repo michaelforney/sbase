@@ -280,7 +280,7 @@ main(int argc, char *argv[])
 		cur_col++;
 	}
 	if (max_line == 0)
-		exit(EXIT_SUCCESS);	/* no lines, so just exit */
+		exit(0);	/* no lines, so just exit */
 
 	/* goto the last line that had a character on it */
 	for (; l->l_next; l = l->l_next)
@@ -299,7 +299,7 @@ main(int argc, char *argv[])
 		/* missing a \n on the last line? */
 		nblank_lines = 2;
 	flush_blanks();
-	exit(EXIT_SUCCESS);
+	exit(0);
 }
 
 void

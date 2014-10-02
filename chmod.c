@@ -11,7 +11,7 @@ static void chmodr(const char *);
 static bool rflag = false;
 static char *modestr = "";
 static mode_t mask = 0;
-static int ret = EXIT_SUCCESS;
+static int ret = 0;
 
 static void
 usage(void)
@@ -67,14 +67,14 @@ chmodr(const char *path)
 
 	if(stat(path, &st) == -1) {
 		weprintf("stat %s:", path);
-		ret = EXIT_FAILURE;
+		ret = 1;
 		return;
 	}
 
 	m = parsemode(modestr, st.st_mode, mask);
 	if(chmod(path, m) == -1) {
 		weprintf("chmod %s:", path);
-		ret = EXIT_FAILURE;
+		ret = 1;
 	}
 	if(rflag)
 		recurse(path, chmodr);

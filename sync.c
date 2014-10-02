@@ -17,5 +17,5 @@ main(int argc, char *argv[])
 		usage();
 	sync();
 
-	return EXIT_SUCCESS;
+	return 0;
 }

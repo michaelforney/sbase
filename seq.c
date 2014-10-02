@@ -63,7 +63,7 @@ main(int argc, char *argv[])
 
 	dir = (step > 0) ? 1.0 : -1.0;
 	if(step == 0 || start * dir > end * dir)
-		return EXIT_FAILURE;
+		return 1;
 
 	if(fmt == ftmp) {
 		right = MAX(digitsright(starts),
@@ -85,7 +85,7 @@ main(int argc, char *argv[])
 	}
 	printf("\n");
 
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 static int

@@ -73,7 +73,7 @@ main(int argc, char *argv[])
 		for(l = 0; l < b.nlines; ++l) {
 			fputs(b.lines[l], stdout);
 		}
-		return EXIT_SUCCESS;
+		return 0;
 	}
 
 	n_rows = (b.nlines + (n_columns - 1)) / n_columns;
@@ -87,5 +87,5 @@ main(int argc, char *argv[])
 		fputs("\n", stdout);
 	}
 
-	return EXIT_SUCCESS;
+	return 0;
 }

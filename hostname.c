@@ -42,5 +42,5 @@ main(int argc, char *argv[])
 
 	free(host);
 
-	return EXIT_SUCCESS;
+	return 0;
 }

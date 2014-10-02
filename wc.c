@@ -57,7 +57,7 @@ main(int argc, char *argv[])
 		if (argc > 1)
 			output("total", tc, tl, tw);
 	}
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 void

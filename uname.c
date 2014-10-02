@@ -59,5 +59,5 @@ main(int argc, char *argv[])
 		putword(u.machine);
 	putchar('\n');
 
-	return EXIT_SUCCESS;
+	return 0;
 }

@@ -52,5 +52,5 @@ main(int argc, char *argv[])
 	if (flink(argv[0], to) < 0)
 		eprintf("%s:", fname);
 
-	return EXIT_SUCCESS;
+	return 0;
 }

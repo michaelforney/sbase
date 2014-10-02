@@ -37,7 +37,7 @@ main(int argc, char *argv[])
 		uuencode(fp, argv[1], argv[0]);
 		fclose(fp);
 	}
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 static void

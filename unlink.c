@@ -18,5 +18,5 @@ main(int argc, char *argv[])
 	if(unlink(argv[1]) == -1)
 		eprintf("unlink: '%s':", argv[1]);
 
-	return EXIT_SUCCESS;
+	return 0;
 }

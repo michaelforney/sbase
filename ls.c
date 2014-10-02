@@ -96,7 +96,7 @@ main(int argc, char *argv[])
 	for(i = 0; i < argc; i++)
 		ls(&ents[rflag ? argc-i-1 : i]);
 
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 static int

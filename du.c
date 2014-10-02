@@ -78,7 +78,7 @@ main(int argc, char *argv[])
 				print(n, xrealpath(argv[0], file));
 		}
 	}
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 static void

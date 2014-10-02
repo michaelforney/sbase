@@ -74,5 +74,5 @@ main(int argc, char *argv[])
 			eprintf("kill %d:", pid);
 	}
 
-	return EXIT_SUCCESS;
+	return 0;
 }

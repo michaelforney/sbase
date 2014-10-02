@@ -25,12 +25,12 @@ main(int argc, char *argv[])
 		while(*environ)
 			printf("%s\n", *environ++);
 
-		return EXIT_SUCCESS;
+		return 0;
 	}
 	while(*++argv) {
 		if((var = getenv(*argv)))
 			printf("%s\n", var);
 	}
 
-	return EXIT_SUCCESS;
+	return 0;
 }

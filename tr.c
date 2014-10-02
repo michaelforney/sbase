@@ -352,5 +352,5 @@ main(int argc, char *argv[])
 	if(ferror(stdin))
 		eprintf("<stdin>: read error:");
 
-	return EXIT_SUCCESS;
+	return 0;
 }

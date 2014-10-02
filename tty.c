@@ -22,5 +22,5 @@ main(int argc, char *argv[])
 
 	tty = ttyname(STDIN_FILENO);
 	puts(tty ? tty : "not a tty");
-	return tty ? EXIT_SUCCESS : EXIT_FAILURE;
+	return tty ? 0 : 1;
 }

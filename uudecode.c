@@ -58,7 +58,7 @@ main(int argc, char *argv[])
 	if (nfp)
 		fclose(nfp);
 
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 static FILE *

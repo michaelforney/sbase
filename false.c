@@ -4,5 +4,5 @@
 int
 main(void)
 {
-	return EXIT_FAILURE;
+	return 1;
 }

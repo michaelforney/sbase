@@ -96,7 +96,7 @@ main(int argc, char *argv[])
 	free(delim);
 	free(dsc);
 
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 static size_t

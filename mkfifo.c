@@ -31,5 +31,5 @@ main(int argc, char *argv[])
 	for(; argc > 0; argc--, argv++)
 		if(mkfifo(argv[0], mode) == -1)
 			eprintf("mkfifo %s:", argv[0]);
-	return EXIT_SUCCESS;
+	return 0;
 }

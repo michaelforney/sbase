@@ -54,7 +54,7 @@ main(int argc, char *argv[])
 			fclose(fp);
 		}
 	}
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 static wint_t

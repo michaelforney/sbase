@@ -28,5 +28,5 @@ main(int argc, char *argv[])
 	if(!nflag)
 		putchar('\n');
 
-	return EXIT_SUCCESS;
+	return 0;
 }

@@ -22,7 +22,7 @@ bool cp_fflag = false;
 bool cp_pflag = false;
 bool cp_rflag = false;
 bool cp_vflag = false;
-int cp_status = EXIT_SUCCESS;
+int cp_status = 0;
 
 int
 cp(const char *s1, const char *s2)
@@ -52,7 +52,7 @@ cp(const char *s1, const char *s2)
 					unlink(s2);
 				if(symlink(buf, s2) != 0) {
 					weprintf("%s: can't create '%s'\n", argv0, s2);
-					cp_status = EXIT_FAILURE;
+					cp_status = 1;
 					return 0;
 				}
 			}
@@ -98,7 +98,7 @@ cp(const char *s1, const char *s2)
 			unlink(s2);
 			if(mknod(s2, st.st_mode, st.st_rdev) < 0) {
 				weprintf("%s: can't create '%s':", argv0, s2);
-				cp_status = EXIT_FAILURE;
+				cp_status = 1;
 				return 0;
 			}
 			goto preserve;
@@ -107,7 +107,7 @@ cp(const char *s1, const char *s2)
 
 	if(!(f1 = fopen(s1, "r"))) {
 		weprintf("fopen %s:", s1);
-		cp_status = EXIT_FAILURE;
+		cp_status = 1;
 		return 0;
 	}
 
@@ -116,12 +116,12 @@ cp(const char *s1, const char *s2)
 			unlink(s2);
 			if(!(f2 = fopen(s2, "w"))) {
 				weprintf("fopen %s:", s2);
-				cp_status = EXIT_FAILURE;
+				cp_status = 1;
 				return 0;
 			}
 		} else {
 			weprintf("fopen %s:", s2);
-			cp_status = EXIT_FAILURE;
+			cp_status = 1;
 			return 0;
 		}
 	}
@@ -145,7 +145,7 @@ preserve:
 			r = chown(s2, st.st_uid, st.st_gid);
 		if(r == -1) {
 			weprintf("cp: can't preserve ownership of '%s':", s2);
-			cp_status = EXIT_FAILURE;
+			cp_status = 1;
 		}
 	}
 	return 0;

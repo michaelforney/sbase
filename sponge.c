@@ -36,5 +36,5 @@ main(int argc, char *argv[])
 	fclose(fp);
 	fclose(tmpfp);
 
-	return EXIT_SUCCESS;
+	return 0;
 }

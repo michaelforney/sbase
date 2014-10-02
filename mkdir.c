@@ -50,7 +50,7 @@ main(int argc, char *argv[])
 				eprintf("chmod %s:", argv[0]);
 	}
 
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 static void

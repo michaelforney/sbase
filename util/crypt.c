@@ -42,7 +42,7 @@ cryptcheck(char *sumfile, int argc, char *argv[],
 {
 	FILE *cfp, *fp;
 	char *line = NULL, *file, *p;
-	int r, nonmatch = 0, formatsucks = 0, noread = 0, ret = EXIT_SUCCESS;
+	int r, nonmatch = 0, formatsucks = 0, noread = 0, ret = 0;
 	size_t bufsiz = 0;
 
 	if(sumfile == NULL)
@@ -85,15 +85,15 @@ cryptcheck(char *sumfile, int argc, char *argv[],
 	free(line);
 	if(formatsucks > 0) {
 		weprintf("%d lines are improperly formatted\n", formatsucks);
-		ret = EXIT_FAILURE;
+		ret = 1;
 	}
 	if(noread > 0) {
 		weprintf("%d listed file could not be read\n", noread);
-		ret = EXIT_FAILURE;
+		ret = 1;
 	}
 	if(nonmatch > 0) {
 		weprintf("%d computed checksums did NOT match\n", nonmatch);
-		ret = EXIT_FAILURE;
+		ret = 1;
 	}
 	return ret;
 }
@@ -103,7 +103,7 @@ cryptmain(int argc, char *argv[],
 	  struct crypt_ops *ops, uint8_t *md, size_t sz)
 {
 	FILE *fp;
-	int ret = EXIT_SUCCESS;
+	int ret = 0;
 
 	if (argc == 0) {
 		cryptsum(ops, stdin, "<stdin>", md);
@@ -112,11 +112,11 @@ cryptmain(int argc, char *argv[],
 		for (; argc > 0; argc--) {
 			if((fp = fopen(*argv, "r")) == NULL) {
 				weprintf("fopen %s:", *argv);
-				ret = EXIT_FAILURE;
+				ret = 1;
 				continue;
 			}
 			if(cryptsum(ops, fp, *argv, md) == 1)
-				ret = EXIT_FAILURE;
+				ret = 1;
 			else
 				mdprint(md, *argv, sz);
 			fclose(fp);

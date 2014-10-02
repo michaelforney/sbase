@@ -32,11 +32,11 @@ main(int argc, char *argv[])
 		if (rm_fflag == false)
 			usage();
 		else
-			return EXIT_SUCCESS;
+			return 0;
 	}
 
 	for(; argc > 0; argc--, argv++)
 		rm(argv[0]);
 
-	return EXIT_SUCCESS;
+	return 0;
 }

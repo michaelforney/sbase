@@ -41,5 +41,5 @@ main(int argc, char *argv[])
 	strftime(buf, sizeof buf, fmt, now);
 	puts(buf);
 
-	return EXIT_SUCCESS;
+	return 0;
 }

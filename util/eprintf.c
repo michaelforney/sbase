@@ -16,7 +16,7 @@ eprintf(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	venprintf(EXIT_FAILURE, fmt, ap);
+	venprintf(1, fmt, ap);
 	va_end(ap);
 }
 

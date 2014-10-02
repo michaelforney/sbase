@@ -28,5 +28,5 @@ main(int argc, char *argv[])
 			fprintf(stderr, "rmdir: '%s': %s\n",
 				argv[0], strerror(errno));
 
-	return EXIT_SUCCESS;
+	return 0;
 }

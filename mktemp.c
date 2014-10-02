@@ -62,16 +62,16 @@ main(int argc, char *argv[])
 		if (!mkdtemp(path)) {
 			if (!qflag)
 				eprintf("mkdtemp %s:", path);
-			exit(EXIT_FAILURE);
+			exit(1);
 		}
 	} else {
 		if ((fd = mkstemp(path)) < 0) {
 			if (!qflag)
 				eprintf("mkstemp %s:", path);
-			exit(EXIT_FAILURE);
+			exit(1);
 		}
 		close(fd);
 	}
 	puts(path);
-	return EXIT_SUCCESS;
+	return 0;
 }

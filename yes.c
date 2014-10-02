@@ -19,5 +19,5 @@ main(int argc, char *argv[])
 
 	for (;;)
 		puts(argc >= 1 ? argv[0] : "y");
-	return EXIT_FAILURE; /* should not reach */
+	return 1; /* should not reach */
 }

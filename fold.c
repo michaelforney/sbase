@@ -55,7 +55,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 static void

@@ -40,5 +40,5 @@ main(int argc, char *argv[])
 	while(environ && *environ)
 		printf("%s\n", *environ++);
 
-	return EXIT_SUCCESS;
+	return 0;
 }

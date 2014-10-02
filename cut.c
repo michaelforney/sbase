@@ -192,5 +192,5 @@ main(int argc, char *argv[])
 		}
 	}
 	freelist();
-	return EXIT_SUCCESS;
+	return 0;
 }

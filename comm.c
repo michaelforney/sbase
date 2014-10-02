@@ -63,7 +63,7 @@ main(int argc, char *argv[])
 		printline((2-diff) % 3, lines[MAX(0, diff)]);
 	}
 
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 static void
@@ -101,5 +101,5 @@ finish(int pos, FILE *f, char *name)
 	while(nextline(buf, sizeof(buf), f, name))
 		printline(pos, buf);
 
-	exit(EXIT_FAILURE);
+	exit(1);
 }

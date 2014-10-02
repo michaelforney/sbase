@@ -52,7 +52,7 @@ main(int argc, char *argv[])
 	}
 	if(not)
 		ret = !ret;
-	return ret ? EXIT_SUCCESS : EXIT_FAILURE;
+	return ret ? 0 : 1;
 }
 
 static bool

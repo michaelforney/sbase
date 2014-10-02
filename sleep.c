@@ -25,5 +25,5 @@ main(int argc, char *argv[])
 	seconds = estrtol(argv[0], 0);
 	while((seconds = sleep(seconds)) > 0)
 		;
-	return EXIT_SUCCESS;
+	return 0;
 }
