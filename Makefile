@@ -42,6 +42,7 @@ SRC = \
 	cols.c     \
 	comm.c     \
 	cp.c       \
+	csplit.c   \
 	cut.c      \
 	date.c     \
 	dirname.c  \
