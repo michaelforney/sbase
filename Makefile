@@ -128,7 +128,7 @@ cp.o mv.o rm.o: fs.h
 
 util.a: $(LIB)
 	@echo AR $@
-	@$(AR) -r -c $@ $(LIB)
+	@$(AR) -r -c $@ $?
 	@ranlib $@
 
 install: all
