@@ -19,6 +19,7 @@ col
 cols
 comm
 cp
+csplit
 cut
 date
 dirname
