@@ -2,8 +2,6 @@ diff [-ru] file1 file2
 
 id [-ruGgn] username
 
-test [expression...]
-
 tr:
 	support for character classes [:alnum:]
 

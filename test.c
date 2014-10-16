@@ -7,6 +7,12 @@
 #include <sys/stat.h>
 #include "util.h"
 
+static char *optexts[] = {
+	"-eq", "-ge", "-gt",
+	"-le", "-lt", "-ne",
+	"=", "!="
+};
+
 static bool unary(const char *, const char *);
 static bool binary(const char *, const char *, const char *);
 
@@ -23,6 +29,7 @@ int
 main(int argc, char *argv[])
 {
 	bool ret = false, not = false;
+	int i = LEN(optexts);
 
 	argv0 = argv[0];
 
@@ -32,7 +39,11 @@ main(int argc, char *argv[])
 			usage();
 		argc--;
 	}
-	if(argc > 1 && !strcmp(argv[1], "!")) {
+	if(argc == 4)
+	for(i = 0; i < LEN(optexts); i++)
+		if(strcmp(argv[2], optexts[i]) == 0)
+			break;
+	if(argc > 1 && !strcmp(argv[1], "!") && i == LEN(optexts)) {
 		not = true;
 		argv++;
 		argc--;
@@ -118,11 +129,6 @@ binary(const char *arg1, const char *op, const char *arg2)
 	int i;
 	long narg1, narg2;
 	enum operator { EQ, GE, GT, LE, LT, NE, STREQ, STRNE } oper;
-	char *optexts[] = {
-		"-eq", "-ge", "-gt",
-		"-le", "-lt", "-ne",
-		"=", "!="
-	};
 
 	for (i = 0; i < LEN(optexts); i++) {
 		if (strcmp(op, optexts[i]) != 0)
