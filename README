@@ -36,6 +36,7 @@ hostname
 kill
 link
 ln
+logname
 ls
 md5sum
 mkdir

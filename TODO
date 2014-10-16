@@ -13,7 +13,6 @@ find
 getconf
 join
 logger
-logname
 od
 patch
 pathchk

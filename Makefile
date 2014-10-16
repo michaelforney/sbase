@@ -59,6 +59,7 @@ SRC = \
 	kill.c     \
 	link.c     \
 	ln.c       \
+	logname.c  \
 	ls.c       \
 	md5sum.c   \
 	mkdir.c    \
