@@ -80,22 +80,22 @@ struct line_str {
 	int	l_max_col;		/* max column in the line */
 };
 
-LINE   *alloc_line(void);
-void	dowarn(int);
-void	flush_line(LINE *);
-void	flush_lines(int);
-void	flush_blanks(void);
-void	free_line(LINE *);
-void	usage(void);
-void   *xmalloc(void *, size_t);
+static LINE   *alloc_line(void);
+static void	dowarn(int);
+static void	flush_line(LINE *);
+static void	flush_lines(int);
+static void	flush_blanks(void);
+static void	free_line(LINE *);
+static void	usage(void);
+static void   *xmalloc(void *, size_t);
 
-CSET	last_set;		/* char_set of last char printed */
-LINE   *lines;
-int	compress_spaces;	/* if doing space -> tab conversion */
-int	fine;			/* if `fine' resolution (half lines) */
-int	max_bufd_lines;		/* max # lines to keep in memory */
-int	nblank_lines;		/* # blanks after last flushed line */
-int	no_backspaces;		/* if not to output any backspaces */
+static CSET	last_set;		/* char_set of last char printed */
+static LINE   *lines;
+static int	compress_spaces;	/* if doing space -> tab conversion */
+static int	fine;			/* if `fine' resolution (half lines) */
+static int	max_bufd_lines;		/* max # lines to keep in memory */
+static int	nblank_lines;		/* # blanks after last flushed line */
+static int	no_backspaces;		/* if not to output any backspaces */
 
 #define	PUTC(ch) \
 	if (putchar(ch) == EOF) \
@@ -302,7 +302,7 @@ main(int argc, char *argv[])
 	exit(0);
 }
 
-void
+static void
 flush_lines(int nflush)
 {
 	LINE *l;
@@ -328,7 +328,7 @@ flush_lines(int nflush)
  * is the number of half line feeds, otherwise it is the number of whole line
  * feeds.
  */
-void
+static void
 flush_blanks(void)
 {
 	int half, i, nb;
@@ -357,7 +357,7 @@ flush_blanks(void)
  * Write a line to stdout taking care of space to tab conversion (-h flag)
  * and character set shifts.
  */
-void
+static void
 flush_line(LINE *l)
 {
 	CHAR *c, *endc;
@@ -456,7 +456,7 @@ flush_line(LINE *l)
 
 static LINE *line_freelist;
 
-LINE *
+static LINE *
 alloc_line(void)
 {
 	LINE *l;
@@ -476,7 +476,7 @@ alloc_line(void)
 	return (l);
 }
 
-void
+static void
 free_line(LINE *l)
 {
 
@@ -484,7 +484,7 @@ free_line(LINE *l)
 	line_freelist = l;
 }
 
-void *
+static void *
 xmalloc(void *p, size_t size)
 {
 
@@ -493,13 +493,13 @@ xmalloc(void *p, size_t size)
 	return (p);
 }
 
-void
+static void
 usage(void)
 {
 	eprintf("usage: %s [-bfhx] [-l num]\n", argv0);
 }
 
-void
+static void
 dowarn(int line)
 {
 	warnx("warning: can't back up %s",

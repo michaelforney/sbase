@@ -15,22 +15,22 @@
 #include <regex.h>
 #include <err.h>
 
-struct val	*make_int(int);
-struct val	*make_str(char *);
-void		 free_value(struct val *);
-int		 is_integer(struct val *, int *);
-int		 to_integer(struct val *);
-void		 to_string(struct val *);
-int		 is_zero_or_null(struct val *);
-void		 nexttoken(int);
-void	 	 error(void);
-struct val	*eval6(void);
-struct val	*eval5(void);
-struct val	*eval4(void);
-struct val	*eval3(void);
-struct val	*eval2(void);
-struct val	*eval1(void);
-struct val	*eval0(void);
+static struct val	*make_int(int);
+static struct val	*make_str(char *);
+static void		free_value(struct val *);
+static int		is_integer(struct val *, int *);
+static int		to_integer(struct val *);
+static void		to_string(struct val *);
+static int		is_zero_or_null(struct val *);
+static void		nexttoken(int);
+static void		error(void);
+static struct val	*eval6(void);
+static struct val	*eval5(void);
+static struct val	*eval4(void);
+static struct val	*eval3(void);
+static struct val	*eval2(void);
+static struct val	*eval1(void);
+static struct val	*eval0(void);
 
 enum token {
 	OR, AND, EQ, LT, GT, ADD, SUB, MUL, DIV, MOD, MATCH, RP, LP,
@@ -49,11 +49,11 @@ struct val {
 	} u;
 };
 
-enum token	token;
-struct val     *tokval;
-char	      **av;
+static enum token	token;
+static struct val     *tokval;
+static char	      **av;
 
-struct val *
+static struct val *
 make_int(int i)
 {
 	struct val     *vp;
@@ -67,8 +67,7 @@ make_int(int i)
 	return vp;
 }
 
-
-struct val *
+static struct val *
 make_str(char *s)
 {
 	struct val     *vp;
@@ -81,8 +80,7 @@ make_str(char *s)
 	return vp;
 }
 
-
-void
+static void
 free_value(struct val *vp)
 {
 	if (vp->type == string)
@@ -90,9 +88,8 @@ free_value(struct val *vp)
 	free(vp);
 }
 
-
 /* determine if vp is an integer; if so, return it's value in *r */
-int
+static int
 is_integer(struct val *vp, int *r)
 {
 	char	       *s;
@@ -132,9 +129,8 @@ is_integer(struct val *vp, int *r)
 	return 1;
 }
 
-
 /* coerce to vp to an integer */
-int
+static int
 to_integer(struct val *vp)
 {
 	int		r;
@@ -152,9 +148,8 @@ to_integer(struct val *vp)
 	return 0;
 }
 
-
 /* coerce to vp to an string */
-void
+static void
 to_string(struct val *vp)
 {
 	char	       *tmp;
@@ -169,7 +164,7 @@ to_string(struct val *vp)
 	vp->u.s = tmp;
 }
 
-int
+static int
 is_zero_or_null(struct val *vp)
 {
 	if (vp->type == integer) {
@@ -180,7 +175,7 @@ is_zero_or_null(struct val *vp)
 	/* NOTREACHED */
 }
 
-void
+static void
 nexttoken(int pat)
 {
 	char	       *p;
@@ -219,14 +214,14 @@ nexttoken(int pat)
 	return;
 }
 
-void
+static void
 error(void)
 {
 	errx(2, "syntax error");
 	/* NOTREACHED */
 }
 
-struct val *
+static struct val *
 eval6(void)
 {
 	struct val     *v;
@@ -253,7 +248,7 @@ eval6(void)
 }
 
 /* Parse and evaluate match (regex) expressions */
-struct val *
+static struct val *
 eval5(void)
 {
 	regex_t		rp;
@@ -308,7 +303,7 @@ eval5(void)
 }
 
 /* Parse and evaluate multiplication and division expressions */
-struct val *
+static struct val *
 eval4(void)
 {
 	struct val     *l, *r;
@@ -347,7 +342,7 @@ eval4(void)
 }
 
 /* Parse and evaluate addition and subtraction expressions */
-struct val *
+static struct val *
 eval3(void)
 {
 	struct val     *l, *r;
@@ -375,7 +370,7 @@ eval3(void)
 }
 
 /* Parse and evaluate comparison expressions */
-struct val *
+static struct val *
 eval2(void)
 {
 	struct val     *l, *r;
@@ -448,7 +443,7 @@ eval2(void)
 }
 
 /* Parse and evaluate & expressions */
-struct val *
+static struct val *
 eval1(void)
 {
 	struct val     *l, *r;
@@ -471,7 +466,7 @@ eval1(void)
 }
 
 /* Parse and evaluate | expressions */
-struct val *
+static struct val *
 eval0(void)
 {
 	struct val     *l, *r;
