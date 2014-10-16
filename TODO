@@ -1,32 +1,28 @@
-diff [-ru] file1 file2
-
-id [-ruGgn] username
-
-tr:
-	support for character classes [:alnum:]
-
-od/hd
-
-uuencode, uudecode:
-	missing options for base64
-
-sed
-
-patch
-
-ed
-
-awk
-
-bc/dc
-
-fmt
-
-install
-
-find (bare minimum)
+The following list of commands is taken from the toybox roadmap[0] and
+has been stripped down accordingly.  Commands that belong to ubase[1] are
+not listed here as well as commands that fall outside the scope of sbase
+such as vi and sh are also not listed here.
 
 at
+awk
+bc
+csplit
+diff
+ed
+file
+find
+getconf
+join
+link
+logger
+logname
+od
+patch
+pathchk
+sed
+stty
+tabs
+tput
 
-For more commands that might need to be implemented
-refer to: http://pubs.opengroup.org/onlinepubs/9699919799/idx/utilities.html
+[0] http://landley.net/toybox/roadmap.html
+[1] http://git.suckless.org/ubase/
