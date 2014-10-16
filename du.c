@@ -16,6 +16,7 @@ static char file[PATH_MAX];
 static bool aflag = false;
 static bool sflag = false;
 static bool kflag = false;
+static bool hflag = false;
 
 static long du(const char *);
 static void print(long n, char *path);
@@ -53,6 +54,9 @@ main(int argc, char *argv[])
 	case 'k':
 		kflag = true;
 		break;
+	case 'h':
+		hflag = true;
+		break;
 	default:
 		usage();
 	} ARGEND;
@@ -82,9 +86,30 @@ main(int argc, char *argv[])
 }
 
 static void
+print_human(long n, char *path)
+{
+	long base = 1024;
+	long power = base;
+	char postfixes[] = {'B', 'K', 'M', 'G', 'T', 'P', 'E'};
+	int i = 0;
+
+	n = n * blksize;
+	while (n > power) {
+		power = power*base;
+		i++;
+	}
+
+	n = i ? n / (power / base) : n;
+	printf("%lu%c\t%s\n", n, postfixes[i], path);
+}
+
+static void
 print(long n, char *path)
 {
-	printf("%lu\t%s\n", n, path);
+	if (hflag)
+		print_human(n, path);
+	else
+		printf("%lu\t%s\n", n, path);
 }
 
 static char *
