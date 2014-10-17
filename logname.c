@@ -13,7 +13,7 @@ main(int argc, char *argv[])
 	if (argc != 1)
 		eprintf("usage: %s\n", argv0);
 	if ((login = getlogin()))
-		printf("%s\n", login);
+		puts(login);
 	else
 		eprintf("%s: no login name\n", argv0);
 	return 0;
