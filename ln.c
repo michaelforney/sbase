@@ -1,10 +1,11 @@
 /* See LICENSE file for copyright and license details. */
 #include <errno.h>
+#include <libgen.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
 #include "util.h"
 
 static void
@@ -32,7 +33,10 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(sflag) {
+	if (argc == 0 || argc > 2)
+		usage();
+
+	if (sflag) {
 		flink = symlink;
 		fname = "symlink";
 	} else {
@@ -40,17 +44,12 @@ main(int argc, char *argv[])
 		fname = "link";
 	}
 
-	if(argc < 2) {
-		if((to = strrchr(argv[0], '/')))
-			to++;
-	} else {
-		to = argv[1];
-	}
+	to = argc < 2 ? basename(argv[0]) : argv[1];
 
 	if (fflag == true)
-		remove(argv[1]);
+		remove(to);
 	if (flink(argv[0], to) < 0)
-		eprintf("%s:", fname);
+		eprintf("%s %s <- %s:", fname, argv[0], to);
 
 	return 0;
 }
