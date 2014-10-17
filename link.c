@@ -11,7 +11,7 @@ main(int argc, char *argv[])
 
 	if(argc != 3)
 		eprintf("usage: %s target linkname\n", argv0);
-	if (0 != link(argv[1], argv[2]))
+	if (link(argv[1], argv[2]) < 0)
 		eprintf("link:");
 	return 0;
 }
