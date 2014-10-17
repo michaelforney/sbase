@@ -1,164 +1,169 @@
 /* See LICENSE file for copyright and license details. */
+#include <sys/stat.h>
+#include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/stat.h>
 #include "util.h"
 
-static char *optexts[] = {
-	"-eq", "-ge", "-gt",
-	"-le", "-lt", "-ne",
-	"=", "!="
+static void
+stoi(char *s, int *a)
+{
+	char *p;
+	errno = 0;
+	*a = strtol(s, &p, 0);
+	if(errno || !*s || *p)
+		enprintf(2, "bad integer %s\n", s);
+}
+
+static bool unary_b(char *s) { struct stat buf; if( stat(s, &buf)) return 0; return S_ISBLK  (buf.st_mode); }
+static bool unary_c(char *s) { struct stat buf; if( stat(s, &buf)) return 0; return S_ISCHR  (buf.st_mode); }
+static bool unary_d(char *s) { struct stat buf; if( stat(s, &buf)) return 0; return S_ISDIR  (buf.st_mode); }
+static bool unary_f(char *s) { struct stat buf; if( stat(s, &buf)) return 0; return S_ISREG  (buf.st_mode); }
+static bool unary_g(char *s) { struct stat buf; if( stat(s, &buf)) return 0; return S_ISGID & buf.st_mode ; }
+static bool unary_h(char *s) { struct stat buf; if(lstat(s, &buf)) return 0; return S_ISLNK  (buf.st_mode); }
+static bool unary_p(char *s) { struct stat buf; if( stat(s, &buf)) return 0; return S_ISFIFO (buf.st_mode); }
+static bool unary_S(char *s) { struct stat buf; if( stat(s, &buf)) return 0; return S_ISSOCK (buf.st_mode); }
+static bool unary_s(char *s) { struct stat buf; if( stat(s, &buf)) return 0; return           buf.st_size ; }
+static bool unary_u(char *s) { struct stat buf; if( stat(s, &buf)) return 0; return S_ISUID & buf.st_mode ; }
+
+static bool unary_n(char *s) { return  strlen(s); }
+static bool unary_z(char *s) { return !strlen(s); }
+
+static bool unary_e(char *s) { return access(s, F_OK); }
+static bool unary_r(char *s) { return access(s, R_OK); }
+static bool unary_w(char *s) { return access(s, W_OK); }
+static bool unary_x(char *s) { return access(s, X_OK); }
+
+static bool unary_t(char *s) { int fd; stoi(s, &fd); return isatty(fd); }
+
+static bool binary_se(char *s1, char *s2) { return strcmp(s1, s2) == 0; }
+static bool binary_sn(char *s1, char *s2) { return strcmp(s1, s2) != 0; }
+
+static bool binary_eq(char *s1, char *s2) { int a, b; stoi(s1, &a); stoi(s2, &b); return a == b; }
+static bool binary_ne(char *s1, char *s2) { int a, b; stoi(s1, &a); stoi(s2, &b); return a != b; }
+static bool binary_gt(char *s1, char *s2) { int a, b; stoi(s1, &a); stoi(s2, &b); return a >  b; }
+static bool binary_ge(char *s1, char *s2) { int a, b; stoi(s1, &a); stoi(s2, &b); return a >= b; }
+static bool binary_lt(char *s1, char *s2) { int a, b; stoi(s1, &a); stoi(s2, &b); return a <  b; }
+static bool binary_le(char *s1, char *s2) { int a, b; stoi(s1, &a); stoi(s2, &b); return a <= b; }
+
+typedef struct {
+	char *name;
+	bool (*func)();
+} Test;
+
+static Test unary[] = {
+	{ "-b", unary_b },
+	{ "-c", unary_c },
+	{ "-d", unary_d },
+	{ "-e", unary_e },
+	{ "-f", unary_f },
+	{ "-g", unary_g },
+	{ "-h", unary_h },
+	{ "-L", unary_h },
+	{ "-n", unary_n },
+	{ "-p", unary_p },
+	{ "-r", unary_r },
+	{ "-S", unary_S },
+	{ "-s", unary_s },
+	{ "-t", unary_t },
+	{ "-u", unary_u },
+	{ "-w", unary_w },
+	{ "-x", unary_x },
+	{ "-z", unary_z },
+
+	{ NULL, NULL },
 };
 
-static bool unary(const char *, const char *);
-static bool binary(const char *, const char *, const char *);
+static Test binary[] = {
+	{ "="  , binary_se },
+	{ "!=" , binary_sn },
+	{ "-eq", binary_eq },
+	{ "-ne", binary_ne },
+	{ "-gt", binary_gt },
+	{ "-ge", binary_ge },
+	{ "-lt", binary_lt },
+	{ "-le", binary_le },
 
-static void
-usage(void)
+	{ NULL, NULL },
+};
+
+static Test *
+find_test(Test *tests, char *name)
 {
-	const char *ket = (*argv0 == '[') ? " ]" : "";
+	Test *t;
 
-	eprintf("usage: %s string%s\n"
-		"       %s [!] [-bcdefgkhLnprSstuwxz] string%s\n", argv0, ket, argv0, ket);
+	for(t = tests; t->name; ++t)
+		if(strcmp(t->name, name) == 0)
+			return t;
+	return NULL;
+}
+
+static bool
+noarg(char **argv)
+{
+	return 0;
+}
+
+static bool
+onearg(char **argv)
+{
+	return strlen(argv[0]);
+}
+
+static bool
+twoarg(char **argv)
+{
+	Test *t = find_test(unary, *argv);
+
+	if(strcmp(argv[0], "!") == 0)
+		return !onearg(argv + 1);
+
+	if(t)
+		return t->func(argv[1]);
+
+	return enprintf(2, "bad unary test %s\n", argv[0]), 0;
+}
+
+static bool
+threearg(char **argv)
+{
+	Test *t = find_test(binary, argv[1]);
+
+	if(t)
+		return t->func(argv[0], argv[2]);
+
+	if(strcmp(argv[0], "!") == 0)
+		return !twoarg(argv + 1);
+
+	return enprintf(2, "bad binary test %s\n", argv[1]), 0;
+}
+
+static bool
+fourarg(char **argv)
+{
+	if(strcmp(argv[0], "!") == 0)
+		return !threearg(argv + 1);
+
+	return enprintf(2, "too many arguments\n"), 0;
 }
 
 int
-main(int argc, char *argv[])
+main(int argc, char **argv)
 {
-	bool ret = false, not = false;
-	int i = LEN(optexts);
+	bool (*narg[])(char**) = { noarg, onearg, twoarg, threearg, fourarg };
+	int len = strlen(argv[0]);
 
-	argv0 = argv[0];
+	if(len && argv[0][len - 1] == '[')
+		if(strcmp(argv[--argc], "]") != 0)
+			enprintf(2, "no matching ]\n");
 
-	/* [ ... ] alias */
-	if(!strcmp(argv[0], "[")) {
-		if(strcmp(argv[argc-1], "]") != 0)
-			usage();
-		argc--;
-	}
-	if(argc == 4)
-	for(i = 0; i < LEN(optexts); i++)
-		if(strcmp(argv[2], optexts[i]) == 0)
-			break;
-	if(argc > 1 && !strcmp(argv[1], "!") && i == LEN(optexts)) {
-		not = true;
-		argv++;
-		argc--;
-	}
-	switch(argc) {
-	case 2:
-		ret = *argv[1] != '\0';
-		break;
-	case 3:
-		ret = unary(argv[1], argv[2]);
-		break;
-	case 4:
-		ret = binary(argv[1], argv[2], argv[3]);
-		break;
-	default:
-		break;
-	}
-	if(not)
-		ret = !ret;
-	return ret ? 0 : 1;
-}
+	--argc; ++argv;
 
-static bool
-unary(const char *op, const char *arg)
-{
-	struct stat st;
-	int r;
+	if(argc > 4)
+		enprintf(2, "too many arguments\n");
 
-	if(op[0] != '-' || op[1] == '\0' || op[2] != '\0')
-		usage();
-	switch(op[1]) {
-	case 'b': case 'c': case 'd': case 'f': case 'g':
-	case 'k': case 'p': case 'S': case 's': case 'u':
-		if((r = stat(arg, &st)) == -1)
-			return false; /* -e */
-		switch(op[1]) {
-		case 'b':
-			return S_ISBLK(st.st_mode);
-		case 'c':
-			return S_ISCHR(st.st_mode);
-		case 'd':
-			return S_ISDIR(st.st_mode);
-		case 'f':
-			return S_ISREG(st.st_mode);
-		case 'g':
-			return st.st_mode & S_ISGID;
-		case 'k':
-			return st.st_mode & S_ISVTX;
-		case 'p':
-			return S_ISFIFO(st.st_mode);
-		case 'S':
-			return S_ISSOCK(st.st_mode);
-		case 's':
-			return st.st_size > 0;
-		case 'u':
-			return st.st_mode & S_ISUID;
-		}
-	case 'e':
-		return access(arg, F_OK) == 0;
-	case 'r':
-		return access(arg, R_OK) == 0;
-	case 'w':
-		return access(arg, W_OK) == 0;
-	case 'x':
-		return access(arg, X_OK) == 0;
-	case 'h': case 'L':
-		return lstat(arg, &st) == 0 && S_ISLNK(st.st_mode);
-	case 't':
-		return isatty((int)estrtol(arg, 0));
-	case 'n':
-		return arg[0] != '\0';
-	case 'z':
-		return arg[0] == '\0';
-	default:
-		usage();
-	}
-	return false; /* should not reach */
-}
-
-static bool
-binary(const char *arg1, const char *op, const char *arg2)
-{
-	int i;
-	long narg1, narg2;
-	enum operator { EQ, GE, GT, LE, LT, NE, STREQ, STRNE } oper;
-
-	for (i = 0; i < LEN(optexts); i++) {
-		if (strcmp(op, optexts[i]) != 0)
-			continue;
-		oper = i;
-		switch (oper) {
-		case STREQ:
-			return strcmp(arg1, arg2) == 0;
-		case STRNE:
-			return strcmp(arg1, arg2) != 0;
-		default:
-			narg1 = estrtol(arg1, 0);
-			narg2 = estrtol(arg2, 0);
-			switch (oper) {
-			case EQ:
-				return narg1 == narg2;
-			case GE:
-				return narg1 >= narg2;
-			case GT:
-				return narg1 > narg2;
-			case LE:
-				return narg1 <= narg2;
-			case LT:
-				return narg1 < narg2;
-			case NE:
-				return narg1 != narg2;
-			default:
-				usage();
-			}
-		}
-	}
-	return false;
+	return !narg[argc](argv);
 }
