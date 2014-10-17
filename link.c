@@ -1,7 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 #include <errno.h>
 #include <unistd.h>
-
 #include "util.h"
 
 int
