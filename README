@@ -34,6 +34,7 @@ grep
 head
 hostname
 kill
+link
 ln
 ls
 md5sum

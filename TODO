@@ -12,7 +12,6 @@ file
 find
 getconf
 join
-link
 logger
 logname
 od

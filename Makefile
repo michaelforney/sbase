@@ -57,6 +57,7 @@ SRC = \
 	head.c     \
 	hostname.c \
 	kill.c     \
+	link.c     \
 	ln.c       \
 	ls.c       \
 	md5sum.c   \
