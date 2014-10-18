@@ -86,28 +86,10 @@ main(int argc, char *argv[])
 }
 
 static void
-print_human(long n, char *path)
-{
-	long base = 1024;
-	long power = base;
-	char postfixes[] = {'B', 'K', 'M', 'G', 'T', 'P', 'E'};
-	int i = 0;
-
-	n = n * blksize;
-	while (n > power) {
-		power = power*base;
-		i++;
-	}
-
-	n = i ? n / (power / base) : n;
-	printf("%lu%c\t%s\n", n, postfixes[i], path);
-}
-
-static void
 print(long n, char *path)
 {
 	if (hflag)
-		print_human(n, path);
+		printf("%s\t%s\n", humansize(n * blksize), path);
 	else
 		printf("%lu\t%s\n", n, path);
 }

@@ -20,6 +20,7 @@ void enprintf(int, const char *, ...);
 double estrtod(const char *);
 long estrtol(const char *, int);
 void fnck(const char *, const char *, int (*)(const char *, const char *));
+char *humansize(double);
 void putword(const char *);
 void recurse(const char *, void (*)(const char *));
 #undef strlcat

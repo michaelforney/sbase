@@ -17,6 +17,7 @@ LIB = \
 	util/estrtol.o   \
 	util/fnck.o      \
 	util/getlines.o  \
+	util/human.o     \
 	util/md5.o       \
 	util/mode.o      \
 	util/putword.o   \
