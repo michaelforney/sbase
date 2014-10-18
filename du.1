@@ -5,8 +5,9 @@ du \- display disk usage statistics
 .B du
 .RB [ \-a
 .RB |
-.B \-s
-.RB ]
+.BR \-s ]
+.RB [ \-d
+.IR depth ]
 .RB [ \-k ]
 .RB [ \-h ]
 .RI [ file ...]
@@ -24,6 +25,9 @@ Display an entry for each file in the file hierarchy.
 .TP
 .BI \-s
 Display only the grand total for the specified files.
+.TP
+.BI "\-d depth"
+Maximum directory depth to print files and directories.
 .TP
 .BI \-k
 By default all sizes are reported in 512-byte block counts.

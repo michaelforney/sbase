@@ -12,8 +12,11 @@
 
 static long blksize = 512;
 static char file[PATH_MAX];
+static long depth = -1;
+static long curdepth = 0;
 
 static bool aflag = false;
+static bool dflag = false;
 static bool sflag = false;
 static bool kflag = false;
 static bool hflag = false;
@@ -24,7 +27,7 @@ static void print(long n, char *path);
 static void
 usage(void)
 {
-	eprintf("usage: %s [-a | -s] [-k] [file...]\n", argv0);
+	eprintf("usage: %s [-a | -s] [-d depth] [-h] [-k] [file...]\n", argv0);
 }
 
 static char *
@@ -48,6 +51,10 @@ main(int argc, char *argv[])
 	case 'a':
 		aflag = true;
 		break;
+	case 'd':
+		dflag = true;
+		depth = estrtol(EARGF(usage()), 0);
+		break;
 	case 's':
 		sflag = true;
 		break;
@@ -61,7 +68,7 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (aflag && sflag)
+	if ((aflag && sflag) || (dflag && sflag))
 		usage();
 
 	bsize = getenv("BLOCKSIZE");
@@ -77,6 +84,7 @@ main(int argc, char *argv[])
 			print(n, xrealpath(".", file));
 	} else {
 		for (; argc > 0; argc--, argv++) {
+			curdepth = 0;
 			n = du(argv[0]);
 			if (sflag)
 				print(n, xrealpath(argv[0], file));
@@ -126,7 +134,7 @@ du(const char *path)
 	char *cwd;
 	struct dirent *dent;
 	struct stat st;
-	long n = 0, m;
+	long n = 0, m, t;
 	int r;
 
 	if (lstat(path, &st) < 0)
@@ -150,7 +158,10 @@ du(const char *path)
 		if (lstat(dent->d_name, &st) < 0)
 			eprintf("stat: %s:", dent->d_name);
 		if (S_ISDIR(st.st_mode)) {
+			t = curdepth;
+			curdepth++;
 			n += du(dent->d_name);
+			curdepth = t;
 			continue;
 		}
 		m = nblks(&st);
@@ -159,19 +170,20 @@ du(const char *path)
 			if (S_ISLNK(st.st_mode)) {
 				r = snprintf(file, sizeof(file), "%s/%s",
 					     cwd, dent->d_name);
-				if(r >= sizeof(file) || r < 0)
+				if (r >= sizeof(file) || r < 0)
 					eprintf("path too long\n");
 			} else {
 				xrealpath(dent->d_name, file);
 			}
-			print(m, file);
+			if (!dflag || (depth != -1 && curdepth < depth))
+				print(m, file);
 		}
 	}
 	pop(cwd);
 	closedir(dp);
 
 done:
-	if (!sflag)
+	if (!sflag && (!dflag || (depth != -1 && curdepth <= depth)))
 		print(n, xrealpath(path, file));
 	return n;
 }
