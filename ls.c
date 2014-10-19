@@ -32,6 +32,7 @@ static void output(Entry *);
 static bool aflag = false;
 static bool dflag = false;
 static bool Fflag = false;
+static bool hflag = false;
 static bool iflag = false;
 static bool lflag = false;
 static bool rflag = false;
@@ -43,7 +44,7 @@ static bool many;
 static void
 usage(void)
 {
-	eprintf("usage: %s [-1adFilrtU] [FILE...]\n", argv0);
+	eprintf("usage: %s [-1adFhilrtU] [FILE...]\n", argv0);
 }
 
 int
@@ -64,6 +65,9 @@ main(int argc, char *argv[])
 		break;
 	case 'F':
 		Fflag = true;
+		break;
+	case 'h':
+		hflag = true;
 		break;
 	case 'i':
 		iflag = true;
@@ -282,8 +286,12 @@ output(Entry *ent)
 		fmt = "%b %d %H:%M";
 
 	strftime(buf, sizeof buf, fmt, localtime(&ent->mtime));
-	printf("%s %4ld %-8.8s %-8.8s %10lu %s %s%s", mode, (long)ent->nlink, pwname,
-	       grname, (unsigned long)ent->size, buf, ent->name, indicator(ent->mode));
+	printf("%s %4ld %-8.8s %-8.8s ", mode, (long)ent->nlink, pwname, grname);
+	if(hflag)
+		printf("%10s ", humansize((unsigned long)ent->size));
+	else
+		printf("%10lu ", (unsigned long)ent->size);
+	printf("%s %s%s", buf, ent->name, indicator(ent->mode));
 	if(S_ISLNK(ent->mode)) {
 		if((len = readlink(ent->name, buf, sizeof buf)) == -1)
 			eprintf("readlink %s:", ent->name);
