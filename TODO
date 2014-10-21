@@ -21,5 +21,13 @@ stty
 tabs
 tput
 
+The following programs have been imported from OpenBSD and
+need replacing or cleaning up:
+
+csplit
+col
+expr
+printf
+
 [0] http://landley.net/toybox/roadmap.html
 [1] http://git.suckless.org/ubase/
