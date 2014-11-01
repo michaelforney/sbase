@@ -177,8 +177,8 @@ archive(const char* path)
 	putoctal(h->mtime, (unsigned)st.st_mtime,     sizeof h->mtime);
 	memcpy(h->magic,   "ustar",                   sizeof h->magic);
 	memcpy(h->version, "00",                      sizeof h->version);
-	snprintf(h->uname, sizeof h->uname, "%s", pw->pw_name);
-	snprintf(h->gname, sizeof h->gname, "%s", gr->gr_name);
+	snprintf(h->uname, sizeof h->uname, "%s", pw ? pw->pw_name : "");
+	snprintf(h->gname, sizeof h->gname, "%s", gr ? gr->gr_name : "");
 
 	mode = st.st_mode;
 	if(S_ISREG(mode)) {
