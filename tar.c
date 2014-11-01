@@ -27,6 +27,7 @@ struct Header {
 	char gname[32];
 	char major[8];
 	char minor[8];
+	char prefix[155];
 };
 
 enum {
@@ -298,11 +299,14 @@ c(const char * path)
 static void
 xt(int (*fn)(char*, int, char[Blksiz]))
 {
-	char b[Blksiz], fname[101];
+	char b[Blksiz], fname[257], *s;
 	Header *h = (void*)b;
 
 	while(fread(b, Blksiz, 1, tarfile) && h->name[0] != '\0') {
-		snprintf(fname, sizeof fname, "%s", h->name);
+		s = fname;
+		if (h->prefix[0] != '\0')
+			s += sprintf(s, "%.*s/", (int)sizeof h->prefix, h->prefix);
+		sprintf(s, "%.*s", (int)sizeof h->name, h->name);
 		fn(fname, strtol(h->size, 0, 8), b);
 	}
 }
