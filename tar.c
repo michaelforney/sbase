@@ -2,9 +2,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <limits.h>
 #include <grp.h>
 #include <pwd.h>
@@ -50,13 +52,15 @@ static FILE *tarfile;
 static ino_t tarinode;
 static dev_t tardev;
 
+static bool mflag = false;
+
 static void
 usage(void)
 {
-	eprintf("usage: tar [-f tarfile] [-C dir] [-]x|t\n"
+	eprintf("usage: tar [-f tarfile] [-C dir] [-]x[m]|t\n"
 	        "       tar [-f tarfile] [-C dir] [-]c dir\n"
 	        "       tar [-C dir] cf tarfile dir\n"
-	        "       tar [-C dir] x|tf tarfile\n");
+	        "       tar [-C dir] x[m]|tf tarfile\n");
 }
 
 int
@@ -79,6 +83,9 @@ main(int argc, char *argv[])
 		break;
 	case 'f':
 		file = EARGF(usage());
+		break;
+	case 'm':
+		mflag = true;
 		break;
 	default:
 		usage();
@@ -108,6 +115,9 @@ main(int argc, char *argv[])
 					usage();
 				argc--, argv++;
 				dir = argv[0];
+				break;
+			case 'm':
+				mflag = true;
 				break;
 			default:
 				usage();
@@ -225,9 +235,12 @@ unarchive(char *fname, int l, char b[Blksiz])
 {
 	char lname[101];
 	FILE *f = NULL;
-	unsigned long  mode, major, minor, type;
+	unsigned long  mode, major, minor, type, mtime;
+	struct timeval times[2] = {0};
 	Header *h = (void*)b;
 
+	if(!mflag)
+		mtime = strtoul(h->mtime, 0, 8);
 	unlink(fname);
 	switch(h->type) {
 	case REG:
@@ -277,6 +290,12 @@ unarchive(char *fname, int l, char b[Blksiz])
 	}
 	if(f)
 		fclose(f);
+
+	if(!mflag) {
+		times[0].tv_sec = times[1].tv_sec = mtime;
+		if(utimes(fname, times))
+			perror(fname);
+	}
 	return 0;
 }
 
