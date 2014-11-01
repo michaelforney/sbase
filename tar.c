@@ -34,7 +34,7 @@ enum {
 };
 
 enum Type {
-	REG = '0', HARDLINK = '1', SYMLINK = '2', CHARDEV = '3',
+	REG = '0', AREG = '\0', HARDLINK = '1', SYMLINK = '2', CHARDEV = '3',
 	BLOCKDEV = '4', DIRECTORY = '5', FIFO = '6'
 };
 
@@ -230,6 +230,7 @@ unarchive(char *fname, int l, char b[Blksiz])
 	unlink(fname);
 	switch(h->type) {
 	case REG:
+	case AREG:
 		mode = strtoul(h->mode, 0, 8);
 		if(!(f = fopen(fname, "w")) || chmod(fname, mode))
 			perror(fname);
