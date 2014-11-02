@@ -42,11 +42,11 @@ main(int argc, char *argv[])
 	case 'E':
 		flags |= REG_EXTENDED;
 		break;
-	case 'c':
 	case 'e':
 		addpattern(EARGF(usage()));
 		eflag = true;
 		break;
+	case 'c':
 	case 'l':
 	case 'n':
 	case 'q':
