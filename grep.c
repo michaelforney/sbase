@@ -129,6 +129,9 @@ grep(FILE *fp, const char *str)
 	int match = NoMatch;
 
 	for(n = 1; (len = agetline(&buf, &size, fp)) != -1; n++) {
+		/* Remove the trailing newline if one is present. */
+		if (len && buf[len - 1] == '\n')
+			buf[len - 1] = '\0';
 		for(pnode = phead; pnode; pnode = pnode->next) {
 			if(regexec(&pnode->preg, buf, 0, NULL, 0) ^ vflag)
 				continue;
@@ -146,9 +149,7 @@ grep(FILE *fp, const char *str)
 					printf("%s:", str);
 				if(mode == 'n')
 					printf("%ld:", n);
-				printf("%s", buf);
-				if(len && buf[len - 1] != '\n')
-					putchar('\n');
+				puts(buf);
 				break;
 			}
 			match = Match;
