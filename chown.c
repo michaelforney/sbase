@@ -11,8 +11,8 @@
 static void chownpwgr(const char *);
 
 static bool rflag = false;
-static struct passwd *pw = NULL;
-static struct group *gr = NULL;
+static uid_t uid = -1;
+static gid_t gid = -1;
 static int ret = 0;
 
 static void
@@ -24,7 +24,9 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	char *owner, *group;
+	char *owner, *group, *end;
+	struct passwd *pw;
+	struct group *gr;
 
 	ARGBEGIN {
 	case 'R':
@@ -47,20 +49,26 @@ main(int argc, char *argv[])
 	if(owner && *owner) {
 		errno = 0;
 		pw = getpwnam(owner);
-		if (!pw) {
+		if(pw) {
+			uid = pw->pw_uid;
+		} else {
 			if(errno != 0)
 				eprintf("getpwnam %s:", owner);
-			else
+			uid = strtoul(owner, &end, 10);
+			if(*end != '\0')
 				eprintf("getpwnam %s: no such user\n", owner);
 		}
 	}
 	if(group && *group) {
 		errno = 0;
 		gr = getgrnam(group);
-		if (!gr) {
+		if(gr) {
+			gid = gr->gr_gid;
+		} else {
 			if(errno != 0)
 				eprintf("getgrnam %s:", group);
-			else
+			gid = strtoul(group, &end, 10);
+			if(*end != '\0')
 				eprintf("getgrnam %s: no such group\n", group);
 		}
 	}
@@ -73,8 +81,7 @@ main(int argc, char *argv[])
 void
 chownpwgr(const char *path)
 {
-	if(chown(path, pw ? pw->pw_uid : (uid_t)-1,
-	               gr ? gr->gr_gid : (gid_t)-1) == -1) {
+	if(chown(path, uid, gid) == -1) {
 		weprintf("chown %s:", path);
 		ret = 1;
 	}
