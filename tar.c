@@ -236,7 +236,7 @@ unarchive(char *fname, int l, char b[Blksiz])
 	char lname[101];
 	FILE *f = NULL;
 	unsigned long  mode, major, minor, type, mtime;
-	struct timeval times[2] = {0};
+	struct timeval times[2];
 	Header *h = (void*)b;
 
 	if(!mflag)
@@ -293,6 +293,7 @@ unarchive(char *fname, int l, char b[Blksiz])
 
 	if(!mflag) {
 		times[0].tv_sec = times[1].tv_sec = mtime;
+		times[0].tv_usec = times[1].tv_usec = 0;
 		if(utimes(fname, times))
 			perror(fname);
 	}
