@@ -85,33 +85,33 @@ next:
 		/* copy */
 		case 'u':
 			if(mode & S_IRUSR)
-					perm |= S_IRUSR|S_IRGRP|S_IROTH;
+				perm |= S_IRUSR|S_IRGRP|S_IROTH;
 			if(mode & S_IWUSR)
-					perm |= S_IWUSR|S_IWGRP|S_IWOTH;
+				perm |= S_IWUSR|S_IWGRP|S_IWOTH;
 			if(mode & S_IXUSR)
-					perm |= S_IXUSR|S_IXGRP|S_IXOTH;
+				perm |= S_IXUSR|S_IXGRP|S_IXOTH;
 			if(mode & S_ISUID)
-					perm |= S_ISUID|S_ISGID;
+				perm |= S_ISUID|S_ISGID;
 			p++;
 			break;
 		case 'g':
 			if(mode & S_IRGRP)
-					perm |= S_IRUSR|S_IRGRP|S_IROTH;
+				perm |= S_IRUSR|S_IRGRP|S_IROTH;
 			if(mode & S_IWGRP)
-					perm |= S_IWUSR|S_IWGRP|S_IWOTH;
+				perm |= S_IWUSR|S_IWGRP|S_IWOTH;
 			if(mode & S_IXGRP)
-					perm |= S_IXUSR|S_IXGRP|S_IXOTH;
+				perm |= S_IXUSR|S_IXGRP|S_IXOTH;
 			if(mode & S_ISGID)
-					perm |= S_ISUID|S_ISGID;
+				perm |= S_ISUID|S_ISGID;
 			p++;
 			break;
 		case 'o':
 			if(mode & S_IROTH)
-					perm |= S_IRUSR|S_IRGRP|S_IROTH;
+				perm |= S_IRUSR|S_IRGRP|S_IROTH;
 			if(mode & S_IWOTH)
-					perm |= S_IWUSR|S_IWGRP|S_IWOTH;
+				perm |= S_IWUSR|S_IWGRP|S_IWOTH;
 			if(mode & S_IXOTH)
-					perm |= S_IXUSR|S_IXGRP|S_IXOTH;
+				perm |= S_IXUSR|S_IXGRP|S_IXOTH;
 			p++;
 			break;
 		default:
