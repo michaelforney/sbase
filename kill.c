@@ -57,11 +57,11 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(argc < 1)
+	if(argc < 1 && !lflag)
 		usage();
 
 	if(lflag) {
-		sig = (argc > 0) ? 0 : estrtol(argv[0], 0);
+		sig = (argc > 0) ? estrtol(argv[0], 0) : 0;
 		if(sig > 128)
 			sig = WTERMSIG(sig);
 		for(i = 0; i < LEN(sigs); i++)
