@@ -47,11 +47,9 @@ main(int argc, char *argv[])
 	if (argc < 2)
 		usage();
 
-	argc--;
-	argv++;
+	argc--, argv++;
 	if (strcmp(argv[0], "--") == 0) {
-		argc--;
-		argv++;
+		argc--, argv++;
 	} else if (argv[0][0] == '-' && isdigit(argv[0][1])) {
 		/* handle XSI extension -signum */
 		errno = 0;
@@ -59,11 +57,11 @@ main(int argc, char *argv[])
 		if (*end != '\0' || errno != 0)
 			eprintf("%s: bad signal number\n", &argv[0][1]);
 		sig2name(sig);
-		argc--;
-		argv++;
+		argc--, argv++;
 	} else if (strcmp(argv[0], "-l") == 0) {
-		argc--;
-		argv++;
+		argc--, argv++;
+		if (argc > 0 && strcmp(argv[0], "--") == 0)
+			argc--, argv++;
 		if (argc == 0) {
 			for (i = 0; i < LEN(sigs); i++)
 				puts(sigs[i].name);
@@ -80,8 +78,9 @@ main(int argc, char *argv[])
 		exit(0);
 	} else {
 		if (strcmp(argv[0], "-s") == 0) {
-			argc--;
-			argv++;
+			argc--, argv++;
+			if (argc > 0 && strcmp(argv[0], "--") == 0)
+				argc--, argv++;
 			if (argc == 0)
 				usage();
 			name = argv[0];
@@ -90,8 +89,7 @@ main(int argc, char *argv[])
 			name = &argv[0][1];
 		}
 		sig = strcmp(name, "0") == 0 ? 0 : name2sig(name);
-		argc--;
-		argv++;
+		argc--, argv++;
 	}
 
 	if (argc == 0)
