@@ -4,25 +4,26 @@ KILL \- signal processes
 .SH SYNOPSIS
 .B kill
 .RB [ \-s
-.IR signal ]
-.RI [ pid ...]
+.IR signal_name ]
+.IR pid
+.IR ...
 .P
 .B kill
 .B -l
-.RI [ signum ]
+.RI [ exit_status ]
 .SH DESCRIPTION
 .B kill
-sends a
+by default sends a
 .I TERM
 signal to the given processes.
 .SH OPTIONS
 .TP
-.BI \-s " signal"
-sends the named signal.
+.BI \-s " signal_name"
+Sends the named signal.
 .TP
 .B \-l
-lists available signals.  If a
-.I signum
+Lists available signals.  If an
+.I exit_status
 is given, only the corresponding signal name will be printed.
 .SH SEE ALSO
 .IR kill (2),
