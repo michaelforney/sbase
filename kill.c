@@ -28,7 +28,7 @@ static void
 usage(void)
 {
 	weprintf("usage: %s [-s signame | -signum | -signame] pid ...\n", argv0);
-	weprintf("       %s -l [exit_status ...]\n", argv0);
+	weprintf("       %s -l [exit_status]\n", argv0);
 	exit(1);
 }
 
@@ -72,19 +72,16 @@ main(int argc, char *argv[])
 				puts(sigs[i].name);
 			exit(0);
 		}
-		for (; argc; argc--, argv++) {
-			errno = 0;
-			sig = strtol(argv[0], &end, 0);
-			if (*end == '\0' && errno == 0) {
-				name = sig2name(sig);
-				if (!name)
-					printf("%d\n", sig);
-				else
-					puts(name);
-			} else {
-				weprintf("%s: bad signal number\n", argv[0]);
-				ret = 1;
-			}
+		errno = 0;
+		sig = strtol(argv[0], &end, 0);
+		if (*end == '\0' && errno == 0) {
+			name = sig2name(sig);
+			if (!name)
+				eprintf("%d: bad signal number\n", sig);
+			else
+				puts(name);
+		} else {
+			eprintf("%s: bad signal name\n", argv[0]);
 		}
 		exit(0);
 	} else {
@@ -108,7 +105,7 @@ main(int argc, char *argv[])
 				}
 			}
 			if (i == LEN(sigs))
-				eprintf("%s: bad signal number\n", name);
+				eprintf("%s: bad signal name\n", name);
 		}
 		argc--;
 		argv++;
