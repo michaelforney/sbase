@@ -69,7 +69,7 @@ main(int argc, char *argv[])
 		argc--, argv++;
 		if (argc == 0)
 			usage();
-		sig = strcmp(argv[0], "0") == 0 ? 0 : name2sig(argv[0]);
+		sig = name2sig(argv[0]);
 		argc--, argv++;
 	} else if (argv[0][0] == '-') {
 		if (isdigit(argv[0][1])) {
@@ -82,7 +82,7 @@ main(int argc, char *argv[])
 			argc--, argv++;
 		} else if (argv[0][1] != '-') {
 			/* handle XSI extension -signame */
-			sig = strcmp(&argv[0][1], "0") == 0 ? 0 : name2sig(&argv[0][1]);
+			sig = name2sig(&argv[0][1]);
 			argc--, argv++;
 		}
 	}
@@ -115,6 +115,8 @@ sig2name(int sig)
 {
 	size_t i;
 
+	if (sig == 0)
+		return "0";
 	for (i = 0; i < LEN(sigs); i++)
 		if (sigs[i].sig == sig)
 			return sigs[i].name;
@@ -128,6 +130,8 @@ name2sig(const char *name)
 {
 	size_t i;
 
+	if (strcmp(name, "0") == 0)
+		return 0;
 	for (i = 0; i < LEN(sigs); i++)
 		if (strcasecmp(sigs[i].name, name) == 0)
 			return sigs[i].sig;
