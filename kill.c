@@ -52,7 +52,7 @@ main(int argc, char *argv[])
 		argc--;
 		argv++;
 	} else if (argv[0][0] == '-' && isdigit(argv[0][1])) {
-		/* handle XSI extension -signal_number */
+		/* handle XSI extension -signum */
 		errno = 0;
 		sig = strtol(&argv[0][1], &end, 0);
 		if (*end != '\0' || errno != 0)
@@ -95,7 +95,7 @@ main(int argc, char *argv[])
 				usage();
 			name = argv[0];
 		} else {
-			/* assume XSI extension -signal_name */
+			/* assume XSI extension -signame */
 			name = &argv[0][1];
 		}
 		if (strcmp(name, "0") == 0) {
