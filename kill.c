@@ -15,6 +15,7 @@ struct {
 	const char *name;
 	int sig;
 } sigs[] = {
+	{ "0", 0 },
 #define SIG(n) { #n, SIG##n }
 	SIG(ABRT), SIG(ALRM), SIG(BUS),  SIG(CHLD), SIG(CONT), SIG(FPE),  SIG(HUP),
 	SIG(ILL),  SIG(INT),  SIG(KILL), SIG(PIPE), SIG(QUIT), SIG(SEGV), SIG(STOP),
@@ -115,8 +116,6 @@ sig2name(int sig)
 {
 	size_t i;
 
-	if (sig == 0)
-		return "0";
 	for (i = 0; i < LEN(sigs); i++)
 		if (sigs[i].sig == sig)
 			return sigs[i].name;
@@ -130,8 +129,6 @@ name2sig(const char *name)
 {
 	size_t i;
 
-	if (strcmp(name, "0") == 0)
-		return 0;
 	for (i = 0; i < LEN(sigs); i++)
 		if (strcasecmp(sigs[i].name, name) == 0)
 			return sigs[i].sig;
