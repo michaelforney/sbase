@@ -2,15 +2,13 @@
 .SH NAME
 KILL \- signal processes
 .SH SYNOPSIS
-.B kill
-.RB [ \-s
-.IR signal_name ]
-.IR pid
-.IR ...
+\fBkill\fR [ \fB-s\fR \fIsignal_name\fR ] \fIpid\fR \fI...\fR
 .P
-.B kill
-.B -l
-.RI [ exit_status ]
+\fBkill\fR \fB-l\fR [ \fIexit_status\fR \fI...\fR]
+.P
+\fBkill\fR \fB-\fR\fIsignal_name\fR \fIpid\fR \fI...\fR
+.P
+\fBkill\fR \fB-\fR\fIsignal_number\fR \fIpid\fR \fI...\fR
 .SH DESCRIPTION
 .B kill
 by default sends a

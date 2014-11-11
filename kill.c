@@ -27,8 +27,8 @@ const char *sig2name(int);
 static void
 usage(void)
 {
-	weprintf("usage: %s -s signal_name pid...\n", argv0);
-	weprintf("       %s -l [exit_status]\n", argv0);
+	weprintf("usage: %s [-s signame | -signum | -signame] pid ...\n", argv0);
+	weprintf("       %s -l [exit_status ...]\n", argv0);
 	exit(1);
 }
 
