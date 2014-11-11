@@ -58,6 +58,7 @@ main(int argc, char *argv[])
 		sig = strtol(&argv[0][1], &end, 10);
 		if (*end != '\0' || errno != 0)
 			eprintf("%s: bad signal number\n", &argv[0][1]);
+		sig2name(sig);
 		argc--;
 		argv++;
 	} else if (strcmp(argv[0], "-l") == 0) {
