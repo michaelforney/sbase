@@ -23,6 +23,7 @@ struct {
 };
 
 const char *sig2name(int);
+int name2sig(const char *);
 
 static void
 usage(void)
@@ -54,14 +55,9 @@ main(int argc, char *argv[])
 	} else if (argv[0][0] == '-' && isdigit(argv[0][1])) {
 		/* handle XSI extension -signum */
 		errno = 0;
-		sig = strtol(&argv[0][1], &end, 0);
+		sig = strtol(&argv[0][1], &end, 10);
 		if (*end != '\0' || errno != 0)
-			eprintf("%d: bad signal number\n", sig);
-		for (i = 0; i < LEN(sigs); i++)
-			if (sigs[i].sig == sig || sig == 0)
-				break;
-		if (i == LEN(sigs))
-			eprintf("%d: bad signal number\n", sig);
+			eprintf("%s: bad signal number\n", &argv[0][1]);
 		argc--;
 		argv++;
 	} else if (strcmp(argv[0], "-l") == 0) {
@@ -74,16 +70,10 @@ main(int argc, char *argv[])
 		} else if (argc > 1)
 			usage();
 		errno = 0;
-		sig = strtol(argv[0], &end, 0);
-		if (*end == '\0' && errno == 0) {
-			name = sig2name(sig);
-			if (!name)
-				eprintf("%d: bad signal number\n", sig);
-			else
-				puts(name);
-		} else {
-			eprintf("%s: bad signal name\n", argv[0]);
-		}
+		sig = strtol(argv[0], &end, 10);
+		if (*end != '\0' || errno != 0)
+			eprintf("%s: bad signal number\n", argv[0]);
+		puts(sig2name(sig));
 		exit(0);
 	} else {
 		if (strcmp(argv[0], "-s") == 0) {
@@ -96,18 +86,7 @@ main(int argc, char *argv[])
 			/* assume XSI extension -signame */
 			name = &argv[0][1];
 		}
-		if (strcmp(name, "0") == 0) {
-			sig = 0;
-		} else {
-			for (i = 0; i < LEN(sigs); i++) {
-				if (strcasecmp(sigs[i].name, name) == 0) {
-					sig = sigs[i].sig;
-					break;
-				}
-			}
-			if (i == LEN(sigs))
-				eprintf("%s: bad signal name\n", name);
-		}
+		sig = strcmp(name, "0") == 0 ? 0 : name2sig(name);
 		argc--;
 		argv++;
 	}
@@ -117,7 +96,7 @@ main(int argc, char *argv[])
 
 	for (; argc; argc--, argv++) {
 		errno = 0;
-		pid = strtol(argv[0], &end, 0);
+		pid = strtol(argv[0], &end, 10);
 		if (*end == '\0' && errno == 0) {
 			if (kill(pid, sig) < 0) {
 				weprintf("kill %d:", pid);
@@ -142,5 +121,20 @@ sig2name(int sig)
 	for (i = 0; i < LEN(sigs); i++)
 		if (sigs[i].sig == sig)
 			return sigs[i].name;
+	eprintf("%d: bad signal number\n", sig);
+	/* unreachable */
 	return NULL;
+}
+
+int
+name2sig(const char *name)
+{
+	size_t i;
+
+	for (i = 0; i < LEN(sigs); i++)
+		if (strcasecmp(sigs[i].name, name) == 0)
+			return sigs[i].sig;
+	eprintf("%s: bad signal name\n", name);
+	/* unreachable */
+	return -1;
 }
