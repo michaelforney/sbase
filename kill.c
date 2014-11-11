@@ -51,8 +51,6 @@ main(int argc, char *argv[])
 	if (strcmp(argv[0], "--") == 0) {
 		argc--;
 		argv++;
-		if (argc == 0)
-			usage();
 	} else if (argv[0][0] == '-' && isdigit(argv[0][1])) {
 		/* handle XSI extension -signal_number */
 		errno = 0;
