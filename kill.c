@@ -73,6 +73,8 @@ main(int argc, char *argv[])
 		sig = strtol(argv[0], &end, 10);
 		if (*end != '\0' || errno != 0)
 			eprintf("%s: bad signal number\n", argv[0]);
+		if (sig > 128)
+			sig = WTERMSIG(sig);
 		puts(sig2name(sig));
 		exit(0);
 	} else {
@@ -116,8 +118,6 @@ sig2name(int sig)
 {
 	size_t i;
 
-	if (sig > 128)
-		sig = WTERMSIG(sig);
 	for (i = 0; i < LEN(sigs); i++)
 		if (sigs[i].sig == sig)
 			return sigs[i].name;
