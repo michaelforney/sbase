@@ -37,7 +37,6 @@ int
 main(int argc, char *argv[])
 {
 	char *end;
-	const char *name;
 	int ret = 0;
 	int sig = SIGTERM;
 	pid_t pid;
@@ -48,20 +47,8 @@ main(int argc, char *argv[])
 		usage();
 
 	argc--, argv++;
-	if (strcmp(argv[0], "--") == 0) {
+	if (strcmp(argv[0], "-l") == 0) {
 		argc--, argv++;
-	} else if (argv[0][0] == '-' && isdigit(argv[0][1])) {
-		/* handle XSI extension -signum */
-		errno = 0;
-		sig = strtol(&argv[0][1], &end, 10);
-		if (*end != '\0' || errno != 0)
-			eprintf("%s: bad signal number\n", &argv[0][1]);
-		sig2name(sig);
-		argc--, argv++;
-	} else if (strcmp(argv[0], "-l") == 0) {
-		argc--, argv++;
-		if (argc > 0 && strcmp(argv[0], "--") == 0)
-			argc--, argv++;
 		if (argc == 0) {
 			for (i = 0; i < LEN(sigs); i++)
 				puts(sigs[i].name);
@@ -76,21 +63,32 @@ main(int argc, char *argv[])
 			sig = WTERMSIG(sig);
 		puts(sig2name(sig));
 		exit(0);
-	} else {
-		if (strcmp(argv[0], "-s") == 0) {
-			argc--, argv++;
-			if (argc > 0 && strcmp(argv[0], "--") == 0)
-				argc--, argv++;
-			if (argc == 0)
-				usage();
-			name = argv[0];
-		} else {
-			/* assume XSI extension -signame */
-			name = &argv[0][1];
-		}
-		sig = strcmp(name, "0") == 0 ? 0 : name2sig(name);
-		argc--, argv++;
 	}
+
+	if (strcmp(argv[0], "-s") == 0) {
+		argc--, argv++;
+		if (argc == 0)
+			usage();
+		sig = strcmp(argv[0], "0") == 0 ? 0 : name2sig(argv[0]);
+		argc--, argv++;
+	} else if (argv[0][0] == '-') {
+		if (isdigit(argv[0][1])) {
+			/* handle XSI extension -signum */
+			errno = 0;
+			sig = strtol(&argv[0][1], &end, 10);
+			if (*end != '\0' || errno != 0)
+				eprintf("%s: bad signal number\n", &argv[0][1]);
+			sig2name(sig);
+			argc--, argv++;
+		} else if (argv[0][1] != '-') {
+			/* handle XSI extension -signame */
+			sig = strcmp(&argv[0][1], "0") == 0 ? 0 : name2sig(&argv[0][1]);
+			argc--, argv++;
+		}
+	}
+
+	if (argc > 0 && strcmp(argv[0], "--") == 0)
+		argc--, argv++;
 
 	if (argc == 0)
 		usage();
