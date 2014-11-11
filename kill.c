@@ -1,5 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 #include <sys/wait.h>
+#include <ctype.h>
 #include <errno.h>
 #include <signal.h>
 #include <stdbool.h>
@@ -47,7 +48,25 @@ main(int argc, char *argv[])
 
 	argc--;
 	argv++;
-	if (strcmp(argv[0], "-l") == 0) {
+	if (strcmp(argv[0], "--") == 0) {
+		argc--;
+		argv++;
+		if (argc == 0)
+			usage();
+	} else if (argv[0][0] == '-' && isdigit(argv[0][1])) {
+		/* handle XSI extension -signal_number */
+		errno = 0;
+		sig = strtol(&argv[0][1], &end, 0);
+		if (*end != '\0' || errno != 0)
+			eprintf("%d: bad signal number\n", sig);
+		for (i = 0; i < LEN(sigs); i++)
+			if (sigs[i].sig == sig || sig == 0)
+				break;
+		if (i == LEN(sigs))
+			eprintf("%d: bad signal number\n", sig);
+		argc--;
+		argv++;
+	} else if (strcmp(argv[0], "-l") == 0) {
 		argc--;
 		argv++;
 		if (argc == 0) {
@@ -70,30 +89,31 @@ main(int argc, char *argv[])
 			}
 		}
 		exit(0);
-	} else if (strcmp(argv[0], "-s") == 0) {
-		argc--;
-		argv++;
-		if (argc == 0)
-			usage();
-		if (strcmp(argv[0], "0") == 0) {
+	} else {
+		if (strcmp(argv[0], "-s") == 0) {
+			argc--;
+			argv++;
+			if (argc == 0)
+				usage();
+			name = argv[0];
+		} else {
+			/* assume XSI extension -signal_name */
+			name = &argv[0][1];
+		}
+		if (strcmp(name, "0") == 0) {
 			sig = 0;
 		} else {
 			for (i = 0; i < LEN(sigs); i++) {
-				if (strcasecmp(sigs[i].name, argv[0]) == 0) {
+				if (strcasecmp(sigs[i].name, name) == 0) {
 					sig = sigs[i].sig;
 					break;
 				}
 			}
 			if (i == LEN(sigs))
-				eprintf("%s: bad signal number\n", argv[0]);
+				eprintf("%s: bad signal number\n", name);
 		}
 		argc--;
 		argv++;
-	} else if (strcmp(argv[0], "--") == 0) {
-		argc--;
-		argv++;
-		if (argc == 0)
-			usage();
 	}
 
 	if (argc == 0)
