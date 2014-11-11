@@ -71,7 +71,8 @@ main(int argc, char *argv[])
 			for (i = 0; i < LEN(sigs); i++)
 				puts(sigs[i].name);
 			exit(0);
-		}
+		} else if (argc > 1)
+			usage();
 		errno = 0;
 		sig = strtol(argv[0], &end, 0);
 		if (*end == '\0' && errno == 0) {
