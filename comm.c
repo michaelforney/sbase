@@ -49,14 +49,20 @@ main(int argc, char *argv[])
 
 	for(;;) {
 		if(diff <= 0) {
+			lines[0][0] = '\0';
 			if(!nextline(lines[0], sizeof(lines[0]),
 				     fp[0], argv[0])) {
+				if (lines[1][0] != '\0')
+					printline(1, lines[1]);
 				finish(1, fp[1], argv[1]);
 			}
 		}
 		if(diff >= 0) {
+			lines[1][0] = '\0';
 			if(!nextline(lines[1], sizeof(lines[1]),
 				     fp[1], argv[1])) {
+				if (lines[0][0] != '\0')
+					printline(0, lines[0]);
 				finish(0, fp[0], argv[0]);
 			}
 		}
