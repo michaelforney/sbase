@@ -3,7 +3,17 @@ include config.mk
 .POSIX:
 .SUFFIXES: .c .o
 
-HDR = crypt.h fs.h text.h md5.h sha1.h sha256.h sha512.h util.h arg.h
+HDR = \
+	arg.h    \
+	crypt.h  \
+	fs.h     \
+	md5.h    \
+	sha1.h   \
+	sha256.h \
+	sha512.h \
+	text.h   \
+	util.h
+
 LIB = \
 	util/agetcwd.o   \
 	util/agetline.o  \
