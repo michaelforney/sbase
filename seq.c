@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
 #include "util.h"
 
 static int digitsleft(const char *);
@@ -42,7 +43,7 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	switch(argc) {
+	switch (argc) {
 	case 3:
 		steps = argv[1];
 		argv[1] = argv[2];
@@ -62,15 +63,15 @@ main(int argc, char *argv[])
 	end   = estrtod(ends);
 
 	dir = (step > 0) ? 1.0 : -1.0;
-	if(step == 0 || start * dir > end * dir)
+	if (step == 0 || start * dir > end * dir)
 		return 1;
 
-	if(fmt == ftmp) {
+	if (fmt == ftmp) {
 		right = MAX(digitsright(starts),
 		            MAX(digitsright(ends),
 		                digitsright(steps)));
 
-		if(wflag) {
+		if (wflag) {
 			left = MAX(digitsleft(starts), digitsleft(ends));
 
 			snprintf(ftmp, sizeof ftmp, "%%0%d.%df",
@@ -78,8 +79,8 @@ main(int argc, char *argv[])
 		} else
 			snprintf(ftmp, sizeof ftmp, "%%.%df", right);
 	}
-	for(out = start; out * dir <= end * dir; out += step) {
-		if(out != start)
+	for (out = start; out * dir <= end * dir; out += step) {
+		if (out != start)
 			fputs(sep, stdout);
 		printf(fmt, out);
 	}
@@ -94,7 +95,7 @@ digitsleft(const char *d)
 	char *exp;
 	int shift;
 
-	if(*d == '+')
+	if (*d == '+')
 		d++;
 	exp = strpbrk(d, "eE");
 	shift = exp ? estrtol(&exp[1], 10) : 0;
@@ -121,26 +122,26 @@ validfmt(const char *fmt)
 	int occur = 0;
 
 literal:
-	while(*fmt)
-		if(*fmt++ == '%')
+	while (*fmt)
+		if (*fmt++ == '%')
 			goto format;
 	return occur == 1;
 
 format:
-	if(*fmt == '%') {
+	if (*fmt == '%') {
 		fmt++;
 		goto literal;
 	}
 	fmt += strspn(fmt, "-+#0 '");
 	fmt += strspn(fmt, "0123456789");
-	if(*fmt == '.') {
+	if (*fmt == '.') {
 		fmt++;
 		fmt += strspn(fmt, "0123456789");
 	}
-	if(*fmt == 'L')
+	if (*fmt == 'L')
 		fmt++;
 
-	switch(*fmt) {
+	switch (*fmt) {
 	case 'f': case 'F':
 	case 'g': case 'G':
 	case 'e': case 'E':

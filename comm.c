@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+
 #include "util.h"
 
 #define CLAMP(x, l, h) MIN(h, MAX(l, x))
@@ -37,29 +38,29 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(argc != 2)
+	if (argc != 2)
 		usage();
 
-	for(i = 0; i < LEN(fp); i++) {
+	for (i = 0; i < LEN(fp); i++) {
 		if (argv[i][0] == '-')
 			argv[i] = "/dev/fd/0";
-		if(!(fp[i] = fopen(argv[i], "r")))
+		if (!(fp[i] = fopen(argv[i], "r")))
 			eprintf("comm: '%s':", argv[i]);
 	}
 
-	for(;;) {
-		if(diff <= 0) {
+	for (;;) {
+		if (diff <= 0) {
 			lines[0][0] = '\0';
-			if(!nextline(lines[0], sizeof(lines[0]),
+			if (!nextline(lines[0], sizeof(lines[0]),
 				     fp[0], argv[0])) {
 				if (lines[1][0] != '\0')
 					printline(1, lines[1]);
 				finish(1, fp[1], argv[1]);
 			}
 		}
-		if(diff >= 0) {
+		if (diff >= 0) {
 			lines[1][0] = '\0';
-			if(!nextline(lines[1], sizeof(lines[1]),
+			if (!nextline(lines[1], sizeof(lines[1]),
 				     fp[1], argv[1])) {
 				if (lines[0][0] != '\0')
 					printline(0, lines[0]);
@@ -79,11 +80,11 @@ printline(int pos, char *line)
 {
 	int i;
 
-	if(!(show & (0x1 << pos)))
+	if (!(show & (0x1 << pos)))
 		return;
 
-	for(i = 0; i < pos; i++) {
-		if(show & (0x1 << i))
+	for (i = 0; i < pos; i++) {
+		if (show & (0x1 << i))
 			putchar('\t');
 	}
 	printf("%s", line);
@@ -93,9 +94,9 @@ static char *
 nextline(char *buf, int n, FILE *f, char *name)
 {
 	buf = fgets(buf, n, f);
-	if(!buf && !feof(f))
+	if (!buf && !feof(f))
 		eprintf("comm: '%s':", name);
-	if(buf && !strchr(buf, '\n'))
+	if (buf && !strchr(buf, '\n'))
 		eprintf("comm: '%s': line too long.\n", name);
 	return buf;
 }
@@ -105,7 +106,7 @@ finish(int pos, FILE *f, char *name)
 {
 	char buf[LINE_MAX+1];
 
-	while(nextline(buf, sizeof(buf), f, name))
+	while (nextline(buf, sizeof(buf), f, name))
 		printline(pos, buf);
 	exit(1);
 }

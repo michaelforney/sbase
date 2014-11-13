@@ -2,6 +2,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <unistd.h>
+
 #include "util.h"
 
 static void
@@ -21,19 +22,19 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(argc < 1)
+	if (argc < 1)
 		usage();
 
-	if((aux = getenv("SHELL")))
+	if ((aux = getenv("SHELL")))
 		shell[0] = aux;
 
-	if(chroot(argv[0]) == -1)
+	if (chroot(argv[0]) == -1)
 		eprintf("chroot %s:", argv[0]);
 
-	if(chdir("/") == -1)
+	if (chdir("/") == -1)
 		eprintf("chdir:");
 
-	if(argc == 1) {
+	if (argc == 1) {
 		p = *shell;
 		execvp(*shell, shell);
 	} else {

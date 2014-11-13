@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
 #include "text.h"
 #include "util.h"
 
@@ -20,7 +21,7 @@ enum {
 	MOD_N      = 1 << 1,
 	MOD_STARTB = 1 << 2,
 	MOD_ENDB   = 1 << 3,
-	MOD_R      = 1 << 4
+	MOD_R      = 1 << 4,
 };
 
 struct kdlist {
@@ -72,7 +73,7 @@ main(int argc, char *argv[])
 		break;
 	case 't':
 		fieldsep = EARGF(usage());
-		if(strlen(fieldsep) != 1)
+		if (strlen(fieldsep) != 1)
 			usage();
 		break;
 	case 'u':
@@ -82,14 +83,14 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(!head && global_flags)
+	if (!head && global_flags)
 		addkeydef("1", global_flags);
 	addkeydef("1", global_flags & MOD_R);
 
-	if(argc == 0) {
+	if (argc == 0) {
 		getlines(stdin, &linebuf);
-	} else for(; argc > 0; argc--, argv++) {
-		if(!(fp = fopen(argv[0], "r"))) {
+	} else for (; argc > 0; argc--, argv++) {
+		if (!(fp = fopen(argv[0], "r"))) {
 			enprintf(2, "fopen %s:", argv[0]);
 			continue;
 		}
@@ -99,8 +100,8 @@ main(int argc, char *argv[])
 	qsort(linebuf.lines, linebuf.nlines, sizeof *linebuf.lines,
 			(int (*)(const void *, const void *))linecmp);
 
-	for(i = 0; i < linebuf.nlines; i++) {
-		if(!uflag || i == 0 || linecmp((const char **)&linebuf.lines[i],
+	for (i = 0; i < linebuf.nlines; i++) {
+		if (!uflag || i == 0 || linecmp((const char **)&linebuf.lines[i],
 					(const char **)&linebuf.lines[i-1])) {
 			fputs(linebuf.lines[i], stdout);
 		}
@@ -116,13 +117,13 @@ addkeydef(char *def, int flags)
 	struct kdlist *node;
 
 	node = malloc(sizeof(*node));
-	if(!node)
+	if (!node)
 		enprintf(2, "malloc:");
-	if(!head)
+	if (!head)
 		head = node;
-	if(parse_keydef(&node->keydef, def, flags))
+	if (parse_keydef(&node->keydef, def, flags))
 		enprintf(2, "faulty key definition\n");
-	if(tail)
+	if (tail)
 		tail->next = node;
 	node->next = NULL;
 	tail = node;
@@ -134,7 +135,7 @@ freelist(void)
 	struct kdlist *node;
 	struct kdlist *tmp;
 
-	for(node = head; node; node = tmp) {
+	for (node = head; node; node = tmp) {
 		tmp = node->next;
 		free(node);
 	}
@@ -147,20 +148,20 @@ linecmp(const char **a, const char **b)
 	int res = 0;
 	struct kdlist *node;
 
-	for(node = head; node && res == 0; node = node->next) {
+	for (node = head; node && res == 0; node = node->next) {
 		s1 = columns((char *)*a, &node->keydef);
 		s2 = columns((char *)*b, &node->keydef);
 
 		/* if -u is given, don't use default key definition
 		 * unless it is the only one */
-		if(uflag && node == tail && head != tail)
+		if (uflag && node == tail && head != tail)
 			res = 0;
-		else if(node->keydef.flags & MOD_N)
+		else if (node->keydef.flags & MOD_N)
 			res = strtol(s1, 0, 10) - strtol(s2, 0, 10);
 		else
 			res = strcmp(s1, s2);
 
-		if(node->keydef.flags & MOD_R)
+		if (node->keydef.flags & MOD_R)
 			res = -res;
 
 		free(s1);
@@ -172,8 +173,8 @@ linecmp(const char **a, const char **b)
 static int
 parse_flags(char **s, int *flags, int bflag)
 {
-	while(isalpha((int)**s))
-		switch(*((*s)++)) {
+	while (isalpha((int)**s))
+		switch (*((*s)++)) {
 		case 'b':
 			*flags |= bflag;
 			break;
@@ -202,27 +203,27 @@ parse_keydef(struct keydef *kd, char *s, int flags)
 	kd->flags = flags;
 
 	kd->start_column = strtol(rest, &rest, 10);
-	if(kd->start_column < 1)
+	if (kd->start_column < 1)
 		return -1;
-	if(*rest == '.')
+	if (*rest == '.')
 		kd->start_char = strtol(rest+1, &rest, 10);
-	if(kd->start_char < 1)
+	if (kd->start_char < 1)
 		return -1;
-	if(parse_flags(&rest, &kd->flags, MOD_STARTB) == -1)
+	if (parse_flags(&rest, &kd->flags, MOD_STARTB) == -1)
 		return -1;
-	if(*rest == ',') {
+	if (*rest == ',') {
 		kd->end_column = strtol(rest+1, &rest, 10);
-		if(kd->end_column && kd->end_column < kd->start_column)
+		if (kd->end_column && kd->end_column < kd->start_column)
 			return -1;
-		if(*rest == '.') {
+		if (*rest == '.') {
 			kd->end_char = strtol(rest+1, &rest, 10);
-			if(kd->end_char < 1)
+			if (kd->end_char < 1)
 				return -1;
 		}
-		if(parse_flags(&rest, &kd->flags, MOD_ENDB) == -1)
+		if (parse_flags(&rest, &kd->flags, MOD_ENDB) == -1)
 			return -1;
 	}
-	if(*rest != '\0')
+	if (*rest != '\0')
 		return -1;
 	return 0;
 }
@@ -238,12 +239,12 @@ skipblank(char *s)
 static char *
 nextcol(char *s)
 {
-	if(fieldsep == NULL) {
+	if (fieldsep == NULL) {
 		s = skipblank(s);
 		while(*s && !isblank(*s))
 			s++;
 	} else {
-		if(strchr(s, *fieldsep) == NULL)
+		if (strchr(s, *fieldsep) == NULL)
 			s = strchr(s, '\0');
 		else
 			s = strchr(s, *fieldsep) + 1;
@@ -258,27 +259,27 @@ columns(char *line, const struct keydef *kd)
 	char *res;
 	int i;
 
-	for(i = 1, start = line; i < kd->start_column; i++)
+	for (i = 1, start = line; i < kd->start_column; i++)
 		start = nextcol(start);
-	if(kd->flags & MOD_STARTB)
+	if (kd->flags & MOD_STARTB)
 		start = skipblank(start);
 	start += MIN(kd->start_char, nextcol(start) - start) - 1;
 
-	if(kd->end_column) {
-		for(i = 1, end = line; i < kd->end_column; i++)
+	if (kd->end_column) {
+		for (i = 1, end = line; i < kd->end_column; i++)
 			end = nextcol(end);
-		if(kd->flags & MOD_ENDB)
+		if (kd->flags & MOD_ENDB)
 			end = skipblank(end);
-		if(kd->end_char)
+		if (kd->end_char)
 			end += MIN(kd->end_char, nextcol(end) - end);
 		else
 			end = nextcol(end);
 	} else {
-		if((end = strchr(line, '\n')) == NULL)
+		if ((end = strchr(line, '\n')) == NULL)
 			end = strchr(line, '\0');
 	}
 
-	if((res = strndup(start, end - start)) == NULL)
+	if ((res = strndup(start, end - start)) == NULL)
 		enprintf(2, "strndup:");
 	return res;
 }

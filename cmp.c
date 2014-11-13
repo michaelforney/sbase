@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
 #include "util.h"
 
 enum { Same = 0, Diff = 1, Error = 2 };
@@ -41,7 +42,7 @@ main(int argc, char *argv[])
 		argv[0] = "/dev/fd/0";
 	fp[0] = fopen(argv[0], "r");
 	if (!fp[0]) {
-		if(!sflag)
+		if (!sflag)
 			weprintf("fopen %s:", argv[0]);
 		exit(Error);
 	}
@@ -50,30 +51,30 @@ main(int argc, char *argv[])
 		argv[1] = "/dev/fd/0";
 	fp[1] = fopen(argv[1], "r");
 	if (!fp[1]) {
-		if(!sflag)
+		if (!sflag)
 			weprintf("fopen %s:", argv[1]);
 		exit(Error);
 	}
 
-	for(n = 1; ; n++) {
+	for (n = 1; ; n++) {
 		b[0] = getc(fp[0]);
 		b[1] = getc(fp[1]);
-		if(b[0] == EOF && b[1] == EOF)
+		if (b[0] == EOF && b[1] == EOF)
 			break;
-		if(b[0] == '\n' && b[1] == '\n')
+		if (b[0] == '\n' && b[1] == '\n')
 			line++;
-		if(b[0] == b[1])
+		if (b[0] == b[1])
 			continue;
-		for(i = 0; i < 2; i++) {
-			if(b[i] == EOF) {
-				if(!sflag)
+		for (i = 0; i < 2; i++) {
+			if (b[i] == EOF) {
+				if (!sflag)
 					fprintf(stderr, "cmp: EOF on %s\n",
 					        !argv[i] ? "<stdin>" : argv[i]);
 				exit(Diff);
 			}
 		}
-		if(!lflag) {
-			if(!sflag)
+		if (!lflag) {
+			if (!sflag)
 				printf("%s %s differ: char %ld, line %ld\n",
 				       argv[0], !argv[1] ? "<stdin>" : argv[1], n, line);
 			exit(Diff);

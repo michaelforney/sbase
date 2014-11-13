@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
 #include "util.h"
 
 static void chownpwgr(const char *);
@@ -37,42 +38,42 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(argc == 0)
+	if (argc == 0)
 		usage();
 
 	owner = argv[0];
 	argv++;
 	argc--;
-	if((group = strchr(owner, ':')))
+	if ((group = strchr(owner, ':')))
 		*group++ = '\0';
 
-	if(owner && *owner) {
+	if (owner && *owner) {
 		errno = 0;
 		pw = getpwnam(owner);
-		if(pw) {
+		if (pw) {
 			uid = pw->pw_uid;
 		} else {
-			if(errno != 0)
+			if (errno != 0)
 				eprintf("getpwnam %s:", owner);
 			uid = strtoul(owner, &end, 10);
-			if(*end != '\0')
+			if (*end != '\0')
 				eprintf("getpwnam %s: no such user\n", owner);
 		}
 	}
-	if(group && *group) {
+	if (group && *group) {
 		errno = 0;
 		gr = getgrnam(group);
-		if(gr) {
+		if (gr) {
 			gid = gr->gr_gid;
 		} else {
-			if(errno != 0)
+			if (errno != 0)
 				eprintf("getgrnam %s:", group);
 			gid = strtoul(group, &end, 10);
-			if(*end != '\0')
+			if (*end != '\0')
 				eprintf("getgrnam %s: no such group\n", group);
 		}
 	}
-	for(; argc > 0; argc--, argv++)
+	for (; argc > 0; argc--, argv++)
 		chownpwgr(argv[0]);
 
 	return ret;
@@ -81,10 +82,10 @@ main(int argc, char *argv[])
 void
 chownpwgr(const char *path)
 {
-	if(chown(path, uid, gid) == -1) {
+	if (chown(path, uid, gid) == -1) {
 		weprintf("chown %s:", path);
 		ret = 1;
 	}
-	if(rflag)
+	if (rflag)
 		recurse(path, chownpwgr);
 }

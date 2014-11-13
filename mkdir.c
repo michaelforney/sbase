@@ -7,6 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/stat.h>
+
 #include "util.h"
 
 static void mkdirp(char *);
@@ -39,10 +40,10 @@ main(int argc, char *argv[])
 	if (argc < 1)
 		usage();
 
-	for(; argc > 0; argc--, argv++) {
-		if(pflag) {
+	for (; argc > 0; argc--, argv++) {
+		if (pflag) {
 			mkdirp(argv[0]);
-		} else if(mkdir(argv[0], S_IRWXU|S_IRWXG|S_IRWXO) == -1) {
+		} else if (mkdir(argv[0], S_IRWXU|S_IRWXG|S_IRWXO) == -1) {
 			eprintf("mkdir %s:", argv[0]);
 		}
 		if (mflag)
@@ -59,11 +60,11 @@ mkdirp(char *path)
 	char *p = path;
 
 	do {
-		if(*p && (p = strchr(&p[1], '/')))
+		if (*p && (p = strchr(&p[1], '/')))
 			*p = '\0';
-		if(mkdir(path, S_IRWXU|S_IRWXG|S_IRWXO) == -1 && errno != EEXIST)
+		if (mkdir(path, S_IRWXU|S_IRWXG|S_IRWXO) == -1 && errno != EEXIST)
 			eprintf("mkdir %s:", path);
-		if(p)
+		if (p)
 			*p = '/';
-	} while(p);
+	} while (p);
 }

@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "util.h"
 
 static void cksum(FILE *, const char *);
@@ -78,10 +79,10 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(argc == 0) {
+	if (argc == 0) {
 		cksum(stdin, NULL);
 	} else {
-		for(; argc > 0; argc--, argv++) {
+		for (; argc > 0; argc--, argv++) {
 			if (!(fp = fopen(argv[0], "r"))) {
 				weprintf("fopen %s:", argv[0]);
 				continue;
@@ -102,18 +103,18 @@ cksum(FILE *fp, const char *s)
 	size_t i, n;
 
 	while ((n = fread(buf, 1, sizeof(buf), fp)) > 0) {
-		for(i = 0; i < n; i++)
+		for (i = 0; i < n; i++)
 			ck = (ck << 8) ^ crctab[(ck >> 24) ^ buf[i]];
 		len += n;
 	}
 	if (ferror(fp))
 		eprintf("%s: read error:", s ? s : "<stdin>");
 
-	for(i = len; i > 0; i >>= 8)
+	for (i = len; i > 0; i >>= 8)
 		ck = (ck << 8) ^ crctab[(ck >> 24) ^ (i & 0xFF)];
 
 	printf("%"PRIu32" %lu", ~ck, (unsigned long)len);
-	if(s != NULL)
+	if (s != NULL)
 		printf(" %s", s);
 	putchar('\n');
 }

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+
 #include "util.h"
 
 extern char **environ;
@@ -29,15 +30,15 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	for(; *argv && strchr(*argv, '='); argv++)
+	for (; *argv && strchr(*argv, '='); argv++)
 		putenv(*argv);
 
-	if(*argv) {
+	if (*argv) {
 		execvp(*argv, argv);
 		enprintf(127 - (errno != EEXIST), "env: '%s':", *argv);
 	}
 
-	while(environ && *environ)
+	while (environ && *environ)
 		printf("%s\n", *environ++);
 
 	return 0;

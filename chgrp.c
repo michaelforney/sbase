@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "util.h"
 
 static int gid;
@@ -23,7 +24,7 @@ usage(void)
 static void
 chgrp(const char *path)
 {
-	if(chown(path, st.st_uid, gid) == -1) {
+	if (chown(path, st.st_uid, gid) == -1) {
 		fprintf(stderr, "chgrp: '%s': %s\n", path, strerror(errno));
 		failures++;
 	}
@@ -44,19 +45,19 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(argc < 2)
+	if (argc < 2)
 		usage();
 
 	errno = 0;
 	gr = getgrnam(argv[0]);
 	if (errno)
 		eprintf("getgrnam %s:");
-	else if(!gr)
+	else if (!gr)
 		eprintf("chgrp: '%s': No such group\n", argv[0]);
 	gid = gr->gr_gid;
 
-	while(*++argv) {
-		if(stat(*argv, &st) == -1) {
+	while (*++argv) {
+		if (stat(*argv, &st) == -1) {
 			fprintf(stderr, "chgrp: '%s': %s\n", *argv,
 					strerror(errno));
 			failures++;

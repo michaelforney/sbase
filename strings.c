@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+
 #include "util.h"
 
 static void dostrings(FILE *fp, const char *fname);

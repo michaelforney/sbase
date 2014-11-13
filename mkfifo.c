@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/stat.h>
+
 #include "util.h"
 
 static void
@@ -28,8 +29,8 @@ main(int argc, char *argv[])
 	if (argc < 1)
 		usage();
 
-	for(; argc > 0; argc--, argv++)
-		if(mkfifo(argv[0], mode) == -1)
+	for (; argc > 0; argc--, argv++)
+		if (mkfifo(argv[0], mode) == -1)
 			eprintf("mkfifo %s:", argv[0]);
 	return 0;
 }

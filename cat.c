@@ -26,13 +26,13 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(argc == 0) {
+	if (argc == 0) {
 		concat(stdin, "<stdin>", stdout, "<stdout>");
 	} else {
 		for (; argc; argc--, argv++) {
 			if (argv[0][0] == '-')
 				argv[0] = "/dev/fd/0";
-			if(!(fp = fopen(argv[0], "r"))) {
+			if (!(fp = fopen(argv[0], "r"))) {
 				weprintf("fopen %s:", argv[0]);
 				ret = 1;
 				continue;

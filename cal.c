@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+
 #include "util.h"
 
 #define MONTHMAX 100
@@ -28,11 +29,11 @@ drawcal(int year, int month, int day, int ncols, int nmons, int fday)
 	int row = 0;
 	char *days[] = { "Su", "Mo", "Tu", "We", "Th", "Fr", "Sa", };
 
-	if(!ncols)
+	if (!ncols)
 		ncols = nmons;
-	while(nmons > 0) {
+	while (nmons > 0) {
 		last = MIN(nmons, ncols);
-		for(i = 0; i < last; i++) {
+		for (i = 0; i < last; i++) {
 			moff = month + ncols * row + i - 1;
 			cur = moff % 12;
 			yoff = year + moff / 12;
@@ -43,17 +44,17 @@ drawcal(int year, int month, int day, int ncols, int nmons, int fday)
 		}
 		printf("\n");
 
-		for(i = 0; i < last; i++) {
-			for(j = fday; j < LEN(days); j++)
+		for (i = 0; i < last; i++) {
+			for (j = fday; j < LEN(days); j++)
 				printf("%s ", days[j]);
-			for(j = 0; j < fday; j++)
+			for (j = 0; j < fday; j++)
 				printf("%s ", days[j]);
 			printf("  ");
 		}
 		printf("\n");
 
-		for(r = 0; r < 6; r++) {
-			for(i = 0; i < last; i++) {
+		for (r = 0; r < 6; r++) {
+			for (i = 0; i < last; i++) {
 				moff = month + ncols * row + i - 1;
 				cur = moff % 12;
 				yoff = year + moff / 12;
@@ -61,8 +62,8 @@ drawcal(int year, int month, int day, int ncols, int nmons, int fday)
 				ndays = mdays[cur] + ((cur == 1) & isleap(yoff));
 				day1 = dayofweek(year, cur, 1, fday);
 
-				for(d = 0; d < 7; d++) {
-					if((r || d >= day1) && count[i] <= ndays)
+				for (d = 0; d < 7; d++) {
+					if ((r || d >= day1) && count[i] <= ndays)
 						printf("%2d ", count[i]++);
 					else
 						printf("   ");
@@ -89,9 +90,9 @@ dayofweek(int year, int month, int day, int fday)
 static bool
 isleap(int year)
 {
-	if(year % 400 == 0)
+	if (year % 400 == 0)
 		return true;
-	if(year % 100 == 0)
+	if (year % 100 == 0)
 		return false;
 	return (year % 4 == 0);
 }
@@ -156,7 +157,7 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	switch(argc) {
+	switch (argc) {
 	case 3:
 		day = estrtol(argv[0], 0);
 		argv++;
@@ -172,7 +173,7 @@ main(int argc, char *argv[])
 		usage();
 	}
 
-	if(ncols < 0 || month < 1 || month > 12 || nmons < 1 \
+	if (ncols < 0 || month < 1 || month > 12 || nmons < 1 \
 			|| nmons > MONTHMAX || fday < 0 || fday > 6) {
 		usage();
 	}

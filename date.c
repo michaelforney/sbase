@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
+
 #include "util.h"
 
 static void
@@ -33,9 +34,9 @@ main(int argc, char *argv[])
 	default:
 		usage();
 	} ARGEND;
-	if(argc > 0 && argv[0][0] == '+')
+	if (argc > 0 && argv[0][0] == '+')
 		fmt = &argv[0][1];
-	if(!(now = tztime(&t)))
+	if (!(now = tztime(&t)))
 		eprintf("%stime failed\n", tz);
 
 	strftime(buf, sizeof buf, fmt, now);

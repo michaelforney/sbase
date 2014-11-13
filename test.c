@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
 #include "util.h"
 
 static void
@@ -14,20 +15,20 @@ stoi(char *s, int *a)
 	char *p;
 	errno = 0;
 	*a = strtol(s, &p, 0);
-	if(errno || !*s || *p)
+	if (errno || !*s || *p)
 		enprintf(2, "bad integer %s\n", s);
 }
 
-static bool unary_b(char *s) { struct stat buf; if( stat(s, &buf)) return 0; return S_ISBLK  (buf.st_mode); }
-static bool unary_c(char *s) { struct stat buf; if( stat(s, &buf)) return 0; return S_ISCHR  (buf.st_mode); }
-static bool unary_d(char *s) { struct stat buf; if( stat(s, &buf)) return 0; return S_ISDIR  (buf.st_mode); }
-static bool unary_f(char *s) { struct stat buf; if( stat(s, &buf)) return 0; return S_ISREG  (buf.st_mode); }
-static bool unary_g(char *s) { struct stat buf; if( stat(s, &buf)) return 0; return S_ISGID & buf.st_mode ; }
-static bool unary_h(char *s) { struct stat buf; if(lstat(s, &buf)) return 0; return S_ISLNK  (buf.st_mode); }
-static bool unary_p(char *s) { struct stat buf; if( stat(s, &buf)) return 0; return S_ISFIFO (buf.st_mode); }
-static bool unary_S(char *s) { struct stat buf; if( stat(s, &buf)) return 0; return S_ISSOCK (buf.st_mode); }
-static bool unary_s(char *s) { struct stat buf; if( stat(s, &buf)) return 0; return           buf.st_size ; }
-static bool unary_u(char *s) { struct stat buf; if( stat(s, &buf)) return 0; return S_ISUID & buf.st_mode ; }
+static bool unary_b(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; return S_ISBLK  (buf.st_mode); }
+static bool unary_c(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; return S_ISCHR  (buf.st_mode); }
+static bool unary_d(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; return S_ISDIR  (buf.st_mode); }
+static bool unary_f(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; return S_ISREG  (buf.st_mode); }
+static bool unary_g(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; return S_ISGID & buf.st_mode ; }
+static bool unary_h(char *s) { struct stat buf; if (lstat(s, &buf)) return 0; return S_ISLNK  (buf.st_mode); }
+static bool unary_p(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; return S_ISFIFO (buf.st_mode); }
+static bool unary_S(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; return S_ISSOCK (buf.st_mode); }
+static bool unary_s(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; return           buf.st_size ; }
+static bool unary_u(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; return S_ISUID & buf.st_mode ; }
 
 static bool unary_n(char *s) { return  strlen(s); }
 static bool unary_z(char *s) { return !strlen(s); }
@@ -95,8 +96,8 @@ find_test(Test *tests, char *name)
 {
 	Test *t;
 
-	for(t = tests; t->name; ++t)
-		if(strcmp(t->name, name) == 0)
+	for (t = tests; t->name; ++t)
+		if (strcmp(t->name, name) == 0)
 			return t;
 	return NULL;
 }
@@ -118,10 +119,10 @@ twoarg(char **argv)
 {
 	Test *t = find_test(unary, *argv);
 
-	if(strcmp(argv[0], "!") == 0)
+	if (strcmp(argv[0], "!") == 0)
 		return !onearg(argv + 1);
 
-	if(t)
+	if (t)
 		return t->func(argv[1]);
 
 	return enprintf(2, "bad unary test %s\n", argv[0]), 0;
@@ -132,10 +133,10 @@ threearg(char **argv)
 {
 	Test *t = find_test(binary, argv[1]);
 
-	if(t)
+	if (t)
 		return t->func(argv[0], argv[2]);
 
-	if(strcmp(argv[0], "!") == 0)
+	if (strcmp(argv[0], "!") == 0)
 		return !twoarg(argv + 1);
 
 	return enprintf(2, "bad binary test %s\n", argv[1]), 0;
@@ -144,7 +145,7 @@ threearg(char **argv)
 static bool
 fourarg(char **argv)
 {
-	if(strcmp(argv[0], "!") == 0)
+	if (strcmp(argv[0], "!") == 0)
 		return !threearg(argv + 1);
 
 	return enprintf(2, "too many arguments\n"), 0;
@@ -156,13 +157,13 @@ main(int argc, char **argv)
 	bool (*narg[])(char**) = { noarg, onearg, twoarg, threearg, fourarg };
 	int len = strlen(argv[0]);
 
-	if(len && argv[0][len - 1] == '[')
-		if(strcmp(argv[--argc], "]") != 0)
+	if (len && argv[0][len - 1] == '[')
+		if (strcmp(argv[--argc], "]") != 0)
 			enprintf(2, "no matching ]\n");
 
 	--argc; ++argv;
 
-	if(argc > 4)
+	if (argc > 4)
 		enprintf(2, "too many arguments\n");
 
 	return !narg[argc](argv);

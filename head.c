@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
 #include "text.h"
 #include "util.h"
 
@@ -31,11 +32,11 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(argc == 0) {
+	if (argc == 0) {
 		head(stdin, "<stdin>", n);
 	} else {
-		for(; argc > 0; argc--, argv++) {
-			if(!(fp = fopen(argv[0], "r"))) {
+		for (; argc > 0; argc--, argv++) {
+			if (!(fp = fopen(argv[0], "r"))) {
 				weprintf("fopen %s:", argv[0]);
 				continue;
 			}
@@ -55,12 +56,12 @@ head(FILE *fp, const char *str, long n)
 	ssize_t len;
 	unsigned long i = 0;
 
-	while(i < n && ((len = agetline(&buf, &size, fp)) != -1)) {
+	while (i < n && ((len = agetline(&buf, &size, fp)) != -1)) {
 		fputs(buf, stdout);
-		if(buf[len - 1] == '\n')
+		if (buf[len - 1] == '\n')
 			i++;
 	}
 	free(buf);
-	if(ferror(fp))
+	if (ferror(fp))
 		eprintf("%s: read error:", str);
 }

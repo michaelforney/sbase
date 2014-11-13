@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <wchar.h>
+
 #include "util.h"
 
 typedef struct {
@@ -30,7 +31,7 @@ main(int argc, char *argv[])
 	ARGBEGIN {
 	case 't':
 		tabsize = estrtol(EARGF(usage()), 0);
-		if(tabsize <= 0)
+		if (tabsize <= 0)
 			eprintf("unexpand: invalid tabsize\n", argv[0]);
 		/* Fallthrough: -t implies -a */
 	case 'a':
@@ -84,12 +85,12 @@ unexpandspan(unsigned int n, unsigned int col)
 {
 	unsigned int off = (col-n) % tabsize;
 
-	if(n + off >= tabsize && n > 1)
+	if (n + off >= tabsize && n > 1)
 		n += off;
 
-	for(; n >= tabsize; n -= tabsize)
+	for (; n >= tabsize; n -= tabsize)
 		out('\t');
-	while(n--)
+	while (n--)
 		out(' ');
 }
 

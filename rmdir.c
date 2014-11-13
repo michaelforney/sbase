@@ -4,6 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
+
 #include "util.h"
 
 static void
@@ -23,8 +24,8 @@ main(int argc, char *argv[])
 	if (argc < 1)
 		usage();
 
-	for(; argc > 0; argc--, argv++)
-		if(rmdir(argv[0]) == -1)
+	for (; argc > 0; argc--, argv++)
+		if (rmdir(argv[0]) == -1)
 			fprintf(stderr, "rmdir: '%s': %s\n",
 				argv[0], strerror(errno));
 

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
 #include "text.h"
 #include "util.h"
 
@@ -27,7 +28,7 @@ main(int argc, char *argv[])
 	case 'n':
 		lines = EARGF(usage());
 		n = abs(estrtol(lines, 0));
-		if(lines[0] == '+')
+		if (lines[0] == '+')
 			tail = dropinit;
 		break;
 	ARGNUM:
@@ -36,11 +37,11 @@ main(int argc, char *argv[])
 	default:
 		usage();
 	} ARGEND;
-	if(argc == 0) {
+	if (argc == 0) {
 		tail(stdin, "<stdin>", n);
 	} else {
 		for (; argc > 0; argc--, argv++) {
-			if(!(fp = fopen(argv[0], "r"))) {
+			if (!(fp = fopen(argv[0], "r"))) {
 				weprintf("fopen %s:", argv[0]);
 				continue;
 			}
@@ -60,8 +61,8 @@ dropinit(FILE *fp, const char *str, long n)
 	ssize_t len;
 	unsigned long i = 0;
 
-	while(i < n && ((len = agetline(&buf, &size, fp)) != -1))
-		if(len && buf[len - 1] == '\n')
+	while (i < n && ((len = agetline(&buf, &size, fp)) != -1))
+		if (len && buf[len - 1] == '\n')
 			i++;
 	free(buf);
 	concat(fp, str, stdout, "<stdout>");
@@ -74,19 +75,19 @@ taketail(FILE *fp, const char *str, long n)
 	long i, j;
 	size_t *size = NULL;
 
-	if(!(ring = calloc(n, sizeof *ring)) || !(size = calloc(n, sizeof *size)))
+	if (!(ring = calloc(n, sizeof *ring)) || !(size = calloc(n, sizeof *size)))
 		eprintf("calloc:");
-	for(i = j = 0; agetline(&ring[i], &size[i], fp) != -1; i = j = (i + 1) % n)
+	for (i = j = 0; agetline(&ring[i], &size[i], fp) != -1; i = j = (i + 1) % n)
 		;
-	if(ferror(fp))
+	if (ferror(fp))
 		eprintf("%s: read error:", str);
 
 	do {
-		if(ring[j]) {
+		if (ring[j]) {
 			fputs(ring[j], stdout);
 			free(ring[j]);
 		}
-	} while((j = (j+1)%n) != i);
+	} while ((j = (j+1)%n) != i);
 	free(ring);
 	free(size);
 }

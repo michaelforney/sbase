@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <utime.h>
 #include <sys/stat.h>
+
 #include "util.h"
 
 static void touch(const char *);
@@ -39,7 +40,7 @@ main(int argc, char *argv[])
 	if (argc < 1)
 		usage();
 
-	for(; argc > 0; argc--, argv++)
+	for (; argc > 0; argc--, argv++)
 		touch(argv[0]);
 
 	return 0;
@@ -52,19 +53,19 @@ touch(const char *str)
 	struct stat st;
 	struct utimbuf ut;
 
-	if(stat(str, &st) == 0) {
+	if (stat(str, &st) == 0) {
 		ut.actime = st.st_atime;
 		ut.modtime = t;
-		if(utime(str, &ut) == -1)
+		if (utime(str, &ut) == -1)
 			eprintf("utime %s:", str);
 		return;
 	}
-	else if(errno != ENOENT)
+	else if (errno != ENOENT)
 		eprintf("stat %s:", str);
-	else if(cflag)
+	else if (cflag)
 		return;
-	if((fd = open(str, O_CREAT|O_EXCL,
-	              S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH)) == -1)
+	if ((fd = open(str, O_CREAT|O_EXCL,
+	               S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH)) == -1)
 		eprintf("open %s:", str);
 	close(fd);
 	touch(str);

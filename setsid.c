@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "util.h"
 
 static void
@@ -25,8 +26,8 @@ main(int argc, char *argv[])
 	if (argc < 1)
 		usage();
 
-	if(getpgrp() == getpid()) {
-		switch(fork()){
+	if (getpgrp() == getpid()) {
+		switch (fork()) {
 		case -1:
 			eprintf("fork:");
 		case 0:
@@ -35,7 +36,7 @@ main(int argc, char *argv[])
 			return 0;
 		}
 	}
-	if(setsid() < 0)
+	if (setsid() < 0)
 		eprintf("setsid:");
 	execvp(argv[0], argv);
 	savederrno = errno;

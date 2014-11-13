@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/stat.h>
+
 #include "util.h"
 
 enum { Error = 127, Found = 126 };
@@ -25,23 +26,23 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(argc == 0)
+	if (argc == 0)
 		usage();
 
-	if(signal(SIGHUP, SIG_IGN) == SIG_ERR)
+	if (signal(SIGHUP, SIG_IGN) == SIG_ERR)
 		enprintf(Error, "signal HUP:");
 
-	if(isatty(STDOUT_FILENO)) {
-		if((fd = open("nohup.out", O_APPEND|O_CREAT,
-			      S_IRUSR|S_IWUSR)) == -1) {
+	if (isatty(STDOUT_FILENO)) {
+		if ((fd = open("nohup.out", O_APPEND|O_CREAT,
+			       S_IRUSR|S_IWUSR)) == -1) {
 			enprintf(Error, "open nohup.out:");
 		}
-		if(dup2(fd, STDOUT_FILENO) == -1)
+		if (dup2(fd, STDOUT_FILENO) == -1)
 			enprintf(Error, "dup2:");
 		close(fd);
 	}
-	if(isatty(STDERR_FILENO))
-		if(dup2(STDOUT_FILENO, STDERR_FILENO) == -1)
+	if (isatty(STDERR_FILENO))
+		if (dup2(STDOUT_FILENO, STDERR_FILENO) == -1)
 			enprintf(Error, "dup2:");
 
 	execvp(argv[0], &argv[0]);

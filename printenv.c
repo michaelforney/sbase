@@ -1,6 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "util.h"
 
 extern char **environ;
@@ -21,14 +22,14 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(argc == 1) {
-		while(*environ)
+	if (argc == 1) {
+		while (*environ)
 			printf("%s\n", *environ++);
 
 		return 0;
 	}
 	while(*++argv) {
-		if((var = getenv(*argv)))
+		if ((var = getenv(*argv)))
 			printf("%s\n", var);
 	}
 

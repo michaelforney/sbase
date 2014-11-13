@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "util.h"
 
 static void
@@ -23,9 +24,9 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	for(; argc > 0; argc--, argv++)
+	for (; argc > 0; argc--, argv++)
 		putword(argv[0]);
-	if(!nflag)
+	if (!nflag)
 		putchar('\n');
 
 	return 0;

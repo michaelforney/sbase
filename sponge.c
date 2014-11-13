@@ -1,6 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "text.h"
 #include "util.h"
 
@@ -20,16 +21,16 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(argc != 1)
+	if (argc != 1)
 		usage();
 
-	if(!(tmpfp = tmpfile()))
+	if (!(tmpfp = tmpfile()))
 		eprintf("tmpfile:");
 
 	concat(stdin, "<stdin>", tmpfp, "<tmpfile>");
 	rewind(tmpfp);
 
-	if(!(fp = fopen(argv[0], "w")))
+	if (!(fp = fopen(argv[0], "w")))
 		eprintf("sponge: '%s':", argv[0]);
 	concat(tmpfp, "<tmpfile>", fp, argv[0]);
 

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/stat.h>
+
 #include "fs.h"
 #include "util.h"
 
@@ -30,7 +31,7 @@ main(int argc, char *argv[])
 	if (argc < 2)
 		usage();
 
-	if(argc > 3 && !(stat(argv[argc-1], &st) == 0 && S_ISDIR(st.st_mode)))
+	if (argc > 3 && !(stat(argv[argc-1], &st) == 0 && S_ISDIR(st.st_mode)))
 		eprintf("%s: not a directory\n", argv[argc-1]);
 	enmasse(argc, &argv[0], mv);
 

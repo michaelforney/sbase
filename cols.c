@@ -6,6 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
+
 #include "text.h"
 #include "util.h"
 
@@ -35,7 +36,7 @@ main(int argc, char *argv[])
 	case 'c':
 		cflag = 1;
 		chars = estrtol(EARGF(usage()), 0);
-		if(chars < 3)
+		if (chars < 3)
 			eprintf("%d: too few character columns");
 		break;
 	default:
@@ -49,39 +50,39 @@ main(int argc, char *argv[])
 	}
 
 	/* XXX librarify this chunk, too?  only useful in sponges though */
-	if(argc == 0) {
+	if (argc == 0) {
 		getlines(stdin, &b);
-	} else for(; argc > 0; argc--, argv++) {
-		if(!(fp = fopen(argv[0], "r")))
+	} else for (; argc > 0; argc--, argv++) {
+		if (!(fp = fopen(argv[0], "r")))
 			eprintf("fopen %s:", argv[0]);
 		getlines(fp, &b);
 		fclose(fp);
 	}
 
-	for(l = 0; l < b.nlines; ++l) {
+	for (l = 0; l < b.nlines; ++l) {
 		len = strlen(b.lines[l]);
-		if(len > 0 && b.lines[l][len-1] == '\n')
+		if (len > 0 && b.lines[l][len-1] == '\n')
 			b.lines[l][--len] = '\0';
-		if(len > maxlen)
+		if (len > maxlen)
 			maxlen = len;
-		if(maxlen > (chars - 1) / 2)
+		if (maxlen > (chars - 1) / 2)
 			break;
 	}
 
 	n_columns = (chars + 1) / (maxlen + 1);
-	if(n_columns <= 1) {
-		for(l = 0; l < b.nlines; ++l) {
+	if (n_columns <= 1) {
+		for (l = 0; l < b.nlines; ++l) {
 			fputs(b.lines[l], stdout);
 		}
 		return 0;
 	}
 
 	n_rows = (b.nlines + (n_columns - 1)) / n_columns;
-	for(i = 0; i < n_rows; ++i) {
-		for(l = i, col = 1; l < b.nlines; l += n_rows, ++col) {
+	for (i = 0; i < n_rows; ++i) {
+		for (l = i, col = 1; l < b.nlines; l += n_rows, ++col) {
 			len = strlen(b.lines[l]);
 			fputs(b.lines[l], stdout);
-			if(col < n_columns)
+			if (col < n_columns)
 				printf("%*s", maxlen + 1 - (int)len, "");
 		}
 		fputs("\n", stdout);

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/stat.h>
+
 #include "fs.h"
 #include "util.h"
 
@@ -35,7 +36,7 @@ main(int argc, char *argv[])
 			return 0;
 	}
 
-	for(; argc > 0; argc--, argv++)
+	for (; argc > 0; argc--, argv++)
 		rm(argv[0]);
 
 	return 0;

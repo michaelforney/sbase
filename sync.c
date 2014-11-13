@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
 #include "util.h"
 
 static void
@@ -13,7 +14,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	if(argc != 1)
+	if (argc != 1)
 		usage();
 	sync();
 

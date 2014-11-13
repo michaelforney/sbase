@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/stat.h>
+
 #include "util.h"
 
 static const char *getpwd(const char *cwd);
@@ -40,11 +41,11 @@ getpwd(const char *cwd)
 	const char *pwd;
 	struct stat cst, pst;
 
-	if(!(pwd = getenv("PWD")) || pwd[0] != '/' || stat(pwd, &pst) == -1)
+	if (!(pwd = getenv("PWD")) || pwd[0] != '/' || stat(pwd, &pst) == -1)
 		return cwd;
-	if(stat(cwd, &cst) == -1)
+	if (stat(cwd, &cst) == -1)
 		eprintf("stat %s:", cwd);
-	if(pst.st_dev == cst.st_dev && pst.st_ino == cst.st_ino)
+	if (pst.st_dev == cst.st_dev && pst.st_ino == cst.st_ino)
 		return pwd;
 	else
 		return cwd;

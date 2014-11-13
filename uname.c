@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/utsname.h>
+
 #include "util.h"
 
 static void
@@ -44,18 +45,18 @@ main(int argc, char *argv[])
 	default:
 		usage();
 	} ARGEND;
-	if(uname(&u) == -1)
+	if (uname(&u) == -1)
 		eprintf("uname:");
 
-	if(sflag || !(nflag || rflag || vflag || mflag))
+	if (sflag || !(nflag || rflag || vflag || mflag))
 		putword(u.sysname);
-	if(nflag)
+	if (nflag)
 		putword(u.nodename);
-	if(rflag)
+	if (rflag)
 		putword(u.release);
-	if(vflag)
+	if (vflag)
 		putword(u.version);
-	if(mflag)
+	if (mflag)
 		putword(u.machine);
 	putchar('\n');
 

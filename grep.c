@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
 #include "text.h"
 #include "util.h"
 
@@ -62,41 +63,41 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(argc == 0 && !eflag)
+	if (argc == 0 && !eflag)
 		usage(); /* no pattern */
 
 	/* If -e is not specified treat it as if it were */
-	if(!eflag) {
+	if (!eflag) {
 		addpattern(argv[0]);
 		argc--;
 		argv++;
 	}
 
 	/* Compile regex for all search patterns */
-	for(pnode = phead; pnode; pnode = pnode->next) {
-		if((n = regcomp(&pnode->preg, pnode->pattern, flags)) != 0) {
+	for (pnode = phead; pnode; pnode = pnode->next) {
+		if ((n = regcomp(&pnode->preg, pnode->pattern, flags)) != 0) {
 			regerror(n, &pnode->preg, buf, sizeof buf);
 			enprintf(Error, "invalid pattern: %s\n", buf);
 		}
 	}
 	many = (argc > 1);
-	if(argc == 0) {
+	if (argc == 0) {
 		match = grep(stdin, "<stdin>");
 	} else {
-		for(i = 0; i < argc; i++) {
-			if(!(fp = fopen(argv[i], "r"))) {
+		for (i = 0; i < argc; i++) {
+			if (!(fp = fopen(argv[i], "r"))) {
 				weprintf("fopen %s:", argv[i]);
 				match = Error;
 				continue;
 			}
 			m = grep(fp, argv[i]);
-			if(m == Error || (match != Error && m == Match))
+			if (m == Error || (match != Error && m == Match))
 				match = m;
 			fclose(fp);
 		}
 	}
 	pnode = phead;
-	while(pnode) {
+	while (pnode) {
 		tmp = pnode->next;
 		regfree(&pnode->preg);
 		free(pnode->pattern);
@@ -111,9 +112,9 @@ addpattern(const char *pattern)
 {
 	struct plist *pnode;
 
-	if(!(pnode = malloc(sizeof(*pnode))))
+	if (!(pnode = malloc(sizeof(*pnode))))
 		eprintf("malloc:");
-	if(!(pnode->pattern = strdup(pattern)))
+	if (!(pnode->pattern = strdup(pattern)))
 		eprintf("strdup:");
 	pnode->next = phead;
 	phead = pnode;
@@ -128,14 +129,14 @@ grep(FILE *fp, const char *str)
 	struct plist *pnode;
 	int match = NoMatch;
 
-	for(n = 1; (len = agetline(&buf, &size, fp)) != -1; n++) {
+	for (n = 1; (len = agetline(&buf, &size, fp)) != -1; n++) {
 		/* Remove the trailing newline if one is present. */
 		if (len && buf[len - 1] == '\n')
 			buf[len - 1] = '\0';
-		for(pnode = phead; pnode; pnode = pnode->next) {
-			if(regexec(&pnode->preg, buf, 0, NULL, 0) ^ vflag)
+		for (pnode = phead; pnode; pnode = pnode->next) {
+			if (regexec(&pnode->preg, buf, 0, NULL, 0) ^ vflag)
 				continue;
-			switch(mode) {
+			switch (mode) {
 			case 'c':
 				c++;
 				break;
@@ -145,9 +146,9 @@ grep(FILE *fp, const char *str)
 			case 'q':
 				exit(Match);
 			default:
-				if(many)
+				if (many)
 					printf("%s:", str);
-				if(mode == 'n')
+				if (mode == 'n')
 					printf("%ld:", n);
 				puts(buf);
 				break;
@@ -155,10 +156,10 @@ grep(FILE *fp, const char *str)
 			match = Match;
 		}
 	}
-	if(mode == 'c')
+	if (mode == 'c')
 		printf("%ld\n", c);
 end:
-	if(ferror(fp)) {
+	if (ferror(fp)) {
 		weprintf("%s: read error:", str);
 		match = Error;
 	}

@@ -46,10 +46,10 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(argc == 0) {
+	if (argc == 0) {
 		uniq(stdin, "<stdin>");
-	} else if(argc == 1) {
-		if(!(fp = fopen(argv[0], "r")))
+	} else if (argc == 1) {
+		if (!(fp = fopen(argv[0], "r")))
 			eprintf("fopen %s:", argv[0]);
 		uniq(fp, argv[0]);
 		fclose(fp);
@@ -67,14 +67,14 @@ uniqline(char *l)
 		? l == prevline
 		: !strcmp(l, prevline);
 
-	if(linesequel) {
+	if (linesequel) {
 		++prevlinecount;
 		return;
 	}
 
-	if(prevline != NULL) {
-		if((prevlinecount == 1 && !dflag) ||
-		   (prevlinecount != 1 && !uflag)) {
+	if (prevline != NULL) {
+		if ((prevlinecount == 1 && !dflag) ||
+		    (prevlinecount != 1 && !uflag)) {
 			printf(countfmt, prevlinecount);
 			fputs(prevline, stdout);
 		}
@@ -82,7 +82,7 @@ uniqline(char *l)
 		prevline = NULL;
 	}
 
-	if(l && !(prevline = strdup(l)))
+	if (l && !(prevline = strdup(l)))
 		eprintf("strdup:");
 	prevlinecount = 1;
 }
@@ -93,7 +93,7 @@ uniq(FILE *fp, const char *str)
 	char *buf = NULL;
 	size_t size = 0;
 
-	while(agetline(&buf, &size, fp) != -1)
+	while (agetline(&buf, &size, fp) != -1)
 		uniqline(buf);
 }
 

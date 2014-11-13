@@ -5,6 +5,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <limits.h>
+
 #include "util.h"
 
 static int itostr(char *, int, int);
@@ -35,13 +36,13 @@ main(int argc, char *argv[])
 	case 'b':
 		always = 1;
 		tmp = ARGF();
-		if(tmp == NULL)
+		if (tmp == NULL)
 			break;
 
 		size = strtoull(tmp, &end, 10);
-		if(*end == '\0')
+		if (*end == '\0')
 			break;
-		switch(toupper((int)*end)) {
+		switch (toupper((int)*end)) {
 		case 'K':
 			scale = 1024;
 			break;
@@ -54,14 +55,14 @@ main(int argc, char *argv[])
 		default:
 			usage();
 		}
-		if(size > (UINT64_MAX/scale))
+		if (size > (UINT64_MAX/scale))
 			eprintf("'%s': out of range\n", tmp);
 		size *= scale;
 		break;
 	case 'l':
 		always = 0;
 		tmp = ARGF();
-		if(tmp)
+		if (tmp)
 			size = estrtol(tmp, 10);
 		break;
 	case 'a':
@@ -75,31 +76,31 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(*argv)
+	if (*argv)
 		file = *argv++;
-	if(*argv)
+	if (*argv)
 		prefix = *argv++;
-	if(*argv)
+	if (*argv)
 		usage();
 
 	plen = strlen(prefix);
-	if(plen+slen > NAME_MAX)
+	if (plen+slen > NAME_MAX)
 		eprintf("names cannot exceed %d bytes\n", NAME_MAX);
 	strlcpy(name, prefix, sizeof(name));
 
-	if(file && strcmp(file, "-") != 0) {
+	if (file && strcmp(file, "-") != 0) {
 		in = fopen(file, "r");
-		if(!in)
+		if (!in)
 			eprintf("'%s':", file);
 	}
 
 Nextfile:
-	while((out = nextfile(out, name, plen, slen))) {
+	while ((out = nextfile(out, name, plen, slen))) {
 		n = 0;
-		while((ch = getc(in)) != EOF) {
+		while ((ch = getc(in)) != EOF) {
 			putc(ch, out);
 			n += (always || ch == '\n');
-			if(n >= size)
+			if (n >= size)
 				goto Nextfile;
 		}
 		fclose(out);
@@ -112,11 +113,11 @@ int
 itostr(char *str, int x, int n)
 {
 	str[n] = '\0';
-	while(n-- > 0) {
+	while (n-- > 0) {
 		str[n] = start + (x % base);
 		x /= base;
 	}
-	if(x)
+	if (x)
 		return -1;
 	return 0;
 }
@@ -127,14 +128,14 @@ nextfile(FILE *f, char *buf, int plen, int slen)
 	static int n = 0;
 	int s;
 
-	if(f)
+	if (f)
 		fclose(f);
 	s = itostr(buf+plen, n++, slen);
-	if(s == -1)
+	if (s == -1)
 		return NULL;
 
 	f = fopen(buf, "w");
-	if(!f)
+	if (!f)
 		eprintf("'%s':", buf);
 	return f;
 }

@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "util.h"
 
 static int strtop(const char *);
@@ -43,31 +44,31 @@ main(int argc, char *argv[])
 		break;
 	} ARGEND;
 
-	if(argc == 0 || !adj)
+	if (argc == 0 || !adj)
 		usage();
 
 	val = estrtol(adj, 10);
-	for(i = 0; i < argc; i++) {
+	for (i = 0; i < argc; i++) {
 		int who = -1;
 
-		if(which == PRIO_USER) {
+		if (which == PRIO_USER) {
 			const struct passwd *pwd;
 
 			errno = 0;
-			do pwd = getpwnam(argv[i]); while(errno == EINTR);
+			do pwd = getpwnam(argv[i]); while (errno == EINTR);
 
-			if(pwd)
+			if (pwd)
 				who = pwd->pw_uid;
-			else if(errno != 0) {
+			else if (errno != 0) {
 				perror("can't read passwd");
 				status = 1;
 				continue;
 			}
 		}
-		if(who < 0)
+		if (who < 0)
 			who = strtop(argv[i]);
 
-		if(who < 0 || !renice(which, who, val))
+		if (who < 0 || !renice(which, who, val))
 			status = 1;
 	}
 
@@ -82,11 +83,11 @@ strtop(const char *s)
 
 	errno = 0;
 	n = strtol(s, &end, 10);
-	if(*end != '\0') {
+	if (*end != '\0') {
 		fprintf(stderr, "%s: not an integer\n", s);
 		return -1;
 	}
-	if(errno != 0 || n <= 0 || n > INT_MAX) {
+	if (errno != 0 || n <= 0 || n > INT_MAX) {
 		fprintf(stderr, "%s: invalid value\n", s);
 		return -1;
 	}
@@ -99,14 +100,14 @@ renice(int which, int who, long adj)
 {
 	errno = 0;
 	adj += getpriority(which, who);
-	if(errno != 0) {
+	if (errno != 0) {
 		fprintf(stderr, "can't get %d nice level: %s\n",
 		        who, strerror(errno));
 		return false;
 	}
 
 	adj = MAX(-NZERO, MIN(adj, NZERO - 1));
-	if(setpriority(which, who, (int)adj) == -1) {
+	if (setpriority(which, who, (int)adj) == -1) {
 		fprintf(stderr, "can't set %d nice level: %s\n",
 		        who, strerror(errno));
 		return false;

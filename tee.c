@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
 #include "util.h"
 
 static void
@@ -29,21 +30,21 @@ main(int argc, char *argv[])
 	} ARGEND;
 
 	nfps = argc + 1;
-	if(!(fps = calloc(nfps, sizeof *fps)))
+	if (!(fps = calloc(nfps, sizeof *fps)))
 		eprintf("calloc:");
 
-	for(i = 0; argc > 0; argc--, argv++, i++)
-		if(!(fps[i] = fopen(*argv, aflag ? "a" : "w")))
+	for (i = 0; argc > 0; argc--, argv++, i++)
+		if (!(fps[i] = fopen(*argv, aflag ? "a" : "w")))
 			eprintf("fopen %s:", *argv);
 	fps[i] = stdout;
 
-	while((n = fread(buf, 1, sizeof buf, stdin)) > 0) {
-		for(i = 0; i < nfps; i++) {
-			if(fwrite(buf, 1, n, fps[i]) != n)
+	while ((n = fread(buf, 1, sizeof buf, stdin)) > 0) {
+		for (i = 0; i < nfps; i++) {
+			if (fwrite(buf, 1, n, fps[i]) != n)
 				eprintf("%s: write error:", buf);
 		}
 	}
-	if(ferror(stdin))
+	if (ferror(stdin))
 		eprintf("<stdin>: read error:");
 	free(fps);
 

@@ -6,6 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <wchar.h>
+
 #include "util.h"
 
 typedef struct {
@@ -48,48 +49,48 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(argc == 0)
+	if (argc == 0)
 		usage();
 
 	/* populate delimeters */
-	if(!adelim)
+	if (!adelim)
 		adelim = "\t";
 
 	len = mbstowcs(NULL, adelim, 0);
-	if(len == (size_t)-1)
+	if (len == (size_t) - 1)
 		eprintf("invalid delimiter\n");
 
-	if(!(delim = malloc((len + 1) * sizeof(*delim))))
+	if (!(delim = malloc((len + 1) * sizeof(*delim))))
 		eprintf("out of memory\n");
 
 	mbstowcs(delim, adelim, len);
 	len = unescape(delim);
-	if(len == 0)
+	if (len == 0)
 		eprintf("no delimiters specified\n");
 
 	/* populate file list */
-	if(!(dsc = malloc(argc * sizeof(*dsc))))
+	if (!(dsc = malloc(argc * sizeof(*dsc))))
 		eprintf("out of memory\n");
 
-	for(i = 0; i < argc; i++) {
-		if(strcmp(argv[i], "-") == 0)
+	for (i = 0; i < argc; i++) {
+		if (strcmp(argv[i], "-") == 0)
 			dsc[i].fp = stdin;
 		else
 			dsc[i].fp = fopen(argv[i], "r");
 
-		if(!dsc[i].fp)
+		if (!dsc[i].fp)
 			eprintf("can't open '%s':", argv[i]);
 
 		dsc[i].name = argv[i];
 	}
 
-	if(seq)
+	if (seq)
 		sequential(dsc, argc, delim, len);
 	else
 		parallel(dsc, argc, delim, len);
 
-	for(i = 0; i < argc; i++) {
-		if(dsc[i].fp != stdin)
+	for (i = 0; i < argc; i++) {
+		if (dsc[i].fp != stdin)
 			(void)fclose(dsc[i].fp);
 	}
 
@@ -106,9 +107,9 @@ unescape(wchar_t *delim)
 	size_t i;
 	size_t len;
 
-	for(i = 0, len = 0; (c = delim[i++]) != '\0'; len++) {
-		if(c == '\\') {
-			switch(delim[i++]) {
+	for (i = 0, len = 0; (c = delim[i++]) != '\0'; len++) {
+		if (c == '\\') {
+			switch (delim[i++]) {
 			case 'n':
 				delim[len] = '\n';
 				break;
@@ -138,7 +139,7 @@ in(Fdescr *f)
 {
 	wint_t c = fgetwc(f->fp);
 
-	if(c == WEOF && ferror(f->fp))
+	if (c == WEOF && ferror(f->fp))
 		eprintf("'%s' read error:", f->name);
 
 	return c;
@@ -148,7 +149,7 @@ static void
 out(wchar_t c)
 {
 	putwchar(c);
-	if(ferror(stdout))
+	if (ferror(stdout))
 		eprintf("write error:");
 }
 
@@ -159,26 +160,26 @@ sequential(Fdescr *dsc, int len, const wchar_t *delim, size_t cnt)
 	size_t d;
 	wint_t c, last;
 
-	for(i = 0; i < len; i++) {
+	for (i = 0; i < len; i++) {
 		d = 0;
 		last = WEOF;
 
-		while((c = in(&dsc[i])) != WEOF) {
-			if(last == '\n') {
-				if(delim[d] != '\0')
+		while ((c = in(&dsc[i])) != WEOF) {
+			if (last == '\n') {
+				if (delim[d] != '\0')
 					out(delim[d]);
 
 				d++;
 				d %= cnt;
 			}
 
-			if(c != '\n')
+			if (c != '\n')
 				out((wchar_t)c);
 
 			last = c;
 		}
 
-		if(last == '\n')
+		if (last == '\n')
 			out((wchar_t)last);
 	}
 }
@@ -192,36 +193,36 @@ parallel(Fdescr *dsc, int len, const wchar_t *delim, size_t cnt)
 
 	do {
 		last = 0;
-		for(i = 0; i < len; i++) {
+		for (i = 0; i < len; i++) {
 			d = delim[i % cnt];
 
 			do {
 				o = in(&dsc[i]);
 				c = o;
-				switch(c) {
+				switch (c) {
 				case WEOF:
-					if(last == 0)
+					if (last == 0)
 						break;
 
 					o = '\n';
 					/* fallthrough */
 				case '\n':
-					if(i != len - 1)
+					if (i != len - 1)
 						o = d;
 					break;
 				default:
 					break;
 				}
 
-				if(o != WEOF) {
+				if (o != WEOF) {
 					/* pad with delimiters up to this point */
-					while(++last < i) {
-						if(d != '\0')
+					while (++last < i) {
+						if (d != '\0')
 							out(d);
 					}
 					out((wchar_t)o);
 				}
-			} while(c != '\n' && c != WEOF);
+			} while (c != '\n' && c != WEOF);
 		}
-	} while(last > 0);
+	} while (last > 0);
 }

@@ -10,6 +10,7 @@
 #include <limits.h>
 #include <grp.h>
 #include <pwd.h>
+
 #include "util.h"
 
 typedef struct Header Header;
@@ -74,7 +75,7 @@ main(int argc, char *argv[])
 	case 'x':
 	case 'c':
 	case 't':
-		if(mode)
+		if (mode)
 			usage();
 		mode = ARGC();
 		break;
@@ -91,27 +92,27 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(!mode) {
-		if(argc < 1)
+	if (!mode) {
+		if (argc < 1)
 			usage();
 
-		for(ap = argv[0]; *ap; ap++) {
-			switch(*ap) {
+		for (ap = argv[0]; *ap; ap++) {
+			switch (*ap) {
 			case 'x':
 			case 'c':
 			case 't':
-				if(mode)
+				if (mode)
 					usage();
 				mode = *ap;
 				break;
 			case 'f':
-				if(argc < 2)
+				if (argc < 2)
 					usage();
 				argc--, argv++;
 				file = argv[0];
 				break;
 			case 'C':
-				if(argc < 2)
+				if (argc < 2)
 					usage();
 				argc--, argv++;
 				dir = argv[0];
@@ -126,12 +127,12 @@ main(int argc, char *argv[])
 		argc--, argv++;
 	}
 
-	if(!mode || argc != (mode == 'c'))
+	if (!mode || argc != (mode == 'c'))
 		usage();
 
-	if(file) {
+	if (file) {
 		tarfile = fopen(file, (mode == 'c') ? "wb" : "rb");
-		if(!tarfile)
+		if (!tarfile)
 			eprintf("tar: open '%s':", file);
 		if (lstat(file, &st) < 0)
 			eprintf("tar: stat '%s':", file);
@@ -143,7 +144,7 @@ main(int argc, char *argv[])
 
 	chdir(dir);
 
-	if(mode == 'c') {
+	if (mode == 'c') {
 		c(argv[0]);
 	} else {
 		xt((mode == 'x') ? unarchive : print);
@@ -192,16 +193,16 @@ archive(const char* path)
 	snprintf(h->gname, sizeof h->gname, "%s", gr ? gr->gr_name : "");
 
 	mode = st.st_mode;
-	if(S_ISREG(mode)) {
+	if (S_ISREG(mode)) {
 		h->type = REG;
 		putoctal(h->size, (unsigned)st.st_size,  sizeof h->size);
 		f = fopen(path, "r");
-	} else if(S_ISDIR(mode)) {
+	} else if (S_ISDIR(mode)) {
 		h->type = DIRECTORY;
-	} else if(S_ISLNK(mode)) {
+	} else if (S_ISLNK(mode)) {
 		h->type = SYMLINK;
 		readlink(path, h->link, (sizeof h->link)-1);
-	} else if(S_ISCHR(mode) || S_ISBLK(mode)) {
+	} else if (S_ISCHR(mode) || S_ISBLK(mode)) {
 		h->type = S_ISCHR(mode) ? CHARDEV : BLOCKDEV;
 #if defined(major) && defined(minor)
 		putoctal(h->major, (unsigned)major(st.st_dev), sizeof h->major);
@@ -209,20 +210,20 @@ archive(const char* path)
 #else
 		return 0;
 #endif
-	} else if(S_ISFIFO(mode)) {
+	} else if (S_ISFIFO(mode)) {
 		h->type = FIFO;
 	}
 
 	memset(h->chksum, ' ', sizeof h->chksum);
-	for(x = 0, chksum = 0; x < sizeof *h; x++)
+	for (x = 0, chksum = 0; x < sizeof *h; x++)
 		chksum += b[x];
 	putoctal(h->chksum, chksum, sizeof h->chksum);
 
 	fwrite(b, Blksiz, 1, tarfile);
-	if(!f)
+	if (!f)
 		return 0;
-	while((l = fread(b, 1, Blksiz, f)) > 0) {
-		if(l < Blksiz)
+	while ((l = fread(b, 1, Blksiz, f)) > 0) {
+		if (l < Blksiz)
 			memset(b+l, 0, Blksiz-l);
 		fwrite(b, Blksiz, 1, tarfile);
 	}
@@ -239,25 +240,25 @@ unarchive(char *fname, int l, char b[Blksiz])
 	struct timeval times[2];
 	Header *h = (void*)b;
 
-	if(!mflag)
+	if (!mflag)
 		mtime = strtoul(h->mtime, 0, 8);
 	unlink(fname);
-	switch(h->type) {
+	switch (h->type) {
 	case REG:
 	case AREG:
 		mode = strtoul(h->mode, 0, 8);
-		if(!(f = fopen(fname, "w")) || chmod(fname, mode))
+		if (!(f = fopen(fname, "w")) || chmod(fname, mode))
 			perror(fname);
 		break;
 	case HARDLINK:
 	case SYMLINK:
 		snprintf(lname, sizeof lname, "%s", h->link);
-		if(!((h->type == HARDLINK) ? link : symlink)(lname, fname))
+		if (!((h->type == HARDLINK) ? link : symlink)(lname, fname))
 			perror(fname);
 		break;
 	case DIRECTORY:
 		mode = strtoul(h->mode, 0, 8);
-		if(mkdir(fname, (mode_t)mode))
+		if (mkdir(fname, (mode_t)mode))
 			perror(fname);
 		break;
 	case CHARDEV:
@@ -267,34 +268,34 @@ unarchive(char *fname, int l, char b[Blksiz])
 		major = strtoul(h->major, 0, 8);
 		minor = strtoul(h->mode, 0, 8);
 		type = (h->type == CHARDEV) ? S_IFCHR : S_IFBLK;
-		if(mknod(fname, type | mode, makedev(major, minor)))
+		if (mknod(fname, type | mode, makedev(major, minor)))
 			perror(fname);
 #endif
 		break;
 	case FIFO:
 		mode = strtoul(h->mode, 0, 8);
-		if(mknod(fname, S_IFIFO | mode, 0))
+		if (mknod(fname, S_IFIFO | mode, 0))
 			perror(fname);
 		break;
 	default:
 		fprintf(stderr, "usupported tarfiletype %c\n", h->type);
 	}
-	if(getuid() == 0 && chown(fname, strtoul(h->uid, 0, 8),
-	                                 strtoul(h->gid, 0, 8)))
+	if (getuid() == 0 && chown(fname, strtoul(h->uid, 0, 8),
+	                                  strtoul(h->gid, 0, 8)))
 		perror(fname);
 
-	for(; l > 0; l -= Blksiz) {
+	for (; l > 0; l -= Blksiz) {
 		fread(b, Blksiz, 1, tarfile);
-		if(f)
+		if (f)
 			fwrite(b, MIN(l, 512), 1, f);
 	}
-	if(f)
+	if (f)
 		fclose(f);
 
-	if(!mflag) {
+	if (!mflag) {
 		times[0].tv_sec = times[1].tv_sec = mtime;
 		times[0].tv_usec = times[1].tv_usec = 0;
-		if(utimes(fname, times))
+		if (utimes(fname, times))
 			perror(fname);
 	}
 	return 0;
@@ -304,7 +305,7 @@ static int
 print(char * fname, int l, char b[Blksiz])
 {
 	puts(fname);
-	for(; l > 0; l -= Blksiz)
+	for (; l > 0; l -= Blksiz)
 		fread(b, Blksiz, 1, tarfile);
 	return 0;
 }
@@ -322,7 +323,7 @@ xt(int (*fn)(char*, int, char[Blksiz]))
 	char b[Blksiz], fname[257], *s;
 	Header *h = (void*)b;
 
-	while(fread(b, Blksiz, 1, tarfile) && h->name[0] != '\0') {
+	while (fread(b, Blksiz, 1, tarfile) && h->name[0] != '\0') {
 		s = fname;
 		if (h->prefix[0] != '\0')
 			s += sprintf(s, "%.*s/", (int)sizeof h->prefix, h->prefix);

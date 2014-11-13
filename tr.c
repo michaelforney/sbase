@@ -5,6 +5,7 @@
 #include <string.h>
 #include <locale.h>
 #include <wchar.h>
+
 #include "text.h"
 #include "util.h"
 
@@ -54,7 +55,7 @@ resolve_escape(char *s)
 	int i;
 	unsigned char c;
 
-	switch(*s) {
+	switch (*s) {
 	case 'n':
 		*s = '\n';
 		return 0;
@@ -84,13 +85,13 @@ resolve_escape(char *s)
 	default: ;
 	}
 
-	if(*s<'0' || *s>'7')
+	if(*s < '0' || *s > '7')
 		eprintf("invalid character after '\\':");
-	for(i=0, c=0; s[i]>='0' && s[i]<='7' && i<3; i++) {
+	for(i = 0, c = 0; s[i] >= '0' && s[i] <= '7' && i < 3; i++) {
 		c <<= 3;
 		c += s[i]-'0';
 	}
-	if(*s>'3' && i==3)
+	if(*s > '3' && i == 3)
 		eprintf("octal byte cannot be bigger than 377:");
 	*s = c;
 	return i;
@@ -112,8 +113,8 @@ xmbtowc(wchar_t *unicodep, const char *s)
 static int
 has_octal_escapes(const char *s)
 {
-	while(*s)
-		if(*s++ == '\\' && *s >= '0' && *s <= '7')
+	while (*s)
+		if (*s++ == '\\' && *s >= '0' && *s <= '7')
 			return 1;
 	return 0;
 }
@@ -125,26 +126,26 @@ get_next_char(struct set_state *s)
 	int nchars;
 
 start:
-	if(s->rfirst <= s->rlast) {
+	if (s->rfirst <= s->rlast) {
 		c = s->rfirst;
 		s->rfirst++;
 		return c;
 	}
 
-	if(*s->s == '-' && !s->prev_was_octal) {
+	if (*s->s == '-' && !s->prev_was_octal) {
 		s->s++;
-		if(!*s->s)
+		if (!*s->s)
 			return '-';
-		if(*s->s == '\\' && (nchars = resolve_escape(++(s->s))))
+		if (*s->s == '\\' && (nchars = resolve_escape(++(s->s))))
 			goto char_is_octal;
 		s->rlast = *(s->s)++;
-		if(!s->rlast)
+		if (!s->rlast)
 			return '\0';
 		s->prev_was_octal = 1;
 		s->rfirst = ++(s->prev);
 		goto start;
 	}
-	if(*s->s == '\\' && (nchars = resolve_escape(++(s->s))))
+	if (*s->s == '\\' && (nchars = resolve_escape(++(s->s))))
 		goto char_is_octal;
 
 	s->prev_was_octal = 0;
@@ -163,27 +164,27 @@ static wchar_t
 get_next_wchar(struct wset_state *s)
 {
 start:
-	if(s->rfirst <= s->rlast) {
+	if (s->rfirst <= s->rlast) {
 		s->prev = s->rfirst;
 		s->rfirst++;
 		return s->prev;
 	}
 
-	if(*s->s == '-' && !s->prev_was_range) {
+	if (*s->s == '-' && !s->prev_was_range) {
 		s->s++;
-		if(!*s->s)
+		if (!*s->s)
 			return '-';
-		if(*s->s == '\\')
+		if (*s->s == '\\')
 			resolve_escape(++(s->s));
 		s->s += xmbtowc(&s->rlast, s->s);
-		if(!s->rlast)
+		if (!s->rlast)
 			return '\0';
 		s->rfirst = ++(s->prev);
 		s->prev_was_range = 1;
 		goto start;
 	}
 
-	if(*s->s == '\\')
+	if (*s->s == '\\')
 		resolve_escape(++(s->s));
 	s->s += xmbtowc(&s->prev, s->s);
 	s->prev_was_range = 0;
@@ -197,39 +198,39 @@ is_mapping_wide(const char *set1, const char *set2)
 	struct wset_state wss1, wss2;
 	wchar_t wc1, wc2, last_wc2;
 
-	if(has_octal_escapes(set1)) {
+	if (has_octal_escapes(set1)) {
 		set_state_defaults(&ss1);
 		ss1.s = (char *) set1;
-		if(set2) {
+		if (set2) {
 			set_state_defaults(&ss2);
 			ss2.s = (char *) set2;
 			/* if the character returned is from an octal triplet, it might be null
 			 * and still need to continue */
-			while((wc1 = (unsigned char) get_next_char(&ss1)) || ss1.prev_was_octal ) {
-				if(!(wc2 = (unsigned char) get_next_char(&ss2)))
+			while ((wc1 = (unsigned char) get_next_char(&ss1)) || ss1.prev_was_octal ) {
+				if (!(wc2 = (unsigned char) get_next_char(&ss2)))
 					wc2 = last_wc2;
 				mappings[wc1] = wc2;
 				last_wc2 = wc2;
 			}
 		} else {
-			while((wc1 = (unsigned char) get_next_char(&ss1)) || ss1.prev_was_octal)
+			while ((wc1 = (unsigned char) get_next_char(&ss1)) || ss1.prev_was_octal)
 				mappings[wc1] = 1;
 		}
 		return 0;
 	} else {
 		wset_state_defaults(&wss1);
 		wss1.s = (char *) set1;
-		if(set2) {
+		if (set2) {
 			wset_state_defaults(&wss2);
 			wss2.s = (char *) set2;
-			while((wc1 = get_next_wchar(&wss1))) {
-				if(!(wc2 = get_next_wchar(&wss2)))
+			while ((wc1 = get_next_wchar(&wss1))) {
+				if (!(wc2 = get_next_wchar(&wss2)))
 					wc2 = last_wc2;
 				mappings[wc1] = wc2;
 				last_wc2 = wc2;
 			}
 		} else {
-			while((wc1 = get_next_wchar(&wss1)))
+			while ((wc1 = get_next_wchar(&wss1)))
 				mappings[wc1] = 1;
 		}
 		return 1;
@@ -245,13 +246,13 @@ wmap_null(char *in, ssize_t nbytes)
 	int parsed_bytes = 0;
 
 	s = in;
-	while(nbytes) {
+	while (nbytes) {
 		parsed_bytes = embtowc(&rune, s);
-		if(parsed_bytes < 0) {
+		if (parsed_bytes < 0) {
 			rune = *s;
 			parsed_bytes = 1;
 		}
-		if(((!mappings[rune])&1) ^ cflag)
+		if (((!mappings[rune])&1) ^ cflag)
 			putwchar(rune);
 		s += parsed_bytes;
 		nbytes -= parsed_bytes;
@@ -266,13 +267,13 @@ wmap_set(char *in, ssize_t nbytes)
 	int parsed_bytes = 0;
 
 	s = in;
-	while(nbytes) {
+	while (nbytes) {
 		parsed_bytes = embtowc(&rune, s);
-		if(parsed_bytes < 0) {
+		if (parsed_bytes < 0) {
 			rune = *s;
 			parsed_bytes = 1;
 		}
-		if(!mappings[rune])
+		if (!mappings[rune])
 			putwchar(rune);
 		else
 			putwchar(mappings[rune]);
@@ -286,8 +287,8 @@ map_null(char *in, ssize_t nbytes)
 {
 	char *s;
 
-	for(s=in; nbytes; s++, nbytes--)
-		if(((!mappings[(unsigned char)*s])&1) ^ cflag)
+	for (s = in; nbytes; s++, nbytes--)
+		if (((!mappings[(unsigned char)*s])&1) ^ cflag)
 			putchar(*s);
 }
 
@@ -296,8 +297,8 @@ map_set(char *in, ssize_t nbytes)
 {
 	char *s;
 
-	for(s=in; nbytes; s++, nbytes--)
-		if(!mappings[(unsigned char)*s])
+	for (s = in; nbytes; s++, nbytes--)
+		if (!mappings[(unsigned char)*s])
 			putchar(*s);
 		else
 			putchar(mappings[(unsigned char)*s]);
@@ -325,20 +326,20 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(argc == 0)
+	if (argc == 0)
 		usage();
 
-	if(dflag) {
-		if(argc != 1)
+	if (dflag) {
+		if (argc != 1)
 			usage();
-		if(is_mapping_wide(argv[0], NULL))
+		if (is_mapping_wide(argv[0], NULL))
 			mapfunc = wmap_null;
 		else
 			mapfunc = map_null;
-	} else if(cflag) {
+	} else if (cflag) {
 		usage();
-	} else if(argc == 2) {
-		if(is_mapping_wide(argv[0], argv[1]))
+	} else if (argc == 2) {
+		if (is_mapping_wide(argv[0], argv[1]))
 			mapfunc = wmap_set;
 		else
 			mapfunc = map_set;
@@ -346,10 +347,10 @@ main(int argc, char *argv[])
 		usage();
 	}
 
-	while((nbytes = agetline(&buf, &size, stdin)) != -1)
+	while ((nbytes = agetline(&buf, &size, stdin)) != -1)
 		mapfunc(buf, nbytes);
 	free(buf);
-	if(ferror(stdin))
+	if (ferror(stdin))
 		eprintf("<stdin>: read error:");
 
 	return 0;

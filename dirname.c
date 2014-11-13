@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
 #include "util.h"
 
 static void
@@ -19,7 +20,7 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(argc < 1)
+	if (argc < 1)
 		usage();
 
 	puts(dirname(argv[0]));

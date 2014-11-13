@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
 #include "text.h"
 #include "util.h"
 
@@ -42,11 +43,11 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(argc == 0) {
+	if (argc == 0) {
 		fold(stdin, width);
 	} else {
-		for(; argc > 0; argc--, argv++) {
-			if(!(fp = fopen(argv[0], "r"))) {
+		for (; argc > 0; argc--, argv++) {
+			if (!(fp = fopen(argv[0], "r"))) {
 				weprintf("fopen %s:", argv[0]);
 				continue;
 			}
@@ -64,7 +65,7 @@ fold(FILE *fp, long width)
 	char *buf = NULL;
 	size_t size = 0;
 
-	while(agetline(&buf, &size, fp) != -1)
+	while (agetline(&buf, &size, fp) != -1)
 		foldline(buf, width);
 	free(buf);
 }
@@ -79,18 +80,18 @@ foldline(const char *str, long width)
 
 	do {
 		space = false;
-		for(j = i, col = 0; str[j] && col <= width; j++) {
+		for (j = i, col = 0; str[j] && col <= width; j++) {
 			c = str[j];
-			if(!UTF8_POINT(c) && !bflag)
+			if (!UTF8_POINT(c) && !bflag)
 				continue;
-			if(sflag && isspace(c)) {
+			if (sflag && isspace(c)) {
 				space = true;
 				n = j+1;
 			}
-			else if(!space)
+			else if (!space)
 				n = j;
 
-			if(!bflag && iscntrl(c))
+			if (!bflag && iscntrl(c))
 				switch(c) {
 				case '\b':
 					col--;
@@ -105,9 +106,9 @@ foldline(const char *str, long width)
 			else
 				col++;
 		}
-		if(fwrite(&str[i], 1, n-i, stdout) != n-i)
+		if (fwrite(&str[i], 1, n-i, stdout) != n-i)
 			eprintf("<stdout>: write error:");
-		if(str[n])
+		if (str[n])
 			putchar('\n');
-	} while(str[i = n] && str[i] != '\n');
+	} while (str[i = n] && str[i] != '\n');
 }

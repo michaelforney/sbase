@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
 #include "text.h"
 #include "util.h"
 
@@ -31,9 +32,9 @@ main(int argc, char *argv[])
 	case 'b':
 		r = EARGF(usage());
 		mode = r[0];
-		if(r[0] == 'p') {
+		if (r[0] == 'p') {
 			regcomp(&preg, &r[1], REG_NOSUB);
-		} else if(!strchr("ant", mode)) {
+		} else if (!strchr("ant", mode)) {
 			usage();
 		}
 		break;
@@ -47,10 +48,10 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(argc == 0) {
+	if (argc == 0) {
 		nl(stdin);
-	} else for(; argc > 0; argc--, argv++) {
-		if(!(fp = fopen(argv[0], "r"))) {
+	} else for (; argc > 0; argc--, argv++) {
+		if (!(fp = fopen(argv[0], "r"))) {
 			weprintf("fopen %s:", argv[0]);
 			continue;
 		}
@@ -68,11 +69,11 @@ nl(FILE *fp)
 	long n = 0;
 	size_t size = 0;
 
-	while(agetline(&buf, &size, fp) != -1) {
-		if((mode == 'a')
-		   || (mode == 'p'
-		       && !regexec(&preg, buf, 0, NULL, 0))
-		   || (mode == 't' && buf[0] != '\n')) {
+	while (agetline(&buf, &size, fp) != -1) {
+		if ((mode == 'a')
+		    || (mode == 'p'
+		        && !regexec(&preg, buf, 0, NULL, 0))
+		    || (mode == 't' && buf[0] != '\n')) {
 			printf("%6ld%s%s", n += incr, sep, buf);
 		} else {
 			printf("       %s", buf);

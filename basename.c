@@ -24,11 +24,11 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(argc < 1)
+	if (argc < 1)
 		usage();
 
 	s = basename(argv[0]);
-	if(argc == 2) {
+	if (argc == 2) {
 		p = strstr(s, argv[1]);
 		if (p && p[strlen(p)] == '\0')
 			*p = '\0';

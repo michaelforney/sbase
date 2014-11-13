@@ -10,6 +10,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <sys/stat.h>
+
 #include "util.h"
 
 typedef struct {
@@ -89,15 +90,15 @@ main(int argc, char *argv[])
 	} ARGEND;
 
 	many = (argc > 1);
-	if(argc == 0)
+	if (argc == 0)
 		*--argv = ".", argc++;
 
-	if(!(ents = malloc(argc * sizeof *ents)))
+	if (!(ents = malloc(argc * sizeof *ents)))
 		eprintf("malloc:");
-	for(i = 0; i < argc; i++)
+	for (i = 0; i < argc; i++)
 		mkent(&ents[i], argv[i], true);
 	qsort(ents, argc, sizeof *ents, entcmp);
-	for(i = 0; i < argc; i++)
+	for (i = 0; i < argc; i++)
 		ls(&ents[rflag ? argc-i-1 : i]);
 
 	return 0;
@@ -108,7 +109,7 @@ entcmp(const void *va, const void *vb)
 {
 	const Entry *a = va, *b = vb;
 
-	if(tflag)
+	if (tflag)
 		return b->mtime - a->mtime;
 	else
 		return strcmp(a->name, b->name);
@@ -117,7 +118,7 @@ entcmp(const void *va, const void *vb)
 static void
 ls(Entry *ent)
 {
-	if(S_ISDIR(ent->mode) && !dflag) {
+	if (S_ISDIR(ent->mode) && !dflag) {
 		lsdir(ent->name);
 	} else {
 		output(ent);
@@ -135,42 +136,42 @@ lsdir(const char *path)
 	size_t sz;
 
 	cwd = agetcwd();
-	if(!(dp = opendir(path)))
+	if (!(dp = opendir(path)))
 		eprintf("opendir %s:", path);
-	if(chdir(path) == -1)
+	if (chdir(path) == -1)
 		eprintf("chdir %s:", path);
 
-	if(many) {
-		if(!first)
+	if (many) {
+		if (!first)
 			putchar('\n');
 		printf("%s:\n", path);
 		first = false;
 	}
 
-	while((d = readdir(dp))) {
-		if(d->d_name[0] == '.' && !aflag)
+	while ((d = readdir(dp))) {
+		if (d->d_name[0] == '.' && !aflag)
 			continue;
-		if(Uflag){
+		if (Uflag){
 			mkent(&ent, d->d_name, Fflag || lflag || iflag);
 			output(&ent);
 		} else {
-			if(!(ents = realloc(ents, ++n * sizeof *ents)))
+			if (!(ents = realloc(ents, ++n * sizeof *ents)))
 				eprintf("realloc:");
-			if(!(p = malloc((sz = strlen(d->d_name)+1))))
+			if (!(p = malloc((sz = strlen(d->d_name)+1))))
 				eprintf("malloc:");
 			memcpy(p, d->d_name, sz);
 			mkent(&ents[n-1], p, tflag || Fflag || lflag || iflag);
 		}
 	}
 	closedir(dp);
-	if(!Uflag){
+	if (!Uflag){
 		qsort(ents, n, sizeof *ents, entcmp);
-		for(i = 0; i < n; i++) {
+		for (i = 0; i < n; i++) {
 			output(&ents[rflag ? n-i-1 : i]);
 			free(ents[rflag ? n-i-1 : i].name);
 		}
 	}
-	if(chdir(cwd) == -1)
+	if (chdir(cwd) == -1)
 		eprintf("chdir %s:", cwd);
 	free(ents);
 	free(cwd);
@@ -182,9 +183,9 @@ mkent(Entry *ent, char *path, bool dostat)
 	struct stat st;
 
 	ent->name   = path;
-	if(!dostat)
+	if (!dostat)
 		return;
-	if(lstat(path, &st) == -1)
+	if (lstat(path, &st) == -1)
 		eprintf("lstat %s:", path);
 	ent->mode   = st.st_mode;
 	ent->nlink  = st.st_nlink;
@@ -198,20 +199,20 @@ mkent(Entry *ent, char *path, bool dostat)
 static char *
 indicator(mode_t mode)
 {
-	if(!Fflag)
+	if (!Fflag)
 		return "";
 
-	if(S_ISLNK(mode))
+	if (S_ISLNK(mode))
 		return "@";
-	else if(S_ISDIR(mode))
+	else if (S_ISDIR(mode))
 		return "/";
-	else if(S_ISFIFO(mode))
+	else if (S_ISFIFO(mode))
 		return "|";
-	else if(S_ISSOCK(mode))
+	else if (S_ISSOCK(mode))
 		return "=";
-	else if(mode & S_IXUSR ||
-		mode & S_IXGRP ||
-		mode & S_IXOTH)
+	else if (mode & S_IXUSR ||
+		 mode & S_IXGRP ||
+		 mode & S_IXOTH)
 		return "*";
 	else
 		return "";
@@ -231,69 +232,69 @@ output(Entry *ent)
 
 	if (iflag)
 		printf("%lu ", (unsigned long)ent->ino);
-	if(!lflag) {
+	if (!lflag) {
 		printf("%s%s\n", ent->name, indicator(ent->mode));
 		return;
 	}
-	if(S_ISREG(ent->mode))
+	if (S_ISREG(ent->mode))
 		mode[0] = '-';
-	else if(S_ISBLK(ent->mode))
+	else if (S_ISBLK(ent->mode))
 		mode[0] = 'b';
-	else if(S_ISCHR(ent->mode))
+	else if (S_ISCHR(ent->mode))
 		mode[0] = 'c';
-	else if(S_ISDIR(ent->mode))
+	else if (S_ISDIR(ent->mode))
 		mode[0] = 'd';
-	else if(S_ISFIFO(ent->mode))
+	else if (S_ISFIFO(ent->mode))
 		mode[0] = 'p';
-	else if(S_ISLNK(ent->mode))
+	else if (S_ISLNK(ent->mode))
 		mode[0] = 'l';
-	else if(S_ISSOCK(ent->mode))
+	else if (S_ISSOCK(ent->mode))
 		mode[0] = 's';
 	else
 		mode[0] = '?';
 
-	if(ent->mode & S_IRUSR) mode[1] = 'r';
-	if(ent->mode & S_IWUSR) mode[2] = 'w';
-	if(ent->mode & S_IXUSR) mode[3] = 'x';
-	if(ent->mode & S_IRGRP) mode[4] = 'r';
-	if(ent->mode & S_IWGRP) mode[5] = 'w';
-	if(ent->mode & S_IXGRP) mode[6] = 'x';
-	if(ent->mode & S_IROTH) mode[7] = 'r';
-	if(ent->mode & S_IWOTH) mode[8] = 'w';
-	if(ent->mode & S_IXOTH) mode[9] = 'x';
+	if (ent->mode & S_IRUSR) mode[1] = 'r';
+	if (ent->mode & S_IWUSR) mode[2] = 'w';
+	if (ent->mode & S_IXUSR) mode[3] = 'x';
+	if (ent->mode & S_IRGRP) mode[4] = 'r';
+	if (ent->mode & S_IWGRP) mode[5] = 'w';
+	if (ent->mode & S_IXGRP) mode[6] = 'x';
+	if (ent->mode & S_IROTH) mode[7] = 'r';
+	if (ent->mode & S_IWOTH) mode[8] = 'w';
+	if (ent->mode & S_IXOTH) mode[9] = 'x';
 
-	if(ent->mode & S_ISUID) mode[3] = (mode[3] == 'x') ? 's' : 'S';
-	if(ent->mode & S_ISGID) mode[6] = (mode[6] == 'x') ? 's' : 'S';
-	if(ent->mode & S_ISVTX) mode[9] = (mode[9] == 'x') ? 't' : 'T';
+	if (ent->mode & S_ISUID) mode[3] = (mode[3] == 'x') ? 's' : 'S';
+	if (ent->mode & S_ISGID) mode[6] = (mode[6] == 'x') ? 's' : 'S';
+	if (ent->mode & S_ISVTX) mode[9] = (mode[9] == 'x') ? 't' : 'T';
 
 	errno = 0;
 	pw = getpwuid(ent->uid);
-	if(errno || !pw)
+	if (errno || !pw)
 		snprintf(pwname, sizeof(pwname), "%d", ent->uid);
 	else
 		snprintf(pwname, sizeof(pwname), "%s", pw->pw_name);
 
 	errno = 0;
 	gr = getgrgid(ent->gid);
-	if(errno || !gr)
+	if (errno || !gr)
 		snprintf(grname, sizeof(grname), "%d", ent->gid);
 	else
 		snprintf(grname, sizeof(grname), "%s", gr->gr_name);
 
-	if(time(NULL) > ent->mtime + (180*24*60*60)) /* 6 months ago? */
+	if (time(NULL) > ent->mtime + (180*24*60*60)) /* 6 months ago? */
 		fmt = "%b %d  %Y";
 	else
 		fmt = "%b %d %H:%M";
 
 	strftime(buf, sizeof buf, fmt, localtime(&ent->mtime));
 	printf("%s %4ld %-8.8s %-8.8s ", mode, (long)ent->nlink, pwname, grname);
-	if(hflag)
+	if (hflag)
 		printf("%10s ", humansize((unsigned long)ent->size));
 	else
 		printf("%10lu ", (unsigned long)ent->size);
 	printf("%s %s%s", buf, ent->name, indicator(ent->mode));
-	if(S_ISLNK(ent->mode)) {
-		if((len = readlink(ent->name, buf, sizeof buf)) == -1)
+	if (S_ISLNK(ent->mode)) {
+		if ((len = readlink(ent->name, buf, sizeof buf)) == -1)
 			eprintf("readlink %s:", ent->name);
 		buf[len] = '\0';
 		mkent(&entlnk, buf, Fflag);

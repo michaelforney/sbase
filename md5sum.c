@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+
 #include "util.h"
 #include "crypt.h"
 #include "md5.h"
@@ -37,7 +38,7 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(cflag)
+	if (cflag)
 		return cryptcheck(checkfile, argc, argv, &md5_ops, md, sizeof(md));
 	return cryptmain(argc, argv, &md5_ops, md, sizeof(md));
 }

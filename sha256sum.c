@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+
 #include "util.h"
 #include "crypt.h"
 #include "sha256.h"
@@ -37,7 +38,7 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if(cflag)
+	if (cflag)
 		return cryptcheck(checkfile, argc, argv, &sha256_ops, md, sizeof(md));
 	return cryptmain(argc, argv, &sha256_ops, md, sizeof(md));
 }

@@ -51,7 +51,7 @@ done:
 	argv++;
 	argc--;
 
-	if(argc < 1)
+	if (argc < 1)
 		usage();
 
 	for (; argc > 0; argc--, argv++)
@@ -65,17 +65,17 @@ chmodr(const char *path)
 	struct stat st;
 	mode_t m;
 
-	if(stat(path, &st) == -1) {
+	if (stat(path, &st) == -1) {
 		weprintf("stat %s:", path);
 		ret = 1;
 		return;
 	}
 
 	m = parsemode(modestr, st.st_mode, mask);
-	if(chmod(path, m) == -1) {
+	if (chmod(path, m) == -1) {
 		weprintf("chmod %s:", path);
 		ret = 1;
 	}
-	if(rflag)
+	if (rflag)
 		recurse(path, chmodr);
 }

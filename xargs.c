@@ -5,6 +5,7 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
+
 #include "text.h"
 #include "util.h"
 
@@ -48,7 +49,7 @@ main(int argc, char *argv[])
 	ARGBEGIN {
 	case 'n':
 		nflag = 1;
-		if((maxargs = strtol(EARGF(usage()), NULL, 10)) <= 0)
+		if ((maxargs = strtol(EARGF(usage()), NULL, 10)) <= 0)
 			eprintf("%s: value for -n option should be >= 1\n", argv0);
 		break;
 	case 'r':
@@ -92,13 +93,13 @@ main(int argc, char *argv[])
 			i++;
 			a++;
 			leftover = 0;
-			if(nflag == 1 && a >= maxargs)
+			if (nflag == 1 && a >= maxargs)
 				break;
 		}
 		cmd[i] = NULL;
-		if(a >= maxargs && nflag == 1)
+		if (a >= maxargs && nflag == 1)
 			spawn();
-		else if(!a || (i == 1 && rflag == 1))
+		else if (!a || (i == 1 && rflag == 1))
 			;
 		else
 			spawn();

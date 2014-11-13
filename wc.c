@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
 #include "util.h"
 
 static void output(const char *, long, long, long);
@@ -47,7 +48,7 @@ main(int argc, char *argv[])
 		wc(stdin, NULL);
 	} else {
 		for (i = 0; i < argc; i++) {
-			if(!(fp = fopen(argv[i], "r"))) {
+			if (!(fp = fopen(argv[i], "r"))) {
 				weprintf("fopen %s:", argv[i]);
 				continue;
 			}
@@ -65,13 +66,13 @@ output(const char *str, long nc, long nl, long nw)
 {
 	bool noflags = !cmode && !lflag && !wflag;
 
-	if(lflag || noflags)
+	if (lflag || noflags)
 		printf(" %5ld", nl);
-	if(wflag || noflags)
+	if (wflag || noflags)
 		printf(" %5ld", nw);
-	if(cmode || noflags)
+	if (cmode || noflags)
 		printf(" %5ld", nc);
-	if(str)
+	if (str)
 		printf(" %s", str);
 	putchar('\n');
 }
@@ -83,14 +84,14 @@ wc(FILE *fp, const char *str)
 	int c;
 	long nc = 0, nl = 0, nw = 0;
 
-	while((c = getc(fp)) != EOF) {
-		if(cmode != 'm' || UTF8_POINT(c))
+	while ((c = getc(fp)) != EOF) {
+		if (cmode != 'm' || UTF8_POINT(c))
 			nc++;
-		if(c == '\n')
+		if (c == '\n')
 			nl++;
-		if(!isspace(c))
+		if (!isspace(c))
 			word = true;
-		else if(word) {
+		else if (word) {
 			word = false;
 			nw++;
 		}

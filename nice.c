@@ -6,6 +6,7 @@
 #include <sys/resource.h>
 #include <sys/time.h>
 #include <unistd.h>
+
 #include "util.h"
 
 static void
@@ -29,7 +30,7 @@ main(int argc, char *argv[])
 		break;
 	} ARGEND;
 
-	if(argc == 0)
+	if (argc == 0)
 		usage();
 
 	errno = 0;
