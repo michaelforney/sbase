@@ -10,7 +10,7 @@ enum { Same = 0, Diff = 1, Error = 2 };
 static void
 usage(void)
 {
-	enprintf(Error, "usage: %s [-ls] file1 [file2]\n", argv0);
+	enprintf(Error, "usage: %s [-ls] file1 file2\n", argv0);
 }
 
 int
@@ -34,23 +34,25 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc < 1 || argc > 2)
+	if (argc != 2)
 		usage();
 
+	if (argv[0][0] == '-')
+		argv[0] = "/dev/fd/0";
 	fp[0] = fopen(argv[0], "r");
 	if (!fp[0]) {
 		if(!sflag)
 			weprintf("fopen %s:", argv[0]);
 		exit(Error);
 	}
-	fp[1] = stdin;
 
-	if (argc == 2) {
-		if(!(fp[1] = fopen(argv[1], "r"))) {
-			if(!sflag)
-				weprintf("fopen %s:", argv[1]);
-			exit(Error);
-		}
+	if (argv[1][0] == '-')
+		argv[1] = "/dev/fd/0";
+	fp[1] = fopen(argv[1], "r");
+	if (!fp[1]) {
+		if(!sflag)
+			weprintf("fopen %s:", argv[1]);
+		exit(Error);
 	}
 
 	for(n = 1; ; n++) {
