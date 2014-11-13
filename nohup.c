@@ -33,7 +33,7 @@ main(int argc, char *argv[])
 
 	if(isatty(STDOUT_FILENO)) {
 		if((fd = open("nohup.out", O_APPEND|O_CREAT,
-						S_IRUSR|S_IWUSR)) == -1) {
+			      S_IRUSR|S_IWUSR)) == -1) {
 			enprintf(Error, "open nohup.out:");
 		}
 		if(dup2(fd, STDOUT_FILENO) == -1)
@@ -46,6 +46,5 @@ main(int argc, char *argv[])
 
 	execvp(argv[0], &argv[0]);
 	enprintf(errno == ENOENT ? Error : Found, "exec %s:", argv[0]);
-
-	return Error;
+	_exit(Error);
 }
