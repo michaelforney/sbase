@@ -10,9 +10,8 @@ bool rm_fflag = false, rm_rflag = false;
 void
 rm(const char *path)
 {
-	if(rm_rflag)
+	if (rm_rflag)
 		recurse(path, rm);
-	if(remove(path) == -1 && !rm_fflag)
+	if (remove(path) == -1 && !rm_fflag)
 		eprintf("remove %s:", path);
 }
-

@@ -12,7 +12,7 @@ estrtod(const char *s)
 	double d;
 
 	d = strtod(s, &end);
-	if(end == s || *end != '\0')
+	if (end == s || *end != '\0')
 		eprintf("%s: not a real number\n", s);
 	return d;
 }

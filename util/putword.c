@@ -9,10 +9,9 @@ putword(const char *s)
 {
 	static bool first = true;
 
-	if(!first)
+	if (!first)
 		putchar(' ');
 
 	fputs(s, stdout);
 	first = false;
 }
-

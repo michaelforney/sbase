@@ -13,13 +13,13 @@ estrtol(const char *s, int base)
 
 	errno = 0;
 	n = strtol(s, &end, base);
-	if(*end != '\0') {
-		if(base == 0)
+	if (*end != '\0') {
+		if (base == 0)
 			eprintf("%s: not an integer\n", s);
 		else
 			eprintf("%s: not a base %d integer\n", s, base);
 	}
-	if(errno != 0)
+	if (errno != 0)
 		eprintf("%s:", s);
 
 	return n;

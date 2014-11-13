@@ -1,8 +1,8 @@
 /* See LICENSE file for copyright and license details. */
 #include <fcntl.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #include "util.h"
 

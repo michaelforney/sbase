@@ -1,12 +1,12 @@
 /* See LICENSE file for copyright and license details. */
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 
-#include "util.h"
 #include "crypt.h"
 #include "sha256.h"
+#include "util.h"
 
 struct sha256 s;
 struct crypt_ops sha256_ops = {

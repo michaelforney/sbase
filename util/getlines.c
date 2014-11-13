@@ -13,16 +13,16 @@ getlines(FILE *fp, struct linebuf *b)
 	size_t size = 0, linelen;
 	ssize_t len;
 
-	while((len = agetline(&line, &size, fp)) != -1) {
-		if(++b->nlines > b->capacity) {
+	while ((len = agetline(&line, &size, fp)) != -1) {
+		if (++b->nlines > b->capacity) {
 			b->capacity += 512;
 			nline = realloc(b->lines, b->capacity * sizeof(*b->lines));
-			if(nline == NULL)
+			if (nline == NULL)
 				eprintf("realloc:");
 			b->lines = nline;
 		}
 		linelen = len + 1;
-		if(!(b->lines[b->nlines-1] = malloc(linelen)))
+		if (!(b->lines[b->nlines-1] = malloc(linelen)))
 			eprintf("malloc:");
 		memcpy(b->lines[b->nlines-1], line, linelen);
 	}

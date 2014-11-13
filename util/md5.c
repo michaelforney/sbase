@@ -1,6 +1,7 @@
 /* public domain md5 implementation based on rfc1321 and libtomcrypt */
 #include <stdint.h>
 #include <string.h>
+
 #include "../md5.h"
 
 static uint32_t rol(uint32_t n, int k) { return (n << k) | (n >> (32-k)); }

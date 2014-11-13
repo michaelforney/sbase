@@ -4,9 +4,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "util.h"
 #include "crypt.h"
 #include "md5.h"
+#include "util.h"
 
 struct md5 s;
 struct crypt_ops md5_ops = {

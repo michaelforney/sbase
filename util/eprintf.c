@@ -39,7 +39,7 @@ venprintf(int status, const char *fmt, va_list ap)
 
 	vfprintf(stderr, fmt, ap);
 
-	if(fmt[0] && fmt[strlen(fmt)-1] == ':') {
+	if (fmt[0] && fmt[strlen(fmt)-1] == ':') {
 		fputc(' ', stderr);
 		perror(NULL);
 	}

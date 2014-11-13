@@ -1,15 +1,15 @@
 /* See LICENSE file for copyright and license details. */
+#include <errno.h>
+#include <limits.h>
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <errno.h>
-#include <limits.h>
 
-#include "util.h"
 #include "text.h"
+#include "util.h"
 
 static void uudecode(FILE *, FILE *);
 static void parseheader(FILE *, const char *, const char *, mode_t *, char **);

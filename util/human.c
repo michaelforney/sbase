@@ -1,3 +1,4 @@
+/* See LICENSE file for copyright and license details. */
 #include <stdio.h>
 #include <string.h>
 
@@ -10,10 +11,10 @@ humansize(double n)
 	const char postfixes[] = "BKMGTPE";
 	size_t i;
 
-	for(i = 0; n >= 1024 && i < strlen(postfixes); i++)
+	for (i = 0; n >= 1024 && i < strlen(postfixes); i++)
 		n /= 1024;
 
-	if(!i)
+	if (!i)
 		snprintf(buf, sizeof(buf), "%lu", (unsigned long)n);
 	else
 		snprintf(buf, sizeof(buf), "%.1f%c", n, postfixes[i]);

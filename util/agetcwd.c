@@ -10,7 +10,7 @@ agetcwd(void)
 	long size;
 
 	apathmax(&buf, &size);
-	if(!getcwd(buf, size))
+	if (!getcwd(buf, size))
 		eprintf("getcwd:");
 
 	return buf;

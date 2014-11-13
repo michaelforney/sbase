@@ -1,20 +1,21 @@
 /* See LICENSE file for copyright and license details. */
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <string.h>
-#include "../util.h"
-#include "../text.h"
+
 #include "../crypt.h"
+#include "../text.h"
+#include "../util.h"
 
 static int
 hexdec(int c)
 {
-	if(c >= '0' && c <= '9')
+	if (c >= '0' && c <= '9')
 		return c - '0';
-	else if(c >= 'A' && c <= 'F')
+	else if (c >= 'A' && c <= 'F')
 		return c - 'A' + 10;
-	else if(c >= 'a' && c <= 'f')
+	else if (c >= 'a' && c <= 'f')
 		return c - 'a' + 10;
 	return -1; /* unknown character */
 }
@@ -25,12 +26,12 @@ mdcheckline(const char *s, uint8_t *md, size_t sz)
 	size_t i;
 	int b1, b2;
 
-	for(i = 0; i < sz; i++) {
-		if(!*s || (b1 = hexdec(*s++)) < 0)
+	for (i = 0; i < sz; i++) {
+		if (!*s || (b1 = hexdec(*s++)) < 0)
 			return -1; /* invalid format */
-		if(!*s || (b2 = hexdec(*s++)) < 0)
+		if (!*s || (b2 = hexdec(*s++)) < 0)
 			return -1; /* invalid format */
-		if((uint8_t)((b1 << 4) | b2) != md[i])
+		if ((uint8_t)((b1 << 4) | b2) != md[i])
 			return 0; /* value mismatch */
 	}
 	return (i == sz) ? 1 : 0;
@@ -45,34 +46,34 @@ cryptcheck(char *sumfile, int argc, char *argv[],
 	int r, nonmatch = 0, formatsucks = 0, noread = 0, ret = 0;
 	size_t bufsiz = 0;
 
-	if(sumfile == NULL)
+	if (sumfile == NULL)
 		cfp = stdin;
-	else if(!(cfp = fopen(sumfile, "r")))
+	else if (!(cfp = fopen(sumfile, "r")))
 		eprintf("fopen %s:", sumfile);
 
-	while(agetline(&line, &bufsiz, cfp) != -1) {
-		if(!(file = strstr(line, "  "))) {
+	while (agetline(&line, &bufsiz, cfp) != -1) {
+		if (!(file = strstr(line, "  "))) {
 			formatsucks++;
 			continue;
 		}
-		if((file - line) / 2 != sz) {
+		if ((file - line) / 2 != sz) {
 			formatsucks++; /* checksum length mismatch */
 			continue;
 		}
 		*file = '\0';
 		file += 2;
-		for(p = file; *p && *p != '\n' && *p != '\r'; p++); /* strip newline */
+		for (p = file; *p && *p != '\n' && *p != '\r'; p++); /* strip newline */
 		*p = '\0';
-		if(!(fp = fopen(file, "r"))) {
+		if (!(fp = fopen(file, "r"))) {
 			weprintf("fopen %s:", file);
 			noread++;
 			continue;
 		}
 		cryptsum(ops, fp, file, md);
 		r = mdcheckline(line, md, sz);
-		if(r == 1) {
+		if (r == 1) {
 			printf("%s: OK\n", file);
-		} else if(r == 0) {
+		} else if (r == 0) {
 			printf("%s: FAILED\n", file);
 			nonmatch++;
 		} else {
@@ -80,18 +81,18 @@ cryptcheck(char *sumfile, int argc, char *argv[],
 		}
 		fclose(fp);
 	}
-	if(sumfile != NULL)
+	if (sumfile != NULL)
 		fclose(cfp);
 	free(line);
-	if(formatsucks > 0) {
+	if (formatsucks > 0) {
 		weprintf("%d lines are improperly formatted\n", formatsucks);
 		ret = 1;
 	}
-	if(noread > 0) {
+	if (noread > 0) {
 		weprintf("%d listed file could not be read\n", noread);
 		ret = 1;
 	}
-	if(nonmatch > 0) {
+	if (nonmatch > 0) {
 		weprintf("%d computed checksums did NOT match\n", nonmatch);
 		ret = 1;
 	}
@@ -110,12 +111,12 @@ cryptmain(int argc, char *argv[],
 		mdprint(md, "<stdin>", sz);
 	} else {
 		for (; argc > 0; argc--) {
-			if((fp = fopen(*argv, "r")) == NULL) {
+			if ((fp = fopen(*argv, "r")) == NULL) {
 				weprintf("fopen %s:", *argv);
 				ret = 1;
 				continue;
 			}
-			if(cryptsum(ops, fp, *argv, md) == 1)
+			if (cryptsum(ops, fp, *argv, md) == 1)
 				ret = 1;
 			else
 				mdprint(md, *argv, sz);

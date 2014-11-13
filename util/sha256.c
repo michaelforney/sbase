@@ -1,9 +1,10 @@
 /* public domain sha256 implementation based on fips180-3 */
 #include <ctype.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "../sha256.h"
 
 static uint32_t ror(uint32_t n, int k) { return (n >> k) | (n << (32-k)); }
