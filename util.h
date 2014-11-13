@@ -5,7 +5,9 @@
 
 #define UTF8_POINT(c) (((c) & 0xc0) != 0x80)
 
+#undef MIN
 #define MIN(x,y)  ((x) < (y) ? (x) : (y))
+#undef MAX
 #define MAX(x,y)  ((x) > (y) ? (x) : (y))
 
 #define LEN(x) (sizeof (x) / sizeof *(x))
