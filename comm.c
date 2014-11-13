@@ -41,6 +41,8 @@ main(int argc, char *argv[])
 		usage();
 
 	for(i = 0; i < LEN(fp); i++) {
+		if (argv[i][0] == '-')
+			argv[i] = "/dev/fd/0";
 		if(!(fp[i] = fopen(argv[i], "r")))
 			eprintf("comm: '%s':", argv[i]);
 	}
@@ -48,13 +50,13 @@ main(int argc, char *argv[])
 	for(;;) {
 		if(diff <= 0) {
 			if(!nextline(lines[0], sizeof(lines[0]),
-						fp[0], argv[0])) {
+				     fp[0], argv[0])) {
 				finish(1, fp[1], argv[1]);
 			}
 		}
 		if(diff >= 0) {
 			if(!nextline(lines[1], sizeof(lines[1]),
-						fp[1], argv[1])) {
+				     fp[1], argv[1])) {
 				finish(0, fp[0], argv[0]);
 			}
 		}
@@ -89,7 +91,6 @@ nextline(char *buf, int n, FILE *f, char *name)
 		eprintf("comm: '%s':", name);
 	if(buf && !strchr(buf, '\n'))
 		eprintf("comm: '%s': line too long.\n", name);
-
 	return buf;
 }
 
@@ -100,6 +101,5 @@ finish(int pos, FILE *f, char *name)
 
 	while(nextline(buf, sizeof(buf), f, name))
 		printline(pos, buf);
-
 	exit(1);
 }
