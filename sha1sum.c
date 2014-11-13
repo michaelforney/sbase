@@ -1,5 +1,4 @@
 /* See LICENSE file for copyright and license details. */
-#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,11 +26,11 @@ main(int argc, char *argv[])
 {
 	uint8_t md[SHA1_DIGEST_LENGTH];
 	char *checkfile = NULL;
-	bool cflag = false;
+	int cflag = 0;
 
 	ARGBEGIN {
 	case 'c':
-		cflag = true;
+		cflag = 1;
 		checkfile = ARGF();
 		break;
 	default:

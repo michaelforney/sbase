@@ -1,7 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 #include <dirent.h>
 #include <limits.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,11 +15,11 @@ static char file[PATH_MAX];
 static long depth = -1;
 static long curdepth = 0;
 
-static bool aflag = false;
-static bool dflag = false;
-static bool sflag = false;
-static bool kflag = false;
-static bool hflag = false;
+static int aflag = 0;
+static int dflag = 0;
+static int sflag = 0;
+static int kflag = 0;
+static int hflag = 0;
 
 static long du(const char *);
 static void print(long n, char *path);
@@ -50,20 +49,20 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	case 'a':
-		aflag = true;
+		aflag = 1;
 		break;
 	case 'd':
-		dflag = true;
+		dflag = 1;
 		depth = estrtol(EARGF(usage()), 0);
 		break;
 	case 's':
-		sflag = true;
+		sflag = 1;
 		break;
 	case 'k':
-		kflag = true;
+		kflag = 1;
 		break;
 	case 'h':
-		hflag = true;
+		hflag = 1;
 		break;
 	default:
 		usage();

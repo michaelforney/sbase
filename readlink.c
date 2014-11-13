@@ -2,7 +2,6 @@
 #include <unistd.h>
 #include <errno.h>
 #include <limits.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,8 +18,8 @@ int
 main(int argc, char *argv[])
 {
 	char buf[PATH_MAX];
-	bool nflag = false;
-	bool fflag = false;
+	int nflag = 0;
+	int fflag = 0;
 	ssize_t n;
 
 	ARGBEGIN {
@@ -28,10 +27,10 @@ main(int argc, char *argv[])
 	case 'm':
 		eprintf("not implemented\n");
 	case 'f':
-		fflag = true;
+		fflag = 1;
 		break;
 	case 'n':
-		nflag = true;
+		nflag = 1;
 		break;
 	default:
 		usage();

@@ -44,8 +44,8 @@ mv(const char *s1, const char *s2)
 	if (rename(s1, s2) == 0)
 		return 0;
 	if (errno == EXDEV) {
-		cp_rflag = true;
-		rm_rflag = true;
+		cp_rflag = 1;
+		rm_rflag = 1;
 		cp(s1, s2);
 		rm(s1);
 		return 0;

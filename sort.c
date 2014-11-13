@@ -1,6 +1,5 @@
 /* See LICENSE file for copyright and license details. */
 #include <ctype.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -41,7 +40,7 @@ static int parse_keydef(struct keydef *, char *, int);
 static char *nextcol(char *);
 static char *columns(char *, const struct keydef *);
 
-static bool uflag = false;
+static int uflag = 0;
 static char *fieldsep = NULL;
 
 static void
@@ -77,7 +76,7 @@ main(int argc, char *argv[])
 			usage();
 		break;
 	case 'u':
-		uflag = true;
+		uflag = 1;
 		break;
 	default:
 		usage();

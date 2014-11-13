@@ -1,6 +1,5 @@
 /* See LICENSE file for copyright and license details. */
 #include <locale.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -30,7 +29,7 @@ int
 main(int argc, char *argv[])
 {
 	const char *adelim = NULL;
-	bool seq = false;
+	int seq = 0;
 	wchar_t *delim = NULL;
 	size_t len;
 	Fdescr *dsc = NULL;
@@ -40,7 +39,7 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	case 's':
-		seq = true;
+		seq = 1;
 		break;
 	case 'd':
 		adelim = EARGF(usage());

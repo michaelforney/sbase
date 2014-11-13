@@ -3,7 +3,6 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,12 +15,12 @@
 #include "../text.h"
 #include "../util.h"
 
-bool cp_aflag = false;
-bool cp_dflag = false;
-bool cp_fflag = false;
-bool cp_pflag = false;
-bool cp_rflag = false;
-bool cp_vflag = false;
+int cp_aflag = 0;
+int cp_dflag = 0;
+int cp_fflag = 0;
+int cp_pflag = 0;
+int cp_rflag = 0;
+int cp_vflag = 0;
 int cp_status = 0;
 
 int
@@ -40,15 +39,15 @@ cp(const char *s1, const char *s2)
 	if (cp_vflag)
 		printf("'%s' -> '%s'\n", s1, s2);
 
-	if (cp_dflag == true)
+	if (cp_dflag)
 		r = lstat(s1, &st);
 	else
 		r = stat(s1, &st);
 
 	if (r == 0) {
-		if (cp_dflag == true && S_ISLNK(st.st_mode)) {
+		if (cp_dflag && S_ISLNK(st.st_mode)) {
 			if (readlink(s1, buf, sizeof(buf) - 1) >= 0) {
-				if (cp_fflag == true);
+				if (cp_fflag);
 					unlink(s2);
 				if (symlink(buf, s2) != 0) {
 					weprintf("%s: can't create '%s'\n", argv0, s2);
@@ -92,7 +91,7 @@ cp(const char *s1, const char *s2)
 		}
 	}
 
-	if (cp_aflag == true) {
+	if (cp_aflag) {
 		if (S_ISBLK(st.st_mode) || S_ISCHR(st.st_mode) ||
 		   S_ISSOCK(st.st_mode) || S_ISFIFO(st.st_mode)) {
 			unlink(s2);
@@ -112,7 +111,7 @@ cp(const char *s1, const char *s2)
 	}
 
 	if (!(f2 = fopen(s2, "w"))) {
-		if (cp_fflag == true) {
+		if (cp_fflag) {
 			unlink(s2);
 			if (!(f2 = fopen(s2, "w"))) {
 				weprintf("fopen %s:", s2);
@@ -131,7 +130,7 @@ cp(const char *s1, const char *s2)
 	fclose(f1);
 
 preserve:
-	if (cp_aflag == true || cp_pflag == true) {
+	if (cp_aflag || cp_pflag) {
 		if (!(S_ISLNK(st.st_mode))) {
 			/* timestamp */
 			ut.actime = st.st_atime;

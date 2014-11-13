@@ -1,5 +1,4 @@
 /* See LICENSE file for copyright and license details. */
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -15,7 +14,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	bool aflag = false;
+	int aflag = 0;
 	char buf[BUFSIZ];
 	int i, nfps;
 	size_t n;
@@ -23,7 +22,7 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	case 'a':
-		aflag = true;
+		aflag = 1;
 		break;
 	default:
 		usage();

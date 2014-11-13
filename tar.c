@@ -2,7 +2,6 @@
 #include <grp.h>
 #include <limits.h>
 #include <pwd.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -53,7 +52,7 @@ static FILE *tarfile;
 static ino_t tarinode;
 static dev_t tardev;
 
-static bool mflag = false;
+static int mflag = 0;
 
 static void
 usage(void)
@@ -86,7 +85,7 @@ main(int argc, char *argv[])
 		file = EARGF(usage());
 		break;
 	case 'm':
-		mflag = true;
+		mflag = 1;
 		break;
 	default:
 		usage();
@@ -118,7 +117,7 @@ main(int argc, char *argv[])
 				dir = argv[0];
 				break;
 			case 'm':
-				mflag = true;
+				mflag = 1;
 				break;
 			default:
 				usage();

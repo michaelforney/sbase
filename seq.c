@@ -1,5 +1,4 @@
 /* See LICENSE file for copyright and license details. */
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,7 +8,7 @@
 
 static int digitsleft(const char *);
 static int digitsright(const char *);
-static bool validfmt(const char *);
+static int validfmt(const char *);
 
 static void
 usage(void)
@@ -22,7 +21,7 @@ int
 main(int argc, char *argv[])
 {
 	const char *starts = "1", *steps = "1", *ends = "1", *sep = "\n";
-	bool wflag = false;
+	int wflag = 0;
 	char *tmp, ftmp[BUFSIZ], *fmt = ftmp;
 	double start, step, end, out, dir;
 	int left, right;
@@ -37,7 +36,7 @@ main(int argc, char *argv[])
 		sep = EARGF(usage());
 		break;
 	case 'w':
-		wflag = true;
+		wflag = 1;
 		break;
 	default:
 		usage();
@@ -116,7 +115,7 @@ digitsright(const char *d)
 	return MAX(0, after - shift);
 }
 
-static bool
+static int
 validfmt(const char *fmt)
 {
 	int occur = 0;
@@ -149,6 +148,6 @@ format:
 		occur++;
 		goto literal;
 	default:
-		return false;
+		return 0;
 	}
 }

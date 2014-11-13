@@ -1,5 +1,4 @@
 /* See LICENSE file for copyright and license details. */
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,8 +22,8 @@ typedef struct Range {
 static Range *list = NULL;
 static char mode = 0;
 static char delim = '\t';
-static bool nflag = false;
-static bool sflag = false;
+static int nflag = 0;
+static int sflag = 0;
 
 static void
 insert(Range *r)
@@ -164,10 +163,10 @@ main(int argc, char *argv[])
 		delim = *ARGF();
 		break;
 	case 'n':
-		nflag = true;
+		nflag = 1;
 		break;
 	case 's':
-		sflag = true;
+		sflag = 1;
 		break;
 	default:
 		usage();

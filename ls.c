@@ -3,7 +3,6 @@
 #include <errno.h>
 #include <grp.h>
 #include <pwd.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -27,20 +26,20 @@ typedef struct {
 static int entcmp(const void *, const void *);
 static void ls(Entry *);
 static void lsdir(const char *);
-static void mkent(Entry *, char *, bool);
+static void mkent(Entry *, char *, int);
 static void output(Entry *);
 
-static bool aflag = false;
-static bool dflag = false;
-static bool Fflag = false;
-static bool hflag = false;
-static bool iflag = false;
-static bool lflag = false;
-static bool rflag = false;
-static bool tflag = false;
-static bool Uflag = false;
-static bool first = true;
-static bool many;
+static int aflag = 0;
+static int dflag = 0;
+static int Fflag = 0;
+static int hflag = 0;
+static int iflag = 0;
+static int lflag = 0;
+static int rflag = 0;
+static int tflag = 0;
+static int Uflag = 0;
+static int first = 1;
+static int many;
 
 static void
 usage(void)
@@ -59,31 +58,31 @@ main(int argc, char *argv[])
 		/* ignore */
 		break;
 	case 'a':
-		aflag = true;
+		aflag = 1;
 		break;
 	case 'd':
-		dflag = true;
+		dflag = 1;
 		break;
 	case 'F':
-		Fflag = true;
+		Fflag = 1;
 		break;
 	case 'h':
-		hflag = true;
+		hflag = 1;
 		break;
 	case 'i':
-		iflag = true;
+		iflag = 1;
 		break;
 	case 'l':
-		lflag = true;
+		lflag = 1;
 		break;
 	case 'r':
-		rflag = true;
+		rflag = 1;
 		break;
 	case 't':
-		tflag = true;
+		tflag = 1;
 		break;
 	case 'U':
-		Uflag = true;
+		Uflag = 1;
 		break;
 	default:
 		usage();
@@ -96,7 +95,7 @@ main(int argc, char *argv[])
 	if (!(ents = malloc(argc * sizeof *ents)))
 		eprintf("malloc:");
 	for (i = 0; i < argc; i++)
-		mkent(&ents[i], argv[i], true);
+		mkent(&ents[i], argv[i], 1);
 	qsort(ents, argc, sizeof *ents, entcmp);
 	for (i = 0; i < argc; i++)
 		ls(&ents[rflag ? argc-i-1 : i]);
@@ -145,7 +144,7 @@ lsdir(const char *path)
 		if (!first)
 			putchar('\n');
 		printf("%s:\n", path);
-		first = false;
+		first = 0;
 	}
 
 	while ((d = readdir(dp))) {
@@ -178,7 +177,7 @@ lsdir(const char *path)
 }
 
 static void
-mkent(Entry *ent, char *path, bool dostat)
+mkent(Entry *ent, char *path, int dostat)
 {
 	struct stat st;
 

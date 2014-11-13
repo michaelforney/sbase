@@ -1,17 +1,16 @@
 /* See LICENSE file for copyright and license details. */
-#include <sys/resource.h>
 #include <errno.h>
 #include <limits.h>
 #include <pwd.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/resource.h>
 
 #include "util.h"
 
 static int strtop(const char *);
-static bool renice(int, int, long);
+static int renice(int, int, long);
 
 static void
 usage(void)
@@ -95,7 +94,7 @@ strtop(const char *s)
 	return (int)n;
 }
 
-static bool
+static int
 renice(int which, int who, long adj)
 {
 	errno = 0;
@@ -103,15 +102,15 @@ renice(int which, int who, long adj)
 	if (errno != 0) {
 		fprintf(stderr, "can't get %d nice level: %s\n",
 		        who, strerror(errno));
-		return false;
+		return 0;
 	}
 
 	adj = MAX(-NZERO, MIN(adj, NZERO - 1));
 	if (setpriority(which, who, (int)adj) == -1) {
 		fprintf(stderr, "can't set %d nice level: %s\n",
 		        who, strerror(errno));
-		return false;
+		return 0;
 	}
 
-	return true;
+	return 1;
 }

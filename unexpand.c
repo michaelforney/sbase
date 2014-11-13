@@ -1,5 +1,4 @@
 /* See LICENSE file for copyright and license details. */
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <wchar.h>
@@ -13,7 +12,7 @@ typedef struct {
 
 static void unexpand(Fdescr *dsc);
 
-static bool aflag = false;
+static int aflag = 0;
 static int tabsize = 8;
 
 static void
@@ -35,7 +34,7 @@ main(int argc, char *argv[])
 			eprintf("unexpand: invalid tabsize\n", argv[0]);
 		/* Fallthrough: -t implies -a */
 	case 'a':
-		aflag = true;
+		aflag = 1;
 		break;
 	default:
 		usage();
@@ -98,7 +97,7 @@ static void
 unexpand(Fdescr *dsc)
 {
 	unsigned int n = 0, col = 0;
-	bool bol = true;
+	int bol = 1;
 	wint_t c;
 
 	while ((c = in(dsc)) != EOF) {
@@ -118,20 +117,20 @@ unexpand(Fdescr *dsc)
 				unexpandspan(n, col);
 			col -= (col > 0);
 			n = 0;
-			bol = false;
+			bol = 0;
 			break;
 		case '\n':
 			if (bol || aflag)
 				unexpandspan(n, col);
 			n = col = 0;
-			bol = true;
+			bol = 1;
 			break;
 		default:
 			if (bol || aflag)
 				unexpandspan(n, col);
 			n = 0;
 			col++;
-			bol = false;
+			bol = 0;
 		}
 		if ((c != ' ' && c != '\t') || (!aflag && !bol))
 			out(c);

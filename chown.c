@@ -2,7 +2,6 @@
 #include <errno.h>
 #include <grp.h>
 #include <pwd.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -11,7 +10,7 @@
 
 static void chownpwgr(const char *);
 
-static bool rflag = false;
+static int rflag = 0;
 static uid_t uid = -1;
 static gid_t gid = -1;
 static int ret = 0;
@@ -32,7 +31,7 @@ main(int argc, char *argv[])
 	ARGBEGIN {
 	case 'R':
 	case 'r':
-		rflag = true;
+		rflag = 1;
 		break;
 	default:
 		usage();

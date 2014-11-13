@@ -1,5 +1,4 @@
 /* See LICENSE file for copyright and license details. */
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -10,7 +9,7 @@
 
 static void drawcal(int, int, int, int, int, int);
 static int dayofweek(int, int, int, int);
-static bool isleap(int);
+static int isleap(int);
 static void usage(void);
 
 static void
@@ -59,7 +58,7 @@ drawcal(int year, int month, int day, int ncols, int nmons, int fday)
 				cur = moff % 12;
 				yoff = year + moff / 12;
 
-				ndays = mdays[cur] + ((cur == 1) & isleap(yoff));
+				ndays = mdays[cur] + ((cur == 1) && isleap(yoff));
 				day1 = dayofweek(year, cur, 1, fday);
 
 				for (d = 0; d < 7; d++) {
@@ -87,13 +86,13 @@ dayofweek(int year, int month, int day, int fday)
 	return (year + year / 4 - year / 100 + year / 400 + t[month] + day) % 7;
 }
 
-static bool
+static int
 isleap(int year)
 {
 	if (year % 400 == 0)
-		return true;
+		return 1;
 	if (year % 100 == 0)
-		return false;
+		return 0;
 	return (year % 4 == 0);
 }
 

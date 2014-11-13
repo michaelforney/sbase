@@ -1,5 +1,4 @@
 /* See LICENSE file for copyright and license details. */
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -19,18 +18,18 @@ main(int argc, char *argv[])
 {
 	ARGBEGIN {
 	case 'f':
-		rm_fflag = true;
+		rm_fflag = 1;
 		break;
 	case 'R':
 	case 'r':
-		rm_rflag = true;
+		rm_rflag = 1;
 		break;
 	default:
 		usage();
 	} ARGEND;
 
 	if (argc < 1) {
-		if (rm_fflag == false)
+		if (!rm_fflag)
 			usage();
 		else
 			return 0;

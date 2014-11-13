@@ -1,5 +1,4 @@
 /* See LICENSE file for copyright and license details. */
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -17,19 +16,19 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	bool lflag = false;
-	bool sflag = false;
-	bool same = true;
+	int lflag = 0;
+	int sflag = 0;
+	int same = 1;
 	int b[2], i;
 	long line = 1, n = 1;
 	FILE *fp[2];
 
 	ARGBEGIN {
 	case 'l':
-		lflag = true;
+		lflag = 1;
 		break;
 	case 's':
-		sflag = true;
+		sflag = 1;
 		break;
 	default:
 		usage();
@@ -80,7 +79,7 @@ main(int argc, char *argv[])
 			exit(Diff);
 		} else {
 			printf("%4ld %3o %3o\n", n, b[0], b[1]);
-			same = false;
+			same = 0;
 		}
 	}
 	return same ? Same : Diff;

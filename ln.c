@@ -1,7 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 #include <errno.h>
 #include <libgen.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,15 +19,15 @@ main(int argc, char *argv[])
 {
 	int (*flink)(const char *, const char *);
 	char *fname, *to;
-	bool sflag = false;
-	bool fflag = false;
+	int sflag = 0;
+	int fflag = 0;
 
 	ARGBEGIN {
 	case 'f':
-		fflag = true;
+		fflag = 1;
 		break;
 	case 's':
-		sflag = true;
+		sflag = 1;
 		break;
 	default:
 		usage();
@@ -47,7 +46,7 @@ main(int argc, char *argv[])
 
 	to = argc < 2 ? basename(argv[0]) : argv[1];
 
-	if (fflag == true)
+	if (fflag)
 		remove(to);
 	if (flink(argv[0], to) < 0)
 		eprintf("%s %s <- %s:", fname, argv[0], to);

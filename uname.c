@@ -1,5 +1,4 @@
 /* See LICENSE file for copyright and license details. */
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/utsname.h>
@@ -16,36 +15,36 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	bool mflag = false;
-	bool nflag = false;
-	bool rflag = false;
-	bool sflag = false;
-	bool vflag = false;
+	int mflag = 0;
+	int nflag = 0;
+	int rflag = 0;
+	int sflag = 0;
+	int vflag = 0;
 	struct utsname u;
 
 	ARGBEGIN {
 	case 'a':
-		mflag = nflag = rflag = sflag = vflag = true;
+		mflag = nflag = rflag = sflag = vflag = 1;
 		break;
 	case 'm':
-		mflag = true;
+		mflag = 1;
 		break;
 	case 'n':
-		nflag = true;
+		nflag = 1;
 		break;
 	case 'r':
-		rflag = true;
+		rflag = 1;
 		break;
 	case 's':
-		sflag = true;
+		sflag = 1;
 		break;
 	case 'v':
-		vflag = true;
+		vflag = 1;
 		break;
 	default:
 		usage();
 	} ARGEND;
-	if (uname(&u) == -1)
+	if (uname(&u) < 0)
 		eprintf("uname:");
 
 	if (sflag || !(nflag || rflag || vflag || mflag))

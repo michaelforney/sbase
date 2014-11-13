@@ -1,5 +1,4 @@
 /* See LICENSE file for copyright and license details. */
-#include <stdbool.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 
@@ -19,26 +18,24 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	case 'a':
-		cp_aflag = true; /* implies -dpr */
-		cp_dflag = true;
-		cp_pflag = true;
-		cp_rflag = true;
+		/* implies -dpr */
+		cp_aflag = cp_dflag = cp_pflag = cp_rflag = 1;
 		break;
 	case 'd':
-		cp_dflag = true;
+		cp_dflag = 1;
 		break;
 	case 'p':
-		cp_pflag = true;
+		cp_pflag = 1;
 		break;
 	case 'f':
-		cp_fflag = true;
+		cp_fflag = 1;
 		break;
 	case 'R':
 	case 'r':
-		cp_rflag = true;
+		cp_rflag = 1;
 		break;
 	case 'v':
-		cp_vflag = true;
+		cp_vflag = 1;
 		break;
 	default:
 		usage();

@@ -1,5 +1,4 @@
 /* See LICENSE file for copyright and license details. */
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <wchar.h>
@@ -13,7 +12,7 @@ typedef struct {
 
 static int expand(Fdescr *f, int tabstop);
 
-static bool iflag = false;
+static int iflag = 0;
 
 static void
 usage(void)
@@ -30,7 +29,7 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	case 'i':
-		iflag = true;
+		iflag = 1;
 		break;
 	case 't':
 		tabstop = estrtol(EARGF(usage()), 0);
@@ -82,7 +81,7 @@ expand(Fdescr *dsc, int tabstop)
 {
 	int col = 0;
 	wint_t c;
-	bool bol = true;
+	int bol = 1;
 
 	for (;;) {
 		c = in(dsc);
@@ -104,18 +103,18 @@ expand(Fdescr *dsc, int tabstop)
 		case '\b':
 			if (col)
 				col--;
-			bol = false;
+			bol = 0;
 			out(c);
 			break;
 		case '\n':
 			col = 0;
-			bol = true;
+			bol = 1;
 			out(c);
 			break;
 		default:
 			col++;
 			if (c != ' ')
-				bol = false;
+				bol = 0;
 			out(c);
 			break;
 		}

@@ -1,6 +1,5 @@
 /* See LICENSE file for copyright and license details. */
 #include <regex.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,9 +13,9 @@ enum { Match = 0, NoMatch = 1, Error = 2 };
 static void addpattern(const char *);
 static int grep(FILE *, const char *);
 
-static bool eflag = false;
-static bool vflag = false;
-static bool many;
+static int eflag = 0;
+static int vflag = 0;
+static int many;
 static char mode = 0;
 
 static struct plist {
@@ -45,7 +44,7 @@ main(int argc, char *argv[])
 		break;
 	case 'e':
 		addpattern(EARGF(usage()));
-		eflag = true;
+		eflag = 1;
 		break;
 	case 'c':
 	case 'l':
@@ -57,7 +56,7 @@ main(int argc, char *argv[])
 		flags |= REG_ICASE;
 		break;
 	case 'v':
-		vflag = true;
+		vflag = 1;
 		break;
 	default:
 		usage();

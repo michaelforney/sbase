@@ -1,6 +1,5 @@
 /* See LICENSE file for copyright and license details. */
 #include <ctype.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -11,8 +10,8 @@
 static void fold(FILE *, long);
 static void foldline(const char *, long);
 
-static bool bflag = false;
-static bool sflag = false;
+static int bflag = 0;
+static int sflag = 0;
 
 static void
 usage(void)
@@ -28,10 +27,10 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	case 'b':
-		bflag = true;
+		bflag = 1;
 		break;
 	case 's':
-		sflag = true;
+		sflag = 1;
 		break;
 	case 'w':
 		width = estrtol(EARGF(usage()), 0);
@@ -73,19 +72,19 @@ fold(FILE *fp, long width)
 static void
 foldline(const char *str, long width)
 {
-	bool space;
+	int space;
 	long col, j;
 	size_t i = 0, n = 0;
 	int c;
 
 	do {
-		space = false;
+		space = 0;
 		for (j = i, col = 0; str[j] && col <= width; j++) {
 			c = str[j];
 			if (!UTF8_POINT(c) && !bflag)
 				continue;
 			if (sflag && isspace(c)) {
-				space = true;
+				space = 1;
 				n = j+1;
 			}
 			else if (!space)

@@ -1,5 +1,4 @@
 /* See LICENSE file for copyright and license details. */
-#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -9,7 +8,7 @@
 
 static void chmodr(const char *);
 
-static bool rflag = false;
+static int rflag = 0;
 static char *modestr = "";
 static mode_t mask = 0;
 static int ret = 0;
@@ -30,7 +29,7 @@ main(int argc, char *argv[])
 		while ((c = *++argv[0])) {
 			switch (c) {
 			case 'R':
-				rflag = true;
+				rflag = 1;
 				break;
 			case 'r': case 'w': case 'x': case 's': case 't':
 				/*

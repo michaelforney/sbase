@@ -1,5 +1,4 @@
 /* See LICENSE file for copyright and license details. */
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -14,11 +13,11 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	bool nflag = false;
+	int nflag = 0;
 
 	ARGBEGIN {
 	case 'n':
-		nflag = true;
+		nflag = 1;
 		break;
 	default:
 		usage();

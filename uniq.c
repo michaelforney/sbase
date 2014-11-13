@@ -1,5 +1,4 @@
 /* See LICENSE file for copyright and license details. */
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,8 +12,8 @@ static void uniq(FILE *, const char *);
 static void uniqfinish(void);
 
 static const char *countfmt = "";
-static bool dflag = false;
-static bool uflag = false;
+static int dflag = 0;
+static int uflag = 0;
 
 static char *prevline = NULL;
 static long prevlinecount = 0;
@@ -37,10 +36,10 @@ main(int argc, char *argv[])
 		countfmt = "%7ld ";
 		break;
 	case 'd':
-		dflag = true;
+		dflag = 1;
 		break;
 	case 'u':
-		uflag = true;
+		uflag = 1;
 		break;
 	default:
 		usage();
@@ -63,7 +62,7 @@ main(int argc, char *argv[])
 static void
 uniqline(char *l)
 {
-	bool linesequel = ((l == NULL) || (prevline == NULL))
+	int linesequel = ((l == NULL) || (prevline == NULL))
 		? l == prevline
 		: !strcmp(l, prevline);
 

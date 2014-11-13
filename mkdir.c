@@ -1,7 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 #include <errno.h>
 #include <fcntl.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -20,16 +19,16 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	bool pflag = false;
-	bool mflag = false;
+	int pflag = 0;
+	int mflag = 0;
 	int mode;
 
 	ARGBEGIN {
 	case 'p':
-		pflag = true;
+		pflag = 1;
 		break;
 	case 'm':
-		mflag = true;
+		mflag = 1;
 		mode = estrtol(EARGF(usage()), 8);
 		break;
 	default:

@@ -1,5 +1,4 @@
 /* See LICENSE file for copyright and license details. */
-#include <stdbool.h>
 #include <stdio.h>
 
 #include "../util.h"
@@ -7,11 +6,11 @@
 void
 putword(const char *s)
 {
-	static bool first = true;
+	static int first = 1;
 
 	if (!first)
 		putchar(' ');
 
 	fputs(s, stdout);
-	first = false;
+	first = 0;
 }

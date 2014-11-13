@@ -1,6 +1,5 @@
 /* See LICENSE file for copyright and license details. */
 #include <ctype.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -10,8 +9,8 @@
 static void output(const char *, long, long, long);
 static void wc(FILE *, const char *);
 
-static bool lflag = false;
-static bool wflag = false;
+static int lflag = 0;
+static int wflag = 0;
 static char cmode = 0;
 static long tc = 0, tl = 0, tw = 0;
 
@@ -35,10 +34,10 @@ main(int argc, char *argv[])
 		cmode = 'm';
 		break;
 	case 'l':
-		lflag = true;
+		lflag = 1;
 		break;
 	case 'w':
-		wflag = true;
+		wflag = 1;
 		break;
 	default:
 		usage();
@@ -64,7 +63,7 @@ main(int argc, char *argv[])
 void
 output(const char *str, long nc, long nl, long nw)
 {
-	bool noflags = !cmode && !lflag && !wflag;
+	int noflags = !cmode && !lflag && !wflag;
 
 	if (lflag || noflags)
 		printf(" %5ld", nl);
@@ -80,7 +79,7 @@ output(const char *str, long nc, long nl, long nw)
 void
 wc(FILE *fp, const char *str)
 {
-	bool word = false;
+	int word = 0;
 	int c;
 	long nc = 0, nl = 0, nw = 0;
 
@@ -90,9 +89,9 @@ wc(FILE *fp, const char *str)
 		if (c == '\n')
 			nl++;
 		if (!isspace(c))
-			word = true;
+			word = 1;
 		else if (word) {
-			word = false;
+			word = 0;
 			nw++;
 		}
 	}

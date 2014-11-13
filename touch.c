@@ -1,7 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 #include <errno.h>
 #include <fcntl.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <time.h>
@@ -12,7 +11,7 @@
 
 static void touch(const char *);
 
-static bool cflag = false;
+static int cflag = 0;
 static time_t t;
 
 static void
@@ -28,7 +27,7 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	case 'c':
-		cflag = true;
+		cflag = 1;
 		break;
 	case 't':
 		t = estrtol(EARGF(usage()), 0);
