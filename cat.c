@@ -15,7 +15,6 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	char *p;
 	FILE *fp;
 	int ret = 0;
 
@@ -31,15 +30,14 @@ main(int argc, char *argv[])
 		concat(stdin, "<stdin>", stdout, "<stdout>");
 	} else {
 		for (; argc; argc--, argv++) {
-			p = argv[0];
 			if (argv[0][0] == '-')
-				p = "/dev/fd/0";
-			if(!(fp = fopen(p, "r"))) {
-				weprintf("fopen %s:", p);
+				argv[0] = "/dev/fd/0";
+			if(!(fp = fopen(argv[0], "r"))) {
+				weprintf("fopen %s:", argv[0]);
 				ret = 1;
 				continue;
 			}
-			concat(fp, p, stdout, "<stdout>");
+			concat(fp, argv[0], stdout, "<stdout>");
 			fclose(fp);
 		}
 	}
