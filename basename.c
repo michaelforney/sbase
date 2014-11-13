@@ -17,8 +17,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	char *s;
-	size_t n;
+	char *s, *p;
 
 	ARGBEGIN {
 	default:
@@ -29,13 +28,11 @@ main(int argc, char *argv[])
 		usage();
 
 	s = basename(argv[0]);
-	if(argc == 2 && argv[1]) {
-		n = strlen(s) - strlen(argv[1]);
-		if(!strcmp(&s[n], argv[1]))
-			s[n] = '\0';
+	if(argc == 2) {
+		p = strstr(s, argv[1]);
+		if (p && p[strlen(p)] == '\0')
+			*p = '\0';
 	}
-
 	puts(s);
-
 	return 0;
 }
