@@ -128,9 +128,7 @@ binlib: util.a
 
 bin: $(BIN)
 
-$(OBJ): util.h config.mk
-cat.o fold.o grep.o nl.o sort.o tail.o uniq.o: text.h
-cp.o mv.o rm.o: fs.h
+$(OBJ): $(HDR) config.mk
 
 .o:
 	@echo LD $@
