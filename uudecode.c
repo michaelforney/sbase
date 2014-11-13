@@ -40,14 +40,14 @@ main(int argc, char *argv[])
 
 	if (argc == 0) {
 		parseheader(stdin, "<stdin>", "begin ", &mode, &fname);
-		if ((nfp = parsefile(fname)) == NULL)
+		if (!(nfp = parsefile(fname)))
 			eprintf("fopen %s:", fname);
 		uudecode(stdin, nfp);
 	} else {
-		if ((fp = fopen(argv[0], "r")) == NULL)
+		if (!(fp = fopen(argv[0], "r")))
 			eprintf("fopen %s:", argv[0]);
 		parseheader(fp, argv[0], "begin ", &mode, &fname);
-		if ((nfp = parsefile(fname)) == NULL)
+		if (!(nfp = parsefile(fname)))
 			eprintf("fopen %s:", fname);
 		uudecode(fp, nfp);
 	}
@@ -93,18 +93,18 @@ parseheader(FILE *fp, const char *s, const char *header, mode_t *mode, char **fn
 	char *p, *q;
 	size_t n;
 
-	if (fgets(bufs, sizeof(bufs), fp) == NULL)
+	if (!fgets(bufs, sizeof(bufs), fp))
 		if (ferror(fp))
 			eprintf("%s: read error:", s);
 	if (bufs[0] == '\0' || feof(fp))
 		eprintf("empty or nil header string\n");
-	if ((p = strchr(bufs, '\n')) == NULL)
+	if (!(p = strchr(bufs, '\n')))
 		eprintf("header string too long or non-newline terminated file\n");
 	p = bufs;
 	if (strncmp(bufs, header, strlen(header)) != 0)
 		eprintf("malformed header prefix\n");
 	p += strlen(header);
-	if ((q = strchr(p, ' ')) == NULL)
+	if (!(q = strchr(p, ' ')))
 		eprintf("malformed mode string in header\n");
 	*q++ = '\0';
 	/* now mode should be null terminated, q points to fname */

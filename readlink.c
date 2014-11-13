@@ -43,7 +43,7 @@ main(int argc, char *argv[])
 		return 1;
 
 	if (fflag) {
-		if (realpath(argv[0], buf) == NULL)
+		if (!realpath(argv[0], buf))
 			exit(1);
 	} else {
 		if ((n = readlink(argv[0], buf, sizeof(buf) - 1)) < 0)

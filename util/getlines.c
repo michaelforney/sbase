@@ -17,7 +17,7 @@ getlines(FILE *fp, struct linebuf *b)
 		if (++b->nlines > b->capacity) {
 			b->capacity += 512;
 			nline = realloc(b->lines, b->capacity * sizeof(*b->lines));
-			if (nline == NULL)
+			if (!nline)
 				eprintf("realloc:");
 			b->lines = nline;
 		}

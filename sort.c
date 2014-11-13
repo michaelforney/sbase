@@ -238,12 +238,12 @@ skipblank(char *s)
 static char *
 nextcol(char *s)
 {
-	if (fieldsep == NULL) {
+	if (!fieldsep) {
 		s = skipblank(s);
 		while(*s && !isblank(*s))
 			s++;
 	} else {
-		if (strchr(s, *fieldsep) == NULL)
+		if (!strchr(s, *fieldsep))
 			s = strchr(s, '\0');
 		else
 			s = strchr(s, *fieldsep) + 1;
@@ -274,11 +274,11 @@ columns(char *line, const struct keydef *kd)
 		else
 			end = nextcol(end);
 	} else {
-		if ((end = strchr(line, '\n')) == NULL)
+		if (!(end = strchr(line, '\n')))
 			end = strchr(line, '\0');
 	}
 
-	if ((res = strndup(start, end - start)) == NULL)
+	if (!(res = strndup(start, end - start)))
 		enprintf(2, "strndup:");
 	return res;
 }

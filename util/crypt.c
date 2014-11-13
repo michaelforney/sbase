@@ -46,7 +46,7 @@ cryptcheck(char *sumfile, int argc, char *argv[],
 	int r, nonmatch = 0, formatsucks = 0, noread = 0, ret = 0;
 	size_t bufsiz = 0;
 
-	if (sumfile == NULL)
+	if (!sumfile)
 		cfp = stdin;
 	else if (!(cfp = fopen(sumfile, "r")))
 		eprintf("fopen %s:", sumfile);
@@ -81,7 +81,7 @@ cryptcheck(char *sumfile, int argc, char *argv[],
 		}
 		fclose(fp);
 	}
-	if (sumfile != NULL)
+	if (sumfile)
 		fclose(cfp);
 	free(line);
 	if (formatsucks > 0) {
@@ -111,7 +111,7 @@ cryptmain(int argc, char *argv[],
 		mdprint(md, "<stdin>", sz);
 	} else {
 		for (; argc > 0; argc--) {
-			if ((fp = fopen(*argv, "r")) == NULL) {
+			if (!(fp = fopen(*argv, "r"))) {
 				weprintf("fopen %s:", *argv);
 				ret = 1;
 				continue;

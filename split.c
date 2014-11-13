@@ -36,11 +36,11 @@ main(int argc, char *argv[])
 	case 'b':
 		always = 1;
 		tmp = ARGF();
-		if (tmp == NULL)
+		if (!tmp)
 			break;
 
 		size = strtoull(tmp, &end, 10);
-		if (*end == '\0')
+		if (!*end)
 			break;
 		switch (toupper((int)*end)) {
 		case 'K':

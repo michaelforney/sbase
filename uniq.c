@@ -62,7 +62,7 @@ main(int argc, char *argv[])
 static void
 uniqline(char *l)
 {
-	int linesequel = ((l == NULL) || (prevline == NULL))
+	int linesequel = (!l || !prevline)
 		? l == prevline
 		: !strcmp(l, prevline);
 
@@ -71,7 +71,7 @@ uniqline(char *l)
 		return;
 	}
 
-	if (prevline != NULL) {
+	if (prevline) {
 		if ((prevlinecount == 1 && !dflag) ||
 		    (prevlinecount != 1 && !uflag)) {
 			printf(countfmt, prevlinecount);

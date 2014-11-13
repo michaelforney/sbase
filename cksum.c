@@ -114,7 +114,7 @@ cksum(FILE *fp, const char *s)
 		ck = (ck << 8) ^ crctab[(ck >> 24) ^ (i & 0xFF)];
 
 	printf("%"PRIu32" %lu", ~ck, (unsigned long)len);
-	if (s != NULL)
+	if (s)
 		printf(" %s", s);
 	putchar('\n');
 }
