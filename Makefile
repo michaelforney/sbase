@@ -162,7 +162,7 @@ uninstall:
 dist: clean
 	@echo creating dist tarball
 	@mkdir -p sbase-$(VERSION)
-	@cp -r LICENSE Makefile config.mk $(SRC) $(MAN) util $(HDR) sbase-$(VERSION)
+	@cp -r LICENSE Makefile README TODO config.mk $(SRC) $(MAN) util $(HDR) sbase-$(VERSION)
 	@tar -cf sbase-$(VERSION).tar sbase-$(VERSION)
 	@gzip sbase-$(VERSION).tar
 	@rm -rf sbase-$(VERSION)
