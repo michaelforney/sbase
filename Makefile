@@ -21,6 +21,7 @@ LIB = \
 	util/concat.o    \
 	util/cp.o        \
 	util/crypt.o     \
+	util/ealloc.o    \
 	util/enmasse.o   \
 	util/eprintf.o   \
 	util/estrtod.o   \
