@@ -189,4 +189,4 @@ sbase-box: $(SRC) util.a
 
 clean:
 	@echo cleaning
-	@rm -f $(BIN) $(OBJ) $(LIB) util.a sbase-box
+	@rm -f $(BIN) $(OBJ) $(LIB) util.a sbase-box sbase-$(VERSION).tar.gz
