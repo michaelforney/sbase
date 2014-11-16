@@ -28,11 +28,10 @@ main(int argc, char *argv[])
 			printf("%s\n", *environ++);
 	} else {
 		while (*argv) {
-			if ((var = getenv(*argv)))
+			if ((var = getenv(*argv++)))
 				printf("%s\n", var);
 			else
 				ret = 1;
-			argv++;
 		}
 	}
 	return ret;
