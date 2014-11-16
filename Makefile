@@ -8,6 +8,7 @@ HDR = \
 	crypt.h  \
 	fs.h     \
 	md5.h    \
+	queue.h  \
 	sha1.h   \
 	sha256.h \
 	sha512.h \

@@ -5,6 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "queue.h"
 #include "text.h"
 #include "util.h"
 
@@ -19,11 +20,13 @@ static int Hflag = 0;
 static int many;
 static char mode = 0;
 
-static struct plist {
+struct pattern {
 	char *pattern;
 	regex_t preg;
-	struct plist *next;
-} *phead;
+	TAILQ_ENTRY(pattern) entry;
+};
+
+static TAILQ_HEAD(phead, pattern) phead;
 
 static void
 usage(void)
@@ -34,10 +37,12 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	struct plist *pnode, *tmp;
+	struct pattern *pnode, *tmp;
 	int i, n, m, flags = REG_NOSUB, match = NoMatch;
 	char buf[BUFSIZ];
 	FILE *fp;
+
+	TAILQ_INIT(&phead);
 
 	ARGBEGIN {
 	case 'E':
@@ -77,7 +82,7 @@ main(int argc, char *argv[])
 	}
 
 	/* Compile regex for all search patterns */
-	for (pnode = phead; pnode; pnode = pnode->next) {
+	TAILQ_FOREACH(pnode, &phead, entry) {
 		if ((n = regcomp(&pnode->preg, pnode->pattern, flags)) != 0) {
 			regerror(n, &pnode->preg, buf, sizeof buf);
 			enprintf(Error, "invalid pattern: %s\n", buf);
@@ -99,13 +104,11 @@ main(int argc, char *argv[])
 			fclose(fp);
 		}
 	}
-	pnode = phead;
-	while (pnode) {
-		tmp = pnode->next;
+	TAILQ_FOREACH_SAFE(pnode, &phead, entry, tmp) {
+		TAILQ_REMOVE(&phead, pnode, entry);
 		regfree(&pnode->preg);
 		free(pnode->pattern);
 		free(pnode);
-		pnode = tmp;
 	}
 	return match;
 }
@@ -113,12 +116,11 @@ main(int argc, char *argv[])
 static void
 addpattern(const char *pattern)
 {
-	struct plist *pnode;
+	struct pattern *pnode;
 
 	pnode = emalloc(sizeof(*pnode));
 	pnode->pattern = estrdup(pattern);
-	pnode->next = phead;
-	phead = pnode;
+	TAILQ_INSERT_TAIL(&phead, pnode, entry);
 }
 
 static int
@@ -127,14 +129,14 @@ grep(FILE *fp, const char *str)
 	char *buf = NULL;
 	size_t len = 0, size = 0;
 	long c = 0, n;
-	struct plist *pnode;
+	struct pattern *pnode;
 	int match = NoMatch;
 
 	for (n = 1; (len = agetline(&buf, &size, fp)) != -1; n++) {
 		/* Remove the trailing newline if one is present. */
 		if (len && buf[len - 1] == '\n')
 			buf[len - 1] = '\0';
-		for (pnode = phead; pnode; pnode = pnode->next) {
+		TAILQ_FOREACH(pnode, &phead, entry) {
 			if (regexec(&pnode->preg, buf, 0, NULL, 0) ^ vflag)
 				continue;
 			switch (mode) {
