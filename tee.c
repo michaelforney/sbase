@@ -29,8 +29,7 @@ main(int argc, char *argv[])
 	} ARGEND;
 
 	nfps = argc + 1;
-	if (!(fps = calloc(nfps, sizeof *fps)))
-		eprintf("calloc:");
+	fps = ecalloc(nfps, sizeof *fps);
 
 	for (i = 0; argc > 0; argc--, argv++, i++)
 		if (!(fps[i] = fopen(*argv, aflag ? "a" : "w")))

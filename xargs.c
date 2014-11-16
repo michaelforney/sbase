@@ -72,11 +72,11 @@ main(int argc, char *argv[])
 		argsz = 0; i = 0; a = 0;
 		if (argc > 0) {
 			for (; i < argc; i++) {
-				cmd[i] = strdup(argv[i]);
+				cmd[i] = estrdup(argv[i]);
 				argsz += strlen(cmd[i]) + 1;
 			}
 		} else {
-			cmd[i] = strdup("/bin/echo");
+			cmd[i] = estrdup("/bin/echo");
 			argsz += strlen(cmd[i]) + 1;
 			i++;
 		}
@@ -88,7 +88,7 @@ main(int argc, char *argv[])
 				leftover = 1;
 				break;
 			}
-			cmd[i] = strdup(arg);
+			cmd[i] = estrdup(arg);
 			argsz += strlen(cmd[i]) + 1;
 			i++;
 			a++;
@@ -134,9 +134,7 @@ fillargbuf(int ch)
 {
 	if (argbpos >= argbsz) {
 		argbsz = argbpos == 0 ? 1 : argbsz * 2;
-		argb = realloc(argb, argbsz);
-		if (!argb)
-			eprintf("realloc:");
+		argb = erealloc(argb, argbsz);
 	}
 	argb[argbpos] = ch;
 }

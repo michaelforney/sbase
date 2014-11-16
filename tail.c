@@ -75,8 +75,9 @@ taketail(FILE *fp, const char *str, long n)
 	long i, j;
 	size_t *size = NULL;
 
-	if (!(ring = calloc(n, sizeof *ring)) || !(size = calloc(n, sizeof *size)))
-		eprintf("calloc:");
+	ring = ecalloc(n, sizeof *ring);
+	size = ecalloc(n, sizeof *size);
+
 	for (i = j = 0; agetline(&ring[i], &size[i], fp) != -1; i = j = (i + 1) % n)
 		;
 	if (ferror(fp))

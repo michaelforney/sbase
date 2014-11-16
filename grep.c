@@ -111,10 +111,8 @@ addpattern(const char *pattern)
 {
 	struct plist *pnode;
 
-	if (!(pnode = malloc(sizeof(*pnode))))
-		eprintf("malloc:");
-	if (!(pnode->pattern = strdup(pattern)))
-		eprintf("strdup:");
+	pnode = emalloc(sizeof(*pnode));
+	pnode->pattern = estrdup(pattern);
 	pnode->next = phead;
 	phead = pnode;
 }

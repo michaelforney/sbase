@@ -59,8 +59,7 @@ main(int argc, char *argv[])
 	if (len == (size_t) - 1)
 		eprintf("invalid delimiter\n");
 
-	if (!(delim = malloc((len + 1) * sizeof(*delim))))
-		eprintf("out of memory\n");
+	delim = emalloc((len + 1) * sizeof(*delim));
 
 	mbstowcs(delim, adelim, len);
 	len = unescape(delim);
@@ -68,8 +67,7 @@ main(int argc, char *argv[])
 		eprintf("no delimiters specified\n");
 
 	/* populate file list */
-	if (!(dsc = malloc(argc * sizeof(*dsc))))
-		eprintf("out of memory\n");
+	dsc = emalloc(argc * sizeof(*dsc));
 
 	for (i = 0; i < argc; i++) {
 		if (strcmp(argv[i], "-") == 0)

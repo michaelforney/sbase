@@ -63,8 +63,7 @@ parselist(char *str)
 		if (*s == ',')
 			n++;
 	}
-	if (!(r = malloc(n * sizeof(Range))))
-		eprintf("malloc:");
+	r = emalloc(n * sizeof(Range));
 	for (s = str; n; n--, s++) {
 		r->min = (*s == '-') ? 1 : strtoul(s, &s, 10);
 		r->max = (*s == '-') ? strtoul(s + 1, &s, 10) : r->min;

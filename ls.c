@@ -92,8 +92,8 @@ main(int argc, char *argv[])
 	if (argc == 0)
 		*--argv = ".", argc++;
 
-	if (!(ents = malloc(argc * sizeof *ents)))
-		eprintf("malloc:");
+	ents = emalloc(argc * sizeof(*ents));
+
 	for (i = 0; i < argc; i++)
 		mkent(&ents[i], argv[i], 1);
 	qsort(ents, argc, sizeof *ents, entcmp);
@@ -154,10 +154,8 @@ lsdir(const char *path)
 			mkent(&ent, d->d_name, Fflag || lflag || iflag);
 			output(&ent);
 		} else {
-			if (!(ents = realloc(ents, ++n * sizeof *ents)))
-				eprintf("realloc:");
-			if (!(p = malloc((sz = strlen(d->d_name)+1))))
-				eprintf("malloc:");
+			ents = erealloc(ents, ++n * sizeof *ents);
+			p = emalloc((sz = strlen(d->d_name)+1));
 			memcpy(p, d->d_name, sz);
 			mkent(&ents[n-1], p, tflag || Fflag || lflag || iflag);
 		}

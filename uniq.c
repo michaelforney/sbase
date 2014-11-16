@@ -81,8 +81,8 @@ uniqline(char *l)
 		prevline = NULL;
 	}
 
-	if (l && !(prevline = strdup(l)))
-		eprintf("strdup:");
+	if (l)
+		prevline = estrdup(l);
 	prevlinecount = 1;
 }
 
