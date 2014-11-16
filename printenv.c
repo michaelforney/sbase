@@ -16,6 +16,7 @@ int
 main(int argc, char *argv[])
 {
 	char *var;
+	int ret = 0;
 
 	ARGBEGIN {
 	default:
@@ -29,8 +30,10 @@ main(int argc, char *argv[])
 		while (*argv) {
 			if ((var = getenv(*argv)))
 				printf("%s\n", var);
+			else
+				ret = 1;
 			argv++;
 		}
 	}
-	return 0;
+	return ret;
 }
