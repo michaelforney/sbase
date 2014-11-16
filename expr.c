@@ -1,3 +1,4 @@
+/* See LICENSE file for copyright and license details. */
 #include <inttypes.h>
 #include <limits.h>
 #include <regex.h>
