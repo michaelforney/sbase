@@ -117,10 +117,11 @@ match(Val vstr, Val vregx)
 
 	if (re.re_nsub) {
 		len = matches[1].rm_eo - matches[1].rm_so + 1;
-		ret = emalloc(len); /* TODO: free ret */
-		d = strtoimax(ret, &p, 10);
+		ret = malloc(len); /* TODO: free ret */
+		if (!ret)
+			enprintf(3, "malloc:");
 		strlcpy(ret, str + matches[1].rm_so, len);
-
+		d = strtoimax(ret, &p, 10);
 		if (*ret && !*p)
 			return (Val){ NULL, d };
 		return (Val){ ret, 0 };
