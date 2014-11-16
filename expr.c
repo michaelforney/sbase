@@ -23,17 +23,16 @@ static Val match(Val, Val);
 static void num(Val);
 static int valcmp(Val, Val);
 static char *valstr(Val, char*, size_t);
-static int yylex(void);
-static int yyparse(int);
+static int lex(char *);
+static int parse(char **, int);
 
-static char **args;
 static size_t intlen;
-static Val yylval;
+static Val lastval;
 
 static void
 ezero(intmax_t n)
 {
-	if(n == 0)
+	if (n == 0)
 		enprintf(2, "division by zero\n");
 }
 
@@ -61,7 +60,7 @@ doop(int *ops, int **otop, Val *vals, Val **vtop)
 	case '|':
 		if (a.s && *a.s)
 			ret = (Val){ a.s, 0 };
-		else if (!a.s &&  a.n)
+		else if (!a.s && a.n)
 			ret = (Val){ NULL, a.n };
 		else if (b.s && *b.s)
 			ret = (Val){ b.s, 0 };
@@ -159,17 +158,14 @@ valstr(Val val, char *buf, size_t bufsiz)
 }
 
 static int
-yylex(void)
+lex(char *p)
 {
 	intmax_t d;
-	char *q, *p, *ops = "|&=><+-*/%():";
-
-	if (!(p = *args++))
-		return 0;
+	char *q, *ops = "|&=><+-*/%():";
 
 	d = strtoimax(p, &q, 10);
 	if (*p && !*q) {
-		yylval = (Val){ NULL, d };
+		lastval = (Val){ NULL, d };
 		return VAL;
 	}
 
@@ -183,17 +179,18 @@ yylex(void)
 	if (strcmp(p, "!=") == 0)
 		return NE;
 
-	yylval = (Val){ p, 0 };
+	lastval = (Val){ p, 0 };
 	return VAL;
 }
 
 static int
-yyparse(int argc)
+parse(char **expr, int exprlen)
 {
-	Val vals[argc], *vtop = vals;
-	int ops [argc], *otop = ops;
-	int type, last = 0;
+	Val val[exprlen], *valp = val;
+	int op[exprlen], *opp = op;
+	int i, type, lasttype = 0;
 	char prec[] = {
+		[ 0 ] = 0, [VAL] = 0,
 		['|'] = 1,
 		['&'] = 2,
 		['='] = 3, ['>'] = 3, [GE] = 3, ['<'] = 3, [LE] = 3, [NE] = 3,
@@ -202,55 +199,70 @@ yyparse(int argc)
 		[':'] = 6,
 	};
 
-	while((type = yylex())) {
+	for (i = 0; i < exprlen; i++) {
+		type = lex(expr[i]);
+
 		switch (type) {
-		case VAL: *vtop++ = yylval; break;
-		case '(': *otop++ = '('   ; break;
+		case VAL:
+			*valp++ = lastval;
+			break;
+		case '(':
+			*opp++ = '(';
+			break;
 		case ')':
-			if (last == '(')
+			if (lasttype == '(')
 				enprintf(2, "syntax error: empty ( )\n");
-			while(otop > ops && otop[-1] != '(')
-				doop(ops, &otop, vals, &vtop);
-			if (otop == ops)
+			while (opp > op && opp[-1] != '(')
+				doop(op, &opp, val, &valp);
+			if (opp == op)
 				enprintf(2, "syntax error: extra )\n");
-			otop--;
+			opp--;
 			break;
 		default :
-			if (prec[last])
+			if (prec[lasttype])
 				enprintf(2, "syntax error: extra operator\n");
-			while (otop > ops && prec[otop[-1]] >= prec[type])
-				doop(ops, &otop, vals, &vtop);
-			*otop++ = type;
+			while (opp > op && prec[opp[-1]] >= prec[type])
+				doop(op, &opp, val, &valp);
+			*opp++ = type;
 			break;
 		}
-		last = type;
+		lasttype = type;
 	}
-	while(otop > ops)
-		doop(ops, &otop, vals, &vtop);
+	while (opp > op)
+		doop(op, &opp, val, &valp);
 
-	if (vtop == vals)
+	if (valp == val)
 		enprintf(2, "syntax error: missing expression\n");
-	if (vtop - vals > 1)
+	if (valp - val > 1)
 		enprintf(2, "syntax error: extra expression\n");
 
-	vtop--;
-	if (vtop->s)
-		printf("%s\n", vtop->s);
+	valp--;
+	if (valp->s)
+		printf("%s\n", valp->s);
 	else
-		printf("%"PRIdMAX"\n", vtop->n);
+		printf("%"PRIdMAX"\n", valp->n);
 
-	return (vtop->s && *vtop->s) || vtop->n;
+	return (valp->s && *valp->s) || valp->n;
+}
+
+static void
+usage(void)
+{
+	eprintf("usage: %s EXPRESSION\n", argv0);
 }
 
 int
-main(int argc, char **argv)
+main(int argc, char *argv[])
 {
-	if (!(intlen = snprintf(NULL, 0, "%"PRIdMAX, INTMAX_MIN) + 1))
-		enprintf(3, "failed to get max digits\n");
+	intmax_t n = INTMAX_MIN;
 
-	args = argv + 1;
-	if (*args && !strcmp("--", *args))
-		++args;
+	/* Get the maximum number of digits (+ sign) */
+	for (intlen = (n < 0); n; n /= 10, ++intlen);
 
-	return !yyparse(argc);
+	ARGBEGIN {
+	default:
+		usage();
+	} ARGEND;
+
+	return !parse(argv, argc);
 }
