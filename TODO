@@ -27,7 +27,6 @@ replacing or cleaning up:
 
 csplit
 col
-expr
 printf
 
 If you are looking for some work  to do on sbase, another option is to
