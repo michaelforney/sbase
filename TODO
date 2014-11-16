@@ -33,5 +33,8 @@ If you are looking for some work  to do on sbase, another option is to
 pick a utility of interest and check the POSIX specification to see if
 there are any features missing.
 
+We also need to add support for UTF-8.  The existing consensus is to import
+http://git.suckless.org/libutf in sbase.
+
 [0] http://landley.net/toybox/roadmap.html
 [1] http://git.suckless.org/ubase/
