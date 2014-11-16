@@ -16,7 +16,6 @@ typedef struct {
 	intmax_t n;
 } Val;
 
-
 static void doop(int*, int**, Val*, Val**);
 static Val match(Val, Val);
 static void num(Val);
@@ -29,10 +28,11 @@ static char **args;
 static size_t intlen;
 static Val yylval;
 
-// otop points to one past last op
-// vtop points to one past last val
-// guaranteed otop != ops
-// pop two vals, pop op, apply op, push val
+/* otop points to one past last op
+ * vtop points to one past last val
+ * guaranteed otop != ops
+ * pop two vals, pop op, apply op, push val
+ */
 static void
 doop(int *ops, int **otop, Val *vals, Val **vtop)
 {
