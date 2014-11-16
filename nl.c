@@ -33,7 +33,7 @@ main(int argc, char *argv[])
 		r = EARGF(usage());
 		mode = r[0];
 		if (r[0] == 'p') {
-			regcomp(&preg, &r[1], REG_NOSUB);
+			eregcomp(&preg, &r[1], REG_NOSUB);
 		} else if (!strchr("ant", mode)) {
 			usage();
 		}
