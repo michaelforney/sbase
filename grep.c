@@ -15,6 +15,7 @@ static int grep(FILE *, const char *);
 
 static int eflag = 0;
 static int vflag = 0;
+static int Hflag = 0;
 static int many;
 static char mode = 0;
 
@@ -27,7 +28,7 @@ static struct plist {
 static void
 usage(void)
 {
-	enprintf(Error, "usage: %s [-Ecilnqv] [-e pattern] pattern [files...]\n", argv0);
+	enprintf(Error, "usage: %s [-EHcilnqv] [-e pattern] pattern [files...]\n", argv0);
 }
 
 int
@@ -41,6 +42,9 @@ main(int argc, char *argv[])
 	ARGBEGIN {
 	case 'E':
 		flags |= REG_EXTENDED;
+		break;
+	case 'H':
+		Hflag = 1;
 		break;
 	case 'e':
 		addpattern(EARGF(usage()));
@@ -143,7 +147,7 @@ grep(FILE *fp, const char *str)
 			case 'q':
 				exit(Match);
 			default:
-				if (many)
+				if (many || Hflag)
 					printf("%s:", str);
 				if (mode == 'n')
 					printf("%ld:", n);

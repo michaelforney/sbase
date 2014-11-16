@@ -3,7 +3,7 @@
 grep \- search files for a pattern
 .SH SYNOPSIS
 .B grep
-.RB [ \-Ecilnqv ]
+.RB [ \-EHcilnqv ]
 .RB [ \-e
 .I pattern ]
 .I pattern
@@ -23,6 +23,10 @@ status code is 2.
 .TP
 .B \-E
 matches using extended regex.
+.TP
+.B \-H
+prefixes each matching line with its filename in the output. This is the
+default when there is more than one file specified.
 .TP
 .B \-c
 prints only a count of matching lines.
