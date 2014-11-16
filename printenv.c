@@ -22,16 +22,15 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc == 1) {
+	if (argc == 0) {
 		while (*environ)
 			printf("%s\n", *environ++);
-
-		return 0;
+	} else {
+		while (*argv) {
+			if ((var = getenv(*argv)))
+				printf("%s\n", var);
+			argv++;
+		}
 	}
-	while(*++argv) {
-		if ((var = getenv(*argv)))
-			printf("%s\n", var);
-	}
-
 	return 0;
 }
