@@ -3,7 +3,7 @@
 grep \- search files for a pattern
 .SH SYNOPSIS
 .B grep
-.RB [ \-EHcilnqv ]
+.RB [ \-EHchilnqv ]
 .RB [ \-e
 .I pattern ]
 .I pattern
@@ -37,6 +37,9 @@ line is selected if it matches any of the specified patterns.
 This option is most useful when multiple -e options are used to
 specify multiple patterns, or when a pattern begins with a dash
 (`-').
+.TP
+.B \-h
+do not prefix each line with 'filename:' prefix.
 .TP
 .B \-i
 matches lines case insensitively.

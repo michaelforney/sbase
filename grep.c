@@ -16,6 +16,7 @@ static int grep(FILE *, const char *);
 
 static int eflag = 0;
 static int vflag = 0;
+static int hflag = 0;
 static int Hflag = 0;
 static int many;
 static char mode = 0;
@@ -53,6 +54,9 @@ main(int argc, char *argv[])
 	case 'e':
 		addpattern(EARGF(usage()));
 		eflag = 1;
+		break;
+	case 'h':
+		hflag = 1;
 		break;
 	case 'c':
 	case 'l':
@@ -145,7 +149,7 @@ grep(FILE *fp, const char *str)
 			case 'q':
 				exit(Match);
 			default:
-				if (many || Hflag)
+				if (!hflag && (many || Hflag))
 					printf("%s:", str);
 				if (mode == 'n')
 					printf("%ld:", n);
