@@ -362,8 +362,7 @@ do_rexp(const char *expr)
 	} else
 		ofs = 0;
 
-	if (regcomp(&cre, re, REG_NOSUB) != 0)
-		eprintf("%s: bad regular expression'n", re);
+	eregcomp(&cre, re, REG_NOSUB);
 
 	if (*expr == '/')
 		/* /regexp/: Save results to a file. */

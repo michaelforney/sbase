@@ -38,8 +38,7 @@ int
 main(int argc, char *argv[])
 {
 	struct pattern *pnode, *tmp;
-	int i, n, m, flags = REG_NOSUB, match = NoMatch;
-	char buf[BUFSIZ];
+	int i, m, flags = REG_NOSUB, match = NoMatch;
 	FILE *fp;
 
 	TAILQ_INIT(&phead);
@@ -83,10 +82,7 @@ main(int argc, char *argv[])
 
 	/* Compile regex for all search patterns */
 	TAILQ_FOREACH(pnode, &phead, entry) {
-		if ((n = regcomp(&pnode->preg, pnode->pattern, flags)) != 0) {
-			regerror(n, &pnode->preg, buf, sizeof buf);
-			enprintf(Error, "invalid pattern: %s\n", buf);
-		}
+		enregcomp(Error, &pnode->preg, pnode->pattern, flags);
 	}
 	many = (argc > 1);
 	if (argc == 0) {
