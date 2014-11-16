@@ -25,6 +25,7 @@ LIB = \
 	util/ealloc.o    \
 	util/enmasse.o   \
 	util/eprintf.o   \
+	util/eregcomp.o  \
 	util/estrtod.o   \
 	util/estrtol.o   \
 	util/fnck.o      \

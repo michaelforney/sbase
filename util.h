@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <regex.h>
 #include <stddef.h>
 #include <sys/types.h>
 #include "arg.h"
@@ -33,6 +34,10 @@ long estrtol(const char *, int);
 size_t strlcat(char *, const char *, size_t);
 #undef strlcpy
 size_t strlcpy(char *, const char *, size_t);
+
+/* regex */
+int enregcomp(int, regex_t *, const char *, int);
+int eregcomp(regex_t *, const char *, int);
 
 /* misc */
 void enmasse(int, char **, int (*)(const char *, const char *));
