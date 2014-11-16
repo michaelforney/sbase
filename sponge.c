@@ -31,7 +31,7 @@ main(int argc, char *argv[])
 	rewind(tmpfp);
 
 	if (!(fp = fopen(argv[0], "w")))
-		eprintf("sponge: '%s':", argv[0]);
+		eprintf("fopen %s:", argv[0]);
 	concat(tmpfp, "<tmpfile>", fp, argv[0]);
 
 	fclose(fp);
