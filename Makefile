@@ -5,6 +5,7 @@ include config.mk
 
 HDR =\
 	arg.h\
+	compat.h\
 	crypt.h\
 	fs.h\
 	md5.h\
