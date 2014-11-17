@@ -162,7 +162,7 @@ dist: clean
 	gzip sbase-$(VERSION).tar
 	rm -rf sbase-$(VERSION)
 
-sbase-box: $(SRC) libutil.a
+sbase-box: libutil.a $(SRC)
 	mkdir -p build
 	cp $(HDR) build
 	for f in $(SRC); do sed "s/^main(/`basename $$f .c`_&/" < $$f > build/$$f; done
