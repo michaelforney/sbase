@@ -183,4 +183,4 @@ clean:
 	rm -f $(BIN) $(OBJ) $(LIBOBJ) $(LIB) sbase-box sbase-$(VERSION).tar.gz
 
 .PHONY:
-	all binlib bin install uninstall dist sbase-box clean
+	all install uninstall dist sbase-box clean
