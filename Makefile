@@ -126,12 +126,9 @@ OBJ = $(BIN:=.o) $(LIBOBJ)
 SRC = $(BIN:=.c)
 MAN = $(BIN:=.1)
 
-all: binlib
+all: $(BIN)
 
-binlib: $(LIB)
-	$(MAKE) bin
-
-bin: $(BIN)
+$(BIN): $(LIB)
 
 $(OBJ): $(HDR) config.mk
 

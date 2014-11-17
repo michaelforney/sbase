@@ -5,8 +5,9 @@ VERSION = 0.0
 PREFIX = /usr/local
 MANPREFIX = $(PREFIX)/share/man
 
-#CC = musl-gcc
+CC = cc
 LD = $(CC)
+AR = ar
 RANLIB = ranlib
 
 CPPFLAGS = -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_GNU_SOURCE

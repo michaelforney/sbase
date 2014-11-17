@@ -170,6 +170,8 @@ form a base system similar to busybox but much smaller and suckless.
 Building
 --------
 
+You need GNU make to build sbase.
+
 To  build sbase,  simply  type  make.  You  may  have  to fiddle  with
 config.mk depending on your system.
 
