@@ -48,4 +48,6 @@ main(int argc, char *argv[])
 	execvp(argv[0], &argv[0]);
 	enprintf(errno == ENOENT ? Error : Found, "exec %s:", argv[0]);
 	_exit(Error);
+	/* unreachable */
+	return 0;
 }
