@@ -47,7 +47,7 @@ cp(const char *s1, const char *s2)
 	if (r == 0) {
 		if (cp_dflag && S_ISLNK(st.st_mode)) {
 			if (readlink(s1, buf, sizeof(buf) - 1) >= 0) {
-				if (cp_fflag);
+				if (cp_fflag)
 					unlink(s2);
 				if (symlink(buf, s2) != 0) {
 					weprintf("%s: can't create '%s'\n", argv0, s2);
