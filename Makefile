@@ -126,7 +126,7 @@ MAN = $(SRC:.c=.1)
 
 all: binlib
 
-binlib: util.a
+binlib: libutil.a
 	$(MAKE) bin
 
 bin: $(BIN)
@@ -134,12 +134,12 @@ bin: $(BIN)
 $(OBJ): $(HDR) config.mk
 
 .o:
-	$(LD) -o $@ $< util.a $(LDFLAGS)
+	$(LD) -o $@ $< libutil.a $(LDFLAGS)
 
 .c.o:
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-util.a: $(LIB)
+libutil.a: $(LIB)
 	$(AR) -r -c $@ $?
 	ranlib $@
 
@@ -162,7 +162,7 @@ dist: clean
 	gzip sbase-$(VERSION).tar
 	rm -rf sbase-$(VERSION)
 
-sbase-box: $(SRC) util.a
+sbase-box: $(SRC) libutil.a
 	mkdir -p build
 	cp $(HDR) build
 	for f in $(SRC); do sed "s/^main(/`basename $$f .c`_&/" < $$f > build/$$f; done
@@ -177,8 +177,8 @@ sbase-box: $(SRC) util.a
 	echo 'else {' >> build/$@.c
 	for f in $(SRC); do echo "printf(\"`basename $$f .c`\"); putchar(' ');" >> build/$@.c; done
 	echo "putchar(0xa); }; return 0; }" >> build/$@.c
-	$(LD) -o $@ build/*.c util.a $(CFLAGS) $(LDFLAGS)
+	$(LD) -o $@ build/*.c libutil.a $(CFLAGS) $(LDFLAGS)
 	rm -r build
 
 clean:
-	@rm -f $(BIN) $(OBJ) $(LIB) util.a sbase-box sbase-$(VERSION).tar.gz
+	@rm -f $(BIN) $(OBJ) $(LIB) libutil.a sbase-box sbase-$(VERSION).tar.gz
