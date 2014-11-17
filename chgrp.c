@@ -25,7 +25,7 @@ static void
 chgrp(const char *path)
 {
 	if (chown(path, st.st_uid, gid) == -1) {
-		fprintf(stderr, "chgrp: '%s': %s\n", path, strerror(errno));
+		weprintf("chown %s:", path);
 		failures++;
 	}
 	if (rflag)
@@ -58,8 +58,7 @@ main(int argc, char *argv[])
 
 	while (*++argv) {
 		if (stat(*argv, &st) == -1) {
-			fprintf(stderr, "stat %s: %s\n", *argv,
-					strerror(errno));
+			weprintf("stat %s:", *argv);
 			failures++;
 			continue;
 		}

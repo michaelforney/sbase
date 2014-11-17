@@ -1,5 +1,4 @@
 /* See LICENSE file for copyright and license details. */
-#include <errno.h>
 #include <limits.h>
 #include <pwd.h>
 #include <stdio.h>
@@ -55,7 +54,6 @@ main(int argc, char *argv[])
 
 			errno = 0;
 			do pwd = getpwnam(argv[i]); while (errno == EINTR);
-
 			if (pwd)
 				who = pwd->pw_uid;
 			else if (errno != 0) {
@@ -83,11 +81,11 @@ strtop(const char *s)
 	errno = 0;
 	n = strtol(s, &end, 10);
 	if (*end != '\0') {
-		fprintf(stderr, "%s: not an integer\n", s);
+		weprintf("%s: not an integer\n", s);
 		return -1;
 	}
 	if (errno != 0 || n <= 0 || n > INT_MAX) {
-		fprintf(stderr, "%s: invalid value\n", s);
+		weprintf("%s: invalid value\n", s);
 		return -1;
 	}
 
@@ -100,15 +98,13 @@ renice(int which, int who, long adj)
 	errno = 0;
 	adj += getpriority(which, who);
 	if (errno != 0) {
-		fprintf(stderr, "can't get %d nice level: %s\n",
-		        who, strerror(errno));
+		weprintf("getpriority %d:", who);
 		return 0;
 	}
 
 	adj = MAX(PRIO_MIN, MIN(adj, PRIO_MAX));
 	if (setpriority(which, who, (int)adj) == -1) {
-		fprintf(stderr, "can't set %d nice level: %s\n",
-		        who, strerror(errno));
+		weprintf("setpriority %d:", who);
 		return 0;
 	}
 
