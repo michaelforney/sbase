@@ -18,16 +18,24 @@ typedef struct {
 	intmax_t n;
 } Val;
 
+static void enan(Val);
+static void ezero(intmax_t);
 static void doop(int*, int**, Val*, Val**);
 static Val match(Val, Val);
-static void num(Val);
 static int valcmp(Val, Val);
-static char *valstr(Val, char*, size_t);
+static char *valstr(Val, char *, size_t);
 static int lex(char *);
 static int parse(char **, int);
 
 static size_t intlen;
 static Val lastval;
+
+static void
+enan(Val v)
+{
+	if (v.s)
+		enprintf(2, "syntax error: expected integer got `%s'\n", v.s);
+}
 
 static void
 ezero(intmax_t n)
@@ -36,43 +44,42 @@ ezero(intmax_t n)
 		enprintf(2, "division by zero\n");
 }
 
-/* otop points to one past last op
- * vtop points to one past last val
- * guaranteed otop != ops
- * pop two vals, pop op, apply op, push val
- */
 static void
-doop(int *ops, int **otop, Val *vals, Val **vtop)
+doop(int *op, int **opp, Val *val, Val **valp)
 {
 	Val ret, a, b;
-	int op;
+	int o;
 
-	if ((*otop)[-1] == '(')
+	/* For an operation, we need a valid operator
+	 * and two values on the stack */
+	if ((*opp)[-1] == '(')
 		enprintf(2, "syntax error: extra (\n");
-	if (*vtop - vals < 2)
+	if (*valp - val < 2)
 		enprintf(2, "syntax error: missing expression or extra operator\n");
 
-	a = (*vtop)[-2];
-	b = (*vtop)[-1];
-	op = (*otop)[-1];
+	a = (*valp)[-2];
+	b = (*valp)[-1];
+	o = (*opp)[-1];
 
-	switch (op) {
+	switch (o) {
 	case '|':
-		if (a.s && *a.s)
+		if (a.s && *a.s) {
 			ret = (Val){ a.s, 0 };
-		else if (!a.s && a.n)
+		} else if (!a.s && a.n) {
 			ret = (Val){ NULL, a.n };
-		else if (b.s && *b.s)
+		} else if (b.s && *b.s) {
 			ret = (Val){ b.s, 0 };
-		else
+		} else {
 			ret = (Val){ NULL, b.n };
+		}
 		break;
 	case '&':
 		if (((a.s && *a.s) || a.n) &&
-		   ((b.s && *b.s) || b.n))
+		    ((b.s && *b.s) || b.n)) {
 			ret = a;
-		else
+		} else {
 			ret = (Val){ NULL, 0 };
+		}
 		break;
 	case '=': ret = (Val){ NULL, valcmp(a, b) == 0 }; break;
 	case '>': ret = (Val){ NULL, valcmp(a, b) >  0 }; break;
@@ -81,80 +88,84 @@ doop(int *ops, int **otop, Val *vals, Val **vtop)
 	case LE : ret = (Val){ NULL, valcmp(a, b) <= 0 }; break;
 	case NE : ret = (Val){ NULL, valcmp(a, b) != 0 }; break;
 
-	case '+': num(a); num(b); ret = (Val){ NULL, a.n + b.n }; break;
-	case '-': num(a); num(b); ret = (Val){ NULL, a.n - b.n }; break;
-	case '*': num(a); num(b); ret = (Val){ NULL, a.n * b.n }; break;
-	case '/': num(a); num(b); ezero(b.n); ret = (Val){ NULL, a.n / b.n }; break;
-	case '%': num(a); num(b); ezero(b.n); ret = (Val){ NULL, a.n % b.n }; break;
+	case '+': enan(a); enan(b); ret = (Val){ NULL, a.n + b.n }; break;
+	case '-': enan(a); enan(b); ret = (Val){ NULL, a.n - b.n }; break;
+	case '*': enan(a); enan(b); ret = (Val){ NULL, a.n * b.n }; break;
+	case '/': enan(a); enan(b); ezero(b.n); ret = (Val){ NULL, a.n / b.n }; break;
+	case '%': enan(a); enan(b); ezero(b.n); ret = (Val){ NULL, a.n % b.n }; break;
 
 	case ':': ret = match(a, b); break;
 	}
 
-	(*vtop)[-2] = ret;
-	(*otop)--;
-	(*vtop)--;
+	(*valp)[-2] = ret;
+	(*opp)--;
+	(*valp)--;
 }
 
 static Val
 match(Val vstr, Val vregx)
 {
 	intmax_t d;
-	char    *ret, *p;
+	char *anchreg, *ret, *p;
+	char buf1[intlen], buf2[intlen], *str, *regx;
 	regoff_t len;
-	char b1[intlen], *str  = valstr(vstr, b1, sizeof(b1));
-	char b2[intlen], *regx = valstr(vregx, b2, sizeof(b2));
-
-	regex_t    re;
+	regex_t re;
 	regmatch_t matches[2];
-	char       anchreg[strlen(regx) + 2];
 
-	snprintf(anchreg, sizeof(anchreg), "^%s", regx);
+	str = valstr(vstr, buf1, sizeof(buf1));
+	regx = valstr(vregx, buf2, sizeof(buf2));
+
+	anchreg = malloc(strlen(regx) + 2);
+	if (!anchreg)
+		enprintf(3, "malloc:");
+	snprintf(anchreg, strlen(regx) + 2, "^%s", regx);
+
 	enregcomp(3, &re, anchreg, 0);
+	free(anchreg);
 
-	if (regexec(&re, str, 2, matches, 0))
+	if (regexec(&re, str, 2, matches, 0)) {
+		regfree(&re);
 		return (Val){ (re.re_nsub ? "" : NULL), 0 };
+	}
 
 	if (re.re_nsub) {
+		regfree(&re);
 		len = matches[1].rm_eo - matches[1].rm_so + 1;
-		ret = malloc(len); /* TODO: free ret */
+		ret = malloc(len);
 		if (!ret)
 			enprintf(3, "malloc:");
 		strlcpy(ret, str + matches[1].rm_so, len);
 		d = strtoimax(ret, &p, 10);
-		if (*ret && !*p)
+		if (*ret && !*p) {
+			free(ret);
 			return (Val){ NULL, d };
+		}
 		return (Val){ ret, 0 };
 	}
+	regfree(&re);
 	return (Val){ NULL, matches[0].rm_eo - matches[0].rm_so };
 }
 
-static void
-num(Val v)
-{
-	if (v.s)
-		enprintf(2, "syntax error: expected integer got `%s'\n", v.s);
-}
+
 
 static int
 valcmp(Val a, Val b)
 {
-	char b1[intlen], *p = valstr(a, b1, sizeof(b1));
-	char b2[intlen], *q = valstr(b, b2, sizeof(b2));
+	char buf1[intlen], buf2[intlen], *astr, *bstr;
 
-	if (!a.s && !b.s)
-		return (a.n > b.n) - (a.n < b.n);
-	return strcmp(p, q);
+	astr = valstr(a, buf1, sizeof(buf1));
+	bstr = valstr(b, buf2, sizeof(buf2));
+
+	return strcmp(astr, bstr);
 }
 
 static char *
 valstr(Val val, char *buf, size_t bufsiz)
 {
-	char *p = val.s;
-	if (!p) {
-		snprintf(buf, bufsiz, "%"PRIdMAX, val.n);
-		p = buf;
-	}
-	return p;
+	if (val.s)
+		return val.s;
+	snprintf(buf, bufsiz, "%"PRIdMAX, val.n);
+	return buf;
 }
 
 static int
@@ -163,22 +174,30 @@ lex(char *p)
 	intmax_t d;
 	char *q, *ops = "|&=><+-*/%():";
 
+	/* clean integer */
 	d = strtoimax(p, &q, 10);
 	if (*p && !*q) {
 		lastval = (Val){ NULL, d };
 		return VAL;
 	}
 
-	if (*p && !p[1] && strchr(ops, *p))
+	/* one-char operand */
+	if (*p && !*(p+1) && strchr(ops, *p))
 		return *p;
 
-	if (strcmp(p, ">=") == 0)
-		return GE;
-	if (strcmp(p, "<=") == 0)
-		return LE;
-	if (strcmp(p, "!=") == 0)
-		return NE;
+	/* two-char operand */
+	if (*p && *(p+1) == '=' && !*(p+2)) {
+		switch (*p) {
+		case '>':
+			return GE;
+		case '<':
+			return LE;
+		case '!':
+			return NE;
+		}
+	}
 
+	/* nothing matched, treat as string */
 	lastval = (Val){ p, 0 };
 	return VAL;
 }
