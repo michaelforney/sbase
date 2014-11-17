@@ -7,7 +7,7 @@
 #include "sha512.h"
 #include "util.h"
 
-struct sha512 s;
+static struct sha512 s;
 struct crypt_ops sha512_ops = {
 	sha512_init,
 	sha512_update,

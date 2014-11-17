@@ -7,7 +7,7 @@
 #include "md5.h"
 #include "util.h"
 
-struct md5 s;
+static struct md5 s;
 struct crypt_ops md5_ops = {
 	md5_init,
 	md5_update,

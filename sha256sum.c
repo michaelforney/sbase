@@ -7,7 +7,7 @@
 #include "sha256.h"
 #include "util.h"
 
-struct sha256 s;
+static struct sha256 s;
 struct crypt_ops sha256_ops = {
 	sha256_init,
 	sha256_update,

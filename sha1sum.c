@@ -7,7 +7,7 @@
 #include "sha1.h"
 #include "util.h"
 
-struct sha1 s;
+static struct sha1 s;
 struct crypt_ops sha1_ops = {
 	sha1_init,
 	sha1_update,
