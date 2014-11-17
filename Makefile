@@ -143,7 +143,7 @@ $(OBJ): $(HDR) config.mk
 
 $(LIB): $(LIBOBJ)
 	$(AR) -r -c $@ $?
-	ranlib $@
+	$(RANLIB) $@
 
 install: all
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
