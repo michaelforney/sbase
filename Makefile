@@ -181,4 +181,4 @@ sbase-box: $(SRC) libutil.a
 	rm -r build
 
 clean:
-	@rm -f $(BIN) $(OBJ) $(LIB) libutil.a sbase-box sbase-$(VERSION).tar.gz
+	rm -f $(BIN) $(OBJ) $(LIB) libutil.a sbase-box sbase-$(VERSION).tar.gz
