@@ -9,14 +9,22 @@ HDR =\
 	fs.h\
 	md5.h\
 	queue.h\
+	runetypebody.h\
 	sha1.h\
 	sha256.h\
 	sha512.h\
 	text.h\
+	utf.h\
 	util.h
 
-LIB = libutil.a
-LIBSRC =\
+LIBUTF = libutf.a
+LIBUTFSRC =\
+	libutf/rune.c\
+	libutf/runetype.c\
+	libutf/utf.c
+
+LIBUTIL = libutil.a
+LIBUTILSRC =\
 	util/agetcwd.c\
 	util/agetline.c\
 	util/apathmax.c\
@@ -42,6 +50,8 @@ LIBSRC =\
 	util/sha512.c\
 	util/strlcat.c\
 	util/strlcpy.c
+
+LIB = $(LIBUTF) $(LIBUTIL)
 
 BIN =\
 	basename\
@@ -121,8 +131,9 @@ BIN =\
 	xargs\
 	yes
 
-LIBOBJ = $(LIBSRC:.c=.o)
-OBJ = $(BIN:=.o) $(LIBOBJ)
+LIBUTFOBJ = $(LIBUTFSRC:.c=.o)
+LIBUTILOBJ = $(LIBUTILSRC:.c=.o)
+OBJ = $(BIN:=.o) $(LIBUTFOBJ) $(LIBUTILOBJ)
 SRC = $(BIN:=.c)
 MAN = $(BIN:=.1)
 
@@ -138,7 +149,7 @@ $(OBJ): $(HDR) config.mk
 .c.o:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 
-$(LIB): $(LIBOBJ)
+$(LIB): $(LIBUTFOBJ) $(LIBUTILOBJ)
 	$(AR) -r -c $@ $?
 	$(RANLIB) $@
 
@@ -180,7 +191,7 @@ sbase-box: $(LIB) $(SRC)
 	rm -r build
 
 clean:
-	rm -f $(BIN) $(OBJ) $(LIBOBJ) $(LIB) sbase-box sbase-$(VERSION).tar.gz
+	rm -f $(BIN) $(OBJ) $(LIBUTFOBJ) $(LIBUTIL) $(LIB) sbase-box sbase-$(VERSION).tar.gz
 
 .PHONY:
 	all install uninstall dist sbase-box clean
