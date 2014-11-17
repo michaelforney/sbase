@@ -15,118 +15,120 @@ HDR = \
 	text.h   \
 	util.h
 
-LIB = \
-	util/agetcwd.o   \
-	util/agetline.o  \
-	util/apathmax.o  \
-	util/concat.o    \
-	util/cp.o        \
-	util/crypt.o     \
-	util/ealloc.o    \
-	util/enmasse.o   \
-	util/eprintf.o   \
-	util/eregcomp.o  \
-	util/estrtod.o   \
-	util/estrtol.o   \
-	util/fnck.o      \
-	util/getlines.o  \
-	util/human.o     \
-	util/md5.o       \
-	util/mode.o      \
-	util/putword.o   \
-	util/recurse.o   \
-	util/rm.o        \
-	util/sha1.o      \
-	util/sha256.o    \
-	util/sha512.o    \
-	util/strlcat.o   \
-	util/strlcpy.o
+LIB = libutil.a
+LIBSRC = \
+	util/agetcwd.c   \
+	util/agetline.c  \
+	util/apathmax.c  \
+	util/concat.c    \
+	util/cp.c        \
+	util/crypt.c     \
+	util/ealloc.c    \
+	util/enmasse.c   \
+	util/eprintf.c   \
+	util/eregcomp.c  \
+	util/estrtod.c   \
+	util/estrtol.c   \
+	util/fnck.c      \
+	util/getlines.c  \
+	util/human.c     \
+	util/md5.c       \
+	util/mode.c      \
+	util/putword.c   \
+	util/recurse.c   \
+	util/rm.c        \
+	util/sha1.c      \
+	util/sha256.c    \
+	util/sha512.c    \
+	util/strlcat.c   \
+	util/strlcpy.c
 
-SRC = \
-	basename.c \
-	cal.c      \
-	cat.c      \
-	chgrp.c    \
-	chmod.c    \
-	chown.c    \
-	chroot.c   \
-	cksum.c    \
-	cmp.c      \
-	col.c      \
-	cols.c     \
-	comm.c     \
-	cp.c       \
-	csplit.c   \
-	cut.c      \
-	date.c     \
-	dirname.c  \
-	du.c       \
-	echo.c     \
-	env.c      \
-	expand.c   \
-	expr.c     \
-	false.c    \
-	fold.c     \
-	grep.c     \
-	head.c     \
-	hostname.c \
-	kill.c     \
-	link.c     \
-	ln.c       \
-	logname.c  \
-	ls.c       \
-	md5sum.c   \
-	mkdir.c    \
-	mkfifo.c   \
-	mktemp.c   \
-	mv.c       \
-	nice.c     \
-	nl.c       \
-	nohup.c    \
-	paste.c    \
-	printenv.c \
-	printf.c   \
-	pwd.c      \
-	readlink.c \
-	renice.c   \
-	rm.c       \
-	rmdir.c    \
-	sleep.c    \
-	setsid.c   \
-	sort.c     \
-	split.c    \
-	sponge.c   \
-	strings.c  \
-	sync.c     \
-	tail.c     \
-	tar.c      \
-	tee.c      \
-	test.c     \
-	touch.c    \
-	tr.c       \
-	true.c     \
-	tty.c      \
-	uudecode.c \
-	uuencode.c \
-	uname.c    \
-	unexpand.c \
-	uniq.c     \
-	unlink.c   \
-	seq.c      \
-	sha1sum.c  \
-	sha256sum.c\
-	sha512sum.c\
-	wc.c       \
-	xargs.c    \
-	yes.c
+BIN = \
+	basename \
+	cal      \
+	cat      \
+	chgrp    \
+	chmod    \
+	chown    \
+	chroot   \
+	cksum    \
+	cmp      \
+	col      \
+	cols     \
+	comm     \
+	cp       \
+	csplit   \
+	cut      \
+	date     \
+	dirname  \
+	du       \
+	echo     \
+	env      \
+	expand   \
+	expr     \
+	false    \
+	fold     \
+	grep     \
+	head     \
+	hostname \
+	kill     \
+	link     \
+	ln       \
+	logname  \
+	ls       \
+	md5sum   \
+	mkdir    \
+	mkfifo   \
+	mktemp   \
+	mv       \
+	nice     \
+	nl       \
+	nohup    \
+	paste    \
+	printenv \
+	printf   \
+	pwd      \
+	readlink \
+	renice   \
+	rm       \
+	rmdir    \
+	sleep    \
+	setsid   \
+	sort     \
+	split    \
+	sponge   \
+	strings  \
+	sync     \
+	tail     \
+	tar      \
+	tee      \
+	test     \
+	touch    \
+	tr       \
+	true     \
+	tty      \
+	uudecode \
+	uuencode \
+	uname    \
+	unexpand \
+	uniq     \
+	unlink   \
+	seq      \
+	sha1sum  \
+	sha256sum\
+	sha512sum\
+	wc       \
+	xargs    \
+	yes
 
-OBJ = $(SRC:.c=.o) $(LIB)
-BIN = $(SRC:.c=)
-MAN = $(SRC:.c=.1)
+LIBOBJ = $(LIBSRC:.c=.o)
+OBJ = $(BIN:=.o) $(LIBOBJ)
+SRC = $(BIN:=.c)
+MAN = $(BIN:=.1)
 
 all: binlib
 
-binlib: libutil.a
+binlib: $(LIB)
 	$(MAKE) bin
 
 bin: $(BIN)
@@ -134,12 +136,12 @@ bin: $(BIN)
 $(OBJ): $(HDR) config.mk
 
 .o:
-	$(LD) $(LDFLAGS) -o $@ $< libutil.a
+	$(LD) $(LDFLAGS) -o $@ $< $(LIB)
 
 .c.o:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 
-libutil.a: $(LIB)
+$(LIB): $(LIBOBJ)
 	$(AR) -r -c $@ $?
 	ranlib $@
 
@@ -162,7 +164,7 @@ dist: clean
 	gzip sbase-$(VERSION).tar
 	rm -rf sbase-$(VERSION)
 
-sbase-box: libutil.a $(SRC)
+sbase-box: $(LIB) $(SRC)
 	mkdir -p build
 	cp $(HDR) build
 	for f in $(SRC); do sed "s/^main(/`basename $$f .c`_&/" < $$f > build/$$f; done
@@ -177,8 +179,8 @@ sbase-box: libutil.a $(SRC)
 	echo 'else {' >> build/$@.c
 	for f in $(SRC); do echo "printf(\"`basename $$f .c`\"); putchar(' ');" >> build/$@.c; done
 	echo "putchar(0xa); }; return 0; }" >> build/$@.c
-	$(LD) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ build/*.c libutil.a
+	$(LD) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ build/*.c $(LIB)
 	rm -r build
 
 clean:
-	rm -f $(BIN) $(OBJ) $(LIB) libutil.a sbase-box sbase-$(VERSION).tar.gz
+	rm -f $(BIN) $(OBJ) $(LIBOBJ) $(LIB) sbase-box sbase-$(VERSION).tar.gz
