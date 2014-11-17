@@ -138,7 +138,7 @@ cryptsum(struct crypt_ops *ops, FILE *fp, const char *f,
 	while ((n = fread(buf, 1, sizeof(buf), fp)) > 0)
 		ops->update(ops->s, buf, n);
 	if (ferror(fp)) {
-		weprintf("read error: %s:", f);
+		weprintf("%s: read error:", f);
 		return 1;
 	}
 	ops->sum(ops->s, md);

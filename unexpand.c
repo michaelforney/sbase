@@ -66,8 +66,7 @@ in(Fdescr *f)
 	wint_t c = fgetwc(f->fp);
 
 	if (c == WEOF && ferror(f->fp))
-		eprintf("'%s' read error:", f->name);
-
+		eprintf("%s: read error:", f->name);
 	return c;
 }
 
@@ -76,7 +75,7 @@ out(wint_t c)
 {
 	putwchar(c);
 	if (ferror(stdout))
-		eprintf("write error:");
+		eprintf("stdout: write error:");
 }
 
 static void

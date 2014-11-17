@@ -53,12 +53,12 @@ main(int argc, char *argv[])
 	if (errno)
 		eprintf("getgrnam %s:");
 	else if (!gr)
-		eprintf("chgrp: '%s': No such group\n", argv[0]);
+		eprintf("getgrnam %s: no such group\n", argv[0]);
 	gid = gr->gr_gid;
 
 	while (*++argv) {
 		if (stat(*argv, &st) == -1) {
-			fprintf(stderr, "chgrp: '%s': %s\n", *argv,
+			fprintf(stderr, "stat %s: %s\n", *argv,
 					strerror(errno));
 			failures++;
 			continue;

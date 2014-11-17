@@ -1,8 +1,6 @@
 /* See LICENSE file for copyright and license details. */
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 
 #include "util.h"
@@ -26,8 +24,6 @@ main(int argc, char *argv[])
 
 	for (; argc > 0; argc--, argv++)
 		if (rmdir(argv[0]) == -1)
-			fprintf(stderr, "rmdir: '%s': %s\n",
-				argv[0], strerror(errno));
-
+			weprintf("rmdir %s:", argv[0]);
 	return 0;
 }

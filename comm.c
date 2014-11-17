@@ -44,7 +44,7 @@ main(int argc, char *argv[])
 		if (argv[i][0] == '-')
 			argv[i] = "/dev/fd/0";
 		if (!(fp[i] = fopen(argv[i], "r")))
-			eprintf("comm: '%s':", argv[i]);
+			eprintf("fopen %s:", argv[i]);
 	}
 
 	for (;;) {
@@ -94,9 +94,9 @@ nextline(char *buf, int n, FILE *f, char *name)
 {
 	buf = fgets(buf, n, f);
 	if (!buf && !feof(f))
-		eprintf("comm: '%s':", name);
+		eprintf("%s: read error:", name);
 	if (buf && !strchr(buf, '\n'))
-		eprintf("comm: '%s': line too long.\n", name);
+		eprintf("%s: line too long\n", name);
 	return buf;
 }
 
