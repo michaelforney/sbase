@@ -1,8 +1,13 @@
 /* See LICENSE file for copyright and license details. */
+#include <sys/types.h>
+#include <limits.h>
 #include <regex.h>
 #include <stddef.h>
-#include <sys/types.h>
 #include "arg.h"
+
+#ifndef HOST_NAME_MAX
+#define HOST_NAME_MAX _POSIX_HOST_NAME_MAX
+#endif
 
 #define UTF8_POINT(c) (((c) & 0xc0) != 0x80)
 
