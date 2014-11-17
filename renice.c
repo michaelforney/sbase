@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <errno.h>
 #include <limits.h>
 #include <pwd.h>
 #include <stdio.h>
@@ -23,6 +24,8 @@ main(int argc, char *argv[])
 	const char *adj = NULL;
 	long val;
 	int i, which = PRIO_PROCESS, status = 0;
+	struct passwd *pw;
+	int who;
 
 	ARGBEGIN {
 	case 'n':
@@ -47,20 +50,19 @@ main(int argc, char *argv[])
 
 	val = estrtol(adj, 10);
 	for (i = 0; i < argc; i++) {
-		int who = -1;
-
+		who = -1;
 		if (which == PRIO_USER) {
-			const struct passwd *pwd;
-
 			errno = 0;
-			do pwd = getpwnam(argv[i]); while (errno == EINTR);
-			if (pwd)
-				who = pwd->pw_uid;
-			else if (errno != 0) {
-				perror("can't read passwd");
+			pw = getpwnam(argv[i]);
+			if (!pw) {
+				if (errno != 0)
+					weprintf("getpwnam %s:", argv[i]);
+				else
+					weprintf("getpwnam %s: no user found\n", argv[i]);
 				status = 1;
 				continue;
 			}
+			who = pw->pw_uid;
 		}
 		if (who < 0)
 			who = strtop(argv[i]);
