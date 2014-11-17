@@ -26,31 +26,31 @@ LIBUTFSRC =\
 
 LIBUTIL = libutil.a
 LIBUTILSRC =\
-	util/agetcwd.c\
-	util/agetline.c\
-	util/apathmax.c\
-	util/concat.c\
-	util/cp.c\
-	util/crypt.c\
-	util/ealloc.c\
-	util/enmasse.c\
-	util/eprintf.c\
-	util/eregcomp.c\
-	util/estrtod.c\
-	util/estrtol.c\
-	util/fnck.c\
-	util/getlines.c\
-	util/human.c\
-	util/md5.c\
-	util/mode.c\
-	util/putword.c\
-	util/recurse.c\
-	util/rm.c\
-	util/sha1.c\
-	util/sha256.c\
-	util/sha512.c\
-	util/strlcat.c\
-	util/strlcpy.c
+	libutil/agetcwd.c\
+	libutil/agetline.c\
+	libutil/apathmax.c\
+	libutil/concat.c\
+	libutil/cp.c\
+	libutil/crypt.c\
+	libutil/ealloc.c\
+	libutil/enmasse.c\
+	libutil/eprintf.c\
+	libutil/eregcomp.c\
+	libutil/estrtod.c\
+	libutil/estrtol.c\
+	libutil/fnck.c\
+	libutil/getlines.c\
+	libutil/human.c\
+	libutil/md5.c\
+	libutil/mode.c\
+	libutil/putword.c\
+	libutil/recurse.c\
+	libutil/rm.c\
+	libutil/sha1.c\
+	libutil/sha256.c\
+	libutil/sha512.c\
+	libutil/strlcat.c\
+	libutil/strlcpy.c
 
 LIB = $(LIBUTF) $(LIBUTIL)
 
@@ -168,7 +168,7 @@ uninstall:
 
 dist: clean
 	mkdir -p sbase-$(VERSION)
-	cp -r LICENSE Makefile README TODO config.mk $(SRC) $(MAN) util $(HDR) sbase-$(VERSION)
+	cp -r LICENSE Makefile README TODO config.mk $(SRC) $(MAN) libutf libutil $(HDR) sbase-$(VERSION)
 	tar -cf sbase-$(VERSION).tar sbase-$(VERSION)
 	gzip sbase-$(VERSION).tar
 	rm -rf sbase-$(VERSION)
