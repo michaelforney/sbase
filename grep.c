@@ -24,10 +24,10 @@ static char mode = 0;
 struct pattern {
 	char *pattern;
 	regex_t preg;
-	TAILQ_ENTRY(pattern) entry;
+	SLIST_ENTRY(pattern) entry;
 };
 
-static TAILQ_HEAD(phead, pattern) phead;
+static SLIST_HEAD(phead, pattern) phead;
 
 static void
 usage(void)
@@ -38,11 +38,11 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	struct pattern *pnode, *tmp;
+	struct pattern *pnode;
 	int i, m, flags = REG_NOSUB, match = NoMatch;
 	FILE *fp;
 
-	TAILQ_INIT(&phead);
+	SLIST_INIT(&phead);
 
 	ARGBEGIN {
 	case 'E':
@@ -85,9 +85,8 @@ main(int argc, char *argv[])
 	}
 
 	/* Compile regex for all search patterns */
-	TAILQ_FOREACH(pnode, &phead, entry) {
+	SLIST_FOREACH(pnode, &phead, entry)
 		enregcomp(Error, &pnode->preg, pnode->pattern, flags);
-	}
 	many = (argc > 1);
 	if (argc == 0) {
 		match = grep(stdin, "<stdin>");
@@ -104,8 +103,9 @@ main(int argc, char *argv[])
 			fclose(fp);
 		}
 	}
-	TAILQ_FOREACH_SAFE(pnode, &phead, entry, tmp) {
-		TAILQ_REMOVE(&phead, pnode, entry);
+	while (!SLIST_EMPTY(&phead)) {
+		pnode = SLIST_FIRST(&phead);
+		SLIST_REMOVE_HEAD(&phead, entry);
 		regfree(&pnode->preg);
 		free(pnode->pattern);
 		free(pnode);
@@ -120,7 +120,7 @@ addpattern(const char *pattern)
 
 	pnode = emalloc(sizeof(*pnode));
 	pnode->pattern = estrdup(pattern);
-	TAILQ_INSERT_TAIL(&phead, pnode, entry);
+	SLIST_INSERT_HEAD(&phead, pnode, entry);
 }
 
 static int
@@ -136,7 +136,7 @@ grep(FILE *fp, const char *str)
 		/* Remove the trailing newline if one is present. */
 		if (len && buf[len - 1] == '\n')
 			buf[len - 1] = '\0';
-		TAILQ_FOREACH(pnode, &phead, entry) {
+		SLIST_FOREACH(pnode, &phead, entry) {
 			if (regexec(&pnode->preg, buf, 0, NULL, 0) ^ vflag)
 				continue;
 			switch (mode) {
