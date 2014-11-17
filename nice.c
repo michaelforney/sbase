@@ -37,7 +37,7 @@ main(int argc, char *argv[])
 	val += getpriority(PRIO_PROCESS, 0);
 	if (errno != 0)
 		weprintf("getpriority:");
-	val = MAX(-NZERO, MIN(val, NZERO - 1));
+	val = MAX(PRIO_MIN, MIN(val, PRIO_MAX));
 	if (setpriority(PRIO_PROCESS, 0, val) != 0)
 		weprintf("setpriority:");
 
