@@ -134,10 +134,10 @@ bin: $(BIN)
 $(OBJ): $(HDR) config.mk
 
 .o:
-	$(LD) -o $@ $< libutil.a $(LDFLAGS)
+	$(LD) $(LDFLAGS) -o $@ $< libutil.a
 
 .c.o:
-	$(CC) $(CFLAGS) -o $@ -c $<
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 
 libutil.a: $(LIB)
 	$(AR) -r -c $@ $?
@@ -177,7 +177,7 @@ sbase-box: $(SRC) libutil.a
 	echo 'else {' >> build/$@.c
 	for f in $(SRC); do echo "printf(\"`basename $$f .c`\"); putchar(' ');" >> build/$@.c; done
 	echo "putchar(0xa); }; return 0; }" >> build/$@.c
-	$(LD) -o $@ build/*.c libutil.a $(CFLAGS) $(LDFLAGS)
+	$(LD) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ build/*.c libutil.a
 	rm -r build
 
 clean:
