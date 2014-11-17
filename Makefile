@@ -3,122 +3,122 @@ include config.mk
 .POSIX:
 .SUFFIXES: .c .o
 
-HDR = \
-	arg.h    \
-	crypt.h  \
-	fs.h     \
-	md5.h    \
-	queue.h  \
-	sha1.h   \
-	sha256.h \
-	sha512.h \
-	text.h   \
+HDR =\
+	arg.h\
+	crypt.h\
+	fs.h\
+	md5.h\
+	queue.h\
+	sha1.h\
+	sha256.h\
+	sha512.h\
+	text.h\
 	util.h
 
 LIB = libutil.a
-LIBSRC = \
-	util/agetcwd.c   \
-	util/agetline.c  \
-	util/apathmax.c  \
-	util/concat.c    \
-	util/cp.c        \
-	util/crypt.c     \
-	util/ealloc.c    \
-	util/enmasse.c   \
-	util/eprintf.c   \
-	util/eregcomp.c  \
-	util/estrtod.c   \
-	util/estrtol.c   \
-	util/fnck.c      \
-	util/getlines.c  \
-	util/human.c     \
-	util/md5.c       \
-	util/mode.c      \
-	util/putword.c   \
-	util/recurse.c   \
-	util/rm.c        \
-	util/sha1.c      \
-	util/sha256.c    \
-	util/sha512.c    \
-	util/strlcat.c   \
+LIBSRC =\
+	util/agetcwd.c\
+	util/agetline.c\
+	util/apathmax.c\
+	util/concat.c\
+	util/cp.c\
+	util/crypt.c\
+	util/ealloc.c\
+	util/enmasse.c\
+	util/eprintf.c\
+	util/eregcomp.c\
+	util/estrtod.c\
+	util/estrtol.c\
+	util/fnck.c\
+	util/getlines.c\
+	util/human.c\
+	util/md5.c\
+	util/mode.c\
+	util/putword.c\
+	util/recurse.c\
+	util/rm.c\
+	util/sha1.c\
+	util/sha256.c\
+	util/sha512.c\
+	util/strlcat.c\
 	util/strlcpy.c
 
-BIN = \
-	basename \
-	cal      \
-	cat      \
-	chgrp    \
-	chmod    \
-	chown    \
-	chroot   \
-	cksum    \
-	cmp      \
-	col      \
-	cols     \
-	comm     \
-	cp       \
-	csplit   \
-	cut      \
-	date     \
-	dirname  \
-	du       \
-	echo     \
-	env      \
-	expand   \
-	expr     \
-	false    \
-	fold     \
-	grep     \
-	head     \
-	hostname \
-	kill     \
-	link     \
-	ln       \
-	logname  \
-	ls       \
-	md5sum   \
-	mkdir    \
-	mkfifo   \
-	mktemp   \
-	mv       \
-	nice     \
-	nl       \
-	nohup    \
-	paste    \
-	printenv \
-	printf   \
-	pwd      \
-	readlink \
-	renice   \
-	rm       \
-	rmdir    \
-	sleep    \
-	setsid   \
-	sort     \
-	split    \
-	sponge   \
-	strings  \
-	sync     \
-	tail     \
-	tar      \
-	tee      \
-	test     \
-	touch    \
-	tr       \
-	true     \
-	tty      \
-	uudecode \
-	uuencode \
-	uname    \
-	unexpand \
-	uniq     \
-	unlink   \
-	seq      \
-	sha1sum  \
+BIN =\
+	basename\
+	cal\
+	cat\
+	chgrp\
+	chmod\
+	chown\
+	chroot\
+	cksum\
+	cmp\
+	col\
+	cols\
+	comm\
+	cp\
+	csplit\
+	cut\
+	date\
+	dirname\
+	du\
+	echo\
+	env\
+	expand\
+	expr\
+	false\
+	fold\
+	grep\
+	head\
+	hostname\
+	kill\
+	link\
+	ln\
+	logname\
+	ls\
+	md5sum\
+	mkdir\
+	mkfifo\
+	mktemp\
+	mv\
+	nice\
+	nl\
+	nohup\
+	paste\
+	printenv\
+	printf\
+	pwd\
+	readlink\
+	renice\
+	rm\
+	rmdir\
+	sleep\
+	setsid\
+	sort\
+	split\
+	sponge\
+	strings\
+	sync\
+	tail\
+	tar\
+	tee\
+	test\
+	touch\
+	tr\
+	true\
+	tty\
+	uudecode\
+	uuencode\
+	uname\
+	unexpand\
+	uniq\
+	unlink\
+	seq\
+	sha1sum\
 	sha256sum\
 	sha512sum\
-	wc       \
-	xargs    \
+	wc\
+	xargs\
 	yes
 
 LIBOBJ = $(LIBSRC:.c=.o)
