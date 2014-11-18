@@ -69,7 +69,7 @@ nl(FILE *fp)
 	long n = 0;
 	size_t size = 0;
 
-	while (agetline(&buf, &size, fp) != -1) {
+	while (getline(&buf, &size, fp) != -1) {
 		if ((mode == 'a')
 		    || (mode == 'p'
 		        && !regexec(&preg, buf, 0, NULL, 0))

@@ -27,7 +27,6 @@ LIBUTFSRC =\
 LIBUTIL = libutil.a
 LIBUTILSRC =\
 	libutil/agetcwd.c\
-	libutil/agetline.c\
 	libutil/apathmax.c\
 	libutil/concat.c\
 	libutil/cp.c\

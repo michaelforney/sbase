@@ -61,7 +61,7 @@ dropinit(FILE *fp, const char *str, long n)
 	ssize_t len;
 	unsigned long i = 0;
 
-	while (i < n && ((len = agetline(&buf, &size, fp)) != -1))
+	while (i < n && ((len = getline(&buf, &size, fp)) != -1))
 		if (len && buf[len - 1] == '\n')
 			i++;
 	free(buf);
@@ -78,7 +78,7 @@ taketail(FILE *fp, const char *str, long n)
 	ring = ecalloc(n, sizeof *ring);
 	size = ecalloc(n, sizeof *size);
 
-	for (i = j = 0; agetline(&ring[i], &size[i], fp) != -1; i = j = (i + 1) % n)
+	for (i = j = 0; getline(&ring[i], &size[i], fp) != -1; i = j = (i + 1) % n)
 		;
 	if (ferror(fp))
 		eprintf("%s: read error:", str);

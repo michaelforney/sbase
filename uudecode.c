@@ -128,7 +128,7 @@ uudecode(FILE *fp, FILE *outfp)
 #define IS_DEC(c) ( (((c) - ' ') >= 0) && (((c) - ' ') <= 077 + 1) )
 #define OUT_OF_RANGE(c) eprintf("character %c out of range: [%d-%d]", (c), 1 + ' ', 077 + ' ' + 1)
 
-	while ((len = agetline(&bufb, &n, fp)) != -1) {
+	while ((len = getline(&bufb, &n, fp)) != -1) {
 		p = bufb;
 		/* trim newlines */
 		if (len && bufb[len - 1] != '\n')
@@ -172,7 +172,7 @@ uudecode(FILE *fp, FILE *outfp)
 			eprintf("read error:");
 	}
 	/* check for end or fail */
-	len = agetline(&bufb, &n, fp);
+	len = getline(&bufb, &n, fp);
 	if (len < 3 || strncmp(bufb, "end", 3) != 0 || bufb[3] != '\n')
 		eprintf("invalid uudecode footer \"end\" not found\n");
 	free(bufb);

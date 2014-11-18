@@ -121,7 +121,7 @@ cut(FILE *fp)
 	ssize_t len;
 	Range *r;
 
-	while ((len = agetline(&buf, &size, fp)) != -1) {
+	while ((len = getline(&buf, &size, fp)) != -1) {
 		if (len && buf[len - 1] == '\n')
 			buf[len - 1] = '\0';
 		if (mode == 'f' && !strchr(buf, delim)) {

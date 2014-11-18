@@ -92,7 +92,7 @@ uniq(FILE *fp, const char *str)
 	char *buf = NULL;
 	size_t size = 0;
 
-	while (agetline(&buf, &size, fp) != -1)
+	while (getline(&buf, &size, fp) != -1)
 		uniqline(buf);
 }
 

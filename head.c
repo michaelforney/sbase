@@ -56,7 +56,7 @@ head(FILE *fp, const char *str, long n)
 	ssize_t len;
 	unsigned long i = 0;
 
-	while (i < n && ((len = agetline(&buf, &size, fp)) != -1)) {
+	while (i < n && ((len = getline(&buf, &size, fp)) != -1)) {
 		fputs(buf, stdout);
 		if (buf[len - 1] == '\n')
 			i++;

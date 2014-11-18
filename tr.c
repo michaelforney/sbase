@@ -346,7 +346,7 @@ main(int argc, char *argv[])
 		usage();
 	}
 
-	while ((nbytes = agetline(&buf, &size, stdin)) != -1)
+	while ((nbytes = getline(&buf, &size, stdin)) != -1)
 		mapfunc(buf, nbytes);
 	free(buf);
 	if (ferror(stdin))

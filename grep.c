@@ -132,7 +132,7 @@ grep(FILE *fp, const char *str)
 	struct pattern *pnode;
 	int match = NoMatch;
 
-	for (n = 1; (len = agetline(&buf, &size, fp)) != -1; n++) {
+	for (n = 1; (len = getline(&buf, &size, fp)) != -1; n++) {
 		/* Remove the trailing newline if one is present. */
 		if (len && buf[len - 1] == '\n')
 			buf[len - 1] = '\0';
