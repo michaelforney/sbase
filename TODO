@@ -11,6 +11,7 @@ ed
 file
 find
 getconf
+install
 join
 logger
 make
