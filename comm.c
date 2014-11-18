@@ -41,7 +41,7 @@ main(int argc, char *argv[])
 		usage();
 
 	for (i = 0; i < LEN(fp); i++) {
-		if (argv[i][0] == '-')
+		if (argv[i][0] == '-' && !argv[i][1])
 			argv[i] = "/dev/fd/0";
 		if (!(fp[i] = fopen(argv[i], "r")))
 			eprintf("fopen %s:", argv[i]);

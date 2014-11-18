@@ -37,7 +37,7 @@ main(int argc, char *argv[])
 	if (argc != 2)
 		usage();
 
-	if (argv[0][0] == '-')
+	if (argv[0][0] == '-' && !argv[0][1])
 		argv[0] = "/dev/fd/0";
 	fp[0] = fopen(argv[0], "r");
 	if (!fp[0]) {
@@ -46,7 +46,7 @@ main(int argc, char *argv[])
 		exit(Error);
 	}
 
-	if (argv[1][0] == '-')
+	if (argv[1][0] == '-' && !argv[1][1])
 		argv[1] = "/dev/fd/0";
 	fp[1] = fopen(argv[1], "r");
 	if (!fp[1]) {
