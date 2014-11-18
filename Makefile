@@ -1,6 +1,7 @@
 include config.mk
 
-.SUFFIXES: .c .o
+.SUFFIXES:
+.SUFFIXES: .o .c
 
 HDR =\
 	arg.h\
