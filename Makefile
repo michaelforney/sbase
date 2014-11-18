@@ -1,6 +1,5 @@
 include config.mk
 
-.POSIX:
 .SUFFIXES: .c .o
 
 HDR =\
