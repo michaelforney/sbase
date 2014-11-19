@@ -149,7 +149,11 @@ $(OBJ): $(HDR) config.mk
 .c.o:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 
-$(LIB): $(LIBUTFOBJ) $(LIBUTILOBJ)
+$(LIBUTF): $(LIBUTFOBJ)
+	$(AR) -r -c $@ $?
+	$(RANLIB) $@
+
+$(LIBUTIL): $(LIBUTILOBJ)
 	$(AR) -r -c $@ $?
 	$(RANLIB) $@
 
