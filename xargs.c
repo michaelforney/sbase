@@ -191,22 +191,22 @@ poparg(void)
 	int ch;
 
 	argbpos = 0;
-	if (eatspace() == -1)
+	if (eatspace() < 0)
 		return NULL;
 	while ((ch = inputc()) != EOF) {
 		switch (ch) {
 		case ' ': case '\t': case '\n':
 			goto out;
 		case '\'':
-			if (parsequote('\'') == -1)
+			if (parsequote('\'') < 0)
 				eprintf("unterminated single quote\n");
 			break;
 		case '\"':
-			if (parsequote('\"') == -1)
+			if (parsequote('\"') < 0)
 				eprintf("unterminated double quote\n");
 			break;
 		case '\\':
-			if (parseescape() == -1)
+			if (parseescape() < 0)
 				eprintf("backslash at EOF\n");
 			break;
 		default:

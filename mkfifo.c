@@ -30,7 +30,7 @@ main(int argc, char *argv[])
 		usage();
 
 	for (; argc > 0; argc--, argv++)
-		if (mkfifo(argv[0], mode) == -1)
+		if (mkfifo(argv[0], mode) < 0)
 			eprintf("mkfifo %s:", argv[0]);
 	return 0;
 }

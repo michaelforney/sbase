@@ -34,15 +34,15 @@ main(int argc, char *argv[])
 
 	if (isatty(STDOUT_FILENO)) {
 		if ((fd = open("nohup.out", O_APPEND|O_CREAT,
-			       S_IRUSR|S_IWUSR)) == -1) {
+			       S_IRUSR|S_IWUSR)) < 0) {
 			enprintf(Error, "open nohup.out:");
 		}
-		if (dup2(fd, STDOUT_FILENO) == -1)
+		if (dup2(fd, STDOUT_FILENO) < 0)
 			enprintf(Error, "dup2:");
 		close(fd);
 	}
 	if (isatty(STDERR_FILENO))
-		if (dup2(STDOUT_FILENO, STDERR_FILENO) == -1)
+		if (dup2(STDOUT_FILENO, STDERR_FILENO) < 0)
 			enprintf(Error, "dup2:");
 
 	execvp(argv[0], &argv[0]);

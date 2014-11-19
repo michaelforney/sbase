@@ -18,7 +18,7 @@ recurse(const char *path, void (*fn)(const char *))
 	struct stat st;
 	DIR *dp;
 
-	if (lstat(path, &st) == -1 || S_ISDIR(st.st_mode) == 0)
+	if (lstat(path, &st) < 0 || !S_ISDIR(st.st_mode))
 		return;
 
 	if (!(dp = opendir(path)))

@@ -105,7 +105,7 @@ renice(int which, int who, long adj)
 	}
 
 	adj = MAX(PRIO_MIN, MIN(adj, PRIO_MAX));
-	if (setpriority(which, who, (int)adj) == -1) {
+	if (setpriority(which, who, (int)adj) < 0) {
 		weprintf("setpriority %d:", who);
 		return 0;
 	}

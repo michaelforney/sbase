@@ -55,7 +55,7 @@ touch(const char *str)
 	if (stat(str, &st) == 0) {
 		ut.actime = st.st_atime;
 		ut.modtime = t;
-		if (utime(str, &ut) == -1)
+		if (utime(str, &ut) < 0)
 			eprintf("utime %s:", str);
 		return;
 	}
@@ -64,7 +64,7 @@ touch(const char *str)
 	else if (cflag)
 		return;
 	if ((fd = open(str, O_CREAT|O_EXCL,
-	               S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH)) == -1)
+	               S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH)) < 0)
 		eprintf("open %s:", str);
 	close(fd);
 	touch(str);

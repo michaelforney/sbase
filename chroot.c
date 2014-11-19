@@ -28,10 +28,10 @@ main(int argc, char *argv[])
 	if ((aux = getenv("SHELL")))
 		shell[0] = aux;
 
-	if (chroot(argv[0]) == -1)
+	if (chroot(argv[0]) < 0)
 		eprintf("chroot %s:", argv[0]);
 
-	if (chdir("/") == -1)
+	if (chdir("/") < 0)
 		eprintf("chdir:");
 
 	if (argc == 1) {

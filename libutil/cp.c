@@ -66,7 +66,7 @@ cp(const char *s1, const char *s2)
 		if (!(dp = opendir(s1)))
 			eprintf("opendir %s:", s1);
 
-		if (mkdir(s2, st.st_mode) == -1 && errno != EEXIST)
+		if (mkdir(s2, st.st_mode) < 0 && errno != EEXIST)
 			eprintf("mkdir %s:", s2);
 
 		apathmax(&ns1, &size1);
@@ -144,7 +144,7 @@ preserve:
 			r = lchown(s2, st.st_uid, st.st_gid);
 		else
 			r = chown(s2, st.st_uid, st.st_gid);
-		if (r == -1) {
+		if (r < 0) {
 			weprintf("cp: can't preserve ownership of '%s':", s2);
 			cp_status = 1;
 		}

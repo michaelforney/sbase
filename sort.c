@@ -208,7 +208,7 @@ parse_keydef(struct keydef *kd, char *s, int flags)
 		kd->start_char = strtol(rest+1, &rest, 10);
 	if (kd->start_char < 1)
 		return -1;
-	if (parse_flags(&rest, &kd->flags, MOD_STARTB) == -1)
+	if (parse_flags(&rest, &kd->flags, MOD_STARTB) < 0)
 		return -1;
 	if (*rest == ',') {
 		kd->end_column = strtol(rest+1, &rest, 10);
@@ -219,7 +219,7 @@ parse_keydef(struct keydef *kd, char *s, int flags)
 			if (kd->end_char < 1)
 				return -1;
 		}
-		if (parse_flags(&rest, &kd->flags, MOD_ENDB) == -1)
+		if (parse_flags(&rest, &kd->flags, MOD_ENDB) < 0)
 			return -1;
 	}
 	if (*rest != '\0')

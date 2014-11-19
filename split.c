@@ -131,7 +131,7 @@ nextfile(FILE *f, char *buf, int plen, int slen)
 	if (f)
 		fclose(f);
 	s = itostr(buf+plen, n++, slen);
-	if (s == -1)
+	if (s < 0)
 		return NULL;
 
 	f = fopen(buf, "w");

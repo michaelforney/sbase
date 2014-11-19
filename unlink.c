@@ -16,7 +16,7 @@ main(int argc, char *argv[])
 	if (argc != 2)
 		usage();
 
-	if (unlink(argv[1]) == -1)
+	if (unlink(argv[1]) < 0)
 		eprintf("unlink: '%s':", argv[1]);
 
 	return 0;

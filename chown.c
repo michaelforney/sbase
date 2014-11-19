@@ -81,7 +81,7 @@ main(int argc, char *argv[])
 void
 chownpwgr(const char *path)
 {
-	if (chown(path, uid, gid) == -1) {
+	if (chown(path, uid, gid) < 0) {
 		weprintf("chown %s:", path);
 		ret = 1;
 	}

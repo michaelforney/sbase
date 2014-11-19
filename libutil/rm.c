@@ -12,6 +12,6 @@ rm(const char *path)
 {
 	if (rm_rflag)
 		recurse(path, rm);
-	if (remove(path) == -1 && !rm_fflag)
+	if (remove(path) < 0 && !rm_fflag)
 		eprintf("remove %s:", path);
 }

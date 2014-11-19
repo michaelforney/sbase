@@ -23,7 +23,7 @@ main(int argc, char *argv[])
 		usage();
 
 	for (; argc > 0; argc--, argv++)
-		if (rmdir(argv[0]) == -1)
+		if (rmdir(argv[0]) < 0)
 			weprintf("rmdir %s:", argv[0]);
 	return 0;
 }

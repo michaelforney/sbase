@@ -24,7 +24,7 @@ usage(void)
 static void
 chgrp(const char *path)
 {
-	if (chown(path, st.st_uid, gid) == -1) {
+	if (chown(path, st.st_uid, gid) < 0) {
 		weprintf("chown %s:", path);
 		failures++;
 	}
@@ -57,7 +57,7 @@ main(int argc, char *argv[])
 	gid = gr->gr_gid;
 
 	while (*++argv) {
-		if (stat(*argv, &st) == -1) {
+		if (stat(*argv, &st) < 0) {
 			weprintf("stat %s:", *argv);
 			failures++;
 			continue;

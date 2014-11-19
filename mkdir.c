@@ -41,7 +41,7 @@ main(int argc, char *argv[])
 	for (; argc > 0; argc--, argv++) {
 		if (pflag) {
 			mkdirp(argv[0]);
-		} else if (mkdir(argv[0], S_IRWXU|S_IRWXG|S_IRWXO) == -1) {
+		} else if (mkdir(argv[0], S_IRWXU|S_IRWXG|S_IRWXO) < 0) {
 			eprintf("mkdir %s:", argv[0]);
 		}
 		if (mflag)
@@ -60,7 +60,7 @@ mkdirp(char *path)
 	do {
 		if (*p && (p = strchr(&p[1], '/')))
 			*p = '\0';
-		if (mkdir(path, S_IRWXU|S_IRWXG|S_IRWXO) == -1 && errno != EEXIST)
+		if (mkdir(path, S_IRWXU|S_IRWXG|S_IRWXO) < 0 && errno != EEXIST)
 			eprintf("mkdir %s:", path);
 		if (p)
 			*p = '/';

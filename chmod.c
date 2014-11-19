@@ -65,14 +65,14 @@ chmodr(const char *path)
 	struct stat st;
 	mode_t m;
 
-	if (stat(path, &st) == -1) {
+	if (stat(path, &st) < 0) {
 		weprintf("stat %s:", path);
 		ret = 1;
 		return;
 	}
 
 	m = parsemode(modestr, st.st_mode, mask);
-	if (chmod(path, m) == -1) {
+	if (chmod(path, m) < 0) {
 		weprintf("chmod %s:", path);
 		ret = 1;
 	}

@@ -137,7 +137,7 @@ lsdir(const char *path)
 	cwd = agetcwd();
 	if (!(dp = opendir(path)))
 		eprintf("opendir %s:", path);
-	if (chdir(path) == -1)
+	if (chdir(path) < 0)
 		eprintf("chdir %s:", path);
 
 	if (many) {
@@ -168,7 +168,7 @@ lsdir(const char *path)
 			free(ents[rflag ? n-i-1 : i].name);
 		}
 	}
-	if (chdir(cwd) == -1)
+	if (chdir(cwd) < 0)
 		eprintf("chdir %s:", cwd);
 	free(ents);
 	free(cwd);
@@ -182,7 +182,7 @@ mkent(Entry *ent, char *path, int dostat)
 	ent->name   = path;
 	if (!dostat)
 		return;
-	if (lstat(path, &st) == -1)
+	if (lstat(path, &st) < 0)
 		eprintf("lstat %s:", path);
 	ent->mode   = st.st_mode;
 	ent->nlink  = st.st_nlink;
@@ -291,7 +291,7 @@ output(Entry *ent)
 		printf("%10lu ", (unsigned long)ent->size);
 	printf("%s %s%s", buf, ent->name, indicator(ent->mode));
 	if (S_ISLNK(ent->mode)) {
-		if ((len = readlink(ent->name, buf, sizeof buf)) == -1)
+		if ((len = readlink(ent->name, buf, sizeof buf)) < 0)
 			eprintf("readlink %s:", ent->name);
 		buf[len] = '\0';
 		mkent(&entlnk, buf, Fflag);
