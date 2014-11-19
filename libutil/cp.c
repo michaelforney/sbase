@@ -39,61 +39,62 @@ cp(const char *s1, const char *s2)
 	if (cp_vflag)
 		printf("'%s' -> '%s'\n", s1, s2);
 
-	if (cp_dflag)
-		r = lstat(s1, &st);
-	else
-		r = stat(s1, &st);
+	r = cp_dflag ? lstat(s1, &st) : stat(s1, &st);
+	if (r < 0) {
+		weprintf("%s %s:", cp_dflag ? "lstat" : "stat", s1);
+		cp_status = 1;
+		return 0;
+	}
 
-	if (r == 0) {
-		if (cp_dflag && S_ISLNK(st.st_mode)) {
-			if (readlink(s1, buf, sizeof(buf) - 1) >= 0) {
-				if (cp_fflag)
-					unlink(s2);
-				if (symlink(buf, s2) != 0) {
-					weprintf("%s: can't create '%s'\n", argv0, s2);
-					cp_status = 1;
-					return 0;
-				}
+	if (cp_dflag && S_ISLNK(st.st_mode)) {
+		if (readlink(s1, buf, sizeof(buf) - 1) >= 0) {
+			if (cp_fflag)
+				unlink(s2);
+			if (symlink(buf, s2) != 0) {
+				weprintf("%s: can't create '%s'\n", argv0, s2);
+				cp_status = 1;
+				return 0;
 			}
-			goto preserve;
 		}
-		if (S_ISDIR(st.st_mode)) {
-			if (!cp_rflag)
-				eprintf("%s: is a directory\n", s1);
+		goto preserve;
+	}
 
-			if (!(dp = opendir(s1)))
-				eprintf("opendir %s:", s1);
+	if (S_ISDIR(st.st_mode)) {
+		if (!cp_rflag)
+			eprintf("%s: is a directory\n", s1);
 
-			if (mkdir(s2, st.st_mode) == -1 && errno != EEXIST)
-				eprintf("mkdir %s:", s2);
+		if (!(dp = opendir(s1)))
+			eprintf("opendir %s:", s1);
 
-			apathmax(&ns1, &size1);
-			apathmax(&ns2, &size2);
-			while ((d = readdir(dp))) {
-				if (strcmp(d->d_name, ".") && strcmp(d->d_name, "..")) {
-					r = snprintf(ns1, size1, "%s/%s", s1, d->d_name);
-					if (r >= size1 || r < 0) {
-						eprintf("%s/%s: filename too long\n",
-							s1, d->d_name);
-					}
-					r = snprintf(ns2, size2, "%s/%s", s2, d->d_name);
-					if (r >= size2 || r < 0) {
-						eprintf("%s/%s: filename too long\n",
-							s2, d->d_name);
-					}
-					fnck(ns1, ns2, cp);
+		if (mkdir(s2, st.st_mode) == -1 && errno != EEXIST)
+			eprintf("mkdir %s:", s2);
+
+		apathmax(&ns1, &size1);
+		apathmax(&ns2, &size2);
+		while ((d = readdir(dp))) {
+			if (strcmp(d->d_name, ".") && strcmp(d->d_name, "..")) {
+				r = snprintf(ns1, size1, "%s/%s", s1, d->d_name);
+				if (r >= size1 || r < 0) {
+					eprintf("%s/%s: filename too long\n",
+						s1, d->d_name);
 				}
+				r = snprintf(ns2, size2, "%s/%s", s2, d->d_name);
+				if (r >= size2 || r < 0) {
+					eprintf("%s/%s: filename too long\n",
+						s2, d->d_name);
+				}
+				fnck(ns1, ns2, cp);
 			}
-			closedir(dp);
-			free(ns1);
-			free(ns2);
-			goto preserve;
 		}
+		closedir(dp);
+		free(ns1);
+		free(ns2);
+		goto preserve;
 	}
 
 	if (cp_aflag) {
 		if (S_ISBLK(st.st_mode) || S_ISCHR(st.st_mode) ||
-		   S_ISSOCK(st.st_mode) || S_ISFIFO(st.st_mode)) {
+		    S_ISSOCK(st.st_mode) || S_ISFIFO(st.st_mode)) {
 			unlink(s2);
 			if (mknod(s2, st.st_mode, st.st_rdev) < 0) {
 				weprintf("%s: can't create '%s':", argv0, s2);
@@ -125,6 +126,7 @@ cp(const char *s1, const char *s2)
 		}
 	}
 	concat(f1, s1, f2, s2);
+	/* preserve permissions by default */
 	fchmod(fileno(f2), st.st_mode);
 	fclose(f2);
 	fclose(f1);
