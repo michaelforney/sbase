@@ -23,6 +23,7 @@ main(int argc, char *argv[])
 	FILE *fp;
 	void (*tail)(FILE *, const char *, long) = taketail;
 	char *lines;
+	int ret = 0;
 
 	ARGBEGIN {
 	case 'n':
@@ -43,14 +44,14 @@ main(int argc, char *argv[])
 		for (; argc > 0; argc--, argv++) {
 			if (!(fp = fopen(argv[0], "r"))) {
 				weprintf("fopen %s:", argv[0]);
+				ret = 1;
 				continue;
 			}
 			tail(fp, argv[0], n);
 			fclose(fp);
 		}
 	}
-
-	return 0;
+	return ret;
 }
 
 static void
