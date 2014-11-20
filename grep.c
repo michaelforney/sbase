@@ -222,6 +222,7 @@ grep(FILE *fp, const char *str)
 				break;
 			}
 			match = Match;
+			break;
 		}
 	}
 	if (mode == 'c')
