@@ -23,10 +23,9 @@ stty
 tabs
 tput
 
-The  following  programs have  been  imported  from  OpenBSD and  need
+The  following  program(s) have  been  imported  from  OpenBSD and  need
 replacing or cleaning up:
 
-col
 printf
 
 If you are looking for some work  to do on sbase, another option is to

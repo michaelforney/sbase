@@ -63,7 +63,6 @@ BIN =\
 	chroot\
 	cksum\
 	cmp\
-	col\
 	cols\
 	comm\
 	cp\
