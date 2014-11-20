@@ -20,6 +20,7 @@ static int Hflag;
 static int eflag;
 static int fflag;
 static int hflag;
+static int iflag;
 static int sflag;
 static int vflag;
 static int xflag;
@@ -78,6 +79,7 @@ main(int argc, char *argv[])
 		break;
 	case 'i':
 		flags |= REG_ICASE;
+		iflag = 1;
 		break;
 	case 's':
 		sflag = 1;
@@ -197,10 +199,17 @@ grep(FILE *fp, const char *str)
 				if (regexec(&pnode->preg, buf, 0, NULL, 0) ^ vflag)
 					continue;
 			} else {
-				if (!xflag)
-					match = strstr(buf, pnode->pattern) ? Match : NoMatch;
-				else
-					match = strcmp(buf, pnode->pattern);
+				if (!xflag) {
+					if ((iflag ? strcasestr : strstr)(buf, pnode->pattern))
+						match = Match;
+					else
+						match = NoMatch;
+				} else {
+					if (!(iflag ? strcasecmp : strcmp)(buf, pnode->pattern))
+						match = Match;
+					else
+						match = NoMatch;
+				}
 				if (match ^ vflag)
 					continue;
 			}
