@@ -153,8 +153,7 @@ grep(FILE *fp, const char *str)
 					continue;
 			} else {
 				match = strstr(buf, pnode->pattern) ? Match : NoMatch;
-				match ^= vflag;
-				if (match)
+				if (match ^ vflag)
 					continue;
 			}
 			switch (mode) {
