@@ -67,7 +67,6 @@ BIN =\
 	cols\
 	comm\
 	cp\
-	csplit\
 	cut\
 	date\
 	dirname\
