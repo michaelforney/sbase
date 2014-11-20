@@ -33,6 +33,9 @@ void weprintf(const char *, ...);
 double estrtod(const char *);
 long estrtol(const char *, int);
 
+#undef strcasestr
+char *strcasestr(const char *, const char *);
+
 #undef strlcat
 size_t strlcat(char *, const char *, size_t);
 #undef strlcpy

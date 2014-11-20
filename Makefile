@@ -48,6 +48,7 @@ LIBUTILSRC =\
 	libutil/sha1.c\
 	libutil/sha256.c\
 	libutil/sha512.c\
+	libutil/strcasestr.c\
 	libutil/strlcat.c\
 	libutil/strlcpy.c
 
