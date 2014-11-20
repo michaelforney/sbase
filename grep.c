@@ -12,7 +12,7 @@
 enum { Match = 0, NoMatch = 1, Error = 2 };
 
 static void addpattern(const char *);
-static void addpatternfile(const char *);
+static void addpatternfile(FILE *);
 static int grep(FILE *, const char *);
 
 static int Fflag;
@@ -47,6 +47,7 @@ main(int argc, char *argv[])
 	struct pattern *pnode;
 	int i, m, flags = REG_NOSUB, match = NoMatch;
 	FILE *fp;
+	char *arg;
 
 	SLIST_INIT(&phead);
 
@@ -61,11 +62,19 @@ main(int argc, char *argv[])
 		Hflag = 1;
 		break;
 	case 'e':
-		addpattern(EARGF(usage()));
+		arg = EARGF(usage());
+		fp = fmemopen(arg, strlen(arg) + 1, "r");
+		addpatternfile(fp);
+		fclose(fp);
 		eflag = 1;
 		break;
 	case 'f':
-		addpatternfile(EARGF(usage()));
+		arg = EARGF(usage());
+		fp = fopen(arg, "r");
+		if (!fp)
+			enprintf(Error, "fopen %s:", arg);
+		addpatternfile(fp);
+		fclose(fp);
 		fflag = 1;
 		break;
 	case 'h':
@@ -99,7 +108,9 @@ main(int argc, char *argv[])
 
 	/* just add literal pattern to list */
 	if (!eflag && !fflag) {
-		addpattern(argv[0]);
+		fp = fmemopen(argv[0], strlen(argv[0]) + 1, "r");
+		addpatternfile(fp);
+		fclose(fp);
 		argc--;
 		argv++;
 	}
@@ -163,22 +174,17 @@ addpattern(const char *pattern)
 }
 
 static void
-addpatternfile(const char *file)
+addpatternfile(FILE *fp)
 {
-	FILE *fp;
 	char *buf = NULL;
 	size_t len = 0, size = 0;
 
-	fp = fopen(file, "r");
-	if (!fp)
-		enprintf(Error, "fopen %s:", file);
 	while ((len = getline(&buf, &size, fp)) != -1) {
 		if (len && buf[len - 1] == '\n')
 			buf[len - 1] = '\0';
 		addpattern(buf);
 	}
 	free(buf);
-	fclose(fp);
 }
 
 static int
