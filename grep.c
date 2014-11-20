@@ -196,7 +196,7 @@ grep(FILE *fp, const char *str)
 			buf[len - 1] = '\0';
 		SLIST_FOREACH(pnode, &phead, entry) {
 			if (!Fflag) {
-				if (regexec(&pnode->preg, buf, 0, NULL, 0) ^ vflag)
+				if (regexec(&pnode->preg, buf[0] == '\0' ? "\n" : buf, 0, NULL, 0) ^ vflag)
 					continue;
 			} else {
 				if (!xflag) {
