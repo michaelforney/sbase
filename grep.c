@@ -134,17 +134,30 @@ addpattern(const char *pattern)
 	struct pattern *pnode;
 	char *tmp;
 
-	pnode = emalloc(sizeof(*pnode));
+	/* a null BRE/ERE matches every line */
+	if (!Fflag)
+		if (pattern[0] == '\0')
+			pattern = ".";
+
 	if (!Fflag && xflag) {
 		tmp = emalloc(strlen(pattern) + 3);
 		snprintf(tmp, strlen(pattern) + 3, "%s%s%s",
 			 pattern[0] == '^' ? "" : "^",
 			 pattern,
 			 pattern[strlen(pattern) - 1] == '$' ? "" : "$");
-		pnode->pattern = tmp;
 	} else {
-		pnode->pattern = estrdup(pattern);
+		tmp = estrdup(pattern);
 	}
+
+	SLIST_FOREACH(pnode, &phead, entry) {
+		if (!strcmp(pnode->pattern, tmp)) {
+			free(tmp);
+			return;
+		}
+	}
+
+	pnode = emalloc(sizeof(*pnode));
+	pnode->pattern = tmp;
 	SLIST_INSERT_HEAD(&phead, pnode, entry);
 }
 
