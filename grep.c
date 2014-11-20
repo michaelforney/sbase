@@ -20,6 +20,7 @@ static int eflag;
 static int hflag;
 static int sflag;
 static int vflag;
+static int xflag;
 static int many;
 static char mode;
 
@@ -34,7 +35,7 @@ static SLIST_HEAD(phead, pattern) phead;
 static void
 usage(void)
 {
-	enprintf(Error, "usage: %s [-EFHcilnqsv] [-e pattern] pattern [files...]\n", argv0);
+	enprintf(Error, "usage: %s [-EFHcilnqsvx] [-e pattern] pattern [files...]\n", argv0);
 }
 
 int
@@ -77,6 +78,9 @@ main(int argc, char *argv[])
 		break;
 	case 'v':
 		vflag = 1;
+		break;
+	case 'x':
+		xflag = 1;
 		break;
 	default:
 		usage();
@@ -128,9 +132,19 @@ static void
 addpattern(const char *pattern)
 {
 	struct pattern *pnode;
+	char *tmp;
 
 	pnode = emalloc(sizeof(*pnode));
-	pnode->pattern = estrdup(pattern);
+	if (!Fflag && xflag) {
+		tmp = emalloc(strlen(pattern) + 3);
+		snprintf(tmp, strlen(pattern) + 3, "%s%s%s",
+			 pattern[0] == '^' ? "" : "^",
+			 pattern,
+			 pattern[strlen(pattern) - 1] == '$' ? "" : "$");
+		pnode->pattern = tmp;
+	} else {
+		pnode->pattern = estrdup(pattern);
+	}
 	SLIST_INSERT_HEAD(&phead, pnode, entry);
 }
 
@@ -152,7 +166,10 @@ grep(FILE *fp, const char *str)
 				if (regexec(&pnode->preg, buf, 0, NULL, 0) ^ vflag)
 					continue;
 			} else {
-				match = strstr(buf, pnode->pattern) ? Match : NoMatch;
+				if (!xflag)
+					match = strstr(buf, pnode->pattern) ? Match : NoMatch;
+				else
+					match = strcmp(buf, pnode->pattern);
 				if (match ^ vflag)
 					continue;
 			}

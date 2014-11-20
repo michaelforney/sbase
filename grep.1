@@ -3,7 +3,7 @@
 grep \- search files for a pattern
 .SH SYNOPSIS
 .B grep
-.RB [ \-EFHchilnqsv ]
+.RB [ \-EFHchilnqsvx ]
 .RB [ \-e
 .I pattern ]
 .I pattern
@@ -64,5 +64,9 @@ Suppress the error messages ordinarily written for nonexistent or unreadable fil
 Selects lines which do
 .B not
 Match the pattern.
+.TP
+.B \-x
+Consider only input lines that use all characters in the line excluding the terminating <newline> to
+match an entire fixed string or regular expression to be matching lines.
 .SH SEE ALSO
 .IR regex (7)
