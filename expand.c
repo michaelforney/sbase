@@ -1,16 +1,11 @@
 /* See LICENSE file for copyright and license details. */
 #include <stdio.h>
 #include <stdlib.h>
-#include <wchar.h>
 
+#include "utf.h"
 #include "util.h"
 
-typedef struct {
-	FILE *fp;
-	const char *name;
-} Fdescr;
-
-static int expand(Fdescr *f, int tabstop);
+static int expand(const char *, FILE *, int);
 
 static int iflag = 0;
 
@@ -23,7 +18,6 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	Fdescr dsc;
 	FILE *fp;
 	int tabstop = 8;
 
@@ -39,64 +33,81 @@ main(int argc, char *argv[])
 	} ARGEND;
 
 	if (argc == 0) {
-		dsc.name = "<stdin>";
-		dsc.fp = stdin;
-		expand(&dsc, tabstop);
+		expand("<stdin>", stdin, tabstop);
 	} else {
 		for (; argc > 0; argc--, argv++) {
-			if (!(fp = fopen(*argv, "r"))) {
-				weprintf("fopen %s:", *argv);
+			if (!(fp = fopen(argv[0], "r"))) {
+				weprintf("fopen %s:", argv[0]);
 				continue;
 			}
-			dsc.name = *argv;
-			dsc.fp = fp;
-			expand(&dsc, tabstop);
+			expand(argv[0], fp, tabstop);
 			fclose(fp);
 		}
 	}
 	return 0;
 }
 
-static wint_t
-in(Fdescr *f)
+int
+in(const char *file, FILE *fp, Rune *r)
 {
-	wint_t c = fgetwc(f->fp);
+	char buf[UTFmax];
+	int c, i;
 
-	if (c == WEOF && ferror(f->fp))
-		eprintf("'%s' read error:", f->name);
-
-	return c;
+	c = fgetc(fp);
+	if (ferror(fp))
+		eprintf("%s: read error:", file);
+	if (feof(fp))
+		return 0;
+	if (c < Runeself) {
+		*r = (Rune)c;
+		return 1;
+	}
+	buf[0] = c;
+	for (i = 1; ;) {
+		c = fgetc(fp);
+		if (ferror(fp))
+			eprintf("%s: read error:", file);
+		if (feof(fp))
+			return 0;
+		buf[i++] = c;
+		if (fullrune(buf, i))
+			return chartorune(r, buf);
+	}
 }
 
 static void
-out(wint_t c)
+out(Rune *r)
 {
-	putwchar(c);
-	if (ferror(stdout))
-		eprintf("write error:");
+	char buf[UTFmax];
+	int len;
+
+	if ((len = runetochar(buf, r))) {
+		fwrite(buf, len, 1, stdout);
+		if (ferror(stdout))
+			eprintf("stdout: write error:");
+	}
 }
 
 static int
-expand(Fdescr *dsc, int tabstop)
+expand(const char *file, FILE *fp, int tabstop)
 {
 	int col = 0;
-	wint_t c;
+	Rune r;
 	int bol = 1;
 
 	for (;;) {
-		c = in(dsc);
-		if (c == WEOF)
+		if (!in(file, fp, &r))
 			break;
 
-		switch (c) {
+		switch (r) {
 		case '\t':
 			if (bol || !iflag) {
 				do {
 					col++;
-					out(' ');
+					putchar(' ');
 				} while (col & (tabstop - 1));
 			} else {
-				out('\t');
+				putchar('\t');
 				col += tabstop - col % tabstop;
 			}
 			break;
@@ -104,18 +115,18 @@ expand(Fdescr *dsc, int tabstop)
 			if (col)
 				col--;
 			bol = 0;
-			out(c);
+			out(&r);
 			break;
 		case '\n':
 			col = 0;
 			bol = 1;
-			out(c);
+			out(&r);
 			break;
 		default:
 			col++;
-			if (c != ' ')
+			if (r != ' ')
 				bol = 0;
-			out(c);
+			out(&r);
 			break;
 		}
 	}
