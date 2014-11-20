@@ -24,7 +24,7 @@ static int sflag;
 static int vflag;
 static int xflag;
 static int many;
-static char mode;
+static int mode;
 
 struct pattern {
 	char *pattern;
