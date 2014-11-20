@@ -24,6 +24,7 @@ main(int argc, char *argv[])
 	void (*tail)(FILE *, const char *, long) = taketail;
 	char *lines;
 	int ret = 0;
+	int newline, many;
 
 	ARGBEGIN {
 	case 'n':
@@ -41,12 +42,17 @@ main(int argc, char *argv[])
 	if (argc == 0) {
 		tail(stdin, "<stdin>", n);
 	} else {
-		for (; argc > 0; argc--, argv++) {
+		many = argc > 1;
+		for (newline = 0; argc > 0; argc--, argv++) {
 			if (!(fp = fopen(argv[0], "r"))) {
 				weprintf("fopen %s:", argv[0]);
 				ret = 1;
 				continue;
 			}
+			if (many)
+				printf("%s==> %s <==\n",
+				       newline ? "\n" : "", argv[0]);
+			newline = 1;
 			tail(fp, argv[0], n);
 			fclose(fp);
 		}
