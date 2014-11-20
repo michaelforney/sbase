@@ -14,6 +14,7 @@ enum { Match = 0, NoMatch = 1, Error = 2 };
 static void addpattern(const char *);
 static int grep(FILE *, const char *);
 
+static int Fflag;
 static int Hflag;
 static int eflag;
 static int hflag;
@@ -33,7 +34,7 @@ static SLIST_HEAD(phead, pattern) phead;
 static void
 usage(void)
 {
-	enprintf(Error, "usage: %s [-EHcilnqsv] [-e pattern] pattern [files...]\n", argv0);
+	enprintf(Error, "usage: %s [-EFHcilnqsv] [-e pattern] pattern [files...]\n", argv0);
 }
 
 int
@@ -48,6 +49,9 @@ main(int argc, char *argv[])
 	ARGBEGIN {
 	case 'E':
 		flags |= REG_EXTENDED;
+		break;
+	case 'F':
+		Fflag = 1;
 		break;
 	case 'H':
 		Hflag = 1;
@@ -88,9 +92,10 @@ main(int argc, char *argv[])
 		argv++;
 	}
 
-	/* Compile regex for all search patterns */
-	SLIST_FOREACH(pnode, &phead, entry)
-		enregcomp(Error, &pnode->preg, pnode->pattern, flags);
+	if (!Fflag)
+		/* Compile regex for all search patterns */
+		SLIST_FOREACH(pnode, &phead, entry)
+			enregcomp(Error, &pnode->preg, pnode->pattern, flags);
 	many = (argc > 1);
 	if (argc == 0) {
 		match = grep(stdin, "<stdin>");
@@ -111,7 +116,8 @@ main(int argc, char *argv[])
 	while (!SLIST_EMPTY(&phead)) {
 		pnode = SLIST_FIRST(&phead);
 		SLIST_REMOVE_HEAD(&phead, entry);
-		regfree(&pnode->preg);
+		if (!Fflag)
+			regfree(&pnode->preg);
 		free(pnode->pattern);
 		free(pnode);
 	}
@@ -142,8 +148,15 @@ grep(FILE *fp, const char *str)
 		if (len && buf[len - 1] == '\n')
 			buf[len - 1] = '\0';
 		SLIST_FOREACH(pnode, &phead, entry) {
-			if (regexec(&pnode->preg, buf, 0, NULL, 0) ^ vflag)
-				continue;
+			if (!Fflag) {
+				if (regexec(&pnode->preg, buf, 0, NULL, 0) ^ vflag)
+					continue;
+			} else {
+				match = strstr(buf, pnode->pattern) ? Match : NoMatch;
+				match ^= vflag;
+				if (match)
+					continue;
+			}
 			switch (mode) {
 			case 'c':
 				c++;

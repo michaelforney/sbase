@@ -3,7 +3,7 @@
 grep \- search files for a pattern
 .SH SYNOPSIS
 .B grep
-.RB [ \-EHchilnqsv ]
+.RB [ \-EFHchilnqsv ]
 .RB [ \-e
 .I pattern ]
 .I pattern
@@ -22,14 +22,18 @@ status code is 2.
 .SH OPTIONS
 .TP
 .B \-E
-matches using extended regex.
+Matches using extended regex.
+.TP
+.B \-F
+Match using fixed strings.  Treat each pattern specified as a string instead of a regular
+expression.
 .TP
 .B \-H
-prefixes each matching line with its filename in the output. This is the
+Prefixes each matching line with its filename in the output. This is the
 default when there is more than one file specified.
 .TP
 .B \-c
-prints only a count of matching lines.
+Prints only a count of matching lines.
 .TP
 .B \-e pattern
 Specify a pattern used during the search of the input: an input
@@ -39,26 +43,26 @@ specify multiple patterns, or when a pattern begins with a dash
 (`-').
 .TP
 .B \-h
-do not prefix each line with 'filename:' prefix.
+Do not prefix each line with 'filename:' prefix.
 .TP
 .B \-i
-matches lines case insensitively.
+Matches lines case insensitively.
 .TP
 .B \-l
-prints only the names of files with matching lines.
+Prints only the names of files with matching lines.
 .TP
 .B \-n
-prefixes each matching line with its line number in the input.
+Prefixes each matching line with its line number in the input.
 .TP
 .B \-q
-prints nothing, only returns status.
+Prints nothing, only returns status.
 .TP
 .B \-s
 Suppress the error messages ordinarily written for nonexistent or unreadable files.
 .TP
 .B \-v
-selects lines which do
+Selects lines which do
 .B not
-match the pattern.
+Match the pattern.
 .SH SEE ALSO
 .IR regex (7)
