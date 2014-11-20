@@ -12,7 +12,7 @@ static void head(FILE *, const char *, long);
 static void
 usage(void)
 {
-	eprintf("usage: %s [-n] [FILE...]\n", argv0);
+	eprintf("usage: %s [-n lines] [file...]\n", argv0);
 }
 
 int
@@ -20,6 +20,7 @@ main(int argc, char *argv[])
 {
 	long n = 10;
 	FILE *fp;
+	int ret = 0;
 
 	ARGBEGIN {
 	case 'n':
@@ -38,14 +39,14 @@ main(int argc, char *argv[])
 		for (; argc > 0; argc--, argv++) {
 			if (!(fp = fopen(argv[0], "r"))) {
 				weprintf("fopen %s:", argv[0]);
+				ret = 1;
 				continue;
 			}
 			head(fp, argv[0], n);
 			fclose(fp);
 		}
 	}
-
-	return 0;
+	return ret;
 }
 
 static void
