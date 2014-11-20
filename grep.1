@@ -3,7 +3,7 @@
 grep \- search files for a pattern
 .SH SYNOPSIS
 .B grep
-.RB [ \-EHchilnqv ]
+.RB [ \-EHchilnqsv ]
 .RB [ \-e
 .I pattern ]
 .I pattern
@@ -52,6 +52,9 @@ prefixes each matching line with its line number in the input.
 .TP
 .B \-q
 prints nothing, only returns status.
+.TP
+.B \-s
+Suppress the error messages ordinarily written for nonexistent or unreadable files.
 .TP
 .B \-v
 selects lines which do

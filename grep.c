@@ -14,12 +14,13 @@ enum { Match = 0, NoMatch = 1, Error = 2 };
 static void addpattern(const char *);
 static int grep(FILE *, const char *);
 
-static int eflag = 0;
-static int vflag = 0;
-static int hflag = 0;
-static int Hflag = 0;
+static int Hflag;
+static int eflag;
+static int hflag;
+static int sflag;
+static int vflag;
 static int many;
-static char mode = 0;
+static char mode;
 
 struct pattern {
 	char *pattern;
@@ -32,7 +33,7 @@ static SLIST_HEAD(phead, pattern) phead;
 static void
 usage(void)
 {
-	enprintf(Error, "usage: %s [-EHcilnqv] [-e pattern] pattern [files...]\n", argv0);
+	enprintf(Error, "usage: %s [-EHcilnqsv] [-e pattern] pattern [files...]\n", argv0);
 }
 
 int
@@ -67,6 +68,9 @@ main(int argc, char *argv[])
 	case 'i':
 		flags |= REG_ICASE;
 		break;
+	case 's':
+		sflag = 1;
+		break;
 	case 'v':
 		vflag = 1;
 		break;
@@ -93,7 +97,8 @@ main(int argc, char *argv[])
 	} else {
 		for (i = 0; i < argc; i++) {
 			if (!(fp = fopen(argv[i], "r"))) {
-				weprintf("fopen %s:", argv[i]);
+				if (!sflag)
+					weprintf("fopen %s:", argv[i]);
 				match = Error;
 				continue;
 			}
