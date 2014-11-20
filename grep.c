@@ -12,11 +12,13 @@
 enum { Match = 0, NoMatch = 1, Error = 2 };
 
 static void addpattern(const char *);
+static void addpatternfile(const char *);
 static int grep(FILE *, const char *);
 
 static int Fflag;
 static int Hflag;
 static int eflag;
+static int fflag;
 static int hflag;
 static int sflag;
 static int vflag;
@@ -35,7 +37,7 @@ static SLIST_HEAD(phead, pattern) phead;
 static void
 usage(void)
 {
-	enprintf(Error, "usage: %s [-EFHcilnqsvx] [-e pattern] pattern [files...]\n", argv0);
+	enprintf(Error, "usage: %s [-EFHcilnqsvx] [-e pattern] [-f file] pattern [files...]\n", argv0);
 }
 
 int
@@ -60,6 +62,10 @@ main(int argc, char *argv[])
 	case 'e':
 		addpattern(EARGF(usage()));
 		eflag = 1;
+		break;
+	case 'f':
+		addpatternfile(EARGF(usage()));
+		fflag = 1;
 		break;
 	case 'h':
 		hflag = 1;
@@ -86,11 +92,11 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc == 0 && !eflag)
+	if (argc == 0 && !eflag && !fflag)
 		usage(); /* no pattern */
 
-	/* If -e is not specified treat it as if it were */
-	if (!eflag) {
+	/* just add literal pattern to list */
+	if (!eflag && !fflag) {
 		addpattern(argv[0]);
 		argc--;
 		argv++;
@@ -149,16 +155,28 @@ addpattern(const char *pattern)
 		tmp = estrdup(pattern);
 	}
 
-	SLIST_FOREACH(pnode, &phead, entry) {
-		if (!strcmp(pnode->pattern, tmp)) {
-			free(tmp);
-			return;
-		}
-	}
-
 	pnode = emalloc(sizeof(*pnode));
 	pnode->pattern = tmp;
 	SLIST_INSERT_HEAD(&phead, pnode, entry);
+}
+
+static void
+addpatternfile(const char *file)
+{
+	FILE *fp;
+	char *buf = NULL;
+	size_t len = 0, size = 0;
+
+	fp = fopen(file, "r");
+	if (!fp)
+		enprintf(Error, "fopen %s:", file);
+	while ((len = getline(&buf, &size, fp)) != -1) {
+		if (len && buf[len - 1] == '\n')
+			buf[len - 1] = '\0';
+		addpattern(buf);
+	}
+	free(buf);
+	fclose(fp);
 }
 
 static int

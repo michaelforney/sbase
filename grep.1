@@ -6,6 +6,8 @@ grep \- search files for a pattern
 .RB [ \-EFHchilnqsvx ]
 .RB [ \-e
 .I pattern ]
+.RB [ \-f
+.I file ]
 .I pattern
 .RI [ file ...]
 .SH DESCRIPTION
@@ -40,6 +42,12 @@ Specify a pattern used during the search of the input: an input
 line is selected if it matches any of the specified patterns.
 This option is most useful when multiple -e options are used to
 specify multiple patterns, or when a pattern begins with a dash
+.TP
+.B \-f file
+Read one or more patterns from the file named by the pathname file.
+Patterns in file shall be terminated by a <newline>. A null pattern can be
+specified by an empty line in pattern_file. Unless the -E or -F option is
+also specified, each pattern shall be treated as a BRE.
 (`-').
 .TP
 .B \-h
