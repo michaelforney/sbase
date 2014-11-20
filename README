@@ -4,6 +4,85 @@ sbase - suckless unix tools
 sbase  is a  collection of  unix  tools that  are inherently  portable
 across UNIX and UNIX-like systems.
 
+The following tools are implemented:
+
+UTILITY         POSIX 2008 COMPLIANT            MISSING OPTIONS
+-------         --------------------            ---------------
+basename
+cal
+cat             yes                             none
+chgrp
+chmod
+chown
+chroot
+cksum
+cmp
+cols
+comm
+cp
+cut
+date
+dirname
+du
+echo
+env
+expand
+expr
+false
+fold
+grep
+head
+hostname
+kill            yes                             none
+link
+ln
+logname
+ls
+md5sum
+mkdir
+mkfifo
+mktemp
+mv
+nice
+nl
+nohup
+paste
+printenv
+printf
+pwd
+readlink
+renice
+rm
+rmdir
+sleep
+setsid
+sort
+split
+sponge
+strings
+sync
+tail
+tar
+tee
+test
+touch
+tr
+true
+tty
+uudecode
+uuencode
+uname
+unexpand
+uniq
+unlink
+seq
+sha1sum
+sha256sum
+sha512sum
+wc
+xargs
+yes
+
 The  complement of  sbase  is  ubase[1] which  is  Linux-specific  and
 provides all  the non-portable tools.   Together they are  intended to
 form a base system similar to busybox but much smaller and suckless.
