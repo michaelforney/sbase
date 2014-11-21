@@ -47,47 +47,6 @@ main(int argc, char *argv[])
 	return 0;
 }
 
-int
-in(const char *file, FILE *fp, Rune *r)
-{
-	char buf[UTFmax];
-	int c, i;
-
-	c = fgetc(fp);
-	if (ferror(fp))
-		eprintf("%s: read error:", file);
-	if (feof(fp))
-		return 0;
-	if (c < Runeself) {
-		*r = (Rune)c;
-		return 1;
-	}
-	buf[0] = c;
-	for (i = 1; ;) {
-		c = fgetc(fp);
-		if (ferror(fp))
-			eprintf("%s: read error:", file);
-		if (feof(fp))
-			return 0;
-		buf[i++] = c;
-		if (fullrune(buf, i))
-			return chartorune(r, buf);
-	}
-}
-
-static void
-out(Rune *r)
-{
-	char buf[UTFmax];
-	int len;
-
-	if ((len = runetochar(buf, r))) {
-		fwrite(buf, len, 1, stdout);
-		if (ferror(stdout))
-			eprintf("stdout: write error:");
-	}
-}
-
 static int
 expand(const char *file, FILE *fp, int tabstop)
 {
@@ -96,7 +55,7 @@ expand(const char *file, FILE *fp, int tabstop)
 	int bol = 1;
 
 	for (;;) {
-		if (!in(file, fp, &r))
+		if (!readrune(file, fp, &r))
 			break;
 
 		switch (r) {
@@ -115,18 +74,18 @@ expand(const char *file, FILE *fp, int tabstop)
 			if (col)
 				col--;
 			bol = 0;
-			out(&r);
+			writerune(&r);
 			break;
 		case '\n':
 			col = 0;
 			bol = 1;
-			out(&r);
+			writerune(&r);
 			break;
 		default:
 			col++;
 			if (r != ' ')
 				bol = 0;
-			out(&r);
+			writerune(&r);
 			break;
 		}
 	}

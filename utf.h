@@ -18,8 +18,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
-
-#include <stddef.h>
+#include <stdio.h>
 
 typedef int Rune;
 
@@ -49,3 +48,6 @@ int isspacerune(Rune);
 int istitlerune(Rune);
 int isupperrune(Rune);
 int isdigitrune(Rune);
+
+int readrune(const char *, FILE *, Rune *);
+void writerune(Rune *);

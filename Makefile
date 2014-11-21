@@ -20,9 +20,11 @@ HDR =\
 
 LIBUTF = libutf.a
 LIBUTFSRC =\
+	libutf/readrune.c\
 	libutf/rune.c\
 	libutf/runetype.c\
-	libutf/utf.c
+	libutf/utf.c\
+	libutf/writerune.c
 
 LIBUTIL = libutil.a
 LIBUTILSRC =\
