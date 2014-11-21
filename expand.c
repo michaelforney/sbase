@@ -20,6 +20,7 @@ main(int argc, char *argv[])
 {
 	FILE *fp;
 	int tabstop = 8;
+	int ret = 0;
 
 	ARGBEGIN {
 	case 'i':
@@ -38,13 +39,14 @@ main(int argc, char *argv[])
 		for (; argc > 0; argc--, argv++) {
 			if (!(fp = fopen(argv[0], "r"))) {
 				weprintf("fopen %s:", argv[0]);
+				ret = 1;
 				continue;
 			}
 			expand(argv[0], fp, tabstop);
 			fclose(fp);
 		}
 	}
-	return 0;
+	return ret;
 }
 
 static int
