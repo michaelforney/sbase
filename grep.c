@@ -61,6 +61,7 @@ main(int argc, char *argv[])
 		break;
 	case 'H':
 		Hflag = 1;
+		hflag = 0;
 		break;
 	case 'e':
 		arg = EARGF(usage());
@@ -80,6 +81,7 @@ main(int argc, char *argv[])
 		break;
 	case 'h':
 		hflag = 1;
+		Hflag = 0;
 		break;
 	case 'c':
 	case 'l':
