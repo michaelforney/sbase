@@ -3,14 +3,10 @@
 #include <stdlib.h>
 #include <wchar.h>
 
+#include "utf.h"
 #include "util.h"
 
-typedef struct {
-	FILE *fp;
-	const char *name;
-} Fdescr;
-
-static void unexpand(Fdescr *dsc);
+static void unexpand(const char *, FILE *);
 
 static int aflag = 0;
 static int tabsize = 8;
@@ -24,8 +20,8 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	Fdescr dsc;
 	FILE *fp;
+	int ret = 0;
 
 	ARGBEGIN {
 	case 't':
@@ -41,66 +37,50 @@ main(int argc, char *argv[])
 	} ARGEND;
 
 	if (argc == 0) {
-		dsc.name = "<stdin>";
-		dsc.fp = stdin;
-		unexpand(&dsc);
+		unexpand("<stdin>", stdin);
 	} else {
 		for (; argc > 0; argc--, argv++) {
-			if (!(fp = fopen(*argv, "r"))) {
-				weprintf("fopen %s:", *argv);
+			if (!(fp = fopen(argv[0], "r"))) {
+				weprintf("fopen %s:", argv[0]);
+				ret = 1;
 				continue;
 			}
-			dsc.name = *argv;
-			dsc.fp = fp;
-			unexpand(&dsc);
+			unexpand(argv[0], fp);
 			fclose(fp);
 		}
 	}
-
-	return 0;
-}
-
-static wint_t
-in(Fdescr *f)
-{
-	wint_t c = fgetwc(f->fp);
-
-	if (c == WEOF && ferror(f->fp))
-		eprintf("%s: read error:", f->name);
-	return c;
-}
-
-static void
-out(wint_t c)
-{
-	putwchar(c);
-	if (ferror(stdout))
-		eprintf("stdout: write error:");
+	return ret;
 }
 
 static void
 unexpandspan(unsigned int n, unsigned int col)
 {
 	unsigned int off = (col-n) % tabsize;
+	Rune r;
 
 	if (n + off >= tabsize && n > 1)
 		n += off;
 
+	r = '\t';
 	for (; n >= tabsize; n -= tabsize)
-		out('\t');
+		writerune("<stdout>", stdout, &r);
+	r = ' ';
 	while (n--)
-		out(' ');
+		writerune("<stdout>", stdout, &r);
 }
 
 static void
-unexpand(Fdescr *dsc)
+unexpand(const char *file, FILE *fp)
 {
 	unsigned int n = 0, col = 0;
+	Rune r;
 	int bol = 1;
-	wint_t c;
 
-	while ((c = in(dsc)) != EOF) {
-		switch (c) {
+	while (1) {
+		if (!readrune(file, fp, &r))
+			break;
+
+		switch (r) {
 		case ' ':
 			if (bol || aflag)
 				n++;
@@ -131,8 +111,8 @@ unexpand(Fdescr *dsc)
 			col++;
 			bol = 0;
 		}
-		if ((c != ' ' && c != '\t') || (!aflag && !bol))
-			out(c);
+		if ((r != ' ' && r != '\t') || (!aflag && !bol))
+			writerune("<stdout>", stdout, &r);
 	}
 	if (n > 0 && (bol || aflag))
 		unexpandspan(n, col);
