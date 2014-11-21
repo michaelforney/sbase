@@ -1,80 +1,86 @@
-.TH GREP 1 sbase\-VERSION
-.SH NAME
-grep \- search files for a pattern
-.SH SYNOPSIS
-.B grep
-.RB [ \-EFHchilnqsvx ]
-.RB [ \-e
-.I pattern ]
-.RB [ \-f
-.I file ]
-.I pattern
-.RI [ file ...]
-.SH DESCRIPTION
-.B grep
+.Dd November 21, 2014
+.Dt GREP 1 sbase\-VERSION
+.Sh NAME
+.Nm grep
+.Nd search files for patterns
+.Sh SYNOPSIS
+.Nm grep
+.Op Fl EFHchilnqsvx
+.Op Fl e Ar pattern
+.Op Fl f Ar file
+.Op Ar pattern
+.Op Ar file ...
+.Sh DESCRIPTION
+.Nm
 searches the input files for lines that match the
-.IR pattern ,
+.Ar pattern ,
 a regular expression as defined in
-.IR regex (7).
-By default each matching line is printed to stdout.  If no file is given, grep
+.Xr regex 7 .
+By default each matching line is printed to stdout.  If no file is given
+.Nm
 reads from stdin.
-.P
-The status code is 0 if any lines match, and 1 if not.  If an error occurred the
-status code is 2.
-.SH OPTIONS
-.TP
-.B \-E
-Matches using extended regex.
-.TP
-.B \-F
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl E
+Match using extended regex.
+.It Fl F
 Match using fixed strings.  Treat each pattern specified as a string instead of a regular
 expression.
-.TP
-.B \-H
-Prefixes each matching line with its filename in the output. This is the
+.It Fl H
+Prefix each matching line with its filename in the output. This is the
 default when there is more than one file specified.
-.TP
-.B \-c
-Prints only a count of matching lines.
-.TP
-.B \-e pattern
+.It Fl c
+Print only a count of matching lines.
+.It Fl e Ar pattern
 Specify a pattern used during the search of the input: an input
 line is selected if it matches any of the specified patterns.
 This option is most useful when multiple -e options are used to
 specify multiple patterns, or when a pattern begins with a dash
-.TP
-.B \-f file
+.It Fl f Ar file
 Read one or more patterns from the file named by the pathname file.
 Patterns in file shall be terminated by a <newline>. A null pattern can be
 specified by an empty line in pattern_file. Unless the -E or -F option is
 also specified, each pattern shall be treated as a BRE.
 (`-').
-.TP
-.B \-h
+.It Fl h
 Do not prefix each line with 'filename:' prefix.
-.TP
-.B \-i
-Matches lines case insensitively.
-.TP
-.B \-l
-Prints only the names of files with matching lines.
-.TP
-.B \-n
-Prefixes each matching line with its line number in the input.
-.TP
-.B \-q
-Prints nothing, only returns status.
-.TP
-.B \-s
+.It Fl i
+Match lines case insensitively.
+.It Fl l
+Print only the names of files with matching lines.
+.It Fl n
+Prefix each matching line with its line number in the input.
+.It Fl q
+Print nothing, only returns status.
+.It Fl s
 Suppress the error messages ordinarily written for nonexistent or unreadable files.
-.TP
-.B \-v
-Selects lines which do
+.It Fl v
+Select lines which do
 .B not
 Match the pattern.
-.TP
-.B \-x
+.It Fl x
 Consider only input lines that use all characters in the line excluding the terminating <newline> to
 match an entire fixed string or regular expression to be matching lines.
-.SH SEE ALSO
-.IR regex (7)
+.El
+.Sh EXIT STATUS
+.Bl -tag -width Ds
+.It 0
+One or more lines were matched.
+.It 1
+No lines were matched.
+.It > 1
+An error occurred.
+.El
+.Sh SEE ALSO
+.Xr regex 7 ,
+.Xr sed 1
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.
+.Pp
+The flags
+.Op Fl Hh
+are an extension to that specification.

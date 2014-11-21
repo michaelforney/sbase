@@ -39,7 +39,7 @@ static SLIST_HEAD(phead, pattern) phead;
 static void
 usage(void)
 {
-	enprintf(Error, "usage: %s [-EFHcilnqsvx] [-e pattern] [-f file] pattern [files...]\n", argv0);
+	enprintf(Error, "usage: %s [-EFHcilnqsvx] [-e pattern] [-f file] [pattern] [file ...]\n", argv0);
 }
 
 int
