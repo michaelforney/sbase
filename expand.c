@@ -74,18 +74,18 @@ expand(const char *file, FILE *fp, int tabstop)
 			if (col)
 				col--;
 			bol = 0;
-			writerune(&r);
+			writerune("<stdout>", stdout, &r);
 			break;
 		case '\n':
 			col = 0;
 			bol = 1;
-			writerune(&r);
+			writerune("<stdout>", stdout, &r);
 			break;
 		default:
 			col++;
 			if (r != ' ')
 				bol = 0;
-			writerune(&r);
+			writerune("<stdout>", stdout, &r);
 			break;
 		}
 	}

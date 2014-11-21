@@ -50,4 +50,4 @@ int isupperrune(Rune);
 int isdigitrune(Rune);
 
 int readrune(const char *, FILE *, Rune *);
-void writerune(Rune *);
+void writerune(const char *, FILE *, Rune *);
