@@ -78,7 +78,7 @@ main(int argc, char *argv[])
 				       argv[0], !argv[1] ? "<stdin>" : argv[1], n, line);
 			exit(Diff);
 		} else {
-			printf("%4ld %3o %3o\n", n, b[0], b[1]);
+			printf("%ld %o %o\n", n, b[0], b[1]);
 			same = 0;
 		}
 	}
