@@ -1,17 +1,26 @@
-.TH BASENAME 1 sbase\-VERSION
-.SH NAME
-basename \- strip leading path component
-.SH SYNOPSIS
-.B basename
-.I string
-.RI [ suffix ]
-.SH DESCRIPTION
-.B basename
+.Dd November 21, 2014
+.Dt BASENAME 1 sbase\-VERSION
+.Os
+.Sh NAME
+.Nm basename
+.Nd strip leading path component
+.Sh SYNOPSIS
+.Nm basename
+.Ar string
+.Op Ar suffix
+.Sh DESCRIPTION
+.Nm
 prints the
-.I string
+.Ar string
 with any leading path components, and the
-.IR suffix ,
+.Ar suffix ,
 removed.
-.SH SEE ALSO
-.IR dirname (1),
-.IR basename (3)
+.Sh SEE ALSO
+.Xr dirname 1 ,
+.Xr basename 3
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.
