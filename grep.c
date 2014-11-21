@@ -160,16 +160,22 @@ addpattern(const char *pattern)
 			pattern = ".";
 
 	if (!Fflag && xflag) {
-		tmp = emalloc(strlen(pattern) + 3);
+		tmp = malloc(strlen(pattern) + 3);
+		if (!tmp)
+			enprintf(Error, "malloc:");
 		snprintf(tmp, strlen(pattern) + 3, "%s%s%s",
 			 pattern[0] == '^' ? "" : "^",
 			 pattern,
 			 pattern[strlen(pattern) - 1] == '$' ? "" : "$");
 	} else {
-		tmp = estrdup(pattern);
+		tmp = strdup(pattern);
+		if (!tmp)
+			enprintf(Error, "strdup:");
 	}
 
-	pnode = emalloc(sizeof(*pnode));
+	pnode = malloc(sizeof(*pnode));
+	if (!pnode)
+		enprintf(Error, "malloc:");
 	pnode->pattern = tmp;
 	SLIST_INSERT_HEAD(&phead, pnode, entry);
 }
@@ -186,6 +192,8 @@ addpatternfile(FILE *fp)
 		addpattern(buf);
 	}
 	free(buf);
+	if (ferror(fp))
+		enprintf(Error, "read error:");
 }
 
 static int
