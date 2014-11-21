@@ -1,25 +1,36 @@
-.TH CMP 1 sbase\-VERSION
-.SH NAME
-cmp \- compare two files
-.SH SYNOPSIS
-.B cmp
-.RB [ \-ls ]
-.RI file1
-.RI file2
-.SH DESCRIPTION
-.B cmp
-compares two files byte by byte. If the files differ, cmp prints the byte and
+.Dd November 21, 2014
+.Dt CMP 1 sbase\-VERSION
+.Os
+.Sh NAME
+.Nm cmp
+.Nd compare two files
+.Sh SYNOPSIS
+.Nm cmp
+.Op Fl l | Fl s
+.Ar file1 file2
+.Sh DESCRIPTION
+.Nm
+compares two files byte by byte. If the files differ,
+.Nm
+prints the byte and
 line number at which the difference occurred.
-.P
-The status code is 0 if the files are identical, and 1 if not.  If an error
-occurred the status code is 2.
-.SH OPTIONS
-.TP
-.B \-l
-prints the byte number, and the differing bytes (in octal), for each difference.
-.TP
-.B \-s
-prints nothing, only returns status.
-.SH SEE ALSO
-.IR comm (1),
-.IR diff (1)
+.Pp
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl l
+Prints the byte number, and the differing bytes (in octal), for each difference.
+.It Fl s
+Prints nothing, only returns status.
+.El
+.Sh EXIT STATUS
+.Bl -tag -width Ds
+.It 0
+The files are identical.
+.It 1
+The files are different.
+.It >1
+An error occured.
+.El
+.Sh SEE ALSO
+.Xr comm 1 ,
+.Xr diff 1

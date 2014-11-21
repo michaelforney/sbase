@@ -10,7 +10,7 @@ enum { Same = 0, Diff = 1, Error = 2 };
 static void
 usage(void)
 {
-	enprintf(Error, "usage: %s [-ls] file1 file2\n", argv0);
+	enprintf(Error, "usage: %s [-l | -s] file1 file2\n", argv0);
 }
 
 int
@@ -34,7 +34,7 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc != 2)
+	if (argc != 2 || (lflag && sflag))
 		usage();
 
 	if (argv[0][0] == '-' && !argv[0][1])
