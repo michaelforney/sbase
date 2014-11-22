@@ -17,6 +17,7 @@ main(int argc, char *argv[])
 {
 	mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP |
 		S_IWGRP | S_IROTH | S_IWOTH;
+	int ret = 0;
 
 	ARGBEGIN {
 	case 'm':
@@ -29,8 +30,11 @@ main(int argc, char *argv[])
 	if (argc < 1)
 		usage();
 
-	for (; argc > 0; argc--, argv++)
-		if (mkfifo(argv[0], mode) < 0)
-			eprintf("mkfifo %s:", argv[0]);
-	return 0;
+	for (; argc > 0; argc--, argv++) {
+		if (mkfifo(argv[0], mode) < 0) {
+			weprintf("mkfifo %s:", argv[0]);
+			ret = 1;
+		}
+	}
+	return ret;
 }
