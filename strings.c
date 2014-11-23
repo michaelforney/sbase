@@ -10,13 +10,14 @@ static void dostrings(FILE *fp, const char *fname);
 static void
 usage(void)
 {
-	eprintf("usage: %s file...\n", argv0);
+	eprintf("usage: %s [file ...]\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
 	FILE *fp;
+	int ret = 0;
 
 	ARGBEGIN {
 	default:
@@ -29,14 +30,14 @@ main(int argc, char *argv[])
 		for (; argc > 0; argc--, argv++) {
 			if (!(fp = fopen(argv[0], "r"))) {
 				weprintf("fopen %s:", argv[0]);
+				ret = 1;
 				continue;
 			}
 			dostrings(fp, argv[0]);
 			fclose(fp);
 		}
 	}
-
-	return 0;
+	return ret;
 }
 
 static void
