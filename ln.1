@@ -3,12 +3,12 @@
 ln \- make links between files
 .SH SYNOPSIS
 .B ln
-.RB [ \-fs ]
+.RB [ \-LPfs ]
 .I file
 .RI [ name ]
 .P
 .B ln
-.RB [ \-fs ]
+.RB [ \-LPfs ]
 .RI [ file ...]
 .RI [ directory ]
 .SH DESCRIPTION
@@ -17,6 +17,13 @@ creates a hard link to a given file, with the given name.  If no name is given
 it is linked into the current directory.  If multiple files are listed they will
 be linked into the given directory.
 .SH OPTIONS
+.TP
+.B \-L
+create links to the files referenced by symbolic link source files (default
+behavior).
+.TP
+.B \-P
+create links to symbolic link source files themselves.
 .TP
 .B \-f
 remove existing destinations.
