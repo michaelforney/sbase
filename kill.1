@@ -1,28 +1,59 @@
-.TH KILL 1 sbase\-VERSION
-.SH NAME
-KILL \- signal processes
-.SH SYNOPSIS
-\fBkill\fR [ \fB-s\fR \fIsignal_name\fR ] \fIpid\fR \fI...\fR
-.P
-\fBkill\fR \fB-l\fR [ \fIexit_status\fR]
-.P
-\fBkill\fR \fB-\fR\fIsignal_name\fR \fIpid\fR \fI...\fR
-.P
-\fBkill\fR \fB-\fR\fIsignal_number\fR \fIpid\fR \fI...\fR
-.SH DESCRIPTION
-.B kill
+.Dd November 23, 2014
+.Dt KILL 1 sbase\-VERSION
+.Os
+.Sh NAME
+.Nm kill
+.Nd signal processes
+.Sh SYNOPSIS
+.Nm kill
+.Op Fl s Ar signal_name
+.Ar pid ...
+.Nm kill
+.Fl l Op Ar exit_status
+.Nm kill
+.Fl Ar signal_name
+.Ar pid ...
+.Nm kill
+.Fl Ar signal_number
+.Ar pid ...
+.Sh DESCRIPTION
+.Nm
 by default sends a
 .I TERM
 signal to the given processes.
 .SH OPTIONS
-.TP
-.BI \-s " signal_name"
+.Bl -tag -width Ds
+.It Fl s Ar signal_name
+A symbolic signal name specifying the signal to be sent instead
+of the default SIGTERM.
 Sends the named signal.
-.TP
-.B \-l
+.It Fl l Op Ar exit_status
 Lists available signals.  If an
-.I exit_status
+.Ar exit_status
 is given, only the corresponding signal name will be printed.
-.SH SEE ALSO
-.IR kill (2),
-.IR signal (7)
+.It Fl signal_name
+A symbolic signal name specifying the signal to be sent instead
+of the default SIGTERM.
+.It Fl signal_number
+A non-negative decimal integer specifying the signal to be sent
+instead of the default SIGTERM.
+.El
+.Sh SEE ALSO
+.Xr kill 2 ,
+.Xr signal 7
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.
+.Pp
+The
+.Fl Ar signal_name
+and
+.Fl Ar signal_number
+syntax is marked by
+.St -p1003.1-2008
+as being an
+X/OPEN System Interfaces
+option.
