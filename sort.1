@@ -15,8 +15,19 @@ writes the sorted concatenation of the given files to stdout.  If no file is
 given, sort reads from stdin.
 .SH OPTIONS
 .TP
+.B \-C
+check that the concatenation of the given files is sorted rather than sorting
+them.  In this mode, no output is printed to stdout, and the exit status
+indicates the result of the check.
+.TP
 .B \-b
 skip leading whitespace of columns when sorting.
+.TP
+.B \-c
+the same as
+.B \-C
+except that when disorder is detected, a message is printed to stderr
+indicating the location of the disorder.
 .TP
 .BI \-k \ key
 specifies a key definition of the form

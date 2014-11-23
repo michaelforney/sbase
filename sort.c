@@ -32,6 +32,7 @@ static struct kdlist *head = NULL;
 static struct kdlist *tail = NULL;
 
 static void addkeydef(char *, int);
+static void check(FILE *);
 static void freelist(void);
 static int linecmp(const char **, const char **);
 static char *skipblank(char *);
@@ -40,13 +41,13 @@ static int parse_keydef(struct keydef *, char *, int);
 static char *nextcol(char *);
 static char *columns(char *, const struct keydef *);
 
-static int uflag = 0;
+static int Cflag = 0, cflag = 0, uflag = 0;
 static char *fieldsep = NULL;
 
 static void
 usage(void)
 {
-	enprintf(2, "usage: %s [-bnru] [-t delim] [-k def]... [file...]\n", argv0);
+	enprintf(2, "usage: %s [-Cbcnru] [-t delim] [-k def]... [file...]\n", argv0);
 }
 
 int
@@ -58,8 +59,14 @@ main(int argc, char *argv[])
 	int global_flags = 0;
 
 	ARGBEGIN {
+	case 'C':
+		Cflag = 1;
+		break;
 	case 'b':
 		global_flags |= MOD_STARTB | MOD_ENDB;
+		break;
+	case 'c':
+		cflag = 1;
 		break;
 	case 'k':
 		addkeydef(EARGF(usage()), global_flags);
@@ -87,22 +94,33 @@ main(int argc, char *argv[])
 	addkeydef("1", global_flags & MOD_R);
 
 	if (argc == 0) {
-		getlines(stdin, &linebuf);
+		if (Cflag || cflag) {
+			check(stdin);
+		} else {
+			getlines(stdin, &linebuf);
+		}
 	} else for (; argc > 0; argc--, argv++) {
 		if (!(fp = fopen(argv[0], "r"))) {
 			enprintf(2, "fopen %s:", argv[0]);
 			continue;
 		}
-		getlines(fp, &linebuf);
+		if (Cflag || cflag) {
+			check(fp);
+		} else {
+			getlines(fp, &linebuf);
+		}
 		fclose(fp);
 	}
-	qsort(linebuf.lines, linebuf.nlines, sizeof *linebuf.lines,
-			(int (*)(const void *, const void *))linecmp);
 
-	for (i = 0; i < linebuf.nlines; i++) {
-		if (!uflag || i == 0 || linecmp((const char **)&linebuf.lines[i],
-					(const char **)&linebuf.lines[i-1])) {
-			fputs(linebuf.lines[i], stdout);
+	if (!Cflag && !cflag) {
+		qsort(linebuf.lines, linebuf.nlines, sizeof *linebuf.lines,
+				(int (*)(const void *, const void *))linecmp);
+
+		for (i = 0; i < linebuf.nlines; i++) {
+			if (!uflag || i == 0 || linecmp((const char **)&linebuf.lines[i],
+						(const char **)&linebuf.lines[i-1])) {
+				fputs(linebuf.lines[i], stdout);
+			}
 		}
 	}
 
@@ -126,6 +144,25 @@ addkeydef(char *def, int flags)
 		tail->next = node;
 	node->next = NULL;
 	tail = node;
+}
+
+static void
+check(FILE *fp)
+{
+	static struct { char *buf; size_t size; } prev, cur, tmp;
+
+	if (!prev.buf)
+		getline(&prev.buf, &prev.size, fp);
+	while (getline(&cur.buf, &cur.size, fp) != -1) {
+		if (uflag > linecmp((const char **) &cur.buf, (const char **) &prev.buf)) {
+			if (!Cflag)
+				weprintf("disorder: %s", cur.buf);
+			exit(1);
+		}
+		tmp = cur;
+		cur = prev;
+		prev = tmp;
+	}
 }
 
 static void
