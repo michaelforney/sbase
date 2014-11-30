@@ -196,7 +196,7 @@ sbase-box: $(LIB) $(SRC)
 	rm -r build
 
 clean:
-	rm -f $(BIN) $(OBJ) $(LIBUTFOBJ) $(LIBUTIL) $(LIB) sbase-box sbase-$(VERSION).tar.gz
+	rm -f $(BIN) $(OBJ) $(LIB) sbase-box sbase-$(VERSION).tar.gz
 
 .PHONY:
 	all install uninstall dist sbase-box clean
