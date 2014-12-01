@@ -103,8 +103,12 @@ BIN =\
 	renice\
 	rm\
 	rmdir\
-	sleep\
+	seq\
 	setsid\
+	sha1sum\
+	sha256sum\
+	sha512sum\
+	sleep\
 	sort\
 	split\
 	sponge\
@@ -118,16 +122,12 @@ BIN =\
 	tr\
 	true\
 	tty\
-	uudecode\
-	uuencode\
 	uname\
 	unexpand\
 	uniq\
 	unlink\
-	seq\
-	sha1sum\
-	sha256sum\
-	sha512sum\
+	uudecode\
+	uuencode\
 	wc\
 	xargs\
 	yes
