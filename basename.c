@@ -18,6 +18,7 @@ int
 main(int argc, char *argv[])
 {
 	char *s, *p;
+	size_t d;
 
 	ARGBEGIN {
 	default:
@@ -27,11 +28,14 @@ main(int argc, char *argv[])
 	if (argc < 1)
 		usage();
 
-	s = basename(argv[0]);
-	if (argc == 2) {
-		p = strstr(s, argv[1]);
-		if (p && p[strlen(p)] == '\0')
-			*p = '\0';
+	s = strlen(argv[0]) ? basename(argv[0]) : ".";
+	if (argc == 2 && *s != '/') {
+		d = strlen(s) - strlen(argv[1]);
+		if (d >= 0) {
+			p = s + d;
+			if (strcmp(p, argv[1]) == 0)
+				*p = '\0';
+		}
 	}
 	puts(s);
 	return 0;
