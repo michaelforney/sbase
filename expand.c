@@ -28,6 +28,8 @@ main(int argc, char *argv[])
 		break;
 	case 't':
 		tabstop = estrtol(EARGF(usage()), 0);
+		if (!tabstop)
+			eprintf("tab size cannot be zero\n");
 		break;
 	default:
 		usage();
@@ -66,7 +68,7 @@ expand(const char *file, FILE *fp, int tabstop)
 				do {
 					col++;
 					putchar(' ');
-				} while (col & (tabstop - 1));
+				} while (col % tabstop);
 			} else {
 				putchar('\t');
 				col += tabstop - col % tabstop;
