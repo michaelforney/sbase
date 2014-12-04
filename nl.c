@@ -8,7 +8,7 @@
 #include "text.h"
 #include "util.h"
 
-static void nl(FILE *);
+static void nl(const char *, FILE *);
 
 static char mode = 't';
 static const char *sep = "\t";
@@ -27,16 +27,16 @@ main(int argc, char *argv[])
 {
 	FILE *fp;
 	char *r;
+	int ret = 0;
 
 	ARGBEGIN {
 	case 'b':
 		r = EARGF(usage());
 		mode = r[0];
-		if (r[0] == 'p') {
+		if (r[0] == 'p')
 			eregcomp(&preg, &r[1], REG_NOSUB);
-		} else if (!strchr("ant", mode)) {
+		else if (!strchr("ant", mode))
 			usage();
-		}
 		break;
 	case 'i':
 		incr = estrtol(EARGF(usage()), 0);
@@ -49,21 +49,21 @@ main(int argc, char *argv[])
 	} ARGEND;
 
 	if (argc == 0) {
-		nl(stdin);
+		nl("<stdin>", stdin);
 	} else for (; argc > 0; argc--, argv++) {
 		if (!(fp = fopen(argv[0], "r"))) {
 			weprintf("fopen %s:", argv[0]);
+			ret = 1;
 			continue;
 		}
-		nl(fp);
+		nl(argv[0], fp);
 		fclose(fp);
 	}
-
-	return 0;
+	return ret;
 }
 
 void
-nl(FILE *fp)
+nl(const char *name, FILE *fp)
 {
 	char *buf = NULL;
 	long n = 0;
@@ -71,13 +71,13 @@ nl(FILE *fp)
 
 	while (getline(&buf, &size, fp) != -1) {
 		if ((mode == 'a')
-		    || (mode == 'p'
-		        && !regexec(&preg, buf, 0, NULL, 0))
-		    || (mode == 't' && buf[0] != '\n')) {
+		    || (mode == 'p' && !regexec(&preg, buf, 0, NULL, 0))
+		    || (mode == 't' && buf[0] != '\n'))
 			printf("%6ld%s%s", n += incr, sep, buf);
-		} else {
+		else
 			printf("       %s", buf);
-		}
 	}
 	free(buf);
+	if (ferror(fp))
+		eprintf("%s: read error:", name);
 }
