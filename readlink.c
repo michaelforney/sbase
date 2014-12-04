@@ -40,7 +40,7 @@ main(int argc, char *argv[])
 		usage();
 
 	if (strlen(argv[0]) > PATH_MAX - 1)
-		return 1;
+		eprintf("path too long\n");
 
 	if (fflag) {
 		if (!realpath(argv[0], buf))
