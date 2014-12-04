@@ -18,7 +18,7 @@ static regex_t preg;
 static void
 usage(void)
 {
-	eprintf("usage: %s [-b style] [-i increment] [-s sep] [file]\n", argv0);
+	eprintf("usage: %s [-b type] [-i incr] [-s sep] [file]\n", argv0);
 }
 
 int
