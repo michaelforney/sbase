@@ -9,7 +9,7 @@
 
 #include "util.h"
 
-int
+static int
 decodefac(char *fac)
 {
 	CODE *c;
@@ -23,7 +23,7 @@ decodefac(char *fac)
 	return facility & LOG_FACMASK;
 }
 
-int
+static int
 decodelev(char *lev)
 {
 	CODE *c;
@@ -37,7 +37,7 @@ decodelev(char *lev)
 	return level & LOG_PRIMASK;
 }
 
-int
+static int
 decodepri(char *pri)
 {
 	char *p;
