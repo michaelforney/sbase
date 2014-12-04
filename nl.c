@@ -18,8 +18,7 @@ static regex_t preg;
 static void
 usage(void)
 {
-	eprintf("usage: %s [-b style] [-i increment] [-s sep] [FILE...]\n",
-			argv0);
+	eprintf("usage: %s [-b style] [-i increment] [-s sep] [file]\n", argv0);
 }
 
 int
@@ -27,7 +26,6 @@ main(int argc, char *argv[])
 {
 	FILE *fp;
 	char *r;
-	int ret = 0;
 
 	ARGBEGIN {
 	case 'b':
@@ -48,18 +46,18 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
+	if (argc > 1)
+		usage();
+
 	if (argc == 0) {
 		nl("<stdin>", stdin);
-	} else for (; argc > 0; argc--, argv++) {
-		if (!(fp = fopen(argv[0], "r"))) {
-			weprintf("fopen %s:", argv[0]);
-			ret = 1;
-			continue;
-		}
+	} else {
+		if (!(fp = fopen(argv[0], "r")))
+			eprintf("fopen %s:", argv[0]);
 		nl(argv[0], fp);
 		fclose(fp);
 	}
-	return ret;
+	return 0;
 }
 
 void
