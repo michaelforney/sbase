@@ -85,6 +85,7 @@ BIN =\
 	kill\
 	link\
 	ln\
+	logger\
 	logname\
 	ls\
 	md5sum\

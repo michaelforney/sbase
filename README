@@ -36,6 +36,7 @@ hostname
 kill            yes                             none
 link
 ln
+logger		yes
 logname
 ls
 md5sum

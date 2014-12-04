@@ -13,7 +13,6 @@ find
 getconf
 install
 join
-logger
 make
 od
 patch
