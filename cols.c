@@ -7,6 +7,7 @@
 #include <unistd.h>
 
 #include "text.h"
+#include "utf.h"
 #include "util.h"
 
 static long chars = 65;
@@ -26,7 +27,7 @@ int
 main(int argc, char *argv[])
 {
 	long i, l, col;
-	size_t len;
+	size_t len, bytes;
 	int maxlen = 0;
 	struct winsize w;
 	FILE *fp;
@@ -59,9 +60,12 @@ main(int argc, char *argv[])
 	}
 
 	for (l = 0; l < b.nlines; ++l) {
-		len = strlen(b.lines[l]);
-		if (len > 0 && b.lines[l][len-1] == '\n')
-			b.lines[l][--len] = '\0';
+		len = utflen(b.lines[l]);
+		bytes = strlen(b.lines[l]);
+		if (len > 0 && b.lines[l][bytes-1] == '\n') {
+			b.lines[l][bytes-1] = '\0';
+			--len;
+		}
 		if (len > maxlen)
 			maxlen = len;
 		if (maxlen > (chars - 1) / 2)
@@ -79,7 +83,7 @@ main(int argc, char *argv[])
 	n_rows = (b.nlines + (n_columns - 1)) / n_columns;
 	for (i = 0; i < n_rows; ++i) {
 		for (l = i, col = 1; l < b.nlines; l += n_rows, ++col) {
-			len = strlen(b.lines[l]);
+			len = utflen(b.lines[l]);
 			fputs(b.lines[l], stdout);
 			if (col < n_columns)
 				printf("%*s", maxlen + 1 - (int)len, "");
