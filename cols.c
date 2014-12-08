@@ -20,7 +20,7 @@ static long n_rows;
 static void
 usage(void)
 {
-	eprintf("usage: %s [-c chars] [FILE...]\n", argv0);
+	eprintf("usage: %s [-c chars] [file ...]\n", argv0);
 }
 
 int
