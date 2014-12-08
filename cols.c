@@ -49,7 +49,6 @@ main(int argc, char *argv[])
 			chars = w.ws_col;
 	}
 
-	/* XXX librarify this chunk, too?  only useful in sponges though */
 	if (argc == 0) {
 		getlines(stdin, &b);
 	} else for (; argc > 0; argc--, argv++) {
