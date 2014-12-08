@@ -3,7 +3,7 @@
 ls \- list directory contents
 .SH SYNOPSIS
 .B ls
-.RB [ \-adFiltU ]
+.RB [ \-adFHhiLlrtU ]
 .RI [ file ...]
 .SH DESCRIPTION
 .B ls
@@ -20,12 +20,19 @@ lists directories themselves, not their contents.
 .B \-F
 append a file type indicator to files.
 .TP
+.B \-H
+list information about the targets of symbolic links specified on the command
+line instead of the links themselves.
+.TP
 .B \-h
 show filesizes in human\-readable format.
 .TP
 .B \-i
 print the index number of each file.
 .TP
+.B \-L
+list information about the targets of symbolic links instead of the links
+themselves.
 .B \-l
 lists detailed information about each file, including their type, permissions,
 links, owner, group, size, and modification time.

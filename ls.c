@@ -14,7 +14,7 @@
 
 typedef struct {
 	char *name;
-	mode_t mode;
+	mode_t mode, tmode;
 	nlink_t nlink;
 	uid_t uid;
 	gid_t gid;
@@ -26,14 +26,16 @@ typedef struct {
 static int entcmp(const void *, const void *);
 static void ls(Entry *);
 static void lsdir(const char *);
-static void mkent(Entry *, char *, int);
+static void mkent(Entry *, char *, int, int);
 static void output(Entry *);
 
 static int aflag = 0;
 static int dflag = 0;
 static int Fflag = 0;
+static int Hflag = 0;
 static int hflag = 0;
 static int iflag = 0;
+static int Lflag = 0;
 static int lflag = 0;
 static int rflag = 0;
 static int tflag = 0;
@@ -66,11 +68,17 @@ main(int argc, char *argv[])
 	case 'F':
 		Fflag = 1;
 		break;
+	case 'H':
+		Hflag = 1;
+		break;
 	case 'h':
 		hflag = 1;
 		break;
 	case 'i':
 		iflag = 1;
+		break;
+	case 'L':
+		Lflag = 1;
 		break;
 	case 'l':
 		lflag = 1;
@@ -95,7 +103,7 @@ main(int argc, char *argv[])
 	ents = emalloc(argc * sizeof(*ents));
 
 	for (i = 0; i < argc; i++)
-		mkent(&ents[i], argv[i], 1);
+		mkent(&ents[i], argv[i], 1, Hflag || Lflag);
 	qsort(ents, argc, sizeof *ents, entcmp);
 	for (i = 0; i < argc; i++)
 		ls(&ents[rflag ? argc-i-1 : i]);
@@ -117,7 +125,7 @@ entcmp(const void *va, const void *vb)
 static void
 ls(Entry *ent)
 {
-	if (S_ISDIR(ent->mode) && !dflag) {
+	if ((S_ISDIR(ent->mode) || (S_ISLNK(ent->mode) && S_ISDIR(ent->tmode) && !Fflag && !lflag)) && !dflag) {
 		lsdir(ent->name);
 	} else {
 		output(ent);
@@ -151,13 +159,13 @@ lsdir(const char *path)
 		if (d->d_name[0] == '.' && !aflag)
 			continue;
 		if (Uflag){
-			mkent(&ent, d->d_name, Fflag || lflag || iflag);
+			mkent(&ent, d->d_name, Fflag || lflag || iflag, Lflag);
 			output(&ent);
 		} else {
 			ents = erealloc(ents, ++n * sizeof *ents);
 			p = emalloc((sz = strlen(d->d_name)+1));
 			memcpy(p, d->d_name, sz);
-			mkent(&ents[n-1], p, tflag || Fflag || lflag || iflag);
+			mkent(&ents[n-1], p, tflag || Fflag || lflag || iflag, Lflag);
 		}
 	}
 	closedir(dp);
@@ -175,15 +183,15 @@ lsdir(const char *path)
 }
 
 static void
-mkent(Entry *ent, char *path, int dostat)
+mkent(Entry *ent, char *path, int dostat, int follow)
 {
 	struct stat st;
 
 	ent->name   = path;
 	if (!dostat)
 		return;
-	if (lstat(path, &st) < 0)
-		eprintf("lstat %s:", path);
+	if ((follow ? stat : lstat)(path, &st) < 0)
+		eprintf("%s %s:", follow ? "stat" : "lstat", path);
 	ent->mode   = st.st_mode;
 	ent->nlink  = st.st_nlink;
 	ent->uid    = st.st_uid;
@@ -191,6 +199,8 @@ mkent(Entry *ent, char *path, int dostat)
 	ent->size   = st.st_size;
 	ent->mtime  = st.st_mtime;
 	ent->ino    = st.st_ino;
+	if (S_ISLNK(ent->mode))
+		ent->tmode = stat(path, &st) == 0 ? st.st_mode : 0;
 }
 
 static char *
@@ -225,7 +235,6 @@ output(Entry *ent)
 	struct passwd *pw;
 	char pwname[_SC_LOGIN_NAME_MAX];
 	char grname[_SC_LOGIN_NAME_MAX];
-	Entry entlnk;
 
 	if (iflag)
 		printf("%lu ", (unsigned long)ent->ino);
@@ -294,8 +303,7 @@ output(Entry *ent)
 		if ((len = readlink(ent->name, buf, sizeof buf)) < 0)
 			eprintf("readlink %s:", ent->name);
 		buf[len] = '\0';
-		mkent(&entlnk, buf, Fflag);
-		printf(" -> %s%s", buf, indicator(entlnk.mode));
+		printf(" -> %s%s", buf, indicator(ent->tmode));
 	}
 	putchar('\n');
 }
