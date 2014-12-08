@@ -8,7 +8,7 @@ cp \- copy files and directories
 .RI [ name ]
 .P
 .B cp
-.RB [ \-adpRrv ]
+.RB [ \-aPpRrv ]
 .RI [ file ...]
 .RI [ directory ]
 .SH DESCRIPTION
@@ -21,8 +21,8 @@ they will be copied into the given directory.
 preserve mode, timestamp, links and permissions.
 Implies \-d, \-p, \-r.
 .TP
-.B \-d
-don't dereference links. preserve links.
+.B \-P
+don't dereference symbolic links.
 .TP
 .B \-p
 preserve mode, timestamp and permissions.

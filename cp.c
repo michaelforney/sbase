@@ -19,10 +19,10 @@ main(int argc, char *argv[])
 	ARGBEGIN {
 	case 'a':
 		/* implies -dpr */
-		cp_aflag = cp_dflag = cp_pflag = cp_rflag = 1;
+		cp_aflag = cp_Pflag = cp_pflag = cp_rflag = 1;
 		break;
-	case 'd':
-		cp_dflag = 1;
+	case 'P':
+		cp_Pflag = 1;
 		break;
 	case 'p':
 		cp_pflag = 1;

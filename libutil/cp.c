@@ -16,8 +16,8 @@
 #include "../util.h"
 
 int cp_aflag = 0;
-int cp_dflag = 0;
 int cp_fflag = 0;
+int cp_Pflag = 0;
 int cp_pflag = 0;
 int cp_rflag = 0;
 int cp_vflag = 0;
@@ -39,14 +39,14 @@ cp(const char *s1, const char *s2)
 	if (cp_vflag)
 		printf("'%s' -> '%s'\n", s1, s2);
 
-	r = cp_dflag ? lstat(s1, &st) : stat(s1, &st);
+	r = cp_Pflag ? lstat(s1, &st) : stat(s1, &st);
 	if (r < 0) {
-		weprintf("%s %s:", cp_dflag ? "lstat" : "stat", s1);
+		weprintf("%s %s:", cp_Pflag ? "lstat" : "stat", s1);
 		cp_status = 1;
 		return 0;
 	}
 
-	if (cp_dflag && S_ISLNK(st.st_mode)) {
+	if (S_ISLNK(st.st_mode)) {
 		if (readlink(s1, buf, sizeof(buf) - 1) >= 0) {
 			if (cp_fflag)
 				unlink(s2);
