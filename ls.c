@@ -300,7 +300,7 @@ output(Entry *ent)
 		printf("%10lu ", (unsigned long)ent->size);
 	printf("%s %s%s", buf, ent->name, indicator(ent->mode));
 	if (S_ISLNK(ent->mode)) {
-		if ((len = readlink(ent->name, buf, sizeof buf)) < 0)
+		if ((len = readlink(ent->name, buf, sizeof buf - 1)) < 0)
 			eprintf("readlink %s:", ent->name);
 		buf[len] = '\0';
 		printf(" -> %s%s", buf, indicator(ent->tmode));
