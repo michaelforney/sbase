@@ -20,6 +20,7 @@ cmp
 cols
 comm
 cp
+crond
 cut
 date
 dirname
