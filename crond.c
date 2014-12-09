@@ -408,10 +408,7 @@ sighandler(int sig)
 static void
 usage(void)
 {
-	fprintf(stderr, "usage: %s [-f file] [-n]\n", argv0);
-	fprintf(stderr, "  -f	config file\n");
-	fprintf(stderr, "  -n	do not daemonize\n");
-	exit(1);
+	eprintf("usage: %s [-f file] [-n]\n", argv0);
 }
 
 int
