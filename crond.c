@@ -13,12 +13,8 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "arg.h"
 #include "queue.h"
-
-#define VERSION "0.3.2"
-
-#define LEN(x) (sizeof (x) / sizeof *(x))
+#include "util.h"
 
 struct field {
 	/* [low, high] */
@@ -91,35 +87,6 @@ logerr(const char *fmt, ...)
 	va_end(ap);
 }
 
-static void *
-emalloc(size_t size)
-{
-	void *p;
-	p = malloc(size);
-	if (!p) {
-		logerr("error: out of memory\n");
-		if (nflag == 0)
-			unlink(pidfile);
-		exit(EXIT_FAILURE);
-	}
-	return p;
-}
-
-static char *
-estrdup(const char *s)
-{
-	char *p;
-
-	p = strdup(s);
-	if (!p) {
-		logerr("error: out of memory\n");
-		if (nflag == 0)
-			unlink(pidfile);
-		exit(EXIT_FAILURE);
-	}
-	return p;
-}
-
 static void
 runjob(char *cmd)
 {
@@ -150,7 +117,7 @@ runjob(char *cmd)
 		execl("/bin/sh", "/bin/sh", "-c", cmd, (char *)NULL);
 		logerr("error: failed to execute job: %s time: %s",
 		       cmd, ctime(&t));
-		_exit(EXIT_FAILURE);
+		_exit(1);
 	} else {
 		je = emalloc(sizeof(*je));
 		je->cmd = estrdup(cmd);
@@ -444,7 +411,7 @@ usage(void)
 	fprintf(stderr, "usage: %s [-f file] [-n]\n", argv0);
 	fprintf(stderr, "  -f	config file\n");
 	fprintf(stderr, "  -n	do not daemonize\n");
-	exit(EXIT_FAILURE);
+	exit(1);
 }
 
 int
@@ -474,7 +441,7 @@ main(int argc, char *argv[])
 		openlog(argv[0], LOG_CONS | LOG_PID, LOG_CRON);
 		if (daemon(1, 0) < 0) {
 			logerr("error: failed to daemonize %s\n", strerror(errno));
-			return EXIT_FAILURE;
+			return 1;
 		}
 		if ((fp = fopen(pidfile, "w"))) {
 			fprintf(fp, "%d\n", getpid());
@@ -526,5 +493,5 @@ main(int argc, char *argv[])
 	if (nflag == 0)
 		closelog();
 
-	return EXIT_SUCCESS;
+	return 0;
 }
