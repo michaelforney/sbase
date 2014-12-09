@@ -10,44 +10,30 @@
 #include "util.h"
 
 static int
-decodefac(char *fac)
+decodetable(CODE *table, char *name)
 {
 	CODE *c;
-	int facility = -1;
 
-	for (c = facilitynames; c->c_name; c++)
-		if (!strcasecmp(fac, c->c_name))
-			facility = c->c_val;
-	if (facility == -1)
-		eprintf("invalid facility name: %s\n", fac);
-	return facility & LOG_FACMASK;
-}
-
-static int
-decodelev(char *lev)
-{
-	CODE *c;
-	int level = -1;
-
-	for (c = prioritynames; c->c_name; c++)
-		if (!strcasecmp(lev, c->c_name))
-			level = c->c_val;
-	if (level == -1)
-		eprintf("invalid level name: %s\n", lev);
-	return level & LOG_PRIMASK;
+	for (c = table; c->c_name; c++)
+		if (!strcasecmp(name, c->c_name))
+			return c->c_val;
+	eprintf("invalid priority name: %s\n", name);
+	/* NOTREACHED */
+	return -1;
 }
 
 static int
 decodepri(char *pri)
 {
-	char *p;
+	char *lev, *fac = pri;
 
-	if (!(p = strchr(pri, '.')))
+	if (!(lev = strchr(pri, '.')))
 		eprintf("invalid priority name: %s\n", pri);
-	*p++ = '\0';
-	if (!*p)
+	*lev++ = '\0';
+	if (!*lev)
 		eprintf("invalid priority name: %s\n", pri);
-	return decodefac(pri) | decodelev(p);
+	return (decodetable(facilitynames, fac) & LOG_FACMASK) |
+	       (decodetable(prioritynames, lev) & LOG_PRIMASK);
 }
 
 static void
