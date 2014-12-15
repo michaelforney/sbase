@@ -59,7 +59,7 @@ drawcal(int year, int month, int day, int ncols, int nmons, int fday)
 				yoff = year + moff / 12;
 
 				ndays = mdays[cur] + ((cur == 1) && isleap(yoff));
-				day1 = dayofweek(year, cur, 1, fday);
+				day1 = dayofweek(yoff, cur, 1, fday);
 
 				for (d = 0; d < 7; d++) {
 					if ((r || d >= day1) && count[i] <= ndays)
