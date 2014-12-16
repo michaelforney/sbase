@@ -139,14 +139,6 @@ main(int argc, char *argv[])
 			fclose(fp);
 		}
 	}
-	while (!SLIST_EMPTY(&phead)) {
-		pnode = SLIST_FIRST(&phead);
-		SLIST_REMOVE_HEAD(&phead, entry);
-		if (!Fflag)
-			regfree(&pnode->preg);
-		free(pnode->pattern);
-		free(pnode);
-	}
 	return match;
 }
 
