@@ -74,18 +74,6 @@ parselist(char *str)
 	}
 }
 
-static void
-freelist(void) {
-	Range *l = list, *next;
-
-	while (l) {
-		next = l->next;
-		free(l);
-		l->next = NULL;
-		l = next;
-	}
-}
-
 static size_t
 seek(const char *s, size_t pos, size_t *prev, size_t count)
 {
@@ -116,8 +104,10 @@ seek(const char *s, size_t pos, size_t *prev, size_t count)
 static void
 cut(FILE *fp)
 {
-	char *buf = NULL, *s;
-	size_t size = 0, i, n, p;
+	static char *buf = NULL;
+	static size_t size = 0;
+	char *s;
+	size_t i, n, p;
 	ssize_t len;
 	Range *r;
 
@@ -143,7 +133,6 @@ cut(FILE *fp)
 		}
 		putchar('\n');
 	}
-	free(buf);
 }
 
 int
@@ -190,6 +179,5 @@ main(int argc, char *argv[])
 				fclose(fp);
 		}
 	}
-	freelist();
 	return 0;
 }
