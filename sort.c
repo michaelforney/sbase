@@ -33,7 +33,6 @@ static struct kdlist *tail = NULL;
 
 static void addkeydef(char *, int);
 static void check(FILE *);
-static void freelist(void);
 static int linecmp(const char **, const char **);
 static char *skipblank(char *);
 static int parse_flags(char **, int *, int);
@@ -124,7 +123,6 @@ main(int argc, char *argv[])
 		}
 	}
 
-	freelist();
 	return 0;
 }
 
@@ -162,18 +160,6 @@ check(FILE *fp)
 		tmp = cur;
 		cur = prev;
 		prev = tmp;
-	}
-}
-
-static void
-freelist(void)
-{
-	struct kdlist *node;
-	struct kdlist *tmp;
-
-	for (node = head; node; node = tmp) {
-		tmp = node->next;
-		free(node);
 	}
 }
 
