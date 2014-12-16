@@ -86,7 +86,6 @@ main(int argc, char *argv[])
 		}
 		syslog(priority, "%s", buf);
 	}
-	free(buf);
 	closelog();
 	return 0;
 }
