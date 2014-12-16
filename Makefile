@@ -69,7 +69,7 @@ BIN =\
 	cols\
 	comm\
 	cp\
-	crond\
+	cron\
 	cut\
 	date\
 	dirname\
