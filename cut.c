@@ -162,21 +162,19 @@ main(int argc, char *argv[])
 
 	if (!mode)
 		usage();
-	if (!argc)
+
+	if (!argc) {
 		cut(stdin);
-	else {
-		for (; argc--; argv++) {
-			if (strcmp(*argv, "-"))
-				fp = fopen(*argv, "r");
-			else
-				fp = stdin;
-			if (!fp) {
+	} else for (; argc--; argv++) {
+		if (!strcmp(*argv, "-")) {
+			cut(stdin);
+		} else {
+			if (!(fp = fopen(*argv, "r"))) {
 				weprintf("fopen %s:", *argv);
 				continue;
 			}
 			cut(fp);
-			if (fp != stdin)
-				fclose(fp);
+			fclose(fp);
 		}
 	}
 	return 0;
