@@ -27,7 +27,7 @@ main(int argc, char *argv[])
 	case 't':
 		tabsize = estrtol(EARGF(usage()), 0);
 		if (tabsize <= 0)
-			eprintf("unexpand: invalid tabsize\n", argv[0]);
+			eprintf("unexpand: invalid tabsize\n");
 		/* Fallthrough: -t implies -a */
 	case 'a':
 		aflag = 1;
