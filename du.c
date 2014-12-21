@@ -37,7 +37,7 @@ xrealpath(const char *pathname, char *resolved)
 
 	r = realpath(pathname, resolved);
 	if (!r)
-		eprintf("realpath: %s:");
+		eprintf("realpath: %s:", pathname);
 	return r;
 }
 
