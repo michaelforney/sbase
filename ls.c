@@ -275,17 +275,17 @@ output(Entry *ent)
 
 	errno = 0;
 	pw = getpwuid(ent->uid);
-	if (errno || !pw)
-		snprintf(pwname, sizeof(pwname), "%d", ent->uid);
-	else
+	if (pw)
 		snprintf(pwname, sizeof(pwname), "%s", pw->pw_name);
+	else
+		snprintf(pwname, sizeof(pwname), "%d", ent->uid);
 
 	errno = 0;
 	gr = getgrgid(ent->gid);
-	if (errno || !gr)
-		snprintf(grname, sizeof(grname), "%d", ent->gid);
-	else
+	if (gr)
 		snprintf(grname, sizeof(grname), "%s", gr->gr_name);
+	else
+		snprintf(grname, sizeof(grname), "%d", ent->gid);
 
 	if (time(NULL) > ent->mtime + (180*24*60*60)) /* 6 months ago? */
 		fmt = "%b %d  %Y";
