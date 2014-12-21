@@ -50,10 +50,12 @@ main(int argc, char *argv[])
 
 	errno = 0;
 	gr = getgrnam(argv[0]);
-	if (errno)
-		eprintf("getgrnam %s:");
-	else if (!gr)
-		eprintf("getgrnam %s: no such group\n", argv[0]);
+	if (!gr) {
+		if (errno)
+			eprintf("getgrnam %s:", argv[0]);
+		else
+			eprintf("getgrnam %s: no such group\n", argv[0]);
+	}
 	gid = gr->gr_gid;
 
 	while (*++argv) {
