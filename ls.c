@@ -1,6 +1,5 @@
 /* See LICENSE file for copyright and license details. */
 #include <dirent.h>
-#include <errno.h>
 #include <grp.h>
 #include <pwd.h>
 #include <stdio.h>
@@ -273,14 +272,12 @@ output(Entry *ent)
 	if (ent->mode & S_ISGID) mode[6] = (mode[6] == 'x') ? 's' : 'S';
 	if (ent->mode & S_ISVTX) mode[9] = (mode[9] == 'x') ? 't' : 'T';
 
-	errno = 0;
 	pw = getpwuid(ent->uid);
 	if (pw)
 		snprintf(pwname, sizeof(pwname), "%s", pw->pw_name);
 	else
 		snprintf(pwname, sizeof(pwname), "%d", ent->uid);
 
-	errno = 0;
 	gr = getgrgid(ent->gid);
 	if (gr)
 		snprintf(grname, sizeof(grname), "%s", gr->gr_name);
