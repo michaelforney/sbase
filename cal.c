@@ -5,87 +5,6 @@
 
 #include "util.h"
 
-#define MONTHMAX 100
-
-static void drawcal(int, int, int, int, int, int);
-static int dayofweek(int, int, int, int);
-static int isleap(int);
-static void usage(void);
-
-static void
-drawcal(int year, int month, int day, int ncols, int nmons, int fday)
-{
-	char str[21];
-	int count[MONTHMAX];
-	int d, i, r, j;
-	int moff, yoff, cur, last, ndays, day1;
-	char *smon[] = {
-		"    January", "    February", "     March",
-		"     April", "      May", "      June",
-		"      July", "     August", "   September",
-		"    October", "    November", "    December" };
-	int mdays[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-	int row = 0;
-	char *days[] = { "Su", "Mo", "Tu", "We", "Th", "Fr", "Sa", };
-
-	if (!ncols)
-		ncols = nmons;
-	while (nmons > 0) {
-		last = MIN(nmons, ncols);
-		for (i = 0; i < last; i++) {
-			moff = month + ncols * row + i - 1;
-			cur = moff % 12;
-			yoff = year + moff / 12;
-
-			snprintf(str, sizeof(str), "%s %d", smon[cur], yoff);
-			printf("%-20s   ", str);
-			count[i] = 1;
-		}
-		printf("\n");
-
-		for (i = 0; i < last; i++) {
-			for (j = fday; j < LEN(days); j++)
-				printf("%s ", days[j]);
-			for (j = 0; j < fday; j++)
-				printf("%s ", days[j]);
-			printf("  ");
-		}
-		printf("\n");
-
-		for (r = 0; r < 6; r++) {
-			for (i = 0; i < last; i++) {
-				moff = month + ncols * row + i - 1;
-				cur = moff % 12;
-				yoff = year + moff / 12;
-
-				ndays = mdays[cur] + ((cur == 1) && isleap(yoff));
-				day1 = dayofweek(yoff, cur, 1, fday);
-
-				for (d = 0; d < 7; d++) {
-					if ((r || d >= day1) && count[i] <= ndays)
-						printf("%2d ", count[i]++);
-					else
-						printf("   ");
-				}
-				printf("  ");
-			}
-			printf("\n");
-		}
-		nmons -= ncols;
-		row++;
-	}
-}
-
-static int
-dayofweek(int year, int month, int day, int fday)
-{
-	static int t[] = { 0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4 };
-
-	day += 7 - fday;
-	year -= month < 2;
-	return (year + year / 4 - year / 100 + year / 400 + t[month] + day) % 7;
-}
-
 static int
 isleap(int year)
 {
@@ -94,6 +13,90 @@ isleap(int year)
 	if (year % 100 == 0)
 		return 0;
 	return (year % 4 == 0);
+}
+
+static int
+monthlength(int year, int month)
+{
+	int mdays[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+	return (month==1 && isleap(year))  ?  29  :  mdays[month];
+}
+
+/* From http://www.tondering.dk/claus/cal/chrweek.php#calcdow */
+static int
+dayofweek(int year, int month, int dom)
+{
+	int m, y, a;
+	month += 1;  /*  in this formula, 1 <= month <= 12  */
+	a = (14 - month) / 12;
+	y = year - a;
+	m = month + 12*a - 2;
+	return (dom + y + y/4 - y/100 + y/400 +((31*m)/12)) % 7;
+}
+
+static void
+printgrid(int year, int month, int fday, int line)
+{
+	int dom, offset, d=0;
+
+	offset = dayofweek(year, month, 1) - fday;
+	if (offset < 0)
+		offset += 7;
+	if (line==1) {
+		for ( ; d < offset; ++d)
+			printf("   ");
+		dom = 1;
+	} else {
+		dom = 8-offset + (line-2)*7;
+	}
+	for ( ; d < 7 && dom <= monthlength(year, month); ++d, ++dom)
+		printf("%2d ", dom);
+	for ( ; d < 7; ++d)
+		printf("   ");
+}
+
+static void
+drawcal(int year, int month, int day, int ncols, int nmons, int fday)
+{
+	char *smon[] = {"  January", " February", "    March", "    April",
+	                "      May", "     June", "     July", "   August",
+	                "September", "  October", " November", " December" };
+	char *days[] = { "Su", "Mo", "Tu", "We", "Th", "Fr", "Sa", };
+	int m, n, col, cur_year, cur_month, line, dow;
+
+	for (m = 0; m < nmons; ) {
+		n = m;
+		for (col = 0; m < nmons && col < ncols; ++col, ++m) {
+			cur_year = year + m/12;
+			cur_month = month + m%12;
+			if (cur_month > 11) {
+				cur_month -= 12;
+				cur_year += 1;
+			}
+			printf("   %s %d    ", smon[cur_month], cur_year);
+			printf("  ");
+		}
+		printf("\n");
+		for (col = 0, m = n; m < nmons && col < ncols; ++col, ++m) {
+			for (dow = fday; dow < (fday+7); ++dow)
+				printf("%s ", days[dow%7]);
+			printf("  ");
+		}
+		printf("\n");
+		for (line=1; line<=6; ++line) {
+			for (col=0, m=n; m<nmons && col<ncols; ++col, ++m) {
+				cur_year = year + m/12;
+				cur_month = month + m%12;
+				if (cur_month > 11) {
+					cur_month -= 12;
+					cur_year += 1;
+				}
+				printgrid(cur_year, cur_month, fday, line);
+				printf("  ");
+			}
+			printf("\n");
+		}
+	}
 }
 
 static void
@@ -172,12 +175,11 @@ main(int argc, char *argv[])
 		usage();
 	}
 
-	if (ncols < 0 || month < 1 || month > 12 || nmons < 1 \
-			|| nmons > MONTHMAX || fday < 0 || fday > 6) {
+	if (ncols < 0 || month < 1 || month > 12 || nmons < 1 || fday < 0 || fday > 6) {
 		usage();
 	}
 
-	drawcal(year, month, day, ncols, nmons, fday);
+	drawcal(year, month-1, day, ncols, nmons, fday);
 
 	return 0;
 }
