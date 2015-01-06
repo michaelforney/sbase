@@ -56,7 +56,7 @@ printgrid(int year, int month, int fday, int line)
 }
 
 static void
-drawcal(int year, int month, int day, int ncols, int nmons, int fday)
+drawcal(int year, int month, int ncols, int nmons, int fday)
 {
 	char *smon[] = {"  January", " February", "    March", "    April",
 	                "      May", "     June", "     July", "   August",
@@ -103,14 +103,14 @@ static void
 usage(void)
 {
 	eprintf("usage: %s [-1] [-3] [-m] [-s] [-y] [-c columns]"
-		" [-f firstday] [-n nmonths] [ [ [day] month] year]\n",
+		" [-f firstday] [-n nmonths] [ [month] year]\n",
 			argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
-	int year, month, day, ncols, nmons, fday;
+	int year, month, ncols, nmons, fday;
 	struct tm *ltime;
 	time_t now;
 
@@ -118,7 +118,6 @@ main(int argc, char *argv[])
 	ltime = localtime(&now);
 	year = ltime->tm_year + 1900;
 	month = ltime->tm_mon + 1;
-	day = ltime->tm_mday;
 	fday = 0;
 
 	ncols = 3;
@@ -160,9 +159,6 @@ main(int argc, char *argv[])
 	} ARGEND;
 
 	switch (argc) {
-	case 3:
-		day = estrtol(argv[0], 0);
-		argv++;
 	case 2:
 		month = estrtol(argv[0], 0);
 		argv++;
@@ -179,7 +175,7 @@ main(int argc, char *argv[])
 		usage();
 	}
 
-	drawcal(year, month-1, day, ncols, nmons, fday);
+	drawcal(year, month-1, ncols, nmons, fday);
 
 	return 0;
 }
