@@ -5,41 +5,61 @@
 
 #include "util.h"
 
+enum {Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec};
+enum caltype {Julian, Gregorian};
+enum {TRANS_YEAR = 1752, TRANS_MONTH = Sep, TRANS_DAY = 2};
+
 static int
-isleap(int year)
+isleap(int year, enum caltype cal)
 {
-	if (year % 400 == 0)
-		return 1;
-	if (year % 100 == 0)
-		return 0;
-	return (year % 4 == 0);
+	if (cal == Gregorian) {
+		if (year % 400 == 0)
+			return 1;
+		if (year % 100 == 0)
+			return 0;
+		return (year % 4 == 0);
+	}
+	else { /* cal == Julian */
+		return (year % 4 == 0);
+	}
 }
 
 static int
-monthlength(int year, int month)
+monthlength(int year, int month, enum caltype cal)
 {
 	int mdays[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-	return (month==1 && isleap(year))  ?  29  :  mdays[month];
+	return (month==Feb && isleap(year,cal))  ?  29  :  mdays[month];
 }
 
 /* From http://www.tondering.dk/claus/cal/chrweek.php#calcdow */
 static int
-dayofweek(int year, int month, int dom)
+dayofweek(int year, int month, int dom, enum caltype cal)
 {
 	int m, y, a;
 	month += 1;  /*  in this formula, 1 <= month <= 12  */
 	a = (14 - month) / 12;
 	y = year - a;
 	m = month + 12*a - 2;
-	return (dom + y + y/4 - y/100 + y/400 +((31*m)/12)) % 7;
+
+	if (cal == Gregorian)
+		return (dom + y + y/4 - y/100 + y/400 + (31*m)/12) % 7;
+	else  /* cal == Julian */
+		return (5 + dom + y + y/4 + (31*m)/12) % 7;
 }
 
 static void
 printgrid(int year, int month, int fday, int line)
 {
-	int dom, offset, d=0;
+	enum caltype cal;
+	int trans; /* are we in the transition from Julian to Gregorian? */
+	int offset, dom, d=0;
 
-	offset = dayofweek(year, month, 1) - fday;
+	if (year < TRANS_YEAR || (year == TRANS_YEAR && month <= TRANS_MONTH))
+		cal = Julian;
+	else
+		cal = Gregorian;
+	trans = (year == TRANS_YEAR && month == TRANS_MONTH);
+	offset = dayofweek(year, month, 1, cal) - fday;
 	if (offset < 0)
 		offset += 7;
 	if (line==1) {
@@ -48,9 +68,14 @@ printgrid(int year, int month, int fday, int line)
 		dom = 1;
 	} else {
 		dom = 8-offset + (line-2)*7;
+		if (trans && !(line==2 && fday==3))
+			dom += 11;
 	}
-	for ( ; d < 7 && dom <= monthlength(year, month); ++d, ++dom)
+	for ( ; d < 7 && dom <= monthlength(year, month, cal); ++d, ++dom) {
 		printf("%2d ", dom);
+		if (trans && dom==TRANS_DAY)
+			dom += 11;
+	}
 	for ( ; d < 7; ++d)
 		printf("   ");
 }
