@@ -28,7 +28,13 @@ of calendars side by side. Each row of calendars contains at most
 .IR columns
 number of calendars. The defaults are obtained using
 .IR localtime (3).
-The Julian calendar is used through Sep 2, 1752, and the Gregorian calendar is used starting the next day with Sep 14, 1752.
+If
+.IR year
+is given without
+.IR month
+print the whole year, unless overridden by options.  The Julian calendar is used
+through Sep 2, 1752, and the Gregorian calendar is used starting the next day
+with Sep 14, 1752.
 .SH OPTIONS
 .TP
 .B \-1

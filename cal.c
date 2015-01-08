@@ -146,7 +146,7 @@ main(int argc, char *argv[])
 	fday = 0;
 
 	ncols = 3;
-	nmons = 1;
+	nmons = 0;
 
 	ARGBEGIN {
 	case '1':
@@ -182,6 +182,15 @@ main(int argc, char *argv[])
 	default:
 		usage();
 	} ARGEND;
+
+	if (nmons == 0) {
+		if (argc == 1) {
+			month = 1;
+			nmons = 12;
+		} else {
+			nmons = 1;
+		}
+	}
 
 	switch (argc) {
 	case 2:
