@@ -20,6 +20,7 @@ HDR =\
 
 LIBUTF = libutf.a
 LIBUTFSRC =\
+	libutf/chartorunearr.c\
 	libutf/readrune.c\
 	libutf/rune.c\
 	libutf/runetype.c\

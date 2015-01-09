@@ -1,356 +1,243 @@
-/* See LICENSE file for copyright and license details. */
-#include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
 
-#include "text.h"
+#include "utf.h"
 #include "util.h"
+
+static int cflag = 0;
+static int dflag = 0;
+static int sflag = 0;
+
+struct range {
+	Rune   start;
+	Rune   end;
+	size_t quant;
+};
+
+#define DIGIT "0-9"
+#define UPPER "A-Z"
+#define LOWER "a-z"
+#define PUNCT "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
+#define ALNUM DIGIT UPPER LOWER
+
+struct class {
+	char  *name;
+	char  *str;
+} classes[] = {
+	{ "alnum",  ALNUM           },
+	{ "alpha",  UPPER LOWER     },
+	{ "blank",  " \t"           },
+	{ "cntrl",  "\000-\037\177" },
+	{ "digit",  DIGIT           },
+	{ "graph",  ALNUM PUNCT     },
+	{ "lower",  LOWER           },
+	{ "print",  ALNUM PUNCT " " },
+	{ "punct",  PUNCT           },
+	{ "space",  "\t\n\v\f\r"    },
+	{ "upper",  UPPER           },
+	{ "xdigit", DIGIT "A-Fa-f"  },
+};
+
+struct range *set1 = NULL;
+size_t set1ranges  = 0;
+struct range *set2 = NULL;
+size_t set2ranges  = 0;
+
+static size_t
+rangelen(struct range r)
+{
+	return (r.end - r.start + 1) * r.quant;
+}
+
+static size_t
+setlen(struct range *set, size_t setranges)
+{
+	int i;
+	size_t len = 0;
+
+	for (i = 0; i < setranges; i++)
+		len += rangelen(set[i]);
+
+	return len;
+}
+
+static int
+rstrmatch(Rune *r, char *s, size_t n)
+{
+	size_t i;
+
+	for (i = 0; i < n; i++)
+		if (r[i] != s[i])
+			return 0;
+	return 1;
+}
+
+static size_t
+makeset(char *str, struct range **set)
+{
+	Rune  *rstr;
+	size_t len, i, j, m, n;
+	size_t q, setranges;
+	int    factor, base;
+
+reset:
+	setranges = 0;
+
+	/* rstr defines at most len ranges */
+	len = chartorunearr(str, &rstr);
+	*set = emalloc(len * sizeof(**set));
+
+	/* todo: allow expressions */
+	for (i = 0; i < len; i++) {
+		if (rstr[i] == '[') {
+			j = i;
+nextbrack:
+			if (j == len)
+				goto literal;
+			for (m = j; m < len; m++)
+				if (rstr[m] == ']') {
+					j = m;
+					break;
+				}
+			if (j == i)
+				goto literal;
+
+			/* CLASSES [=EQUIV=] (skip) */
+			if (j - i > 3 && rstr[i + 1] == '=' && rstr[m - 1] == '=') {
+				i = j;
+				continue;
+			}
+
+			/* CLASSES [:CLASS:] */
+			if (j - i > 3 && rstr[i + 1] == ':' && rstr[m - 1] == ':') {
+				for (n = 0; n < LEN(classes); n++) {
+					if (rstrmatch(rstr + i + 2, classes[n].name, j - i - 3)) {
+						str = classes[n].str;
+						goto reset;
+					}
+				}
+				eprintf("Invalid character class\n");
+			}
+
+			/* REPEAT  [_*n] (only allowed in set2) */
+			if (j - i > 2 && rstr[i + 2] == '*' && set1ranges > 0) {
+				/* check if right side of '*' is a number */
+				q = 0;
+				factor = 1;
+				base = (rstr[i + 3] == '0') ? 8 : 10;
+				for (n = j - 1; n > i + 2; n--) {
+					if (rstr[n] < '0' && rstr[n] > '9') {
+						n = 0;
+						break;
+					}
+					q += (rstr[n] - '0') * factor;
+					factor *= base;
+				}
+
+				if (n == 0) {
+					j = m + 1;
+					goto nextbrack;
+				}
+				(*set)[setranges].start = rstr[i + 1];
+				(*set)[setranges].end   = rstr[i + 1];
+				(*set)[setranges].quant = q ? q : setlen(set1, set1ranges);
+				setranges++;
+				i = j;
+				continue;
+			}
+
+			j = m + 1;
+			goto nextbrack;
+		}
+literal:
+		/* RANGES [_-__-_], _-__-_ */
+		/* LITERALS _______ */
+		(*set)[setranges].start = rstr[i];
+
+		if (i < len - 2 && rstr[i + 1] == '-' && rstr[i + 2] >= rstr[i])
+			i += 2;
+		(*set)[setranges].end = rstr[i];
+		(*set)[setranges].quant = 1;
+		setranges++;
+	}
+
+	free(rstr);
+	return setranges;
+}
 
 static void
 usage(void)
 {
-	eprintf("usage: %s [-d] [-c] set1 [set2]\n", argv0);
-}
-
-static int dflag, cflag;
-static wchar_t mappings[0x110000];
-
-struct wset_state {
-	char *s;               /* current character */
-	wchar_t rfirst, rlast; /* first and last in range */
-	wchar_t prev;          /* previous returned character */
-	int prev_was_range;    /* was the previous character part of a c-c range? */
-};
-
-struct set_state {
-	char *s, rfirst, rlast, prev;
-	int prev_was_octal; /* was the previous returned character written in octal? */
-};
-
-static void
-set_state_defaults(struct set_state *s)
-{
-	s->rfirst = 1;
-	s->rlast = 0;
-	s->prev_was_octal = 1;
-}
-
-static void
-wset_state_defaults(struct wset_state *s)
-{
-	s->rfirst = 1;
-	s->rlast = 0;
-	s->prev_was_range = 1;
-}
-
-/* sets *s to the char that was intended to be written.
- * returns how many bytes the s pointer has to advance to skip the
- * escape sequence if it was an octal, always zero otherwise. */
-static int
-resolve_escape(char *s)
-{
-	int i;
-	unsigned char c;
-
-	switch (*s) {
-	case 'n':
-		*s = '\n';
-		return 0;
-	case 't':
-		*s = '\t';
-		return 0;
-	case 'r':
-		*s = '\r';
-		return 0;
-	case 'f':
-		*s = '\f';
-		return 0;
-	case 'a':
-		*s = '\a';
-		return 0;
-	case 'b':
-		*s = '\b';
-		return 0;
-	case 'v':
-		*s = '\v';
-		return 0;
-	case '\\':
-		*s = '\\';
-		return 0;
-	case '\0':
-		eprintf("stray '\\' at end of input:");
-	default: ;
-	}
-
-	if(*s < '0' || *s > '7')
-		eprintf("invalid character after '\\':");
-	for(i = 0, c = 0; s[i] >= '0' && s[i] <= '7' && i < 3; i++) {
-		c <<= 3;
-		c += s[i]-'0';
-	}
-	if(*s > '3' && i == 3)
-		eprintf("octal byte cannot be bigger than 377:");
-	*s = c;
-	return i;
-}
-
-#define embtowc(a, b) mbtowc(a, b, 4)
-
-static int
-xmbtowc(wchar_t *unicodep, const char *s)
-{
-	int rv;
-
-	rv = embtowc(unicodep, s);
-	if (rv < 0)
-			eprintf("mbtowc: invalid input sequence:");
-	return rv;
-}
-
-static int
-has_octal_escapes(const char *s)
-{
-	while (*s)
-		if (*s++ == '\\' && *s >= '0' && *s <= '7')
-			return 1;
-	return 0;
-}
-
-static char
-get_next_char(struct set_state *s)
-{
-	char c;
-	int nchars;
-
-start:
-	if (s->rfirst <= s->rlast) {
-		c = s->rfirst;
-		s->rfirst++;
-		return c;
-	}
-
-	if (*s->s == '-' && !s->prev_was_octal) {
-		s->s++;
-		if (!*s->s)
-			return '-';
-		if (*s->s == '\\' && (nchars = resolve_escape(++(s->s))))
-			goto char_is_octal;
-		s->rlast = *(s->s)++;
-		if (!s->rlast)
-			return '\0';
-		s->prev_was_octal = 1;
-		s->rfirst = ++(s->prev);
-		goto start;
-	}
-	if (*s->s == '\\' && (nchars = resolve_escape(++(s->s))))
-		goto char_is_octal;
-
-	s->prev_was_octal = 0;
-	c = *(s->s)++;
-	s->prev = c;
-	return c;
-
-char_is_octal:
-	s->prev_was_octal = 1;
-	c = *s->s;
-	s->s += nchars;
-	return c;
-}
-
-static wchar_t
-get_next_wchar(struct wset_state *s)
-{
-start:
-	if (s->rfirst <= s->rlast) {
-		s->prev = s->rfirst;
-		s->rfirst++;
-		return s->prev;
-	}
-
-	if (*s->s == '-' && !s->prev_was_range) {
-		s->s++;
-		if (!*s->s)
-			return '-';
-		if (*s->s == '\\')
-			resolve_escape(++(s->s));
-		s->s += xmbtowc(&s->rlast, s->s);
-		if (!s->rlast)
-			return '\0';
-		s->rfirst = ++(s->prev);
-		s->prev_was_range = 1;
-		goto start;
-	}
-
-	if (*s->s == '\\')
-		resolve_escape(++(s->s));
-	s->s += xmbtowc(&s->prev, s->s);
-	s->prev_was_range = 0;
-	return s->prev;
-}
-
-static int
-is_mapping_wide(const char *set1, const char *set2)
-{
-	struct set_state ss1, ss2;
-	struct wset_state wss1, wss2;
-	wchar_t wc1, wc2, last_wc2;
-
-	if (has_octal_escapes(set1)) {
-		set_state_defaults(&ss1);
-		ss1.s = (char *) set1;
-		if (set2) {
-			set_state_defaults(&ss2);
-			ss2.s = (char *) set2;
-			/* if the character returned is from an octal triplet, it might be null
-			 * and still need to continue */
-			while ((wc1 = (unsigned char) get_next_char(&ss1)) || ss1.prev_was_octal ) {
-				if (!(wc2 = (unsigned char) get_next_char(&ss2)))
-					wc2 = last_wc2;
-				mappings[wc1] = wc2;
-				last_wc2 = wc2;
-			}
-		} else {
-			while ((wc1 = (unsigned char) get_next_char(&ss1)) || ss1.prev_was_octal)
-				mappings[wc1] = 1;
-		}
-		return 0;
-	} else {
-		wset_state_defaults(&wss1);
-		wss1.s = (char *) set1;
-		if (set2) {
-			wset_state_defaults(&wss2);
-			wss2.s = (char *) set2;
-			while ((wc1 = get_next_wchar(&wss1))) {
-				if (!(wc2 = get_next_wchar(&wss2)))
-					wc2 = last_wc2;
-				mappings[wc1] = wc2;
-				last_wc2 = wc2;
-			}
-		} else {
-			while ((wc1 = get_next_wchar(&wss1)))
-				mappings[wc1] = 1;
-		}
-		return 1;
-	}
-	return 0; /* unreachable */
-}
-
-static void
-wmap_null(char *in, ssize_t nbytes)
-{
-	char *s;
-	wchar_t rune;
-	int parsed_bytes = 0;
-
-	s = in;
-	while (nbytes) {
-		parsed_bytes = embtowc(&rune, s);
-		if (parsed_bytes < 0) {
-			rune = *s;
-			parsed_bytes = 1;
-		}
-		if (((!mappings[rune])&1) ^ cflag)
-			putwchar(rune);
-		s += parsed_bytes;
-		nbytes -= parsed_bytes;
-	}
-}
-
-static void
-wmap_set(char *in, ssize_t nbytes)
-{
-	char *s;
-	wchar_t rune;
-	int parsed_bytes = 0;
-
-	s = in;
-	while (nbytes) {
-		parsed_bytes = embtowc(&rune, s);
-		if (parsed_bytes < 0) {
-			rune = *s;
-			parsed_bytes = 1;
-		}
-		if (!mappings[rune])
-			putwchar(rune);
-		else
-			putwchar(mappings[rune]);
-		nbytes -= parsed_bytes;
-		s += parsed_bytes;
-	}
-}
-
-static void
-map_null(char *in, ssize_t nbytes)
-{
-	char *s;
-
-	for (s = in; nbytes; s++, nbytes--)
-		if (((!mappings[(unsigned char)*s])&1) ^ cflag)
-			putchar(*s);
-}
-
-static void
-map_set(char *in, ssize_t nbytes)
-{
-	char *s;
-
-	for (s = in; nbytes; s++, nbytes--)
-		if (!mappings[(unsigned char)*s])
-			putchar(*s);
-		else
-			putchar(mappings[(unsigned char)*s]);
+	eprintf("usage: %s [-cCds] set1 [set2]\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
-	char *buf = NULL;
-	size_t size = 0;
-	ssize_t nbytes;
-	void (*mapfunc)(char*, ssize_t);
-
-	setlocale(LC_ALL, "");
-	dflag = cflag = 0;
+	Rune r = 0, lastrune = 0;
+	int i, m;
+	size_t off1, off2;
 
 	ARGBEGIN {
+	case 'c':
+	case 'C':
+		cflag = 1;
+		break;
 	case 'd':
 		dflag = 1;
 		break;
-	case 'c':
-		cflag = 1;
+	case 's':
+		sflag = 1;
 		break;
 	default:
 		usage();
 	} ARGEND;
 
-	if (argc == 0)
+	if (argc < 1 || argc > 2 || (argc == 1 && dflag == sflag))
 		usage();
+	set1ranges = makeset(argv[0], &set1);
+	if (argc == 2)
+		set2ranges = makeset(argv[1], &set2);
+read:
+	if (!readrune("<stdin>", stdin, &r))
+		return 0;
+	off1 = off2 = 0;
+	for (i = 0; i < set1ranges; i++) {
+		if (set1[i].start <= r && r <= set1[i].end) {
+			if (dflag && !cflag)
+				goto read;
+			if (sflag) {
+				if (r == lastrune)
+					goto read;
+				else
+					goto write;
+			}
+			for (m = 0; m < i; m++)
+				off1 += rangelen(set1[m]);
+			off1 += r - set1[m].start;
+			if (off1 > setlen(set2, set2ranges) - 1) {
+				r = set2[set2ranges - 1].end;
+				goto write;
+			}
+			for (m = 0; m < set2ranges; m++) {
+				if (off2 + rangelen(set2[m]) > off1) {
+					m++;
+					break;
+				}
+				off2 += rangelen(set2[m]);
+			}
+			m--;
+			r = set2[m].start + (off1 - off2) / set2[m].quant;
 
-	if (dflag) {
-		if (argc != 1)
-			usage();
-		if (is_mapping_wide(argv[0], NULL))
-			mapfunc = wmap_null;
-		else
-			mapfunc = map_null;
-	} else if (cflag) {
-		usage();
-	} else if (argc == 2) {
-		if (is_mapping_wide(argv[0], argv[1]))
-			mapfunc = wmap_set;
-		else
-			mapfunc = map_set;
-	} else {
-		usage();
+			goto write;
+		}
 	}
-
-	while ((nbytes = getline(&buf, &size, stdin)) != -1)
-		mapfunc(buf, nbytes);
-	free(buf);
-	if (ferror(stdin))
-		eprintf("<stdin>: read error:");
-
-	return 0;
+	if (dflag && cflag)
+		goto read;
+	if (dflag && sflag && r == lastrune)
+		goto read;
+write:
+	lastrune = r;
+	writerune("<stdout>", stdout, &r);
+	goto read;
 }

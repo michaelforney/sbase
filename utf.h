@@ -51,3 +51,4 @@ int isdigitrune(Rune);
 
 int readrune(const char *, FILE *, Rune *);
 void writerune(const char *, FILE *, Rune *);
+int chartorunearr(const char*, Rune **);
