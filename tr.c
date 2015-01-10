@@ -196,6 +196,8 @@ main(int argc, char *argv[])
 	set1ranges = makeset(argv[0], &set1);
 	if (argc == 2)
 		set2ranges = makeset(argv[1], &set2);
+	if (!dflag && !set2ranges)
+		eprintf("set2 must be non-empty\n");
 read:
 	if (!readrune("<stdin>", stdin, &r))
 		return 0;
