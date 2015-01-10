@@ -52,8 +52,7 @@ rangelen(struct range r)
 static size_t
 setlen(struct range *set, size_t setranges)
 {
-	int i;
-	size_t len = 0;
+	size_t len = 0, i;
 
 	for (i = 0; i < setranges; i++)
 		len += rangelen(set[i]);
@@ -175,8 +174,7 @@ int
 main(int argc, char *argv[])
 {
 	Rune r = 0, lastrune = 0;
-	int i, m;
-	size_t off1, off2;
+	size_t off1, off2, m, i;
 
 	ARGBEGIN {
 	case 'c':
