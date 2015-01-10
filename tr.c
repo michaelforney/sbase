@@ -20,7 +20,7 @@ struct range {
 #define PUNCT "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
 #define ALNUM DIGIT UPPER LOWER
 
-struct class {
+static struct {
 	char  *name;
 	char  *str;
 } classes[] = {
@@ -38,10 +38,10 @@ struct class {
 	{ "xdigit", DIGIT "A-Fa-f"  },
 };
 
-struct range *set1 = NULL;
-size_t set1ranges  = 0;
-struct range *set2 = NULL;
-size_t set2ranges  = 0;
+static struct range *set1 = NULL;
+static size_t set1ranges  = 0;
+static struct range *set2 = NULL;
+static size_t set2ranges  = 0;
 
 static size_t
 rangelen(struct range r)
