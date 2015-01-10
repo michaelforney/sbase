@@ -8,7 +8,7 @@
 int
 chartorunearr(const char *str, Rune **r)
 {
-	size_t len = strlen(str), rlen, roff, ret, i;
+	size_t len = strlen(str), rlen, roff, ret = 1, i;
 	Rune s;
 
 	for (rlen = 0, roff = 0; roff < len && ret; rlen++) {
