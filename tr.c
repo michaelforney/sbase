@@ -174,7 +174,7 @@ int
 main(int argc, char *argv[])
 {
 	Rune r = 0, lastrune = 0;
-	size_t off1, off2, m, i;
+	size_t off1, off2, i, m;
 
 	ARGBEGIN {
 	case 'c':
