@@ -1,3 +1,4 @@
+#include <wctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -14,34 +15,31 @@ struct range {
 	size_t quant;
 };
 
-#define DIGIT "0-9"
-#define UPPER "A-Z"
-#define LOWER "a-z"
-#define PUNCT "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
-#define ALNUM DIGIT UPPER LOWER
-
 static struct {
-	char  *name;
-	char  *str;
+	char    *name;
+	int    (*check)(wint_t);
 } classes[] = {
-	{ "alnum",  ALNUM           },
-	{ "alpha",  UPPER LOWER     },
-	{ "blank",  " \t"           },
-	{ "cntrl",  "\000-\037\177" },
-	{ "digit",  DIGIT           },
-	{ "graph",  ALNUM PUNCT     },
-	{ "lower",  LOWER           },
-	{ "print",  ALNUM PUNCT " " },
-	{ "punct",  PUNCT           },
-	{ "space",  "\t\n\v\f\r"    },
-	{ "upper",  UPPER           },
-	{ "xdigit", DIGIT "A-Fa-f"  },
+	{ "alnum",  iswalnum  },
+	{ "alpha",  iswalpha  },
+	{ "blank",  iswblank  },
+	{ "cntrl",  iswcntrl  },
+	{ "digit",  iswdigit  },
+	{ "graph",  iswgraph  },
+	{ "lower",  iswlower  },
+	{ "print",  iswlower  },
+	{ "punct",  iswpunct  },
+	{ "space",  iswspace  },
+	{ "upper",  iswupper  },
+	{ "xdigit", iswxdigit },
 };
 
-static struct range *set1 = NULL;
-static size_t set1ranges  = 0;
-static struct range *set2 = NULL;
-static size_t set2ranges  = 0;
+static struct range *set1          = NULL;
+static size_t set1ranges           = 0;
+static int    (*set1check)(wint_t) = NULL;
+static struct range *set2          = NULL;
+static size_t set2ranges           = 0;
+static int    (*set2check)(wint_t) = NULL;
+
 
 static size_t
 rangelen(struct range r)
@@ -72,15 +70,12 @@ rstrmatch(Rune *r, char *s, size_t n)
 }
 
 static size_t
-makeset(char *str, struct range **set)
+makeset(char *str, struct range **set, int (**check)(wint_t))
 {
 	Rune  *rstr;
 	size_t len, i, j, m, n;
-	size_t q, setranges;
+	size_t q, setranges = 0;
 	int    factor, base;
-
-reset:
-	setranges = 0;
 
 	/* rstr defines at most len ranges */
 	len = chartorunearr(str, &rstr);
@@ -111,8 +106,8 @@ nextbrack:
 			if (j - i > 3 && rstr[i + 1] == ':' && rstr[m - 1] == ':') {
 				for (n = 0; n < LEN(classes); n++) {
 					if (rstrmatch(rstr + i + 2, classes[n].name, j - i - 3)) {
-						str = classes[n].str;
-						goto reset;
+						*check = classes[n].check;
+						return 0;
 					}
 				}
 				eprintf("Invalid character class\n");
@@ -193,10 +188,10 @@ main(int argc, char *argv[])
 
 	if (argc < 1 || argc > 2 || (argc == 1 && dflag == sflag))
 		usage();
-	set1ranges = makeset(argv[0], &set1);
+	set1ranges = makeset(argv[0], &set1, &set1check);
 	if (argc == 2)
-		set2ranges = makeset(argv[1], &set2);
-	if (!dflag && !set2ranges)
+		set2ranges = makeset(argv[1], &set2, &set2check);
+	if (dflag == sflag && !set2ranges && !set2check)
 		eprintf("set2 must be non-empty\n");
 read:
 	if (!readrune("<stdin>", stdin, &r))
@@ -231,6 +226,20 @@ read:
 
 			goto write;
 		}
+	}
+	if (set1check && set1check(r)) {
+		if (dflag && !cflag)
+			goto read;
+		if (sflag) {
+			if (r == lastrune)
+				goto read;
+			else
+				goto write;
+		}
+		if (set1check == iswupper && set2check == iswlower)
+			r = towlower(r);
+		if (set1check == iswlower && set2check == iswupper)
+			r = towupper(r);
 	}
 	if (dflag && cflag)
 		goto read;
