@@ -110,7 +110,7 @@ nextbrack:
 						return 0;
 					}
 				}
-				eprintf("Invalid character class\n");
+				eprintf("Invalid character class.\n");
 			}
 
 			/* REPEAT  [_*n] (only allowed in set2) */
@@ -192,7 +192,9 @@ main(int argc, char *argv[])
 	if (argc == 2)
 		set2ranges = makeset(argv[1], &set2, &set2check);
 	if (dflag == sflag && !set2ranges && !set2check)
-		eprintf("set2 must be non-empty\n");
+		eprintf("set2 must be non-empty.\n");
+	if (set2check && set2check != iswlower && set2check != iswupper)
+		eprintf("set2 can only be the 'lower' or 'upper' class.\n");
 read:
 	if (!readrune("<stdin>", stdin, &r))
 		return 0;
@@ -238,8 +240,12 @@ read:
 		}
 		if (set1check == iswupper && set2check == iswlower)
 			r = towlower((wint_t)r);
-		if (set1check == iswlower && set2check == iswupper)
+		else if (set1check == iswlower && set2check == iswupper)
 			r = towupper((wint_t)r);
+		else if (set2ranges > 0)
+			r = set2[set2ranges - 1].end;
+		else
+			eprintf("Misaligned character classes.\n");
 	}
 	if (dflag && cflag)
 		goto read;
