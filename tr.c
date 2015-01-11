@@ -26,7 +26,7 @@ static struct {
 	{ "digit",  iswdigit  },
 	{ "graph",  iswgraph  },
 	{ "lower",  iswlower  },
-	{ "print",  iswlower  },
+	{ "print",  iswprint  },
 	{ "punct",  iswpunct  },
 	{ "space",  iswspace  },
 	{ "upper",  iswupper  },
@@ -227,7 +227,7 @@ read:
 			goto write;
 		}
 	}
-	if (set1check && set1check(r)) {
+	if (set1check && set1check((wint_t)r)) {
 		if (dflag && !cflag)
 			goto read;
 		if (sflag) {
@@ -237,9 +237,9 @@ read:
 				goto write;
 		}
 		if (set1check == iswupper && set2check == iswlower)
-			r = towlower(r);
+			r = towlower((wint_t)r);
 		if (set1check == iswlower && set2check == iswupper)
-			r = towupper(r);
+			r = towupper((wint_t)r);
 	}
 	if (dflag && cflag)
 		goto read;
