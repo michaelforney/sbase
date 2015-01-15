@@ -68,7 +68,7 @@ The following tools are implemented (* == finished):
   tee             no                              -i
   test            yes                             none
   touch           no                              -a, -m, -r
-  tr              yes                             none
+* tr              yes                             none
   true            yes                             none
   tty             yes                             none
   uudecode        no                              -o

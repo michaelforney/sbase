@@ -1,67 +1,76 @@
-.TH TR 1 sbase\-VERSION
-.SH NAME
-tr \- translate characters
-.SH SYNOPSIS
-.B tr
-.RB [ \-d ] [ \-c ]
-.RB set1
-.P
-.B tr
-.RB set1
-.RI set2
-.SH OPTIONS
-.TP
-.B \-d
-For compatibility. If given, characters in set1 will be deleted from the input and specifying set2 will result in an error.
-.B \-c
-Complementary, causes the specified character set to be inverted, this is all the characters not specified belong to it.
-It only works in conjunction with \-d, because order doesn't make much sense with translation.
-.SH DESCRIPTION
-.B tr
-reads input from stdin replacing every character in
-.B set1
-with the character at the same index in
-.B set2.
-If set2 is not given
-.B tr
-deletes the characters in set1 from the input.
-
-Sets are specified as strings of characters. Almost all represent themselves but the following ones will be interpreted:
-.TP
-\e\e
-backslash
-.TP
-\ea
-audible BEL
-.TP
-\ef
-form feed
-.TP
-\en
-new line
-.TP
-\er
-return
-.TP
-\et
-horizontal tab
-.TP
-\ev
-vertical tab
-.PP
-If set1 is longer than set2
-.B tr
-will map all the remaining characters to the last one in set2. In case set2 is longer than set1, the remaining characters from set2 will be ignored.
-.B
-Character escape sequences, be them characters or octal numbers, are done preceding the token with a "\\". You may specify three digits or less for it,
-digits will stop being read when a non-octal character or when three characters are read.
-.B
-Use "A-B" for ordered sets fom A to B.
-.B
-.SH NOTES
-.B tr
-is Unicode-aware, but only if you don't specify characters in octal (for example \\012), because else it is not predictable. Does not support character
-classes.
-.SH SEE ALSO
-.IR sed(1)
-.IR awk(1)
+.Dd January 16, 2014
+.Dt TR 1 sbase\-VERSION
+.Sh NAME
+.Nm tr
+.Nd translate characters
+.Sh SYNOPSIS
+.Nm tr
+.Op Fl c | Fl C
+.Op Fl sd
+.Ar set1 set2
+.Sh DESCRIPTION
+.Nm
+matches characters from stdin and performs translations to stdout.
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl c | Fl C
+Match to
+.Ar set1
+complement.
+.It Fl d
+Delete characters matching
+.Ar set1 .
+.It Fl s
+Squeeze repeated characters matching
+.Ar set1
+or
+.Ar set2
+if -d is set.
+.El
+.Sh SET
+.Bl -tag -width Ds
+.It Literal 'c'
+.It Escape sequence '\ec'
+\e\e, \ea, \eb, \ef, \en, \er, \et, \ev
+.It Range 'c-d'
+.It Repeat '[c*n]'
+Only in
+.Ar set2 .
+If n = 0 or left out, set n to length of
+.Ar set1 .
+.It Character class '[:class:]'
+See
+.Xr wctype 3 .
+.El
+.Sh TRANSLATION
+If no options are specified,
+.Nm
+translates from
+.Ar set1
+to
+.Ar set2
+by index or character class.
+.Pp
+If
+.Ar set2
+is shorter than
+.Ar set1 ,
+overflowing characters translate to the last character in
+.Ar set2 .
+.Sh EXIT STATUS
+.Bl -tag -width Ds
+.It 0
+Input processed successfully.
+.It 1
+An error occurred.
+.El
+.Sh SEE ALSO
+.Xr sed 1 ,
+.Xr awk 1 ,
+.Xr utf8 7
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+except from octal sequences and equivalence classes.
