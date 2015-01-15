@@ -8,82 +8,82 @@ The following tools are implemented:
 
 UTILITY         POSIX 2008 COMPLIANT            MISSING OPTIONS
 -------         --------------------            ---------------
-basename
-cal
+basename        yes                             none
+cal             pending                         pending
 cat             yes                             none
-chgrp
-chmod
-chown
-chroot
-cksum
-cmp
-cols
-comm
-cp
-cron
-cut
-date
-dirname
-du
-echo
-env
-expand
-expr
-false
-fold
-grep
-head
-hostname
+chgrp           no                              -h, -H, -L, -P
+chmod           yes                             none
+chown           no                              -h, -H, -L, -P
+chroot          non-posix                       none
+cksum           yes                             none
+cmp             yes                             none
+cols            non-posix                       none
+comm            yes                             none
+cp              no                              -H, -i, -L
+cron            non-posix                       none
+cut             yes                             none
+date            yes                             none
+dirname         yes                             none
+du              no                              -H, -L, -x
+echo            yes                             none
+env             yes                             none
+expand          yes                             none
+expr            yes                             none
+false           yes                             none
+fold            yes                             none
+grep            yes                             none
+head            yes                             none
+hostname        non-posix                       none
 kill            yes                             none
-link
-ln
-logger          yes
-logname
-ls
-md5sum
-mkdir
-mkfifo
-mktemp
-mv
-nice
-nl
-nohup
-paste
-printenv
-printf
-pwd
-readlink
-renice
-rm
-rmdir
-sleep
-setsid
-sort
-split
-sponge
-strings
-sync
-tail
-tar
-tee
-test
-touch
-tr
-true
-tty
-uudecode
-uuencode
-uname
-unexpand
-uniq
-unlink
-seq
-sha1sum
-sha256sum
-sha512sum
-wc
-xargs
-yes
+link            yes                             none
+ln              yes                             none
+logger          yes                             none
+logname         yes                             none
+ls              no                              -C, -H, -L, -R, -c, -q, -u
+md5sum          non-posix                       none
+mkdir           yes                             none
+mkfifo          yes                             none
+mktemp          non-posix                       none
+mv              no                              -i
+nice            yes                             none
+nl              no                              -d, -f, -h, -l, -n, -p, -v, -w
+nohup           yes                             none
+paste           yes                             none
+printenv        non-posix                       none
+printf          stolen                          stolen
+pwd             yes                             none
+readlink        non-posix                       none
+renice          yes                             none
+rm              no                              -i
+rmdir           no                              -p
+sleep           yes                             none
+setsid          non-posix                       none
+sort            no                              -m, -o, -d, -f, -i
+split           yes                             none
+sponge          non-posix                       none
+strings         no                              -a, -n, -t
+sync            non-posix                       none
+tail            no                              -c, -f
+tar             non-posix                       none
+tee             no                              -i
+test            yes                             none
+touch           no                              -a, -m, -r
+tr              yes                             none
+true            yes                             none
+tty             yes                             none
+uudecode        no                              -o
+uuencode        no                              -m
+uname           yes                             none
+unexpand        yes                             none
+uniq            no                              -f, -s
+unlink          yes                             none
+seq             non-posix                       none
+sha1sum         non-posix                       none
+sha256sum       non-posix                       none
+sha512sum       non-posix                       none
+wc              yes                             none
+xargs           no                              -I, -L, -p, -s, -t, -x
+yes             yes                             none
 
 The  complement of  sbase  is  ubase[1] which  is  Linux-specific  and
 provides all  the non-portable tools.   Together they are  intended to
