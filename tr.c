@@ -70,6 +70,36 @@ rstrmatch(Rune *r, char *s, size_t n)
 }
 
 static size_t
+resolveescapes(Rune *r, size_t len)
+{
+	size_t i, off, m;
+
+	for (i = 0; i < len - 1; i++) {
+		if (r[i] != '\\')
+			continue;
+		off = 0;
+
+		switch (r[i + 1]) {
+		case '\\': r[i] = '\\'; off++; break;
+		case 'a':  r[i] = '\a'; off++; break;
+		case 'b':  r[i] = '\b'; off++; break;
+		case 'f':  r[i] = '\f'; off++; break;
+		case 'n':  r[i] = '\n'; off++; break;
+		case 'r':  r[i] = '\r'; off++; break;
+		case 't':  r[i] = '\t'; off++; break;
+		case 'v':  r[i] = '\v'; off++; break;
+		default:   continue;
+		}
+
+		for (m = i + 1; m <= len - off; m++)
+			r[m] = r[m + off];
+		len -= off;
+	}
+
+	return len;
+}
+
+static size_t
 makeset(char *str, struct range **set, int (**check)(wint_t))
 {
 	Rune  *rstr;
@@ -79,9 +109,9 @@ makeset(char *str, struct range **set, int (**check)(wint_t))
 
 	/* rstr defines at most len ranges */
 	len = chartorunearr(str, &rstr);
+	len = resolveescapes(rstr, len);
 	*set = emalloc(len * sizeof(**set));
 
-	/* todo: allow expressions */
 	for (i = 0; i < len; i++) {
 		if (rstr[i] == '[') {
 			j = i;
