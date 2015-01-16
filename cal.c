@@ -130,7 +130,7 @@ static void
 usage(void)
 {
 	eprintf("usage: %s [-1 | -3 | -y | -n nmonths] "
-	        "[-s | -m | -f firstday] [-c columns] [[[day] month] year]\n", argv0);
+	        "[-s | -m | -f firstday] [-c columns] [[month] year]\n", argv0);
 }
 
 int
