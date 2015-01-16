@@ -10,7 +10,7 @@ The following tools are implemented (* == finished):
   -------         --------------------            ---------------
 * basename        yes                             none
   cal             pending                         pending
-  cat             yes                             none
+* cat             yes                             none
   chgrp           no                              -h, -H, -L, -P
   chmod           yes                             none
   chown           no                              -h, -H, -L, -P
