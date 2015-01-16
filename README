@@ -29,7 +29,7 @@ The following tools are implemented (* == finished):
   env             yes                             none
   expand          yes                             none
   expr            yes                             none
-  false           yes                             none
+* false           yes                             none
   fold            yes                             none
 * grep            yes                             none
   head            yes                             none
@@ -69,7 +69,7 @@ The following tools are implemented (* == finished):
   test            yes                             none
   touch           no                              -a, -m, -r
 * tr              yes                             none
-  true            yes                             none
+* true            yes                             none
   tty             yes                             none
   uudecode        no                              -o
   uuencode        no                              -m
