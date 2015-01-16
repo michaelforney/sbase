@@ -1,68 +1,58 @@
-.TH CAL 1 sbase\-VERSION
-.SH NAME
-cal \- print calendar
-.SH SYNOPSIS
-.B cal
-.RB [ \-1 ]
-.RB [ \-3 ]
-.RB [ \-m ]
-.RB [ \-s ]
-.RB [ \-y ]
-.RB [ \-c
-.IR columns ]
-.RB [ \-f
-.IR firstday ]
-.RB [ \-n
-.IR nmonths ]
-.RB [ [
-.IR month ]
-.IR year ]
-.SH DESCRIPTION
-Beginning with
-.IR month
-and
-.IR year
-print
-.IR number
-of calendars side by side. Each row of calendars contains at most
-.IR columns
-number of calendars. The defaults are obtained using
-.IR localtime (3).
-If
-.IR year
-is given without
-.IR month
-print the whole year, unless overridden by options.  The Julian calendar is used
-through Sep 2, 1752, and the Gregorian calendar is used starting the next day
-with Sep 14, 1752.
-.SH OPTIONS
-.TP
-.B \-1
-Print one single month.
-.TP
-.B \-3
-Print prev/current/nexth month.
-.TP
-.B \-m
-Print Monday as first day of week.
-.TP
-.B \-s
-Print Sunday as first day of week.
-.TP
-.B \-y
-Print a calendar of the current year.
-.TP
-.BI \-c " columns"
+.Dd January 16, 2015
+.Dt CAL 1 sbase\-VERSION
+.Sh NAME
+.Nm cal
+.Nd show calendar
+.Sh SYNOPSIS
+.Nm cal
+.Op Fl 1 | Fl 3 | Fl y | Fl n Ar nmonths
+.Op Fl s | Fl m | Fl f Ar firstday
+.Op Fl c Ar columns
+.Oo Oo Oo Ar day Oc Ar month Oc Ar year Oc
+.Sh DESCRIPTION
 Print
-.IR columns
-number of calendars in a row. The default is 3.
-.TP
-.BI \-f " firstday"
-Specify the first day of the week. 0 is Sunday and 6 is Saturday.
-.TP
-.BI \-n " nmonths"
-Specify the number months to print. The default is 1.
-.SH SEE ALSO
-.IR localtime (3)
-.SH STANDARDS
-This program tries to conform to IEEE Std 1003.1, 2013 Edition, q.v. http://pubs.opengroup.org/onlinepubs/9699919799/utilities/cal.html.
+.Ar nmonths
+calendars side by side beginning with
+.Ar month
+and
+.Ar year .
+Each row of calendars contains at most
+.Ar columns
+calendars. The date formatting is obtained using
+.Xr localtime 3 .
+.Pp
+If
+.Ar year
+is given without
+.Ar month ,
+print the whole year, unless overridden by other options.
+.Pp
+The Julian calendar is used until Sep 2, 1752. The Gregorian calendar is used
+starting the next day on Sep 14, 1752.
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl 1 | Fl 3 | Fl n Ar nmonths | Fl y
+Show current month | previous, current and next month |
+.Ar nmonths
+months | year.
+.It Fl s | Fl m | Fl f Ar firstday
+Set Sunday | Monday |
+.Ar firstday
+(0 is Sunday, 6 is Saturday) as first day of week.
+.It Fl c Ar columns
+Set number of calendars in a row. The default is 3.
+.El
+.Sh SEE ALSO
+.Xr localtime 3
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.
+.Pp
+The flags
+.Op Fl 13ynsmfc
+and
+.Op Ar day
+are an extension to that specification.
