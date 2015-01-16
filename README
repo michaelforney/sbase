@@ -9,7 +9,7 @@ The following tools are implemented (* == finished):
   UTILITY         POSIX 2008 COMPLIANT            MISSING OPTIONS
   -------         --------------------            ---------------
 * basename        yes                             none
-  cal             yes                             none
+* cal             yes                             none
 * cat             yes                             none
   chgrp           no                              -h, -H, -L, -P
   chmod           yes                             none
