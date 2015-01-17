@@ -1,9 +1,27 @@
-.TH CKSUM 1 sbase\-VERSION
-.SH NAME
-cksum \- print file checksums
-.SH SYNOPSIS
-.B cksum
-.RI [ file ...]
-.SH DESCRIPTION
-.B cksum
-calculates and prints a cyclic redundancy check (CRC) for each input file.
+.Dd January 17, 2014
+.Dt CKSUM 1 sbase\-VERSION
+.Sh NAME
+.Nm cksum
+.Nd compute file checksum
+.Sh SYNOPSIS
+.Nm cksum
+.Op Ar file ...
+.Sh DESCRIPTION
+.Nm
+calculates a cyclic redundancy check (CRC) of
+.Ar file
+according to
+.St -iso8802-3
+and writes it, the file size in bytes and path to stdout.
+.Pp
+If no
+.Ar file
+is given,
+.Nm
+reads from stdin.
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.

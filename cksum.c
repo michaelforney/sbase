@@ -7,14 +7,6 @@
 
 #include "util.h"
 
-static void cksum(FILE *, const char *);
-
-static void
-usage(void)
-{
-	eprintf("usage: %s [files...]\n", argv0);
-}
-
 static const unsigned long crctab[] = {         0x00000000,
 0x04c11db7, 0x09823b6e, 0x0d4326d9, 0x130476dc, 0x17c56b6b,
 0x1a864db2, 0x1e475005, 0x2608edb8, 0x22c9f00f, 0x2f8ad6d6,
@@ -69,31 +61,6 @@ static const unsigned long crctab[] = {         0x00000000,
 0xa2f33668, 0xbcb4666d, 0xb8757bda, 0xb5365d03, 0xb1f740b4
 };
 
-int
-main(int argc, char *argv[])
-{
-	FILE *fp;
-
-	ARGBEGIN {
-	default:
-		usage();
-	} ARGEND;
-
-	if (argc == 0) {
-		cksum(stdin, NULL);
-	} else {
-		for (; argc > 0; argc--, argv++) {
-			if (!(fp = fopen(argv[0], "r"))) {
-				weprintf("fopen %s:", argv[0]);
-				continue;
-			}
-			cksum(fp, argv[0]);
-			fclose(fp);
-		}
-	}
-	return 0;
-}
-
 static void
 cksum(FILE *fp, const char *s)
 {
@@ -117,4 +84,35 @@ cksum(FILE *fp, const char *s)
 	if (s)
 		printf(" %s", s);
 	putchar('\n');
+}
+
+static void
+usage(void)
+{
+	eprintf("usage: %s [files ...]\n", argv0);
+}
+
+int
+main(int argc, char *argv[])
+{
+	FILE *fp;
+
+	ARGBEGIN {
+	default:
+		usage();
+	} ARGEND;
+
+	if (argc == 0)
+		cksum(stdin, NULL);
+	else {
+		for (; argc > 0; argc--, argv++) {
+			if (!(fp = fopen(argv[0], "r"))) {
+				weprintf("fopen %s:", argv[0]);
+				continue;
+			}
+			cksum(fp, argv[0]);
+			fclose(fp);
+		}
+	}
+	return 0;
 }

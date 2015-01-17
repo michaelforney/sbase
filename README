@@ -15,7 +15,7 @@ The following tools are implemented (* == finished):
 * chmod           yes                             none
   chown           no                              -h, -H, -L, -P
   chroot          non-posix                       none
-  cksum           yes                             none
+* cksum           yes                             none
 * cmp             yes                             none
 * cols            non-posix                       none
   comm            yes                             none
