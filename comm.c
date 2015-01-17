@@ -8,11 +8,43 @@
 
 #define CLAMP(x, l, h) MIN(h, MAX(l, x))
 
-static void printline(int, char *);
-static char *nextline(char *, int, FILE *, char *);
-static void finish(int, FILE *, char *);
-
 static int show = 0x07;
+
+static void
+printline(int pos, char *line)
+{
+	int i;
+
+	if (!(show & (0x1 << pos)))
+		return;
+
+	for (i = 0; i < pos; i++) {
+		if (show & (0x1 << i))
+			putchar('\t');
+	}
+	printf("%s", line);
+}
+
+static char *
+nextline(char *buf, int n, FILE *f, char *name)
+{
+	buf = fgets(buf, n, f);
+	if (!buf && !feof(f))
+		eprintf("%s: read error:", name);
+	if (buf && !strchr(buf, '\n'))
+		eprintf("%s: line too long\n", name);
+	return buf;
+}
+
+static void
+finish(int pos, FILE *f, char *name)
+{
+	char buf[LINE_MAX + 1];
+
+	while (nextline(buf, sizeof(buf), f, name))
+		printline(pos, buf);
+	exit(1);
+}
 
 static void
 usage(void)
@@ -25,7 +57,7 @@ main(int argc, char *argv[])
 {
 	int i, diff = 0;
 	FILE *fp[2];
-	char lines[2][LINE_MAX+1];
+	char lines[2][LINE_MAX + 1];
 
 	ARGBEGIN {
 	case '1':
@@ -72,40 +104,4 @@ main(int argc, char *argv[])
 	}
 
 	return 0;
-}
-
-static void
-printline(int pos, char *line)
-{
-	int i;
-
-	if (!(show & (0x1 << pos)))
-		return;
-
-	for (i = 0; i < pos; i++) {
-		if (show & (0x1 << i))
-			putchar('\t');
-	}
-	printf("%s", line);
-}
-
-static char *
-nextline(char *buf, int n, FILE *f, char *name)
-{
-	buf = fgets(buf, n, f);
-	if (!buf && !feof(f))
-		eprintf("%s: read error:", name);
-	if (buf && !strchr(buf, '\n'))
-		eprintf("%s: line too long\n", name);
-	return buf;
-}
-
-static void
-finish(int pos, FILE *f, char *name)
-{
-	char buf[LINE_MAX+1];
-
-	while (nextline(buf, sizeof(buf), f, name))
-		printline(pos, buf);
-	exit(1);
 }

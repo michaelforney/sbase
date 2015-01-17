@@ -1,33 +1,43 @@
-.TH COMM 1 sbase\-VERSION
-.SH NAME
-comm \- select or reject lines common to two files
-.SH SYNOPSIS
-.B comm
-.RB [ \-123 ]
-.IR file1
-.IR file2
-.SH DESCRIPTION
-The comm utility reads
-.IR file1
+.Dd January 18, 2015
+.Dt COMM 1 sbase\-VERSION
+.Sh NAME
+.Nm comm
+.Nd select or reject lines common to two files
+.Sh SYNOPSIS
+.Nm comm
+.Op Fl 123
+.Ar file1
+.Ar file2
+.Sh DESCRIPTION
+.Nm
+reads
+.Ar file1
 and
-.IR file2,
-which should be sorted lexically,
-and produces three text columns as output: lines only in
-.IR file1;
-lines only in
-.IR file2;
-and lines in both files.
-.SH OPTIONS
-.TP
-.BI \-1
-Suppress printing of column 1
-.TP
-.BI \-2
-Suppress printing of column 2
-.TP
-.BI \-3
-Suppress printing of column 3
-.SH SEE ALSO
-.IR cmp (1),
-.IR sort (1),
-.IR uniq (1)
+.Ar file2,
+which should both be sorted lexically, and writes three text columns
+to stdout:
+.Bl -tag -width Ds
+.It 1
+Lines only in
+.Ar file1 .
+.It 2
+Lines only in
+.Ar file2 .
+.It 3
+Common lines.
+.El
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl 1 | Fl 2 | Fl 3
+Suppress column 1 | 2 | 3
+.El
+.Sh SEE ALSO
+.Xr cmp 1 ,
+.Xr sort 1 ,
+.Xr uniq 1
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.
