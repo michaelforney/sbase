@@ -1,74 +1,66 @@
-.TH CHMOD 1 sbase\-VERSION
-.SH NAME
-chmod \- change file mode
-.SH SYNOPSIS
-.B chmod
-.RB [ \-r ]
-.I octal
-.RI [ file ...]
-.P
-.B chmod
-.RB [ \-r ]
-.RB [ ugoa ]*[ +-= ][ rwxst ]*
-.RI [ file ...]
-.SH DESCRIPTION
-.B chmod
-changes the file mode for the given files.
-.P
-If the mode is an
-.I octal
-number, the modes are set according to that number's comprising bits. The first
-digit defines the setuid (4), setgid (2), and sticky (1) attributes.  The second digit
-defines the owner's permissions: read (4), write (2), and execute (1); the third
-defines permissions for others in the file's group; and the fourth for all other
-users. Leading zeroes may be omitted.
-.P
-Alternatively the mode may be symbolic. The symbol meanings are:
-.TP
-.B u
-modifies owner permissions.
-.PD 0
-.TP
-.B g
-modifies group permissions.
-.TP
-.B o
-modifies other user permissions.
-.TP
-.B a
-modifies all user permissions.
-.PD
-.TP
-.B +
-adds the given permissions to the mode.
-.PD 0
-.TP
-.B -
-removes the given permissions from the mode.
-.TP
-.B =
-sets the mode to the given permissions.
-.PD
-.TP
-.B r
-read permissions.
-.PD 0
-.TP
-.B w
-write permissions.
-.TP
-.B x
-execute permissions.
-.TP
-.B s
-setuid and setgid attributes.
-.TP
-.B t
-sticky attribute.
-.PD
-.SH OPTIONS
-.TP
-.B \-r
-change directory mode recursively.
-.SH SEE ALSO
-.IR chmod (2)
+.Dd January 17, 2015
+.Dt CHMOD 1 sbase\-VERSION
+.Sh NAME
+.Nm chmod
+.Nd change file mode
+.Sh SYNOPSIS
+.Nm chmod
+.Op Fl R
+.Ar mode
+.Op Ar file ...
+.Sh DESCRIPTION
+.Nm
+changes the file mode of the given files.
+.Pp
+If
+.Ar mode
+is
+.Em octal
+"[sog]e"
+.Bl -tag -width Ds
+.It s
+.Xr sticky 1 => s += 1
+.Pp
+.Xr setgid 2 => s += 2
+.Pp
+.Xr setuid 4 => s += 4
+.It o|g|e
+owner | group | everyone
+.Pp
+.Xr execute 1 => o|g|e += 1
+.Pp
+.Xr write 2 => o|g|e += 2
+.Pp
+.Xr read 4 => o|g|e += 4
+.El
+.Pp
+Leading zeroes may be omitted.
+.Pp
+If
+.Ar mode
+is
+.Em symbolic
+"[ugoa]*[+-=][rwxst]*"
+.Bl -tag -width Ds
+.It u|g|o|a
+owner | group | other (non-group) | everyone
+.It +|-|=
+add | remove | set
+.It r|w|x|s|t
+read | write | execute | setuid and setgid | sticky
+.El
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl R
+Change modes recursively
+.El
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.
+.Pp
+The
+.Op Fl R
+flag is an extension to that specification.

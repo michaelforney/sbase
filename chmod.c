@@ -35,7 +35,7 @@ chmodr(const char *path)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-R] mode [file...]\n", argv0);
+	eprintf("usage: %s [-R] mode [file ...]\n", argv0);
 }
 
 int
