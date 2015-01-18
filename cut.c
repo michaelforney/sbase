@@ -6,14 +6,6 @@
 #include "text.h"
 #include "util.h"
 
-static void
-usage(void)
-{
-	eprintf("usage: cut -b list [-n] [file...]\n"
-	        "       cut -c list [file...]\n"
-	        "       cut -f list [-d delim] [-s] [file...]\n");
-}
-
 typedef struct Range {
 	size_t min, max;
 	struct Range *next;
@@ -135,6 +127,14 @@ cut(FILE *fp)
 	}
 }
 
+static void
+usage(void)
+{
+	eprintf("usage: cut -b list [-n] [file ...]\n"
+	        "       cut -c list [file ...]\n"
+	        "       cut -f list [-d delim] [-s] [file ...]\n");
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -163,12 +163,12 @@ main(int argc, char *argv[])
 	if (!mode)
 		usage();
 
-	if (!argc) {
+	if (!argc)
 		cut(stdin);
-	} else for (; argc--; argv++) {
-		if (!strcmp(*argv, "-")) {
+	else for (; argc--; argv++) {
+		if (!strcmp(*argv, "-"))
 			cut(stdin);
-		} else {
+		else {
 			if (!(fp = fopen(*argv, "r"))) {
 				weprintf("fopen %s:", *argv);
 				continue;

@@ -1,60 +1,70 @@
-.TH CUT 1 sbase\-VERSION
-.SH NAME
-cut \- extract columns of data
-.SH SYNOPSIS
-.B cut \-b
-.I list
-.RB [ \-n ]
-.RI [ file ...]
-.br
-.B cut \-c
-.I list
-.RI [ file ...]
-.br
-.B cut \-f
-.I list
-.RB [ \-d
-.IR delim ]
-.RB [ \-s ]
-.RI [ file ...]
-.SH DESCRIPTION
-.B cut
-out bytes, characters, or delimited fields from each line of the given
-files and write to stdout. With no file, or when file is `-', cut reads
-from stdin.
-.P
-.I list
-is a comma or space separated list of numbers and ranges where numbering
-starts from 1. Ranges are on the form `N-M'. If N or M is missing, the
-beginning or end of line is assumed. Numbers and ranges may be repeated,
-overlapping, and in any order. Selected input is written in the same
-order that it is read, and is written exactly once.
-.SH OPTIONS
-.TP
-.BI \-b \ list
-The
-.I list
-specifies byte positions.
-.TP
-.BI \-c \ list
-The
-.I list
-specifies character positions.
-.TP
-.BI \-d \ delim
+.Dd January 18, 2015
+.Dt CUT 1 sbase\-VERSION
+.Sh NAME
+.Nm cut
+.Nd extract columns of data
+.Sh SYNOPSIS
+.Nm cut
+.Fl b Ar list
+.Op Fl n
+.Op Ar file ...
+.Nm cut
+.Fl c Ar list
+.Op Ar file ...
+.Nm cut
+.Fl f Ar list
+.Op Fl d Ar delim
+.Op Fl s
+.Op Ar file ...
+.Sh DESCRIPTION
+.Nm
+out bytes, characters or delimited fields from each line of
+.Ar file
+and write to stdout.
+.Pp
+If no
+.Ar file
+is given or
+.Ar file
+is '-',
+.Nm
+reads from stdin.
+.Pp
+.Ar list
+is a comma or space separated list of numbers and ranges starting
+from 1. Ranges have the form 'N-M'. If N or M is missing,
+beginning or end of line is assumed. Numbers and ranges
+may be repeated, overlapping and in any order.
+.Pp
+Selected input is written in the same order it is read
+and is written exactly once.
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl b Ar list | Fl c Ar list
+.Ar list
+specifies byte | character positions.
+.It Fl n
+Do not split multibyte characters. A character is written when its
+last byte is selected.
+.It Fl f Ar list
+.Ar list
+specifies field numbers. Lines not containing field
+delimiters are passed through, unless
+.Fl s
+is specified.
+.It Fl d Ar delim
 Use first byte of
-.I delim
-as field delimiter, instead of tab.
-.TP
-.BI \-f \ list
-The
-.I list
-specifies field numbers. Lines not containing field delimiters are
-passed through untouched.
-.TP
-.B \-n
-Do not split characters. A character is output if its last byte is
-selected.
-.TP
-.B \-s
+.Ar delim
+as field delimiter. Default is \et.
+.It Fl s
 Suppress lines not containing field delimiters.
+.El
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.
+.Pp
+The possibility of separating numbers and ranges with a space
+is an extension to that specification.
