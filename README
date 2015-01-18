@@ -7,8 +7,8 @@ across UNIX and UNIX-like systems.
 The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 '=' == implicit UTF-8 support):
 
-  UTILITY         POSIX 2008 COMPLIANT            MISSING OPTIONS
-  -------         --------------------            ---------------
+   UTILITY         POSIX 2008 COMPLIANT            MISSING OPTIONS
+   -------         --------------------            ---------------
 =* basename        yes                             none
 =* cal             yes                             none
 =* cat             yes                             none
