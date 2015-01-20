@@ -1,3 +1,4 @@
+/* See LICENSE file for copyright and license details. */
 #include <wctype.h>
 #include <stdio.h>
 #include <stdlib.h>
