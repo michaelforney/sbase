@@ -18,7 +18,7 @@ typedef struct {
 	uid_t uid;
 	gid_t gid;
 	off_t size;
-	time_t mtime;
+	time_t t;
 	ino_t ino;
 } Entry;
 
@@ -29,6 +29,7 @@ static void mkent(Entry *, char *, int, int);
 static void output(Entry *);
 
 static int aflag = 0;
+static int cflag = 0;
 static int dflag = 0;
 static int Fflag = 0;
 static int Hflag = 0;
@@ -45,7 +46,7 @@ static int many;
 static void
 usage(void)
 {
-	eprintf("usage: %s [-1adFhilrtU] [FILE...]\n", argv0);
+	eprintf("usage: %s [-1acdFHhiLlrtU] [file ...]\n", argv0);
 }
 
 int
@@ -60,6 +61,9 @@ main(int argc, char *argv[])
 		break;
 	case 'a':
 		aflag = 1;
+		break;
+	case 'c':
+		cflag = 1;
 		break;
 	case 'd':
 		dflag = 1;
@@ -116,7 +120,7 @@ entcmp(const void *va, const void *vb)
 	const Entry *a = va, *b = vb;
 
 	if (tflag)
-		return b->mtime - a->mtime;
+		return b->t - a->t;
 	else
 		return strcmp(a->name, b->name);
 }
@@ -196,7 +200,7 @@ mkent(Entry *ent, char *path, int dostat, int follow)
 	ent->uid    = st.st_uid;
 	ent->gid    = st.st_gid;
 	ent->size   = st.st_size;
-	ent->mtime  = st.st_mtime;
+	ent->t      = cflag ? st.st_ctime : st.st_mtime;
 	ent->ino    = st.st_ino;
 	if (S_ISLNK(ent->mode))
 		ent->tmode = stat(path, &st) == 0 ? st.st_mode : 0;
@@ -284,12 +288,12 @@ output(Entry *ent)
 	else
 		snprintf(grname, sizeof(grname), "%d", ent->gid);
 
-	if (time(NULL) > ent->mtime + (180*24*60*60)) /* 6 months ago? */
+	if (time(NULL) > ent->t + (180*24*60*60)) /* 6 months ago? */
 		fmt = "%b %d  %Y";
 	else
 		fmt = "%b %d %H:%M";
 
-	strftime(buf, sizeof buf, fmt, localtime(&ent->mtime));
+	strftime(buf, sizeof buf, fmt, localtime(&ent->t));
 	printf("%s %4ld %-8.8s %-8.8s ", mode, (long)ent->nlink, pwname, grname);
 	if (hflag)
 		printf("%10s ", humansize((unsigned long)ent->size));

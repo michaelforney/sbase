@@ -40,7 +40,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =  ln              yes                             none
 =* logger          yes                             none
 =  logname         yes                             none
-=  ls              no                              -C, -H, -L, -R, -c, -q, -u
+=  ls              no                              -C, -R, -q, -u
    md5sum          non-posix                       none
 =  mkdir           yes                             none
 =  mkfifo          yes                             none

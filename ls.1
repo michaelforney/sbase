@@ -1,49 +1,46 @@
-.TH LS 1 sbase\-VERSION
-.SH NAME
-ls \- list directory contents
-.SH SYNOPSIS
-.B ls
-.RB [ \-adFHhiLlrtU ]
-.RI [ file ...]
-.SH DESCRIPTION
-.B ls
+.Dd January 20, 2015
+.Dt LS 1 sbase\-VERSION
+.Sh NAME
+.Nm ls
+.Nd list directory contents
+.Sh SYNOPSIS
+.Nm ls
+.Op Fl 1acdFHhiLlrtU
+.Op Ar file ...
+.Sh DESCRIPTION
+.Nm
 lists each given file, and the contents of each given directory.  If no files
 are given the current directory is listed.
-.SH OPTIONS
-.TP
-.B \-a
-shows hidden files (those beginning with '.').
-.TP
-.B \-d
-lists directories themselves, not their contents.
-.TP
-.B \-F
-append a file type indicator to files.
-.TP
-.B \-H
-list information about the targets of symbolic links specified on the command
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl a
+Show hidden files (those beginning with '.').
+.It Fl c
+Use time file's status was last changed instead of last
+modification time for sorting or printing.
+.It Fl d
+List directories themselves, not their contents.
+.It Fl F
+Append a file type indicator to files.
+.It Fl H
+List information about the targets of symbolic links specified on the command
 line instead of the links themselves.
-.TP
-.B \-h
-show filesizes in human\-readable format.
-.TP
-.B \-i
-print the index number of each file.
-.TP
-.B \-L
-list information about the targets of symbolic links instead of the links
+.It Fl h
+Show filesizes in human\-readable format.
+.It Fl i
+Print the index number of each file.
+.It Fl L
+List information about the targets of symbolic links instead of the links
 themselves.
-.B \-l
-lists detailed information about each file, including their type, permissions,
-links, owner, group, size, and modification time.
-.TP
-.B \-r
-reverses the sort order.
-.TP
-.B \-t
-sorts files by modification time instead of by name.
-.TP
-.B \-U
-keeps the list unsorted.
-.SH SEE ALSO
-.IR stat (2)
+.It Fl l
+List detailed information about each file, including their type, permissions,
+links, owner, group, size, and last file status/modification time.
+.It Fl r
+Reverse the sort order.
+.It Fl t
+Sort files by last file status/modification time instead of by name.
+.It Fl U
+Keep the list unsorted.
+.El
+.Sh SEE ALSO
+.Xr stat 2
