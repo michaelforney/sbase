@@ -68,7 +68,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =  tar             non-posix                       none
 =  tee             no                              -i
    test            yes                             none
-=  touch           no                              -a, -m, -r
+=  touch           no                              -r
 #* tr              yes                             none
 =* true            yes                             none
 =  tty             yes                             none
