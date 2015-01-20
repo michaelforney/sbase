@@ -9,12 +9,38 @@
 
 #include "util.h"
 
-static void touch(const char *);
-
 static int aflag;
 static int cflag;
 static int mflag;
 static time_t t;
+
+static void
+touch(const char *file)
+{
+	int fd;
+	struct stat st;
+	struct utimbuf ut;
+	int r;
+
+	if ((r = stat(file, &st)) < 0) {
+		if (errno != ENOENT)
+			eprintf("stat %s:", file);
+		if (cflag)
+			return;
+	} else if (r == 0) {
+		ut.actime = aflag ? t : st.st_atime;
+		ut.modtime = mflag ? t : st.st_mtime;
+		if (utime(file, &ut) < 0)
+			eprintf("utime %s:", file);
+		return;
+	}
+
+	if ((fd = open(file, O_CREAT | O_EXCL, 0644)) < 0)
+		eprintf("open %s:", file);
+	close(fd);
+
+	touch(file);
+}
 
 static void
 usage(void)
@@ -51,32 +77,4 @@ main(int argc, char *argv[])
 		touch(argv[0]);
 
 	return 0;
-}
-
-static void
-touch(const char *file)
-{
-	int fd;
-	struct stat st;
-	struct utimbuf ut;
-	int r;
-
-	if ((r = stat(file, &st)) < 0) {
-		if (errno != ENOENT)
-			eprintf("stat %s:", file);
-		if (cflag)
-			return;
-	} else if (r == 0) {
-		ut.actime = aflag ? t : st.st_atime;
-		ut.modtime = mflag ? t : st.st_mtime;
-		if (utime(file, &ut) < 0)
-			eprintf("utime %s:", file);
-		return;
-	}
-
-	if ((fd = open(file, O_CREAT | O_EXCL, 0644)) < 0)
-		eprintf("open %s:", file);
-	close(fd);
-
-	touch(file);
 }
