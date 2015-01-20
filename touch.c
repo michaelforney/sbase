@@ -11,13 +11,15 @@
 
 static void touch(const char *);
 
-static int cflag = 0;
+static int aflag;
+static int cflag;
+static int mflag;
 static time_t t;
 
 static void
 usage(void)
 {
-	eprintf("usage: %s [-c] [-t stamp] file...\n", argv0);
+	eprintf("usage: %s [-acm] [-t stamp] file ...\n", argv0);
 }
 
 int
@@ -26,8 +28,14 @@ main(int argc, char *argv[])
 	t = time(NULL);
 
 	ARGBEGIN {
+	case 'a':
+		aflag = 1;
+		break;
 	case 'c':
 		cflag = 1;
+		break;
+	case 'm':
+		mflag = 1;
 		break;
 	case 't':
 		t = estrtol(EARGF(usage()), 0);
@@ -46,26 +54,29 @@ main(int argc, char *argv[])
 }
 
 static void
-touch(const char *str)
+touch(const char *file)
 {
 	int fd;
 	struct stat st;
 	struct utimbuf ut;
+	int r;
 
-	if (stat(str, &st) == 0) {
-		ut.actime = st.st_atime;
-		ut.modtime = t;
-		if (utime(str, &ut) < 0)
-			eprintf("utime %s:", str);
+	if ((r = stat(file, &st)) < 0) {
+		if (errno != ENOENT)
+			eprintf("stat %s:", file);
+		if (cflag)
+			return;
+	} else if (r == 0) {
+		ut.actime = aflag ? t : st.st_atime;
+		ut.modtime = mflag ? t : st.st_mtime;
+		if (utime(file, &ut) < 0)
+			eprintf("utime %s:", file);
 		return;
 	}
-	else if (errno != ENOENT)
-		eprintf("stat %s:", str);
-	else if (cflag)
-		return;
-	if ((fd = open(str, O_CREAT|O_EXCL,
-	               S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH)) < 0)
-		eprintf("open %s:", str);
+
+	if ((fd = open(file, O_CREAT | O_EXCL, 0644)) < 0)
+		eprintf("open %s:", file);
 	close(fd);
-	touch(str);
+
+	touch(file);
 }

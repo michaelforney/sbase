@@ -1,25 +1,31 @@
-.TH TOUCH 1 sbase\-VERSION
-.SH NAME
-touch \- set files' timestamps
-.SH SYNOPSIS
-.B touch
-.RB [ \-c ]
-.RB [ \-t
-.IR time ]
-.RI [ file ...]
-.SH DESCRIPTION
-.B touch
-sets the given files' modification time to the current time.  If a file does not
-exist it is created.
-.SH OPTIONS
-.TP
-.B \-c
-do not create files if they do not exist.
-.TP
-.BI \-t " time"
-sets the files' modification time to
-.IR time ,
-given as the number of seconds since the Unix epoch.
-.SH SEE ALSO
-.IR utime (2),
-.IR creat (2)
+.Dd January 20, 2014
+.Dt TOUCH 1 sbase\-VERSION
+.Sh NAME
+.Nm touch
+.Nd set file timestamps
+.Sh SYNOPSIS
+.Nm touch
+.Op Fl acm
+.Op Fl t Ar stamp
+.Ar file ...
+.Sh DESCRIPTION
+.Nm
+sets the access and modification times of files to the current time of day.  If the file
+doesn't exist, it is created with the default permissions.
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl a
+Set the access time of the file.
+.It Fl c
+Do not create the file it it does not exist.  The exit
+status is not affected.
+.It Fl m
+Change the modification time of the file.
+.It Fl t Ar stamp
+Set the timestamp to be used with
+.Op Fl am .
+The format of the timestamp is simply the number of seconds
+since Jan 1, 1970.  This specification of time does not conform
+to POSIX.
+.Sh SEE ALSO
+.Xr date 1
