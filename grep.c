@@ -170,7 +170,7 @@ addpattern(const char *pattern)
 			 pattern,
 			 pattern[strlen(pattern) - 1] == '$' ? "" : "$");
 	} else if (!Fflag && wflag) {
-		len = strlen(pattern) + 15 + (Eflag ? 2 : 4);
+		len = strlen(pattern) + 5 + (Eflag ? 2 : 4);
 		tmp = malloc(len);
 		if (!tmp)
 			enprintf(Error, "malloc:");
@@ -181,7 +181,7 @@ addpattern(const char *pattern)
 		if (pattern[strlen(pattern) - 1] == '$')
 			eol = 1;
 
-		snprintf(tmp, len, "%s[[:<:]]%s%.*s%s[[:>:]]%s",
+		snprintf(tmp, len, "%s\\<%s%.*s%s\\>%s",
 		         bol ? "^" : "",
 		         Eflag ? "(" : "\\(",
 		         (int)strlen(pattern) - bol - eol, pattern + bol,
