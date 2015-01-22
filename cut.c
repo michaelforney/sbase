@@ -14,7 +14,7 @@ typedef struct Range {
 
 static Range *list     = NULL;
 static char   mode     = 0;
-static Rune   delim    = '\t';
+static char  *delim    = "\t";
 static size_t delimlen = 1;
 static int    nflag    = 0;
 static int    sflag    = 0;
@@ -73,7 +73,6 @@ seek(const char *s, size_t pos, size_t *prev, size_t count)
 {
 	const char *t;
 	size_t n = pos - *prev, i;
-	Rune r;
 
 	if (mode == 'b') {
 		if ((t = memchr(s, '\0', n)))
@@ -89,12 +88,13 @@ seek(const char *s, size_t pos, size_t *prev, size_t count)
 				break;
 	} else {
 		for (t = (count < delimlen + 1) ? s : s + delimlen; n && *t; ) {
-			for (i = 1; t[i]; i++)
-				if (fullrune(t, i))
+			if (!strncmp(t, delim, delimlen)) {
+				if (!--n && count)
 					break;
-			charntorune(&r, t, i);
-			if (r == delim && !--n && count)
-				break;
+				t += delimlen;
+				continue;
+			}
+			for (i = 1; !fullrune(t, i); i++);
 			t += i;
 		}
 	}
@@ -116,7 +116,7 @@ cut(FILE *fp)
 	while ((len = getline(&buf, &size, fp)) != -1) {
 		if (len && buf[len - 1] == '\n')
 			buf[len - 1] = '\0';
-		if (mode == 'f' && !utfrune(buf, delim)) {
+		if (mode == 'f' && !utfutf(buf, delim)) {
 			if (!sflag)
 				puts(buf);
 			continue;
@@ -139,6 +139,36 @@ cut(FILE *fp)
 	}
 }
 
+static size_t
+resolveescapes(char *s, size_t len)
+{
+	size_t i, off, m;
+
+	for (i = 0; i < len - 1; i++) {
+		if (s[i] != '\\')
+			continue;
+		off = 0;
+
+		switch (s[i + 1]) {
+                case '\\': s[i] = '\\'; off++; break;
+                case 'a':  s[i] = '\a'; off++; break;
+                case 'b':  s[i] = '\b'; off++; break;
+                case 'f':  s[i] = '\f'; off++; break;
+                case 'n':  s[i] = '\n'; off++; break;
+                case 'r':  s[i] = '\r'; off++; break;
+                case 't':  s[i] = '\t'; off++; break;
+                case 'v':  s[i] = '\v'; off++; break;
+		default:   continue;
+		}
+
+		for (m = i + 1; m <= len - off; m++)
+			s[m] = s[m + off];
+		len -= off;
+	}
+
+	return len;
+}
+
 static void
 usage(void)
 {
@@ -151,24 +181,17 @@ int
 main(int argc, char *argv[])
 {
 	FILE *fp;
-	int i;
-	char *m, *d;
 
 	ARGBEGIN {
 	case 'b':
 	case 'c':
 	case 'f':
 		mode = ARGC();
-		m = EARGF(usage());
-		parselist(m);
+		parselist(EARGF(usage()));
 		break;
 	case 'd':
-		d = EARGF(usage());
-		for (i = 1; i <= strlen(d); i++)
-			if (fullrune(d, i))
-				break;
-		charntorune(&delim, d, i);
-		delimlen = i;
+		delim = EARGF(usage());
+		delimlen = resolveescapes(delim, strlen(delim));
 		break;
 	case 'n':
 		nflag = 1;
