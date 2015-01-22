@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "text.h"
+#include "utf.h"
 #include "util.h"
 
 typedef struct Range {
@@ -11,11 +12,12 @@ typedef struct Range {
 	struct Range *next;
 } Range;
 
-static Range *list = NULL;
-static char mode = 0;
-static char delim = '\t';
-static int nflag = 0;
-static int sflag = 0;
+static Range *list     = NULL;
+static char   mode     = 0;
+static Rune   delim    = '\t';
+static size_t delimlen = 1;
+static int    nflag    = 0;
+static int    sflag    = 0;
 
 static void
 insert(Range *r)
@@ -70,10 +72,11 @@ static size_t
 seek(const char *s, size_t pos, size_t *prev, size_t count)
 {
 	const char *t;
-	size_t n = pos - *prev;
+	size_t n = pos - *prev, i;
+	Rune r;
 
 	if (mode == 'b') {
-		if ((t = memchr(s, 0, n)))
+		if ((t = memchr(s, '\0', n)))
 			return t - s;
 		if (nflag)
 			while (n && !UTF8_POINT(s[n]))
@@ -85,11 +88,18 @@ seek(const char *s, size_t pos, size_t *prev, size_t count)
 			if (UTF8_POINT(*t) && !--n)
 				break;
 	} else {
-		for (t = (count < 2) ? s : s + 1; n && *t; t++)
-			if (*t == delim && !--n && count)
+		for (t = (count < delimlen + 1) ? s : s + delimlen; n && *t; ) {
+			for (i = 1; t[i]; i++)
+				if (fullrune(t, i))
+					break;
+			charntorune(&r, t, i);
+			if (r == delim && !--n && count)
 				break;
+			t += i;
+		}
 	}
 	*prev = pos;
+
 	return t - s;
 }
 
@@ -106,20 +116,22 @@ cut(FILE *fp)
 	while ((len = getline(&buf, &size, fp)) != -1) {
 		if (len && buf[len - 1] == '\n')
 			buf[len - 1] = '\0';
-		if (mode == 'f' && !strchr(buf, delim)) {
+		if (mode == 'f' && !utfrune(buf, delim)) {
 			if (!sflag)
 				puts(buf);
 			continue;
 		}
 		for (i = 0, p = 1, s = buf, r = list; r; r = r->next, s += n) {
-			s += seek(s, r->min, &p, i++);
+			s += seek(s, r->min, &p, i);
+			i += (mode == 'f') ? delimlen : 1;
 			if (!*s)
 				break;
 			if (!r->max) {
 				fputs(s, stdout);
 				break;
 			}
-			n = seek(s, r->max + 1, &p, i++);
+			n = seek(s, r->max + 1, &p, i);
+			i += (mode == 'f') ? delimlen : 1;
 			if (fwrite(s, 1, n, stdout) != n)
 				eprintf("write error:");
 		}
@@ -139,16 +151,27 @@ int
 main(int argc, char *argv[])
 {
 	FILE *fp;
+	int i;
+	char *m, *d;
 
 	ARGBEGIN {
 	case 'b':
 	case 'c':
 	case 'f':
 		mode = ARGC();
-		parselist(ARGF());
+		m = ARGF();
+		if (!m)
+			usage();
+		parselist(m);
 		break;
 	case 'd':
-		delim = *ARGF();
+		if(!(d = ARGF()))
+			usage();
+		for (i = 1; i <= strlen(d); i++)
+			if (fullrune(d, i))
+				break;
+		charntorune(&delim, d, i);
+		delimlen = i;
 		break;
 	case 'n':
 		nflag = 1;
@@ -162,7 +185,6 @@ main(int argc, char *argv[])
 
 	if (!mode)
 		usage();
-
 	if (!argc)
 		cut(stdin);
 	else for (; argc--; argv++) {
