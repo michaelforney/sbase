@@ -159,14 +159,11 @@ main(int argc, char *argv[])
 	case 'c':
 	case 'f':
 		mode = ARGC();
-		m = ARGF();
-		if (!m)
-			usage();
+		m = EARGF(usage());
 		parselist(m);
 		break;
 	case 'd':
-		if(!(d = ARGF()))
-			usage();
+		d = EARGF(usage());
 		for (i = 1; i <= strlen(d); i++)
 			if (fullrune(d, i))
 				break;
