@@ -16,6 +16,7 @@ static void addpattern(const char *);
 static void addpatternfile(FILE *);
 static int grep(FILE *, const char *);
 
+static int Eflag;
 static int Fflag;
 static int Hflag;
 static int eflag;
@@ -24,6 +25,7 @@ static int hflag;
 static int iflag;
 static int sflag;
 static int vflag;
+static int wflag;
 static int xflag;
 static int many;
 static int mode;
@@ -39,7 +41,7 @@ static SLIST_HEAD(phead, pattern) phead;
 static void
 usage(void)
 {
-	enprintf(Error, "usage: %s [-EFHchilnqsvx] [-e pattern] [-f file] [pattern] [file ...]\n", argv0);
+	enprintf(Error, "usage: %s [-EFHchilnqsvwx] [-e pattern] [-f file] [pattern] [file ...]\n", argv0);
 }
 
 int
@@ -54,6 +56,7 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	case 'E':
+		Eflag = 1;
 		flags |= REG_EXTENDED;
 		break;
 	case 'F':
@@ -98,6 +101,9 @@ main(int argc, char *argv[])
 		break;
 	case 'v':
 		vflag = 1;
+		break;
+	case 'w':
+		wflag = 1;
 		break;
 	case 'x':
 		xflag = 1;
@@ -147,6 +153,8 @@ addpattern(const char *pattern)
 {
 	struct pattern *pnode;
 	char *tmp;
+	int bol, eol;
+	size_t len;
 
 	/* a null BRE/ERE matches every line */
 	if (!Fflag)
@@ -161,6 +169,24 @@ addpattern(const char *pattern)
 			 pattern[0] == '^' ? "" : "^",
 			 pattern,
 			 pattern[strlen(pattern) - 1] == '$' ? "" : "$");
+	} else if (!Fflag && wflag) {
+		len = strlen(pattern) + 15 + (Eflag ? 2 : 4);
+		tmp = malloc(len);
+		if (!tmp)
+			enprintf(Error, "malloc:");
+
+		bol = eol = 0;
+		if (pattern[0] == '^')
+			bol = 1;
+		if (pattern[strlen(pattern) - 1] == '$')
+			eol = 1;
+
+		snprintf(tmp, len, "%s[[:<:]]%s%.*s%s[[:>:]]%s",
+		         bol ? "^" : "",
+		         Eflag ? "(" : "\\(",
+		         (int)strlen(pattern) - bol - eol, pattern + bol,
+		         Eflag ? ")" : "\\)",
+		         eol ? "$" : "");
 	} else {
 		tmp = strdup(pattern);
 		if (!tmp)

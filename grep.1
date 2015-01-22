@@ -58,6 +58,8 @@ Suppress the error messages ordinarily written for nonexistent or unreadable fil
 Select lines which do
 .B not
 Match the pattern.
+.It Fl w
+The expression is search for as a word (as if surrounded by '[[:<:]]' and '[[:>:]]').
 .It Fl x
 Consider only input lines that use all characters in the line excluding the terminating <newline> to
 match an entire fixed string or regular expression to be matching lines.
@@ -82,5 +84,5 @@ utility is compliant with the
 specification.
 .Pp
 The flags
-.Op Fl Hh
+.Op Fl Hhw
 are an extension to that specification.
