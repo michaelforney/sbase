@@ -67,7 +67,7 @@ main(int argc, char *argv[])
 		if (!hasto)
 			to = basename(argv[0]);
 		if (fflag)
-			remove(to);
+			unlinkat(dirfd, to, 0);
 		if ((!sflag ? linkat(AT_FDCWD, argv[0], dirfd, to, flags)
 		            : symlinkat(argv[0], dirfd, to)) < 0) {
 			eprintf("%s %s <- %s:", fname, argv[0], to);
