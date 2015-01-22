@@ -3,7 +3,7 @@
 tee \- duplicate stdin
 .SH SYNOPSIS
 .B tee
-.RB [ \-a ]
+.RB [ \-ai ]
 .RI [ file ...]
 .SH DESCRIPTION
 .B tee
@@ -12,3 +12,6 @@ writes from stdin to stdout, making copies in each file.
 .TP
 .B \-a
 append to each file rather than overwriting.
+.TP
+.B \-i
+ignore SIGINT, i.e. the interrupt from keyboard signal

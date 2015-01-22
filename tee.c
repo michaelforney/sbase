@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -8,13 +9,13 @@
 static void
 usage(void)
 {
-	eprintf("usage: %s [-a] [file...]\n", argv0);
+	eprintf("usage: %s [-ai] [file...]\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
-	int aflag = 0;
+	int aflag = 0, iflag = 0;
 	char buf[BUFSIZ];
 	int i, nfps;
 	size_t n;
@@ -24,10 +25,15 @@ main(int argc, char *argv[])
 	case 'a':
 		aflag = 1;
 		break;
+	case 'i':
+		iflag = 1;
+		break;
 	default:
 		usage();
 	} ARGEND;
 
+	if (iflag && signal(SIGINT, SIG_IGN) == SIG_ERR)
+		eprintf("signal:");
 	nfps = argc + 1;
 	fps = ecalloc(nfps, sizeof *fps);
 
