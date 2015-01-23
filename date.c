@@ -34,12 +34,13 @@ main(int argc, char *argv[])
 	default:
 		usage();
 	} ARGEND;
+
 	if (argc > 0 && argv[0][0] == '+')
 		fmt = &argv[0][1];
 	if (!(now = tztime(&t)))
 		eprintf("%stime failed\n", tz);
 
-	strftime(buf, sizeof buf, fmt, now);
+	strftime(buf, sizeof(buf), fmt, now);
 	puts(buf);
 
 	return 0;

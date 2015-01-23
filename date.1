@@ -1,26 +1,38 @@
-.TH DATE 1 sbase\-VERSION
-.SH NAME
-date \- print date and time
-.SH SYNOPSIS
-.B date
-.RB [ \-d
-.IR time ]
-.RB [ \-u ]
-.RI [+ format ]
-.SH DESCRIPTION
-.B date
-prints the date and time. If a
-.I format
-is given it is used to format the date as per
-.IR strftime (3).
-.SH OPTIONS
-.TP
-.BI \-d " time"
-prints
-.I time
-instead of the system time, given as the number of seconds since the Unix epoch.
-.TP
-.B \-u
-prints UTC time instead of local time.
-.SH SEE ALSO
-.IR strftime (3)
+.Dd January 23, 2015
+.Dt DATE 1 sbase\-VERSION
+.Sh NAME
+.Nm date
+.Nd print date and time
+.Sh SYNOPSIS
+.Nm date
+.Op Fl d Ar time
+.Op Fl u
+.Op Cm + Ns Ar format
+.Sh DESCRIPTION
+.Nm
+prints the date and time according to
+.Xr locale 7
+or
+.Ar format
+using
+.Xr strftime 3 .
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl d Ar time
+Print
+.Ar time
+given as the number of seconds since the
+Unix epoch 1970-01-01T00:00:00Z.
+.It Fl u
+Print UTC time instead of local time.
+.El
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.
+.Pp
+The
+.Op Fl d
+flag is an extension to that specification.

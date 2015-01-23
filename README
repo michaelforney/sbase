@@ -23,7 +23,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =  cp              no                              -H, -i, -L
 =* cron            non-posix                       none
 #* cut             yes                             none
-=  date            yes                             none
+=* date            yes                             none
 =  dirname         yes                             none
 =  du              no                              -H, -L, -x
 =  echo            yes                             none
