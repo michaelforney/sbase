@@ -1,14 +1,30 @@
-.TH ECHO 1 sbase\-VERSION
-.SH NAME
-echo \- print arguments
-.SH SYNOPSIS
-.B echo
-.RB [ \-n ]
-.RI [ string ...]
-.SH DESCRIPTION
-.B echo
-prints its arguments to stdout, separated by spaces and terminated by a newline.
-.SH OPTIONS
-.TP
-.B \-n
-Do not print terminating newline.
+.Dd January 23, 2015
+.Dt ECHO 1 sbase\-VERSION
+.Sh NAME
+.Nm echo
+.Nd print arguments
+.Sh SYNOPSIS
+.Nm echo
+.Op Fl n
+.Op Ar string ...
+.Sh DESCRIPTION
+.Nm
+prints each
+.Ar string
+to stdout, separated by spaces and terminated by
+a newline.
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl n
+Do not print the terminating newline.
+.El
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.
+.Pp
+The
+.Op Fl n
+flag is an extension to that specification.

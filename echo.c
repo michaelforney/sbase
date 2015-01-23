@@ -7,7 +7,7 @@
 static void
 usage(void)
 {
-	eprintf("usage: %s [-n] text\n", argv0);
+	eprintf("usage: %s [-n] [string ...]\n", argv0);
 }
 
 int
