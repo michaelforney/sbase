@@ -1,17 +1,29 @@
-.TH TEE 1 sbase\-VERSION
-.SH NAME
-tee \- duplicate stdin
-.SH SYNOPSIS
-.B tee
-.RB [ \-ai ]
-.RI [ file ...]
-.SH DESCRIPTION
-.B tee
-writes from stdin to stdout, making copies in each file.
-.SH OPTIONS
-.TP
-.B \-a
-append to each file rather than overwriting.
-.TP
-.B \-i
-ignore SIGINT, i.e. the interrupt from keyboard signal
+.Dd January 23, 2015
+.Dt TEE 1 sbase\-VERSION
+.Sh NAME
+.Nm tee
+.Nd duplicate stdin
+.Sh SYNOPSIS
+.Nm tee
+.Op Fl ai
+.Op Ar file ...
+.Sh DESCRIPTION
+.Nm
+writes from stdin to stdout and each
+.Ar file .
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl a
+Append to each
+.Ar file
+instead of overwriting it.
+.It Fl i
+Ignore SIGINT, see
+.Xr signal 7 .
+.El
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.
