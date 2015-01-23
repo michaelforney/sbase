@@ -12,7 +12,7 @@ extern char **environ;
 static void
 usage(void)
 {
-	eprintf("usage: env [-i] [-u name]... [name=value]... [cmd [arg...]]\n");
+	eprintf("usage: env [-i] [-u variable] ... [variable=value] ... [cmd [arg ...]]\n");
 }
 
 int
