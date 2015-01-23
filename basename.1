@@ -3,18 +3,17 @@
 .Os
 .Sh NAME
 .Nm basename
-.Nd strip leading path component
+.Nd strip leading path components
 .Sh SYNOPSIS
 .Nm basename
-.Ar string
+.Ar path
 .Op Ar suffix
 .Sh DESCRIPTION
 .Nm
 prints the
-.Ar string
-with any leading path components, and the
-.Ar suffix ,
-removed.
+.Ar path
+without leading path components and
+.Ar suffix .
 .Sh SEE ALSO
 .Xr dirname 1 ,
 .Xr basename 3
