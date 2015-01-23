@@ -1,14 +1,22 @@
-.TH DIRNAME 1 sbase\-VERSION
-.SH NAME
-dirname \- strip final path component
-.SH SYNOPSIS
-.B dirname
-.I pathname
-.SH DESCRIPTION
-.B dirname
-prints the
-.I pathname
+.Dd January 23, 2015
+.Dt DIRNAME 1 sbase\-VERSION
+.Sh NAME
+.Nm dirname
+.Nd strip final path component
+.Sh SYNOPSIS
+.Nm dirname
+.Ar path
+.Sh DESCRIPTION
+.Nm
+prints
+.Ar path
 with its final path component removed.
-.SH SEE ALSO
-.IR basename (1),
-.IR dirname (3)
+.Sh SEE ALSO
+.Xr basename 1 ,
+.Xr dirname 3
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.
