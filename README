@@ -17,8 +17,8 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =  chown           no                              -h, -H, -L, -P
 =  chroot          non-posix                       none
 =* cksum           yes                             none
- * cmp             yes                             none
- * cols            non-posix                       none
+   cmp             yes                             none
+   cols            non-posix                       none
 =* comm            yes                             none
 =  cp              no                              -H, -i, -L
 =* cron            non-posix                       none
@@ -32,7 +32,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
    expr            yes                             none
 =* false           yes                             none
    fold            yes                             none
- * grep            yes                             none
+   grep            yes                             none
    head            yes                             none
 =  hostname        non-posix                       none
 =* kill            yes                             none
