@@ -20,12 +20,12 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
    cmp             yes                             none
    cols            non-posix                       none
 =* comm            yes                             none
-=  cp              no                              -H, -i, -L
+=  cp              no                              -H, (-i), -L
 =* cron            non-posix                       none
 #* cut             yes                             none
 =* date            yes                             none
 =* dirname         yes                             none
-=  du              no                              -H, -L, -x
+=  du              no                              -H, -L, (-x)
 =  echo            yes                             none
 =  env             yes                             none
 #  expand          yes                             none
@@ -45,7 +45,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =  mkdir           yes                             none
 =  mkfifo          yes                             none
 =  mktemp          non-posix                       none
-=  mv              no                              -i
+=  mv              yes                             (-i)
 =  nice            yes                             none
 =  nl              no                              -d, -f, -h, -l, -n, -p, -v, -w
 =  nohup           yes                             none
@@ -55,7 +55,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =* pwd             yes                             none
 =  readlink        non-posix                       none
 =  renice          yes                             none
-=  rm              no                              -i
+=  rm              yes                             (-i)
 =  rmdir           no                              -p
 =  sleep           yes                             none
 =  setsid          non-posix                       none
