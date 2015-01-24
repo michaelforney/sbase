@@ -75,7 +75,7 @@ resolveescapes(Rune *r, size_t len)
 {
 	size_t i, off, m, factor, q;
 
-	for (i = 0; i < len - 1; i++) {
+	for (i = 0; i < len; i++) {
 		if (r[i] != '\\')
 			continue;
 		off = 0;
@@ -97,7 +97,7 @@ resolveescapes(Rune *r, size_t len)
 				if (r[m] < '0' || r[m] > '7')
 					break;
 			if (m == i + 1)
-				continue;
+				eprintf("tr: invalid escape sequence '\\%c'\n", r[i + 1]);
 			off += m - i - 1;
 			for (--m, q = 0, factor = 1; m > i; m--) {
 				q += (r[m] - '0') * factor;
