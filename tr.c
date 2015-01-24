@@ -73,7 +73,7 @@ rstrmatch(Rune *r, char *s, size_t n)
 static size_t
 resolveescapes(Rune *r, size_t len)
 {
-	size_t i, off, m;
+	size_t i, off, m, factor, q;
 
 	for (i = 0; i < len - 1; i++) {
 		if (r[i] != '\\')
@@ -89,7 +89,21 @@ resolveescapes(Rune *r, size_t len)
 		case 'r':  r[i] = '\r'; off++; break;
 		case 't':  r[i] = '\t'; off++; break;
 		case 'v':  r[i] = '\v'; off++; break;
-		default:   continue;
+		case '\0':
+			eprintf("tr: null escape sequence\n");
+		default:
+			/* "\O[OO]" octal escape */
+			for (m = i + 1; m < i + 1 + 3 && m < len; m++)
+				if (r[m] < '0' || r[m] > '7')
+					break;
+			if (m == i + 1)
+				continue;
+			off += m - i - 1;
+			for (--m, q = 0, factor = 1; m > i; m--) {
+				q += (r[m] - '0') * factor;
+				factor *= 8;
+			}
+			r[i] = q;
 		}
 
 		for (m = i + 1; m <= len - off; m++)
