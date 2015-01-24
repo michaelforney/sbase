@@ -144,7 +144,7 @@ resolveescapes(char *s, size_t len)
 {
 	size_t i, off, m;
 
-	for (i = 0; i < len - 1; i++) {
+	for (i = 0; i < len; i++) {
 		if (s[i] != '\\')
 			continue;
 		off = 0;
@@ -158,7 +158,8 @@ resolveescapes(char *s, size_t len)
                 case 'r':  s[i] = '\r'; off++; break;
                 case 't':  s[i] = '\t'; off++; break;
                 case 'v':  s[i] = '\v'; off++; break;
-		default:   continue;
+		case '\0': eprintf("cut: null escape sequence in delimiter\n");
+		default: eprintf("cut: invalid escape sequence '\\%c' in delimiter\n", s[i + 1]);
 		}
 
 		for (m = i + 1; m <= len - off; m++)
@@ -191,6 +192,8 @@ main(int argc, char *argv[])
 		break;
 	case 'd':
 		delim = EARGF(usage());
+		if (!*delim)
+			eprintf("cut: empty delimiter\n");
 		delimlen = resolveescapes(delim, strlen(delim));
 		break;
 	case 'n':
