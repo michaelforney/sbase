@@ -158,8 +158,11 @@ resolveescapes(char *s, size_t len)
                 case 'r':  s[i] = '\r'; off++; break;
                 case 't':  s[i] = '\t'; off++; break;
                 case 'v':  s[i] = '\v'; off++; break;
-		case '\0': eprintf("cut: null escape sequence in delimiter\n");
-		default: eprintf("cut: invalid escape sequence '\\%c' in delimiter\n", s[i + 1]);
+		case '\0':
+			eprintf("cut: null escape sequence in delimiter\n");
+		default:
+			eprintf("cut: invalid escape sequence '\\%c' in"
+			        "delimiter\n", s[i + 1]);
 		}
 
 		for (m = i + 1; m <= len - off; m++)
