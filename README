@@ -28,7 +28,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =  du              no                              -H, -L, (-x)
 =* echo            yes                             none
 =* env             yes                             none
-#  expand          yes                             none
+#* expand          yes                             none
    expr            yes                             none
 =* false           yes                             none
    fold            yes                             none
