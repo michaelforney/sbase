@@ -41,6 +41,9 @@ size_t strlcat(char *, const char *, size_t);
 #undef strlcpy
 size_t strlcpy(char *, const char *, size_t);
 
+#undef strsep
+char *strsep(char **, const char *);
+
 /* regex */
 int enregcomp(int, regex_t *, const char *, int);
 int eregcomp(regex_t *, const char *, int);
