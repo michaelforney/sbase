@@ -267,7 +267,7 @@ parse(char **expr, int exprlen)
 static void
 usage(void)
 {
-	eprintf("usage: %s EXPRESSION\n", argv0);
+	eprintf("usage: %s expression\n", argv0);
 }
 
 int
