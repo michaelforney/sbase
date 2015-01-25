@@ -31,8 +31,8 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 #* expand          yes                             none
 =* expr            yes                             none
 =* false           yes                             none
-   fold            yes                             none
-   grep            yes                             none
+#* fold            yes                             none
+=* grep            yes                             none
    head            yes                             none
 =  hostname        non-posix                       none
 =* kill            yes                             none
