@@ -33,7 +33,7 @@ parselist(const char *s, size_t slen)
 
 	m = 0;
 	for (i = 0; i < slen; i += sep - (s + i) + 1) {
-		tablist[m++] = strtol(s + i, &sep, 0);
+		tablist[m++] = strtoul(s + i, &sep, 10);
 		if (tablist[m - 1] == 0)
 			eprintf("expand: tab size can't be zero.\n");
 		if (*sep && *sep != ',' && *sep != ' ')
