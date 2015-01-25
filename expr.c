@@ -182,11 +182,11 @@ lex(char *p)
 	}
 
 	/* one-char operand */
-	if (*p && !*(p+1) && strchr(ops, *p))
+	if (*p && !*(p + 1) && strchr(ops, *p))
 		return *p;
 
 	/* two-char operand */
-	if (*p && *(p+1) == '=' && !*(p+2)) {
+	if (*p && *(p + 1) == '=' && !*(p + 2)) {
 		switch (*p) {
 		case '>':
 			return GE;

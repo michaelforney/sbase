@@ -29,7 +29,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =* echo            yes                             none
 =* env             yes                             none
 #* expand          yes                             none
-   expr            yes                             none
+=* expr            yes                             none
 =* false           yes                             none
    fold            yes                             none
    grep            yes                             none
