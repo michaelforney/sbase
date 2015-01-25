@@ -1,18 +1,43 @@
-.TH HEAD 1 sbase\-VERSION
-.SH NAME
-head \- output first part of files
-.SH SYNOPSIS
-.B head
-.RB [ \-n
-.IR lines ]
-.RI [ file ...]
-.SH DESCRIPTION
-.B head
-writes the first 10 lines of each file to stdout.  If no file is given, head
+.Dd January 25, 2015
+.Dt HEAD 1 sbase\-VERSION
+.Sh NAME
+.Nm head
+.Nd display initial lines of files
+.Sh SYNOPSIS
+.Nm head
+.Op Fl n Ar num
+.Op Fl N
+.Op Ar file ...
+.Sh DESCRIPTION
+.Nm
+writes
+.Ar num
+|
+.Sy N
+lines of each
+.Ar file
+to stdout.
+If no file is given
+.Nm
 reads from stdin.
-.SH OPTIONS
-.TP
-.BI \-n " lines"
-outputs the given number of lines.
-.SH SEE ALSO
-.IR tail (1)
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl n Ar num | Fl N
+Display
+.Ar num
+|
+.Sy N
+lines. Default is 10.
+.El
+.Sh SEE ALSO
+.Xr tail 1
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.
+.Pp
+The
+.Op Fl N
+flag is an extension to that specification.
