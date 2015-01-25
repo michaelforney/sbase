@@ -6,9 +6,9 @@
 #include "utf.h"
 #include "util.h"
 
-static int     iflag      = 0;
-static size_t *tablist    = NULL;
-static size_t  tablistlen = 0;
+static int      iflag      = 0;
+static ssize_t *tablist    = NULL;
+static size_t   tablistlen = 0;
 
 static size_t
 parselist(const char *s, size_t slen)
@@ -29,13 +29,13 @@ parselist(const char *s, size_t slen)
 			len++;
 		}
 	}
-	tablist = emalloc((len + 1) * sizeof(size_t));
+	tablist = emalloc((len + 1) * sizeof(ssize_t));
 
 	m = 0;
 	for (i = 0; i < slen; i += sep - (s + i) + 1) {
-		tablist[m++] = strtoul(s + i, &sep, 10);
-		if (tablist[m - 1] == 0)
-			eprintf("expand: tab size can't be zero.\n");
+		tablist[m++] = strtol(s + i, &sep, 10);
+		if (tablist[m - 1] <= 0)
+			eprintf("expand: tab size can't be negative or zero.\n");
 		if (*sep && *sep != ',' && *sep != ' ')
 			eprintf("expand: invalid number in tablist.\n");
 		if (m > 1 && tablist[m - 1] < tablist[m - 2])
