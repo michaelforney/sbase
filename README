@@ -36,7 +36,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =* head            yes                             none
 =  hostname        non-posix                       none
 =* kill            yes                             none
-=  link            yes                             none
+=* link            yes                             none
 =  ln              yes                             none
 =* logger          yes                             none
 =  logname         yes                             none
