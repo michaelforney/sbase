@@ -73,6 +73,7 @@ main(int argc, char *argv[])
 {
 	size_t width = 80;
 	FILE *fp;
+	int r = 0;
 
 	ARGBEGIN {
 	case 'b':
@@ -91,12 +92,13 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc == 0)
+	if (argc == 0) {
 		fold(stdin, width);
-	else {
+	} else {
 		for (; argc > 0; argc--, argv++) {
 			if (!(fp = fopen(argv[0], "r"))) {
 				weprintf("fopen %s:", argv[0]);
+				r = 1;
 				continue;
 			}
 			fold(fp, width);
@@ -104,5 +106,5 @@ main(int argc, char *argv[])
 		}
 	}
 
-	return 0;
+	return r;
 }
