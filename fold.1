@@ -1,25 +1,44 @@
-.TH FOLD 1 sbase\-VERSION
-.SH NAME
-fold \- wrap lines to width
-.SH SYNOPSIS
-.B fold
-.RB [ \-bs ]
-.RB [ \-w
-.IR width ]
-.RI [ file ...]
-.SH DESCRIPTION
-.B fold
-reads each file in sequence and prints its lines, broken such that no line
-exceeds 80 UTF-8 characters.  If no file is given, fold reads from stdin.
-.SH OPTIONS
-.TP
-.B \-b
-counts bytes rather than characters.
-.TP
-.B \-s
-breaks only at spaces.
-.TP
-.BI \-w " width"
-breaks at
-.I width
-characters, instead of 80.
+.Dd January 25th, 2015
+.Dt FOLD 1 sbase\-VERSION
+.Sh NAME
+.Nm fold
+.Nd wrap lines to width
+.Sh SYNOPSIS
+.Nm fold
+.Op Fl bs
+.Op Fl w Ar width
+.Op Fl N
+.Op Ar file ...
+.Sh DESCRIPTION
+.Nm
+reads each
+.Ar file
+and prints its lines wrapped such that no line
+exceeds a certain width.
+If no file is given,
+.Nm
+reads from stdin.
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl b
+Count bytes rather than characters.
+.It Fl s
+If a line contains spaces, break
+at the last space within
+.Ar width .
+.It Fl w Ar width | Fl N
+Break at
+.Ar width
+.Sy | N
+characters. Default is 80.
+.El
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.
+.Pp
+The
+.Op Fl N
+flag is an extension to that specification.

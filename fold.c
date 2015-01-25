@@ -4,25 +4,74 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "text.h"
 #include "util.h"
-
-static void fold(FILE *, long);
-static void foldline(const char *, long);
 
 static int bflag = 0;
 static int sflag = 0;
 
 static void
+foldline(const char *str, size_t width)
+{
+	int space;
+	size_t i = 0, n = 0, col, j;
+	char c;
+
+	do {
+		space = 0;
+		for (j = i, col = 0; str[j] && col <= width; j++) {
+			c = str[j];
+			if (!UTF8_POINT(c) && !bflag)
+				continue;
+			if (sflag && isspace(c)) {
+				space = 1;
+				n = j + 1;
+			}
+			else if (!space)
+				n = j;
+
+			if (!bflag && iscntrl(c))
+				switch(c) {
+				case '\b':
+					col--;
+					break;
+				case '\r':
+					col = 0;
+					break;
+				case '\t':
+					col += (col + 1) % 8;
+					break;
+				}
+			else
+				col++;
+		}
+		if (fwrite(&str[i], 1, n - i, stdout) != n - i)
+			eprintf("<stdout>: write error:");
+		if (str[n])
+			putchar('\n');
+	} while (str[i = n] && str[i] != '\n');
+}
+
+static void
+fold(FILE *fp, long width)
+{
+	char *buf = NULL;
+	size_t size = 0;
+
+	while (getline(&buf, &size, fp) != -1)
+		foldline(buf, width);
+	free(buf);
+}
+
+static void
 usage(void)
 {
-	eprintf("usage: %s [-bs] [-w width] [FILE...]\n", argv0);
+	eprintf("usage: %s [-bs] [-w width] [-N] [FILE...]\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
-	long width = 80;
+	size_t width = 80;
 	FILE *fp;
 
 	ARGBEGIN {
@@ -42,9 +91,9 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc == 0) {
+	if (argc == 0)
 		fold(stdin, width);
-	} else {
+	else {
 		for (; argc > 0; argc--, argv++) {
 			if (!(fp = fopen(argv[0], "r"))) {
 				weprintf("fopen %s:", argv[0]);
@@ -56,58 +105,4 @@ main(int argc, char *argv[])
 	}
 
 	return 0;
-}
-
-static void
-fold(FILE *fp, long width)
-{
-	char *buf = NULL;
-	size_t size = 0;
-
-	while (getline(&buf, &size, fp) != -1)
-		foldline(buf, width);
-	free(buf);
-}
-
-static void
-foldline(const char *str, long width)
-{
-	int space;
-	long col, j;
-	size_t i = 0, n = 0;
-	int c;
-
-	do {
-		space = 0;
-		for (j = i, col = 0; str[j] && col <= width; j++) {
-			c = str[j];
-			if (!UTF8_POINT(c) && !bflag)
-				continue;
-			if (sflag && isspace(c)) {
-				space = 1;
-				n = j+1;
-			}
-			else if (!space)
-				n = j;
-
-			if (!bflag && iscntrl(c))
-				switch(c) {
-				case '\b':
-					col--;
-					break;
-				case '\r':
-					col = 0;
-					break;
-				case '\t':
-					col += (col+1) % 8;
-					break;
-				}
-			else
-				col++;
-		}
-		if (fwrite(&str[i], 1, n-i, stdout) != n-i)
-			eprintf("<stdout>: write error:");
-		if (str[n])
-			putchar('\n');
-	} while (str[i = n] && str[i] != '\n');
 }
