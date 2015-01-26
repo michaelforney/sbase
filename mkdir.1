@@ -1,19 +1,35 @@
-.TH MKDIR 1 sbase\-VERSION
-.SH NAME
-mkdir \- make directory
-.SH SYNOPSIS
-.B mkdir
-.RB [ \-pm ]
-.RI [ name ...]
-.SH DESCRIPTION
-.B mkdir
-creates the specified directories.
-.SH OPTIONS
-.TP
-.B \-p
-creates any necessary parent directories, and does not fail if the target
+.Dd January 26, 2015
+.Dt MKDIR 1 sbase\-VERSION
+.Sh NAME
+.Nm mkdir
+.Nd create directories
+.Sh SYNOPSIS
+.Nm mkdir
+.Op Fl p
+.Op Fl m Ar mode
+.Ar name ...
+.Sh DESCRIPTION
+.Nm
+creates a directory for each
+.Ar name
+if it does not already exist.
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl m
+Set the file
+.Ar mode
+of newly created directories.
+.It Fl p
+Also create necessary parent directories and
+do not fail if
+.Ar name
 already exists.
-.B \-m
-set the file permission bits of the newly created directory.
-.SH SEE ALSO
-.IR mkdir (2)
+.El
+.Sh SEE ALSO
+.Xr mkdir 2
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.

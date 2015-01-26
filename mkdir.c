@@ -8,7 +8,20 @@
 
 #include "util.h"
 
-static void mkdirp(char *);
+static void
+mkdirp(char *path)
+{
+	char *p = path;
+
+	do {
+		if (*p && (p = strchr(&p[1], '/')))
+			*p = '\0';
+		if (mkdir(path, S_IRWXU|S_IRWXG|S_IRWXO) < 0 && errno != EEXIST)
+			eprintf("mkdir %s:", path);
+		if (p)
+			*p = '/';
+	} while (p);
+}
 
 static void
 usage(void)
@@ -50,19 +63,4 @@ main(int argc, char *argv[])
 	}
 
 	return 0;
-}
-
-static void
-mkdirp(char *path)
-{
-	char *p = path;
-
-	do {
-		if (*p && (p = strchr(&p[1], '/')))
-			*p = '\0';
-		if (mkdir(path, S_IRWXU|S_IRWXG|S_IRWXO) < 0 && errno != EEXIST)
-			eprintf("mkdir %s:", path);
-		if (p)
-			*p = '/';
-	} while (p);
 }
