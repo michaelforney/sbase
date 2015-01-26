@@ -271,10 +271,8 @@ xt(int (*fn)(char*, int, char[Blksiz]))
 static void
 usage(void)
 {
-	eprintf("usage: tar [-f tarfile] [-C dir] [-]j|z [-]x[m]|t\n"
-	        "       tar [-f tarfile] [-C dir] [-]c dir\n"
-	        "       tar [-C dir] cf tarfile dir\n"
-	        "       tar [-C dir] j|z x[m]|tf tarfile\n");
+	eprintf("usage: tar [-f tarfile] [-C dir] -j|z -x[m]|t\n"
+	        "       tar [-f tarfile] [-C dir] -c dir\n"
 }
 
 int
@@ -311,47 +309,6 @@ main(int argc, char *argv[])
 	default:
 		usage();
 	} ARGEND;
-
-	if (!mode) {
-		if (argc < 1)
-			usage();
-
-		for (ap = argv[0]; *ap; ap++) {
-			switch (*ap) {
-			case 'x':
-			case 'c':
-			case 't':
-				if (mode)
-					usage();
-				mode = *ap;
-				break;
-			case 'f':
-				if (argc < 2)
-					usage();
-				argc--, argv++;
-				file = argv[0];
-				break;
-			case 'C':
-				if (argc < 2)
-					usage();
-				argc--, argv++;
-				dir = argv[0];
-				break;
-			case 'm':
-				mflag = 1;
-				break;
-			case 'j':
-			case 'z':
-				if (filtermode)
-					usage();
-				filtermode = *ap;
-				break;
-			default:
-				usage();
-			}
-		}
-		argc--, argv++;
-	}
 
 	if (!mode || argc != (mode == 'c'))
 		usage();
