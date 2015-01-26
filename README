@@ -57,8 +57,8 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =  renice          yes                             none
 =  rm              yes                             (-i)
 =  rmdir           no                              -p
-=  sleep           yes                             none
 =  setsid          non-posix                       none
+=  sleep           yes                             none
    sort            no                              -m, -o, -d, -f, -i
    split           yes                             none
 =  sponge          non-posix                       none
@@ -72,12 +72,12 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 #* tr              yes                             none
 =* true            yes                             none
 =  tty             yes                             none
-=  uudecode        no                              -o
-=  uuencode        no                              -m
 =  uname           yes                             none
 #  unexpand        yes                             none
 =  uniq            no                              -f, -s
 =  unlink          yes                             none
+=  uudecode        no                              -o
+=  uuencode        no                              -m
    seq             non-posix                       none
 =  sha1sum         non-posix                       none
 =  sha256sum       non-posix                       none
