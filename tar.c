@@ -272,14 +272,14 @@ static void
 usage(void)
 {
 	eprintf("usage: tar [-f tarfile] [-C dir] -j|z -x[m]|t\n"
-	        "       tar [-f tarfile] [-C dir] -c dir\n"
+	        "       tar [-f tarfile] [-C dir] -c dir\n");
 }
 
 int
 main(int argc, char *argv[])
 {
 	struct stat st;
-	char *file = NULL, *dir = ".", *ap;
+	char *file = NULL, *dir = ".";
 	char mode = '\0';
 	FILE *fp;
 
