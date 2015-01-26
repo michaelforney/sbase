@@ -1,36 +1,62 @@
-.TH LN 1 sbase\-VERSION
-.SH NAME
-ln \- make links between files
-.SH SYNOPSIS
-.B ln
-.RB [ \-LPfs ]
-.I file
-.RI [ name ]
-.P
-.B ln
-.RB [ \-LPfs ]
-.RI [ file ...]
-.RI [ directory ]
-.SH DESCRIPTION
-.B ln
-creates a hard link to a given file, with the given name.  If no name is given
-it is linked into the current directory.  If multiple files are listed they will
-be linked into the given directory.
-.SH OPTIONS
-.TP
-.B \-L
-create links to the files referenced by symbolic link source files (default
-behavior).
-.TP
-.B \-P
-create links to symbolic link source files themselves.
-.TP
-.B \-f
-remove existing destinations.
-.TP
-.B \-s
-create a symlink.
-.SH SEE ALSO
-.IR cp (1),
-.IR link (2),
-.IR symlink (2)
+.Dd January 26, 2015
+.Dt LN 1 sbase\-VERSION
+.Sh NAME
+.Nm ln
+.Nd link files
+.Sh SYNOPSIS
+.Nm ln
+.Op Fl f
+.Op Fl L | Fl P | Fl s
+.Ar target
+.Op Ar name
+.Nm ln
+.Op Fl f
+.Op Fl L | Fl P | Fl s
+.Ar target ...
+.Ar directory
+.Sh DESCRIPTION
+.Nm
+creates a hard link
+.Ar name
+to
+.Ar target .
+If no
+.Ar name
+is given, a hard link to
+.Ar target
+is created in the current directory.
+If more than one
+.Ar target
+is given,
+.Nm
+hardlinks them in the existing
+.Ar directory .
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl f
+If
+.Ar name
+exists, remove it to allow the link.
+.It Fl L | Fl P
+If
+.Ar target
+is a symbolic link, create a hard link to the (referenced file) | (symbolic link itself).
+The former is the default.
+.It Fl s
+Create symbolic links instead of hard links.
+Disables
+.Fl L
+and
+.Fl P ,
+because their purpose does not apply to symbolic links.
+.El
+.Sh SEE ALSO
+.Xr cp 1 ,
+.Xr link 2 ,
+.Xr symlink 2
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.

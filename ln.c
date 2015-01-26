@@ -13,8 +13,8 @@
 static void
 usage(void)
 {
-	eprintf("usage: %1$s [-LPfs] target [linkname]\n"
-	        "       %1$s [-LPfs] target... directory\n", argv0);
+	eprintf("usage: %1$s [-f] [-L | -P | -s] target [name]\n"
+	        "       %1$s [-f] [-L | -P | -s] target ... directory\n", argv0);
 }
 
 int
