@@ -79,7 +79,7 @@ decomp(FILE *fp)
 			execlp("bzip2", "bzip2", "-cd", (char *)0);
 			eprintf("execlp bzip2:");
 		case 'z':
-			execlp("gzip", "gzip", "-cdf", (char *)0);
+			execlp("gzip", "gzip", "-cd", (char *)0);
 			eprintf("execlp gzip:");
 			break;
 		}
