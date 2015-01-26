@@ -39,7 +39,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =* link            yes                             none
 =* ln              yes                             none
 =* logger          yes                             none
-=  logname         yes                             none
+=* logname         yes                             none
 =  ls              no                              -C, -R, -q, -u
    md5sum          non-posix                       none
 =  mkdir           yes                             none
