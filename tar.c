@@ -1,13 +1,14 @@
 /* See LICENSE file for copyright and license details. */
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/types.h>
+
 #include <grp.h>
 #include <limits.h>
 #include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <sys/time.h>
-#include <sys/types.h>
 #include <unistd.h>
 
 #include "util.h"
@@ -52,104 +53,40 @@ static FILE *tarfile;
 static ino_t tarinode;
 static dev_t tardev;
 
-static int mflag = 0;
+static int mflag;
+static char filtermode;
 
-static void
-usage(void)
+static FILE *
+decomp(FILE *fp)
 {
-	eprintf("usage: tar [-f tarfile] [-C dir] [-]x[m]|t\n"
-	        "       tar [-f tarfile] [-C dir] [-]c dir\n"
-	        "       tar [-C dir] cf tarfile dir\n"
-	        "       tar [-C dir] x[m]|tf tarfile\n");
-}
+	int   fds[2];
+	pid_t pid;
 
-int
-main(int argc, char *argv[])
-{
-	struct stat st;
-	char *file = NULL, *dir = ".", *ap;
-	char mode = '\0';
+	if (pipe(fds) < 0)
+		eprintf("pipe:");
 
-	ARGBEGIN {
-	case 'x':
-	case 'c':
-	case 't':
-		if (mode)
-			usage();
-		mode = ARGC();
-		break;
-	case 'C':
-		dir = EARGF(usage());
-		break;
-	case 'f':
-		file = EARGF(usage());
-		break;
-	case 'm':
-		mflag = 1;
-		break;
-	default:
-		usage();
-	} ARGEND;
+	pid = fork();
+	if (pid < 0) {
+		eprintf("fork:");
+	} else if (!pid) {
+		dup2(fileno(fp), 0);
+		dup2(fds[1], 1);
+		close(fds[0]);
+		close(fds[1]);
 
-	if (!mode) {
-		if (argc < 1)
-			usage();
-
-		for (ap = argv[0]; *ap; ap++) {
-			switch (*ap) {
-			case 'x':
-			case 'c':
-			case 't':
-				if (mode)
-					usage();
-				mode = *ap;
-				break;
-			case 'f':
-				if (argc < 2)
-					usage();
-				argc--, argv++;
-				file = argv[0];
-				break;
-			case 'C':
-				if (argc < 2)
-					usage();
-				argc--, argv++;
-				dir = argv[0];
-				break;
-			case 'm':
-				mflag = 1;
-				break;
-			default:
-				usage();
-			}
+		switch (filtermode) {
+		case 'j':
+			execlp("bzip2", "bzip2", "-cd", (char *)0);
+			eprintf("execlp bzip2:");
+		case 'z':
+			execlp("gzip", "gzip", "-cdf", (char *)0);
+			eprintf("execlp gzip:");
+			break;
 		}
-		argc--, argv++;
 	}
 
-	if (!mode || argc != (mode == 'c'))
-		usage();
-
-	if (file) {
-		tarfile = fopen(file, (mode == 'c') ? "wb" : "rb");
-		if (!tarfile)
-			eprintf("tar: open '%s':", file);
-		if (lstat(file, &st) < 0)
-			eprintf("tar: stat '%s':", file);
-		tarinode = st.st_ino;
-		tardev = st.st_dev;
-	} else {
-		tarfile = (mode == 'c') ? stdout : stdin;
-	}
-
-	chdir(dir);
-
-	if (mode == 'c') {
-		c(argv[0]);
-	} else {
-		xt((mode == 'x') ? unarchive : print);
-	}
-
-	return 0;
+	close(fds[1]);
+	return fdopen(fds[0], "r");
 }
 
 static void
@@ -329,4 +266,135 @@ xt(int (*fn)(char*, int, char[Blksiz]))
 		sprintf(s, "%.*s", (int)sizeof h->name, h->name);
 		fn(fname, strtol(h->size, 0, 8), b);
 	}
+}
+
+static void
+usage(void)
+{
+	eprintf("usage: tar [-f tarfile] [-C dir] [-]j|z [-]x[m]|t\n"
+	        "       tar [-f tarfile] [-C dir] [-]c dir\n"
+	        "       tar [-C dir] cf tarfile dir\n"
+	        "       tar [-C dir] j|z x[m]|tf tarfile\n");
+}
+
+int
+main(int argc, char *argv[])
+{
+	struct stat st;
+	char *file = NULL, *dir = ".", *ap;
+	char mode = '\0';
+	FILE *fp;
+
+	ARGBEGIN {
+	case 'x':
+	case 'c':
+	case 't':
+		if (mode)
+			usage();
+		mode = ARGC();
+		break;
+	case 'C':
+		dir = EARGF(usage());
+		break;
+	case 'f':
+		file = EARGF(usage());
+		break;
+	case 'm':
+		mflag = 1;
+		break;
+	case 'j':
+	case 'z':
+		if (filtermode)
+			usage();
+		filtermode = ARGC();
+		break;
+	default:
+		usage();
+	} ARGEND;
+
+	if (!mode) {
+		if (argc < 1)
+			usage();
+
+		for (ap = argv[0]; *ap; ap++) {
+			switch (*ap) {
+			case 'x':
+			case 'c':
+			case 't':
+				if (mode)
+					usage();
+				mode = *ap;
+				break;
+			case 'f':
+				if (argc < 2)
+					usage();
+				argc--, argv++;
+				file = argv[0];
+				break;
+			case 'C':
+				if (argc < 2)
+					usage();
+				argc--, argv++;
+				dir = argv[0];
+				break;
+			case 'm':
+				mflag = 1;
+				break;
+			case 'j':
+			case 'z':
+				if (filtermode)
+					usage();
+				filtermode = *ap;
+				break;
+			default:
+				usage();
+			}
+		}
+		argc--, argv++;
+	}
+
+	if (!mode || argc != (mode == 'c'))
+		usage();
+
+	switch (mode) {
+	case 'c':
+		if (file) {
+			if (!(fp = fopen(file, "wb")))
+				eprintf("fopen %s:", file);
+			if (lstat(file, &st) < 0)
+				eprintf("tar: stat '%s':", file);
+			tarinode = st.st_ino;
+			tardev = st.st_dev;
+			tarfile = fp;
+		} else {
+			tarfile = stdout;
+		}
+		chdir(dir);
+		c(argv[0]);
+		break;
+	case 't':
+	case 'x':
+		if (file) {
+			if (!(fp = fopen(file, "rb")))
+				eprintf("fopen %s:", file);
+		} else {
+			fp = stdin;
+		}
+
+		switch (filtermode) {
+		case 'j':
+		case 'z':
+			tarfile = decomp(fp);
+			break;
+		default:
+			tarfile = fp;
+			break;
+		}
+
+		chdir(dir);
+		xt(mode == 'x' ? unarchive : print);
+		break;
+	}
+
+	return 0;
 }
