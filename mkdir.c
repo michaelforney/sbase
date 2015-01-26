@@ -8,7 +8,7 @@
 
 #include "util.h"
 
-static void
+static int
 mkdirp(char *path)
 {
 	char *p = path;
@@ -16,11 +16,14 @@ mkdirp(char *path)
 	do {
 		if (*p && (p = strchr(&p[1], '/')))
 			*p = '\0';
-		if (mkdir(path, S_IRWXU|S_IRWXG|S_IRWXO) < 0 && errno != EEXIST)
-			eprintf("mkdir %s:", path);
+		if (mkdir(path, S_IRWXU|S_IRWXG|S_IRWXO) < 0 && errno != EEXIST) {
+			weprintf("mkdir %s:", path);
+			return -1;
+		}
 		if (p)
 			*p = '/';
 	} while (p);
+	return 0;
 }
 
 static void
@@ -35,6 +38,7 @@ main(int argc, char *argv[])
 	int pflag = 0;
 	int mflag = 0;
 	int mode;
+	int r = 0;
 
 	ARGBEGIN {
 	case 'p':
@@ -53,13 +57,18 @@ main(int argc, char *argv[])
 
 	for (; argc > 0; argc--, argv++) {
 		if (pflag) {
-			mkdirp(argv[0]);
+			if (mkdirp(argv[0]) < 0)
+				r = 1;
 		} else if (mkdir(argv[0], S_IRWXU|S_IRWXG|S_IRWXO) < 0) {
-			eprintf("mkdir %s:", argv[0]);
+			weprintf("mkdir %s:", argv[0]);
+			r = 1;
 		}
-		if (mflag)
-			if (chmod(argv[0], mode) < 0)
-				eprintf("chmod %s:", argv[0]);
+		if (mflag) {
+			if (chmod(argv[0], mode) < 0) {
+				weprintf("chmod %s:", argv[0]);
+				r = 1;
+			}
+		}
 	}
 
 	return 0;
