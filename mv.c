@@ -22,8 +22,8 @@ main(int argc, char *argv[])
 	struct stat st;
 
 	ARGBEGIN {
-	case 'i':
 	case 'f':
+	case 'i':
 		break;
 	default:
 		usage();
