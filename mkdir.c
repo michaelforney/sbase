@@ -29,16 +29,17 @@ mkdirp(char *path)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-pm] directory...\n", argv0);
+	eprintf("usage: %s [-p] [-m mode] directory ...\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
-	int pflag = 0;
-	int mflag = 0;
-	int mode;
-	int r = 0;
+	mode_t mode = 0;
+	mode_t mask;
+	int    pflag = 0;
+	int    mflag = 0;
+	int    ret = 0;
 
 	ARGBEGIN {
 	case 'p':
@@ -46,7 +47,8 @@ main(int argc, char *argv[])
 		break;
 	case 'm':
 		mflag = 1;
-		mode = estrtol(EARGF(usage()), 8);
+		mask = getumask();
+		mode = parsemode(EARGF(usage()), mode, mask);
 		break;
 	default:
 		usage();
@@ -58,18 +60,17 @@ main(int argc, char *argv[])
 	for (; argc > 0; argc--, argv++) {
 		if (pflag) {
 			if (mkdirp(argv[0]) < 0)
-				r = 1;
+				ret = 1;
 		} else if (mkdir(argv[0], S_IRWXU|S_IRWXG|S_IRWXO) < 0) {
 			weprintf("mkdir %s:", argv[0]);
-			r = 1;
+			ret = 1;
 		}
 		if (mflag) {
 			if (chmod(argv[0], mode) < 0) {
 				weprintf("chmod %s:", argv[0]);
-				r = 1;
+				ret = 1;
 			}
 		}
 	}
-
-	return 0;
+	return ret;
 }
