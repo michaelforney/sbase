@@ -12,7 +12,7 @@
 static void
 usage(void)
 {
-	eprintf("usage: nice [-n inc] command [options ...]\n");
+	eprintf("usage: nice [-n inc] cmd [arg ...]\n");
 }
 
 int
