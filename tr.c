@@ -143,6 +143,12 @@ nextbrack:
 
 			/* CLASSES [=EQUIV=] (skip) */
 			if (j - i > 3 && rstr[i + 1] == '=' && rstr[m - 1] == '=') {
+				if (j - i != 4)
+					goto literal;
+				(*set)[setranges].start = rstr[i + 2];
+				(*set)[setranges].end   = rstr[i + 2];
+				(*set)[setranges].quant = 1;
+				setranges++;
 				i = j;
 				continue;
 			}

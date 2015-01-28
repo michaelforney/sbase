@@ -25,22 +25,27 @@ Squeeze repeated characters matching
 .Ar set1
 or
 .Ar set2
-if -d is set.
+if
+.Fl d
+is set.
 .El
 .Sh SET
 .Bl -tag -width Ds
-.It Literal 'c'
-.It Escape sequence '\ec'
-\e\e, \ea, \eb, \ef, \en, \er, \et, \ev
-.It Range 'c-d'
-.It Repeat '[c*n]'
+.It Literal Sy c
+.It Escape sequence Sy \ec
+\e\e, \ea, \eb, \ef, \en, \er, \et, \ev, \eO[OO]
+.It Range Sy c-d
+.It Repeat Sy [c*n]
 Only in
 .Ar set2 .
 If n = 0 or left out, set n to length of
 .Ar set1 .
-.It Character class '[:class:]'
+.It Character class Sy [:class:]
 See
 .Xr wctype 3 .
+.It Equivalence class Sy [=c=]
+Resolve to
+.Sy c .
 .El
 .Sh TRANSLATION
 If no options are specified,
