@@ -15,13 +15,16 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP |
-		S_IWGRP | S_IROTH | S_IWOTH;
+	mode_t mode = 0;
+	mode_t mask;
+	int mflag = 0;
 	int ret = 0;
 
 	ARGBEGIN {
 	case 'm':
-		mode = estrtol(EARGF(usage()), 8);
+		mflag = 1;
+		mask = getumask();
+		mode = parsemode(EARGF(usage()), mode, mask);
 		break;
 	default:
 		usage();
@@ -31,9 +34,16 @@ main(int argc, char *argv[])
 		usage();
 
 	for (; argc > 0; argc--, argv++) {
-		if (mkfifo(argv[0], mode) < 0) {
+		if (mkfifo(argv[0], S_IRUSR | S_IWUSR |
+		    S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH) < 0) {
 			weprintf("mkfifo %s:", argv[0]);
 			ret = 1;
+		}
+		if (mflag) {
+			if (chmod(argv[0], mode) < 0) {
+				weprintf("chmod %s:", argv[0]);
+				ret = 1;
+			}
 		}
 	}
 	return ret;
