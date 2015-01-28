@@ -1,16 +1,29 @@
-.TH NOHUP 1 sbase\-VERSION
-.SH NAME
-nohup \- run a command immune to hangups
-.SH SYNOPSIS
-.B nohup
-.IR command ...
-.SH DESCRIPTION
-.B nohup
-runs the given command with the
-.I HUP
-signal set to be ignored.  If stdout is a terminal, it is appended to
-.I nohup.out
-in the current working directory; if stderr is a terminal, it is redirected to
-stdout.
-.SH SEE ALSO
-.IR signal (7)
+.Dd January 28, 2015
+.Dt NOHUP 1 sbase\-VERSION
+.Sh NAME
+.Nm nohup
+.Nd run command immune to hangups
+.Sh SYNOPSIS
+.Nm nohup
+.Ar cmd
+.Op Ar arg ...
+.Sh DESCRIPTION
+.Nm
+runs
+.Ar cmd
+with the
+.Em HUP
+signal set to be ignored.
+.Pp
+If stdout is a terminal, it is appended to
+.Em nohup.out
+in the current working directory.
+If stderr is a terminal, it is redirected to stdout.
+.Sh SEE ALSO
+.Xr signal 7
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.

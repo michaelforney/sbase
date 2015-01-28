@@ -13,7 +13,7 @@ enum { Error = 127, Found = 126 };
 static void
 usage(void)
 {
-	eprintf("usage: %s command [argument...]\n", argv0);
+	eprintf("usage: %s cmd [arg ...]\n", argv0);
 }
 
 int

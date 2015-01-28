@@ -48,7 +48,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =* mv              yes                             (-i)
 =* nice            yes                             none
 =  nl              no                              -d, -f, -h, -l, -n, -p, -v, -w
-=  nohup           yes                             none
+=* nohup           yes                             none
    paste           yes                             none
 =  printenv        non-posix                       none
    printf          stolen                          stolen
