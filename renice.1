@@ -1,97 +1,41 @@
-.TH RENICE 1 renice-VERSION "Jun 2013"
-.SH NAME
-renice \- set nice values of running processes
-.SH "SYNOPSIS"
-.PP
-.B renice
-.B \-n
-.I increment
-[
-.B \-g
-|
-.B \-p
-|
-.B \-u
-]
-.I ID...
-.SH DESCRIPTION
+.Dd January 29, 2015
+.Dt RENICE 1 sbase\-VERSION
+.Sh NAME
+.Nm renice
+.Nd change niceness of processes
+.Sh SYNOPSIS
+.Nm renice
+.Fl n Ar inc
+.Op Fl g | Fl p | Fl u
+.Ar id ...
+.Sh DESCRIPTION
+.Nm
+changes the niceness of each process with the given
+.Ar id .
+Only the superuser can lower the niceness.
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl g | Fl p | Fl u
+Interpret each
+.Ar id
+as a process group ID | process ID | user name or ID.
+The middle option is default.
+.It Fl n Ar inc
+Change niceness by
+.Ar inc ,
+with niceness ranging from
+.Sy -20
+(highest priority)
+to
+.Sy +19
+(lowest priority).
+.El
+.Sh SEE ALSO
+.Xr renice 2 ,
+.Xr nice 2
+.Sh STANDARDS
 The
-.B renice
-utility requests that the nice values of one or more
-running processes be changed. By default, the applicable processes
-are specified by their process IDs. When a process group is specified
-(see
-.B -g
-), the request applies to all processes in the process group. If the
-requested increment would raise or lower the nice value of the
-executed utility beyond its limits, then the limit whose value was
-exceeded is used. When a user is reniced, the request applies to all
-processes whose saved set-user-ID matches the user ID corresponding to
-the user. Regardless of which options are supplied or any other factor,
-renice does not alter the nice values of any process unless the user
-requesting such a change has appropriate privileges to do so for the
-specified process. If the user lacks appropriate privileges to perform
-the requested action, the utility returns an error status.
-The saved set-user-ID of the user's process is checked instead of its
-effective user ID when renice attempts to determine the user ID of the
-process in order to determine whether the user has appropriate privileges.
-.SH OPTIONS
-.TP
-.B \-g
-interpret all operands as unsigned decimal integer process group IDs.
-.TP
-.B \-n
-.I increment
-specify how the nice value of the specified process or processes
-is to be adjusted. The increment option-argument is a positive or
-negative decimal integer used to modify the nice value of the
-specified process or processes. positive increment values cause a
-lower nice value. Negative increment values may require appropriate
-privileges and cause a higher nice value.
-.TP
-.B \-p
-interpret all operands as unsigned decimal integer process IDs.
-The
-.B \-p
-option is the default if no options are specified.
-.TP
-.B \-u
-interpret all operands as users. If a user exists with a user name
-equal to the operand, then the user ID of that user is used in further
-processing. Otherwise, if the operand represents an unsigned decimal
-integer, used as the numeric user ID of the user.
-.SH EXIT VALUES
-On successful completion 0 is returned, a value which is >0 is
-returned on error.
-.SH FILES
-.TP
-.I /etc/passwd
-used to map user names to user ID's.
-.SH CONFORMING TO
-The
-.B renice
-utility is IEEE Std 1003.1-2001 (POSIX.1) compatible.
-.SH EXAMPLES
-.TP
-.I "renice -n 5 -p 987 32"
-.PP
-Adjust the nice value so that process IDs 987 and 32 would have a
-lower nice value.
-.TP
-.I "renice -n -4 -g 324 76"
-.PP
-Adjust the nice value so that group IDs 324 and 76 would have a
-higher nice value, if the user has the appropriate privileges to do so.
-.TP
-.I "renice -n 4 -u 8 sas"
-.PP
-Adjust the nice value so that numeric user ID 8 and user sas would
-have a lower nice value.
-Useful nice value increments on historical systems include
-19 or 20 (the affected processes run only when nothing else in the
-system attempts to run) and any negative number
-(to make processes run faster).
-.SH AUTHOR
-Written by Lorenzo Cogotti.
-.SH SEE ALSO
-.BR nice(1)
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.
