@@ -54,7 +54,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
    printf          stolen                          stolen
 =* pwd             yes                             none
 =  readlink        non-posix                       none
-=  renice          yes                             none
+=* renice          yes                             none
 =  rm              yes                             (-i)
 =  rmdir           no                              -p
 =  setsid          non-posix                       none
