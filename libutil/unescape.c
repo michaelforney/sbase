@@ -16,14 +16,14 @@ unescape(char *s)
 		off = 0;
 
 		switch (s[i + 1]) {
-                case '\\': s[i] = '\\'; off++; break;
-                case 'a':  s[i] = '\a'; off++; break;
-                case 'b':  s[i] = '\b'; off++; break;
-                case 'f':  s[i] = '\f'; off++; break;
-                case 'n':  s[i] = '\n'; off++; break;
-                case 'r':  s[i] = '\r'; off++; break;
-                case 't':  s[i] = '\t'; off++; break;
-                case 'v':  s[i] = '\v'; off++; break;
+		case '\\': s[i] = '\\'; off++; break;
+		case 'a':  s[i] = '\a'; off++; break;
+		case 'b':  s[i] = '\b'; off++; break;
+		case 'f':  s[i] = '\f'; off++; break;
+		case 'n':  s[i] = '\n'; off++; break;
+		case 'r':  s[i] = '\r'; off++; break;
+		case 't':  s[i] = '\t'; off++; break;
+		case 'v':  s[i] = '\v'; off++; break;
 		case '\0':
 			eprintf("%s: null escape sequence\n", argv0);
 		default:
