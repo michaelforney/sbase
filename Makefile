@@ -54,7 +54,8 @@ LIBUTILSRC =\
 	libutil/strcasestr.c\
 	libutil/strlcat.c\
 	libutil/strlcpy.c\
-	libutil/strsep.c
+	libutil/strsep.c\
+	libutil/unescape.c
 
 LIB = $(LIBUTF) $(LIBUTIL)
 

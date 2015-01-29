@@ -71,50 +71,6 @@ rstrmatch(Rune *r, char *s, size_t n)
 }
 
 static size_t
-resolveescapes(Rune *r, size_t len)
-{
-	size_t i, off, m, factor, q;
-
-	for (i = 0; i < len; i++) {
-		if (r[i] != '\\')
-			continue;
-		off = 0;
-
-		switch (r[i + 1]) {
-		case '\\': r[i] = '\\'; off++; break;
-		case 'a':  r[i] = '\a'; off++; break;
-		case 'b':  r[i] = '\b'; off++; break;
-		case 'f':  r[i] = '\f'; off++; break;
-		case 'n':  r[i] = '\n'; off++; break;
-		case 'r':  r[i] = '\r'; off++; break;
-		case 't':  r[i] = '\t'; off++; break;
-		case 'v':  r[i] = '\v'; off++; break;
-		case '\0':
-			eprintf("tr: null escape sequence\n");
-		default:
-			/* "\O[OO]" octal escape */
-			for (m = i + 1; m < i + 1 + 3 && m < len; m++)
-				if (r[m] < '0' || r[m] > '7')
-					break;
-			if (m == i + 1)
-				eprintf("tr: invalid escape sequence '\\%c'\n", r[i + 1]);
-			off += m - i - 1;
-			for (--m, q = 0, factor = 1; m > i; m--) {
-				q += (r[m] - '0') * factor;
-				factor *= 8;
-			}
-			r[i] = q;
-		}
-
-		for (m = i + 1; m <= len - off; m++)
-			r[m] = r[m + off];
-		len -= off;
-	}
-
-	return len;
-}
-
-static size_t
 makeset(char *str, struct range **set, int (**check)(wint_t))
 {
 	Rune  *rstr;
@@ -123,8 +79,8 @@ makeset(char *str, struct range **set, int (**check)(wint_t))
 	int    factor, base;
 
 	/* rstr defines at most len ranges */
+	unescape(str);
 	len = chartorunearr(str, &rstr);
-	len = resolveescapes(rstr, len);
 	*set = emalloc(len * sizeof(**set));
 
 	for (i = 0; i < len; i++) {

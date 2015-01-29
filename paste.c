@@ -13,42 +13,6 @@ struct fdescr {
 	const char *name;
 };
 
-static size_t
-resolveescapes(char *s)
-{
-        size_t len, i, off, m;
-
-	len = strlen(s);
-
-        for (i = 0; i < len; i++) {
-                if (s[i] != '\\')
-                        continue;
-                off = 0;
-
-                switch (s[i + 1]) {
-                case '\\': s[i] = '\\'; off++; break;
-                case 'a':  s[i] = '\a'; off++; break;
-                case 'b':  s[i] = '\b'; off++; break;
-                case 'f':  s[i] = '\f'; off++; break;
-                case 'n':  s[i] = '\n'; off++; break;
-                case 'r':  s[i] = '\r'; off++; break;
-                case 't':  s[i] = '\t'; off++; break;
-                case 'v':  s[i] = '\v'; off++; break;
-                case '\0':
-                        eprintf("paste: null escape sequence in delimiter\n");
-                default:
-                        eprintf("paste: invalid escape sequence '\\%c' in "
-                                "delimiter\n", s[i + 1]);
-                }
-
-                for (m = i + 1; m <= len - off; m++)
-                        s[m] = s[m + off];
-                len -= off;
-        }
-
-        return len;
-}
-
 static void
 sequential(struct fdescr *dsc, int fdescrlen, Rune *delim, size_t delimlen)
 {
@@ -145,7 +109,7 @@ main(int argc, char *argv[])
 		usage();
 
 	/* populate delimiters */
-	resolveescapes(adelim);
+	unescape(adelim);
 	len = chartorunearr(adelim, &delim);
 
 	/* populate file list */

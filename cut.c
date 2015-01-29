@@ -139,40 +139,6 @@ cut(FILE *fp)
 	}
 }
 
-static size_t
-resolveescapes(char *s, size_t len)
-{
-	size_t i, off, m;
-
-	for (i = 0; i < len; i++) {
-		if (s[i] != '\\')
-			continue;
-		off = 0;
-
-		switch (s[i + 1]) {
-                case '\\': s[i] = '\\'; off++; break;
-                case 'a':  s[i] = '\a'; off++; break;
-                case 'b':  s[i] = '\b'; off++; break;
-                case 'f':  s[i] = '\f'; off++; break;
-                case 'n':  s[i] = '\n'; off++; break;
-                case 'r':  s[i] = '\r'; off++; break;
-                case 't':  s[i] = '\t'; off++; break;
-                case 'v':  s[i] = '\v'; off++; break;
-		case '\0':
-			eprintf("cut: null escape sequence in delimiter\n");
-		default:
-			eprintf("cut: invalid escape sequence '\\%c' in "
-			        "delimiter\n", s[i + 1]);
-		}
-
-		for (m = i + 1; m <= len - off; m++)
-			s[m] = s[m + off];
-		len -= off;
-	}
-
-	return len;
-}
-
 static void
 usage(void)
 {
@@ -197,7 +163,7 @@ main(int argc, char *argv[])
 		delim = EARGF(usage());
 		if (!*delim)
 			eprintf("cut: empty delimiter\n");
-		delimlen = resolveescapes(delim, strlen(delim));
+		delimlen = unescape(delim);
 		break;
 	case 'n':
 		nflag = 1;
