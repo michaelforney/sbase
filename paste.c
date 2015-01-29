@@ -4,38 +4,131 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-#include <wchar.h>
 
+#include "utf.h"
 #include "util.h"
 
-typedef struct {
+struct fdescr {
 	FILE *fp;
 	const char *name;
-} Fdescr;
+};
 
-static size_t unescape(wchar_t *);
-static wint_t in(Fdescr *);
-static void out(wchar_t);
-static void sequential(Fdescr *, int, const wchar_t *, size_t);
-static void parallel(Fdescr *, int, const wchar_t *, size_t);
+static size_t
+resolveescapes(char *s)
+{
+        size_t len, i, off, m;
+
+	len = strlen(s);
+
+        for (i = 0; i < len; i++) {
+                if (s[i] != '\\')
+                        continue;
+                off = 0;
+
+                switch (s[i + 1]) {
+                case '\\': s[i] = '\\'; off++; break;
+                case 'a':  s[i] = '\a'; off++; break;
+                case 'b':  s[i] = '\b'; off++; break;
+                case 'f':  s[i] = '\f'; off++; break;
+                case 'n':  s[i] = '\n'; off++; break;
+                case 'r':  s[i] = '\r'; off++; break;
+                case 't':  s[i] = '\t'; off++; break;
+                case 'v':  s[i] = '\v'; off++; break;
+                case '\0':
+                        eprintf("paste: null escape sequence in delimiter\n");
+                default:
+                        eprintf("paste: invalid escape sequence '\\%c' in "
+                                "delimiter\n", s[i + 1]);
+                }
+
+                for (m = i + 1; m <= len - off; m++)
+                        s[m] = s[m + off];
+                len -= off;
+        }
+
+        return len;
+}
+
+static void
+sequential(struct fdescr *dsc, int fdescrlen, Rune *delim, size_t delimlen)
+{
+	Rune c, last;
+	size_t i, d;
+
+	for (i = 0; i < fdescrlen; i++) {
+		d = 0;
+		last = 0;
+
+		while (readrune(dsc[i].name, dsc[i].fp, &c)) {
+			if (last == '\n') {
+				if (delim[d] != '\0')
+					writerune("<stdout>", stdout, &delim[d]);
+				d = (d + 1) % delimlen;
+			}
+
+			if (c != '\n')
+				writerune("<stdout>", stdout, &c);
+			last = c;
+		}
+
+		if (last == '\n')
+			writerune("<stdout>", stdout, &last);
+	}
+}
+
+static void
+parallel(struct fdescr *dsc, int fdescrlen, Rune *delim, size_t delimlen)
+{
+	Rune c, d;
+	size_t i, m;
+	ssize_t last;
+
+nextline:
+	last = -1;
+
+	for (i = 0; i < fdescrlen; i++) {
+		d = delim[i % delimlen];
+		c = 0;
+
+		for (; readrune(dsc[i].name, dsc[i].fp, &c) ;) {
+			for (m = last + 1; m < i; m++)
+				writerune("<stdout>", stdout, &(delim[m % delimlen]));
+			last = i;
+			if (c == '\n') {
+				if (i != fdescrlen - 1)
+					c = d;
+				writerune("<stdout>", stdout, &c);
+				break;
+			}
+			writerune("<stdout>", stdout, &c);
+		}
+
+		if (c == 0 && last != -1) {
+			if (i == fdescrlen - 1)
+				putchar('\n');
+			else
+				writerune("<stdout>", stdout, &d);
+				last++;
+		}
+	}
+	if (last != -1)
+		goto nextline;
+}
 
 static void
 usage(void)
 {
-	eprintf("usage: %s [-s] [-d list] file...\n", argv0);
+	eprintf("usage: %s [-s] [-d list] file ...\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
-	const char *adelim = NULL;
-	int seq = 0;
-	wchar_t *delim = NULL;
-	size_t len;
-	Fdescr *dsc = NULL;
-	int i;
-
-	setlocale(LC_CTYPE, "");
+	struct fdescr *dsc;
+	Rune  *delim;
+	size_t i, len;
+	int    seq = 0;
+	char  *adelim = "\t";
 
 	ARGBEGIN {
 	case 's':
@@ -51,20 +144,9 @@ main(int argc, char *argv[])
 	if (argc == 0)
 		usage();
 
-	/* populate delimeters */
-	if (!adelim)
-		adelim = "\t";
-
-	len = mbstowcs(NULL, adelim, 0);
-	if (len == (size_t) - 1)
-		eprintf("invalid delimiter\n");
-
-	delim = emalloc((len + 1) * sizeof(*delim));
-
-	mbstowcs(delim, adelim, len);
-	len = unescape(delim);
-	if (len == 0)
-		eprintf("no delimiters specified\n");
+	/* populate delimiters */
+	resolveescapes(adelim);
+	len = chartorunearr(adelim, &delim);
 
 	/* populate file list */
 	dsc = emalloc(argc * sizeof(*dsc));
@@ -76,7 +158,7 @@ main(int argc, char *argv[])
 			dsc[i].fp = fopen(argv[i], "r");
 
 		if (!dsc[i].fp)
-			eprintf("can't open '%s':", argv[i]);
+			eprintf("fopen %s:", argv[i]);
 
 		dsc[i].name = argv[i];
 	}
@@ -91,135 +173,5 @@ main(int argc, char *argv[])
 			(void)fclose(dsc[i].fp);
 	}
 
-	free(delim);
-	free(dsc);
-
 	return 0;
-}
-
-static size_t
-unescape(wchar_t *delim)
-{
-	wchar_t c;
-	size_t i;
-	size_t len;
-
-	for (i = 0, len = 0; (c = delim[i++]) != '\0'; len++) {
-		if (c == '\\') {
-			switch (delim[i++]) {
-			case 'n':
-				delim[len] = '\n';
-				break;
-			case 't':
-				delim[len] = '\t';
-				break;
-			case '0':
-				delim[len] = '\0';
-				break;
-			case '\\':
-				delim[len] = '\\';
-				break;
-			case '\0':
-			default:
-				/* POSIX: unspecified results */
-				return len;
-			}
-		} else
-			delim[len] = c;
-	}
-
-	return len;
-}
-
-static wint_t
-in(Fdescr *f)
-{
-	wint_t c = fgetwc(f->fp);
-
-	if (c == WEOF && ferror(f->fp))
-		eprintf("'%s' read error:", f->name);
-
-	return c;
-}
-
-static void
-out(wchar_t c)
-{
-	putwchar(c);
-	if (ferror(stdout))
-		eprintf("write error:");
-}
-
-static void
-sequential(Fdescr *dsc, int len, const wchar_t *delim, size_t cnt)
-{
-	int i;
-	size_t d;
-	wint_t c, last;
-
-	for (i = 0; i < len; i++) {
-		d = 0;
-		last = WEOF;
-
-		while ((c = in(&dsc[i])) != WEOF) {
-			if (last == '\n') {
-				if (delim[d] != '\0')
-					out(delim[d]);
-
-				d++;
-				d %= cnt;
-			}
-
-			if (c != '\n')
-				out((wchar_t)c);
-
-			last = c;
-		}
-
-		if (last == '\n')
-			out((wchar_t)last);
-	}
-}
-
-static void
-parallel(Fdescr *dsc, int len, const wchar_t *delim, size_t cnt)
-{
-	int last, i;
-	wint_t c, o;
-	wchar_t d;
-
-	do {
-		last = 0;
-		for (i = 0; i < len; i++) {
-			d = delim[i % cnt];
-
-			do {
-				o = in(&dsc[i]);
-				c = o;
-				switch (c) {
-				case WEOF:
-					if (last == 0)
-						break;
-
-					o = '\n';
-					/* fallthrough */
-				case '\n':
-					if (i != len - 1)
-						o = d;
-					break;
-				default:
-					break;
-				}
-
-				if (o != WEOF) {
-					/* pad with delimiters up to this point */
-					while (++last < i) {
-						if (d != '\0')
-							out(d);
-					}
-					out((wchar_t)o);
-				}
-			} while (c != '\n' && c != WEOF);
-		}
-	} while (last > 0);
 }
