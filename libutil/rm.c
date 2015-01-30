@@ -6,12 +6,16 @@
 
 int rm_fflag = 0;
 int rm_rflag = 0;
+int rm_status = 0;
 
 void
 rm(const char *path)
 {
 	if (rm_rflag)
 		recurse(path, rm);
-	if (remove(path) < 0 && !rm_fflag)
-		eprintf("remove %s:", path);
+	if (remove(path) < 0) {
+		if (!rm_fflag)
+			weprintf("remove %s:", path);
+		rm_status = 1;
+	}
 }

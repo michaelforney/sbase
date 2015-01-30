@@ -41,5 +41,5 @@ main(int argc, char *argv[])
 	for (; argc > 0; argc--, argv++)
 		rm(argv[0]);
 
-	return 0;
+	return rm_status;
 }
