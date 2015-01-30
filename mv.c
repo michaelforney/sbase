@@ -8,7 +8,7 @@
 #include "fs.h"
 #include "util.h"
 
-int mv_status = 0;
+static int mv_status = 0;
 
 static int
 mv(const char *s1, const char *s2)
