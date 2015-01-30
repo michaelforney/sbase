@@ -1,15 +1,18 @@
-.TH SPONGE 1 sbase\-VERSION
-.SH NAME
-sponge \- soak up standard input and write to a file
-.SH SYNOPSIS
-.B sponge
-.IR file
-.SH DESCRIPTION
-.B sponge
+.Dd January 30, 15
+.Dt SPONGE 1 sbase\-VERSION
+.Os
+.Sh NAME
+.Nm sponge
+.Nd soak up standard input and write to a file
+.Sh SYNOPSIS
+.Nm
+.Ar file
+.Sh DESCRIPTION
+.Nm
 reads stdin completely, then writes the saved contents to
-.IR file .
+.Ar file .
 This makes it possible to easily create pipes which read from and write to
 the same file.
-
-If the given file is a symbolic link, it writes to the links's destination
+.Pp
+If the given file is a symbolic link, it writes to the links destination
 instead.
