@@ -1,11 +1,21 @@
-.TH SLEEP 1 sbase\-VERSION
-.SH NAME
-sleep \- wait for a number of seconds
-.SH SYNOPSIS
-.B sleep
-.I seconds
-.SH DESCRIPTION
-.B sleep
-waits until the given number of seconds have elapsed.
-.SH SEE ALSO
-.IR sleep (3)
+.Dd January 30, 2015
+.Dt SLEEP 1 sbase\-VERSION
+.Sh NAME
+.Nm sleep
+.Nd wait for a number of seconds
+.Sh SYNOPSIS
+.Nm sleep
+.Ar num
+.Sh DESCRIPTION
+.Nm
+waits for
+.Ar num
+seconds to elapse.
+.Sh SEE ALSO
+.Xr sleep 3
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.

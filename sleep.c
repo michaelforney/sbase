@@ -7,13 +7,13 @@
 static void
 usage(void)
 {
-	eprintf("usage: %s seconds\n", argv0);
+	eprintf("usage: %s num\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
-	unsigned int seconds;
+	unsigned long seconds;
 
 	ARGBEGIN {
 	default:
