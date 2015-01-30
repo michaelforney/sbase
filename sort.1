@@ -1,67 +1,83 @@
-.TH SORT 1 sbase\-VERSION
-.SH NAME
-sort \- sort lines
-.SH SYNOPSIS
-.B sort
-.RB [ \-bnru ]
-.RB [ \-t
-.IR delim ]
-.RB [ \-k
-.IR key ]...
-.RI [ file ...]
-.SH DESCRIPTION
-.B sort
-writes the sorted concatenation of the given files to stdout.  If no file is
+.Dd January 30, 2015
+.Dt SORT 1 sbase\-VERSION
+.Os
+.Sh NAME
+.Nm sort
+.Nd sort lines
+.Sh SYNOPSIS
+.Nm
+.Op Fl bnru
+.Op Fl t Ar delim
+.Op Fl k Ar key ...
+.Op Ar file ...
+.Sh DESCRIPTION
+.Nm
+writes the sorted concatenation of the given files to stdout. If no file is
 given, sort reads from stdin.
-.SH OPTIONS
-.TP
-.B \-C
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl C
 check that the concatenation of the given files is sorted rather than sorting
-them.  In this mode, no output is printed to stdout, and the exit status
+them. In this mode, no output is printed to stdout, and the exit status
 indicates the result of the check.
-.TP
-.B \-b
+.It Fl b
 skip leading whitespace of columns when sorting.
-.TP
-.B \-c
+.It Fl c
 the same as
-.B \-C
+.Fl C
 except that when disorder is detected, a message is printed to stderr
 indicating the location of the disorder.
-.TP
-.BI \-k \ key
+.It Fl k Ar key
 specifies a key definition of the form
-.BR S [. s ][ f ][, E [. e ][ f ]]
+.Sm off
+[.
+.Sy s
+][
+.Sy f
+][,
+.Sy E
+[.
+.Sy e
+][
+.Sy f
+]]
+.Sm on
 where
-.BR S ,
-.BR s ,
-.BR E ,
+.Sm off
+.Sy S
+,
+.Sy s
+,
+.Sy E
+.Sm on
 and
-.B e
+.Sy e
 are the starting column, starting character in that column, ending column and
-the ending character of that column respectively.  If they are not specified,
-.B s
+the ending character of that column respectively. If they are not specified,
+.Sy s
 refers to the first character of the specified starting column,
-.B E
+.Sy E
 refers to the last column of every line, and
-.B e
+.Sy e
 refers to the last character of that last column.
-.B f
+.Sy f
 can be used to specify options
-.RB ( n ,
-.BR b )
+.Sm off
+(
+.Sy n
+,
+.Sy b
+)
+.Sm on
 that only apply to this key definition.
-.B b
+.Sy b
 is special in that it only applies to the column that it was specified after.
-.TP
-.B \-n
+.It Fl n
 perform a numeric sort.
-.TP
-.B \-r
+.It Fl r
 reverses the sort.
-.TP
-.BI \-t \ delim
+.It Fl t Ar delim
 specifies the field delimiter.
-.TP
-.B \-u
+.It Fl u
 prints equal lines only once.
+.El
