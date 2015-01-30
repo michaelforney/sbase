@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -136,15 +137,15 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	int year, month, ncols, nmons, fday;
 	struct tm *ltime;
+	int year, ncols, nmons, month, fday;
 	time_t now;
 
-	now = time(NULL);
+	now   = time(NULL);
 	ltime = localtime(&now);
-	year = ltime->tm_year + 1900;
+	year  = ltime->tm_year + 1900;
 	month = ltime->tm_mon + 1;
-	fday = 0;
+	fday  = 0;
 
 	ncols = 3;
 	nmons = 0;
@@ -162,16 +163,16 @@ main(int argc, char *argv[])
 		}
 		break;
 	case 'c':
-		ncols = estrtol(EARGF(usage()), 0);
+		ncols = estrtonum(EARGF(usage()), 0, INT_MAX);
 		break;
 	case 'f':
-		fday = estrtol(EARGF(usage()), 0);
+		fday = estrtonum(EARGF(usage()), 0, 6);
 		break;
 	case 'm': /* Monday */
 		fday = 1;
 		break;
 	case 'n':
-		nmons = estrtol(EARGF(usage()), 0);
+		nmons = estrtonum(EARGF(usage()), 1, INT_MAX);
 		break;
 	case 's': /* Sunday */
 		fday = 0;
@@ -195,18 +196,14 @@ main(int argc, char *argv[])
 
 	switch (argc) {
 	case 2:
-		month = estrtol(argv[0], 0);
+		month = estrtonum(argv[0], 1, 12);
 		argv++;
 	case 1:
-		year = estrtol(argv[0], 0);
+		year = estrtonum(argv[0], 0, INT_MAX);
 		break;
 	case 0:
 		break;
 	default:
-		usage();
-	}
-
-	if (ncols < 0 || month < 1 || month > 12 || nmons < 1 || fday < 0 || fday > 6) {
 		usage();
 	}
 
