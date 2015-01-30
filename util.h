@@ -57,4 +57,5 @@ char *humansize(double);
 mode_t parsemode(const char *, mode_t, mode_t);
 void putword(const char *);
 void recurse(const char *, void (*)(const char *));
+long long strtonum(const char *, long long, long long, const char **);
 size_t unescape(char *);
