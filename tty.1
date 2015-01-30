@@ -1,13 +1,16 @@
-.TH TTY 1 sbase\-VERSION
-.SH NAME
-tty \- print terminal name
-.SH SYNOPSIS
-.B tty
-.SH DESCRIPTION
-.B tty
+.Dd January 30, 2015
+.Dt TTY 1 sbase\-VERSION
+.Os
+.Sh NAME
+.Nm tty
+.Nd print terminal name
+.Sh SYNOPSIS
+.Nm
+.Sh DESCRIPTION
+.Nm
 prints the name of the terminal open on stdin.
-.P
-The status code is 0 if stdin is a terminal, and 1 if not.  If an error occurred
+.Pp
+The status code is 0 if stdin is a terminal, and 1 if not. If an error occurred
 the status code is 2.
-.SH SEE ALSO
-.IR ttyname (3)
+.Sh SEE ALSO
+.Xr ttyname 3

@@ -1,20 +1,23 @@
-.TH CHOWN 1 sbase\-VERSION
-.SH NAME
-chown \- change file ownership
-.SH SYNOPSIS
-.B chown
-.RB [ \-Rr ]
-.RI [ owner ][: group ]
-.RI [ file ...]
-.SH DESCRIPTION
-.B chown
+.Dd January 30, 2015
+.Dt CHOWN 1 sbase\-VERSION
+.Os
+.Sh NAME
+.Nm chown
+.Nd change file ownership
+.Sh SYNOPSIS
+.Nm
+.Op Fl Rr
+.Op Ar owner Op Ar :group
+.Op Ar file ...
+.Sh DESCRIPTION
+.Nm
 changes the user or group ownership for the given files.
-.SH OPTIONS
-.TP
-.B \-R
-equivalent to -r.
-.TP
-.B \-r
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl R
+equivalent to \-r.
+.It Fl r
 change directory ownership recursively.
-.SH SEE ALSO
-.IR chown (2)
+.El
+.Sh SEE ALSO
+.Xr chown 2

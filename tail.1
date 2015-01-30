@@ -1,20 +1,23 @@
-.TH TAIL 1 sbase\-VERSION
-.SH NAME
-tail \- display final lines of files
-.SH SYNOPSIS
-.B tail
-.RB [ \-n
-.IR lines ]
-.RI [ file ]
-.SH DESCRIPTION
-.B tail
+.Dd January 30, 2015
+.Dt TAIL 1 sbase\-VERSION
+.Os
+.Sh NAME
+.Nm tail
+.Nd display final lines of files
+.Sh SYNOPSIS
+.Nm
+.Op Fl n Ar lines
+.Op Ar file
+.Sh DESCRIPTION
+.Nm
 writes the last 10 lines of the file to stdout.  If no file is given, tail reads
 from stdin.
-.SH OPTIONS
-.TP
-.BI \-n " lines"
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl n Ar lines
 outputs the given number of lines.  If
-.I lines
+.El
+.Ar lines
 begins with '+' it is used as an offset from the beginning of the file.
-.SH SEE ALSO
-.IR head (1)
+.Sh SEE ALSO
+.Xr head 1

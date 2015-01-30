@@ -1,25 +1,27 @@
-.TH WC 1 sbase\-VERSION
-.SH NAME
-wc \- word count
-.SH SYNOPSIS
-.B wc
-.RB [ \-clmw ]
-.RI [ file ...]
-.SH DESCRIPTION
-.B wc
+.Dd January 30, 2015
+.Dt WC 1 sbase\-VERSION
+.Os
+.Sh NAME
+.Nm wc
+.Nd word count
+.Sh SYNOPSIS
+.Nm
+.Op Fl clmw
+.Op Ar file ...
+.Sh DESCRIPTION
+.Nm
+.Pp
 prints the number of lines, words, and bytes in each file.  If any flags are
 given, wc will print only the requested information.  If no files are given, wc
 reads stdin.
-.SH OPTIONS
-.TP
-.B \-c
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl c
 print the number of bytes.
-.TP
-.B \-l
+.It Fl l
 print the number of lines.
-.TP
-.B \-m
+.It Fl m
 print the number of characters, not bytes.
-.TP
-.B \-w
+.It Fl w
 print the number of words.
+.El
