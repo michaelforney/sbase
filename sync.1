@@ -1,14 +1,17 @@
-.TH SYNC 1 sbase\-VERSION
-.SH NAME
-sync \- flush disk cache
-.SH SYNOPSIS
-.B sync
-.SH DESCRIPTION
-.B sync
+.Dd January 30, 2015
+.Dt SYNC 1 sbase\-VERSION
+.Os
+.Sh NAME
+.Nm sync
+.Nd flush disk cache
+.Sh SYNOPSIS
+.Nm
+.Sh DESCRIPTION
+.Nm
 invokes
-.IR sync(2)
+.Xr sync 2
 to flush all unwritten changes to the disk. This is
 usually done before shutting down, rebooting or halting.
-
-.SH SEE ALSO
-.IR sync (2)  fsync (2)
+.Sh SEE ALSO
+.Xr fsync 2 ,
+.Xr sync 2
