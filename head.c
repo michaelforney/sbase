@@ -44,7 +44,7 @@ main(int argc, char *argv[])
 		n = estrtonum(EARGF(usage()), 0, LONG_MAX);
 		break;
 	ARGNUM:
-		n = ARGNUMF(0);
+		n = ARGNUMF();
 		break;
 	default:
 		usage();

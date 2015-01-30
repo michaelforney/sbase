@@ -35,7 +35,7 @@ main(int argc, char *argv[])
 			tail = dropinit;
 		break;
 	ARGNUM:
-		n = ARGNUMF(0);
+		n = ARGNUMF();
 		break;
 	default:
 		usage();
