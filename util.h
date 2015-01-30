@@ -32,6 +32,7 @@ void weprintf(const char *, ...);
 
 double estrtod(const char *);
 long estrtol(const char *, int);
+unsigned long estrtoul(const char *, int);
 
 #undef strcasestr
 char *strcasestr(const char *, const char *);
