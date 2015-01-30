@@ -13,7 +13,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	unsigned long seconds;
+	unsigned int seconds;
 
 	ARGBEGIN {
 	default:
