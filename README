@@ -56,7 +56,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =  readlink        non-posix                       none
 =* renice          yes                             none
 =* rm              yes                             (-i)
-=  rmdir           no                              -p
+=* rmdir           yes                             none
 =  setsid          non-posix                       none
 =  sleep           yes                             none
    sort            no                              -m, -o, -d, -f, -i

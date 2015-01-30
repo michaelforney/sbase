@@ -1,25 +1,32 @@
-.TH RMDIR  1 sbase\-VERSION
-.SH NAME
-rmdir \- remove a directory
-.SH SYNOPSIS
-.B rmdir
-.I directory...
-.SH DESCRIPTION
-.B rmdir
-attempts to remove all non-full directories specified
-by
-.IR directory.
-.SH BUGS
-Subdirectories are removed in the order specified, so
-.nf
-	rmdir foo/bar foo
-.fi
-will be successful, but
-.nf
-	rmdir foo foo/bar
-.fi
-will only succeed in removing
-.BR foo/bar.
-
-.SH SEE ALSO
-.IR rm (1) rmdir (2) unlink (1) unlink (2)
+.Dd January 30, 2015
+.Dt RMDIR 1 sbase\-VERSION
+.Sh NAME
+.Nm rmdir
+.Nd remove directories
+.Sh SYNOPSIS
+.Nm rmdir
+.Op Fl p
+.Ar directory ...
+.Sh DESCRIPTION
+.Nm
+removes each empty
+.Ar directory .
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl p
+Remove
+.Ar directory
+and its parents in the pathname
+.Ar directory .
+.El
+.Sh SEE ALSO
+.Xr rm 1 ,
+.Xr rmdir 2 ,
+.Xr unlink 1 ,
+.Xr unlink 2
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.
