@@ -1,42 +1,44 @@
-.TH CP 1 sbase\-VERSION
-.SH NAME
-cp \- copy files and directories
-.SH SYNOPSIS
-.B cp
-.RB [ \-Rr ]
-.I file
-.RI [ name ]
-.P
-.B cp
-.RB [ \-aPpRrv ]
-.RI [ file ...]
-.RI [ directory ]
-.SH DESCRIPTION
-.B cp
+.Dd January 30, 2015
+.Dt CP 1 sbase\-VERSION
+.Os
+.Sh NAME
+.Nm cp
+.Nd copy files and directories
+.Sh SYNOPSIS
+.Nm
+.Op Fl Rr
+.Ar file
+.Op Ar name
+.Nm
+.Op Fl aPpRrv
+.Op Ar file ...
+.Op Ar directory
+.Sh DESCRIPTION
+.Nm
 copies a given file, naming it the given name.  If multiple files are listed
 they will be copied into the given directory.
-.SH OPTIONS
-.TP
-.B \-a
-preserve mode, timestamp, links and permissions.
-Implies \-d, \-p, \-r.
-.TP
-.B \-P
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl a
+preserve mode, timestamp, links and permissions. Implies
+.Fl d ,
+.Fl p
+and
+.Fl r .
+.It Fl P
 don't dereference symbolic links.
-.TP
-.B \-p
+.It Fl p
 preserve mode, timestamp and permissions.
-.TP
-.B \-f
+.It Fl f
 if an existing destination file cannot be opened, remove it and try again.
-.TP
-.B \-R
+.It Fl R
 equivalent to -r.
-.TP
-.B \-r
+.It Fl r
 copies directories recursively.  If this flag is not specified, directories are
 not copied.
-.TP
-.B \-v
+.It Fl v
 print names of source and destination per file to stdout. In the format:
 "source \-> destination".
+.El
+.Sh SEE ALSO
+.Xr mv 1
