@@ -1,12 +1,17 @@
-.TH MD5SUM 1 sbase\-VERSION
-.SH NAME
-md5sum \- compute MD5 message digest
-.SH SYNOPSIS
-.B md5sum
-.RB [\-c]
-.RI [ file ...]
-.TP
-.B \-c
-read list of MD5 checksums from file and check them
-.SH DESCRIPTION
+.Dd January 30, 2015
+.Dt MD5SUM 1 sbase\-VERSION
+.Os
+.Sh NAME
+.Nm md5sum
+.Nd compute MD5 message digest
+.Sh SYNOPSIS
+.Nm
+.Op Fl c
+.Op Ar file ...
+.Sh DESCRIPTION
 Print MD5 (128-bit) checksums. With no file, read standard input.
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl c
+read list of MD5 checksums from file and check them
+.El

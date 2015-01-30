@@ -1,12 +1,17 @@
-.TH SHA512SUM 1 sbase\-VERSION
-.SH NAME
-sha512sum \- compute SHA512 message digest
-.SH SYNOPSIS
-.B sha512sum
-.RB [\-c]
-.RI [ file ...]
-.TP
-.B \-c
-read list of SHA512 checksums from file and check them
-.SH DESCRIPTION
+.Dd January 30, 2015
+.Dt SHA512SUM 1 sbase\-VERSION
+.Os
+.Sh NAME
+.Nm sha512sum
+.Nd compute SHA512 message digest
+.Sh SYNOPSIS
+.Nm
+.Op Fl c
+.Op Ar file ...
+.Sh DESCRIPTION
 Print SHA512 (512-bit) checksums. With no file, read standard input.
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl c
+read list of SHA512 checksums from file and check them
+.El

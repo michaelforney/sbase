@@ -1,12 +1,17 @@
-.TH SHA256SUM 1 sbase\-VERSION
-.SH NAME
-sha256sum \- compute SHA256 message digest
-.SH SYNOPSIS
-.B sha256sum
-.RB [\-c]
-.RI [ file ...]
-.TP
-.B \-c
-read list of SHA256 checksums from file and check them
-.SH DESCRIPTION
+.Dd January 30, 2015
+.Dt SHA256SUM 1 sbase\-VERSION
+.Os
+.Sh NAME
+.Nm sha256sum
+.Nd compute SHA256 message digest
+.Sh SYNOPSIS
+.Nm
+.Op Fl c
+.Op Ar file ...
+.Sh DESCRIPTION
 Print SHA256 (256-bit) checksums. With no file, read standard input.
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl c
+read list of SHA256 checksums from file and check them
+.El
