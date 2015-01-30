@@ -65,3 +65,15 @@ strtonum(const char *numstr, long long minval, long long maxval,
 
 	return (ll);
 }
+
+long long
+estrtonum(const char *numstr, long long minval, long long maxval)
+{
+	const char *errstr;
+	long long ll;
+
+	ll = strtonum(numstr, minval, maxval, &errstr);
+	if (errstr)
+		eprintf("strtonum %s: invalid value\n", numstr);
+	return ll;
+}
