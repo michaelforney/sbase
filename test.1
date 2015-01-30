@@ -1,96 +1,75 @@
-.TH TEST 1 sbase\-VERSION
-.SH NAME
-test \- check file types and compare values
-.SH SYNOPSIS
-.B test
-.RB EXPRESSION
-.SH DESCRIPTION
-.B Exit with the status determined by EXPRESSION.
-.SH OPTIONS
-.TP
-.B ! EXPRESSION
-invert EXPORESSION
-.TP
-.B \-b FILE
+.Dd January 30, 2015
+.Dt TEST 1 sbase\-VERSION
+.Os
+.Sh NAME
+.Nm test
+.Nd check file types and compare values
+.Sh SYNOPSIS
+.Nm
+.Ar EXPRESSION
+.Sh DESCRIPTION
+Exit with the status determined by
+.Ar EXPRESSION .
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It ! Ar EXPRESSION
+invert EXPRESSION
+.It Fl b Ar FILE
 FILE exists and is block special
-.TP
-.B \-c FILE
+.It Fl c Ar FILE
 FILE exists and is character special
-.TP
-.B \-d FILE
+.It Fl d Ar FILE
 FILE exists and is a directory
-.TP
-.B \-e FILE
+.It Fl e Ar FILE
 FILE exists
-.TP
-.B \-f FILE
-ILE exists and is a regular file
-.TP
-.B \-g FILE
+.It Fl f Ar FILE
+FILE exists and is a regular file
+.It Fl g Ar FILE
 FILE exists and is set-group-ID
-.TP
-.B \-k FILE
+.It Fl h Ar FILE
+FILE exists and is a symbolic link (same as
+.Fl L )
+.It Fl k Ar FILE
 FILE exists and its sticky bit is set
-.TP
-.B \-h FILE
-FILE exists and is a symbolic link (same as -L)
-.TP
-.B \-L FILE
-FILE exists and is a symbolic link (same as -h)
-.TP
-.B \-n STRING
+.It Fl L Ar FILE
+FILE exists and is a symbolic link (same as
+.Fl h )
+.It Fl n Ar STRING
 the length of STRING is nonzero
-.TP
-.B \-p FILE
+.It Fl p Ar FILE
 FILE exists and is a named pipe
-.TP
-.B \-r FILE
+.It Fl r Ar FILE
 FILE exists and read permission is granted
-.TP
-.B \-S FILE
+.It Fl S Ar FILE
 FILE exists and is a socket
-.TP
-.B \-s FILE
+.It Fl s Ar FILE
 FILE exists and has a size greater than zero
-.TP
-.B \-t FD
+.It Fl t Ar FD
 file descriptor FD is opened on a terminal
-.TP
-.B \-u FILE
+.It Fl u Ar FILE
 exists and its set-user-ID bit is set
-.TP
-.B \-w FILE
+.It Fl w Ar FILE
 FILE exists and write permission is granted
-.TP
-.B \-x FILE
+.It Fl x Ar FILE
 FILE exists and execute (or search) permission is granted
-.TP
-.B \-z STRING
+.It Fl z Ar STRING
 the length of STRING is zero
-.TP
-.B s1 = s2
+.It s1 = s2
 True if the strings s1 and s2 are identical
-.TP
-.B s1 != s2
+.It s1 != s2
 True if the strings s1 and s2 are not identical
-.TP
-.B s1
+.It s1
 True if s1 is not the null string
-.TP
-.B n1 -eq n2
+.It n1 -eq n2
 True if the integers n1 and n2 are equal
-.TP
-.B n1 -ne n2
+.It n1 -ne n2
 True if the integers n1 and n2 are not equal
-.TP
-.B n1 -gt n2
+.It n1 -gt n2
 True if the integer n1 is greater than the integer n2
-.TP
-.B n1 -ge n2
+.It n1 -ge n2
 True if the integer n1 is great than or equal to the integer n2
-.TP
-.B n1 -lt n2
+.It n1 -lt n2
 True if the integer n1 is less than the integer n2
-.TP
-.B n1 -le n2
+.It n1 -le n2
 True if the integer n1 is less than or equal to the integer n2
+.El
