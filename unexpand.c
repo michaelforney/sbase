@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <wchar.h>
@@ -25,7 +26,7 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	case 't':
-		tabsize = estrtol(EARGF(usage()), 0);
+		tabsize = estrtonum(EARGF(usage()), 0, INT_MAX);
 		if (tabsize <= 0)
 			eprintf("unexpand: invalid tabsize\n");
 		/* Fallthrough: -t implies -a */

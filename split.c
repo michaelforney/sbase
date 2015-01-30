@@ -63,10 +63,10 @@ main(int argc, char *argv[])
 		always = 0;
 		tmp = ARGF();
 		if (tmp)
-			size = estrtol(tmp, 10);
+			size = estrtonum(tmp, 0, LLONG_MAX);
 		break;
 	case 'a':
-		slen = estrtol(EARGF(usage()), 10);
+		slen = estrtonum(EARGF(usage()), 0, INT_MAX);
 		break;
 	case 'd':
 		base = 10;

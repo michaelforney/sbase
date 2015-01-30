@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <limits.h>
 #include <regex.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,7 +38,7 @@ main(int argc, char *argv[])
 			usage();
 		break;
 	case 'i':
-		incr = estrtol(EARGF(usage()), 0);
+		incr = estrtonum(EARGF(usage()), 0, LONG_MAX);
 		break;
 	case 's':
 		sep = EARGF(usage());

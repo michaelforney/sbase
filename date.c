@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -25,7 +26,7 @@ main(int argc, char *argv[])
 	t = time(NULL);
 	ARGBEGIN {
 	case 'd':
-		t = estrtol(EARGF(usage()), 0);
+		t = estrtonum(EARGF(usage()), 0, LLONG_MAX);
 		break;
 	case 'u':
 		tztime = gmtime;

@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -97,7 +98,7 @@ digitsleft(const char *d)
 	if (*d == '+')
 		d++;
 	exp = strpbrk(d, "eE");
-	shift = exp ? estrtol(&exp[1], 10) : 0;
+	shift = exp ? estrtonum(&exp[1], -INT_MAX, INT_MAX) : 0;
 
 	return MAX(0, strspn(d, "-0123456789") + shift);
 }
@@ -109,7 +110,7 @@ digitsright(const char *d)
 	int shift, after;
 
 	exp = strpbrk(d, "eE");
-	shift = exp ? estrtol(&exp[1], 10) : 0;
+	shift = exp ? estrtonum(&exp[1], -INT_MAX, INT_MAX) : 0;
 	after = (d = strchr(d, '.')) ? strspn(&d[1], "0123456789") : 0;
 
 	return MAX(0, after - shift);

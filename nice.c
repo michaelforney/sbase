@@ -12,7 +12,7 @@
 static void
 usage(void)
 {
-	eprintf("usage: nice [-n inc] cmd [arg ...]\n");
+	eprintf("usage: %s [-n inc] cmd [arg ...]\n", argv0);
 }
 
 int
@@ -23,7 +23,7 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	case 'n':
-		val = estrtol(EARGF(usage()), 10);
+		val = estrtonum(EARGF(usage()), PRIO_MIN, PRIO_MAX);
 		break;
 	default:
 		usage();

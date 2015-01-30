@@ -39,8 +39,6 @@ LIBUTILSRC =\
 	libutil/eprintf.c\
 	libutil/eregcomp.c\
 	libutil/estrtod.c\
-	libutil/estrtol.c\
-	libutil/estrtoul.c\
 	libutil/fnck.c\
 	libutil/getlines.c\
 	libutil/human.c\

@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -40,7 +41,7 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	case 'n':
-		n = estrtol(EARGF(usage()), 0);
+		n = estrtonum(EARGF(usage()), 0, LONG_MAX);
 		break;
 	ARGNUM:
 		n = ARGNUMF(0);

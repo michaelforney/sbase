@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,9 +22,7 @@ parselist(const char *s)
 		if (*p == '\0')
 			eprintf("empty field in tablist\n");
 		tablist = erealloc(tablist, (i + 1) * sizeof(*tablist));
-		tablist[i] = estrtol(p, 10);
-		if (!tablist[i] || tablist[i] < 0)
-			eprintf("tab field must be positive\n");
+		tablist[i] = estrtonum(p, 1, LLONG_MAX);
 		if (i > 0 && tablist[i - 1] >= tablist[i])
 			eprintf("tablist must be ascending\n");
 	}

@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,7 +30,7 @@ main(int argc, char *argv[])
 	ARGBEGIN {
 	case 'n':
 		lines = EARGF(usage());
-		n = abs(estrtol(lines, 0));
+		n = estrtonum(lines, 0, LONG_MAX);
 		if (lines[0] == '+')
 			tail = dropinit;
 		break;

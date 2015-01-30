@@ -1,6 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 #include <errno.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <time.h>
@@ -64,7 +65,7 @@ main(int argc, char *argv[])
 		mflag = 1;
 		break;
 	case 't':
-		t = estrtol(EARGF(usage()), 0);
+		t = estrtonum(EARGF(usage()), 0, LLONG_MAX);
 		break;
 	default:
 		usage();

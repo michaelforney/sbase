@@ -53,7 +53,7 @@ main(int argc, char *argv[])
 		break;
 	case 'd':
 		dflag = 1;
-		depth = estrtol(EARGF(usage()), 0);
+		depth = estrtonum(EARGF(usage()), 0, LONG_MAX);
 		break;
 	case 's':
 		sflag = 1;
@@ -73,7 +73,7 @@ main(int argc, char *argv[])
 
 	bsize = getenv("BLOCKSIZE");
 	if (bsize)
-		blksize = estrtol(bsize, 0);
+		blksize = estrtonum(bsize, 0, LONG_MAX);
 
 	if (kflag)
 		blksize = 1024;

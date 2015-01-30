@@ -1,5 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 #include <assert.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,9 +36,7 @@ main(int argc, char *argv[])
 	ARGBEGIN {
 	case 'c':
 		cflag = 1;
-		chars = estrtol(EARGF(usage()), 0);
-		if (chars < 3)
-			eprintf("%d: too few character columns");
+		chars = estrtonum(EARGF(usage()), 3, LONG_MAX);
 		break;
 	default:
 		usage();

@@ -46,7 +46,7 @@ extern char *argv0;
 
 #define ARGC()		argc_
 
-#define ARGNUMF(base)	(brk_ = 1, estrtol(argv[0], (base)))
+#define ARGNUMF(base)	(brk_ = 1, estrtonum(argv[0], 0, INT_MAX))
 
 #define EARGF(x)	((argv[0][1] == '\0' && argv[1] == NULL)?\
 				((x), abort(), (char *)0) :\

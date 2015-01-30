@@ -48,7 +48,7 @@ main(int argc, char *argv[])
 	if (argc == 0 || !adj)
 		usage();
 
-	val = estrtol(adj, 10);
+	val = estrtonum(adj, PRIO_MIN, PRIO_MAX);
 	for (i = 0; i < argc; i++) {
 		who = -1;
 		if (which == PRIO_USER) {
