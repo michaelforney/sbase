@@ -1,32 +1,32 @@
-.TH UNAME 1 sbase\-VERSION
-.SH NAME
-uname \- print system information
-.SH SYNOPSIS
-.B uname
-.RB [ \-amnrsv ]
-.SH DESCRIPTION
-.B uname
-prints system information.  If no flags are given, uname will print only the
-name of the operating system
-.RB ( \-s ).
-.SH OPTIONS
-.TP
-.B \-a
+.Dd January 30, 2015
+.Dt UNAME 1 sbase\-VERSION
+.Os
+.Sh NAME
+.Nm uname
+.Nd print system information
+.Sh SYNOPSIS
+.Nm
+.Op Fl amnrsv
+.Sh DESCRIPTION
+.Nm
+prints system information. If no flags are given, uname will print only the
+name of the operating system as
+.Fl s
+would.
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl a
 print all the information below.
-.TP
-.B \-m
+.It Fl m
 print the machine's architecture.
-.TP
-.B \-n
+.It Fl n
 print the system's network name.
-.TP
-.B \-r
+.It Fl r
 print the operating system's release name.
-.TP
-.B \-s
+.It Fl s
 print the name of the operating system.
-.TP
-.B \-v
+.It Fl v
 print the operating system's version name.
-.SH SEE ALSO
-.IR uname (2)
+.El
+.Sh SEE ALSO
+.Xr uname 2

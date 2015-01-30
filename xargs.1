@@ -1,50 +1,55 @@
-.TH XARGS 1 sbase\-VERSION
-.SH NAME
-xargs \- constuct argument list(s) and execute command
-.SH SYNOPSIS
-.B xargs
-.RB [\-n
-.IR maxargs ]
-.RB [ \-r ]
-.RB [ \-E
-.IR eofstr ]
-.RI [ cmd
-.IR [arg... ] ]
-.SH DESCRIPTION
+.Dd January 30, 2015
+.Dt XARGS 1 sbase\-VERSION
+.Os
+.Sh NAME
+.Nm xargs
+.Nd constuct argument list(s) and execute command
+.Sh SYNOPSIS
+.Nm
+.Op Fl n Ar maxargs
+.Op Fl r
+.Op Fl E Ar eofstr
+.Op Ar cmd Op Ar arg...
+.Sh DESCRIPTION
 xargs reads space, tab, newline and EOF delimited strings from stdin
 and executes the specified cmd with the strings as arguments.
-
+.Pp
 Any arguments specified on the command line are given to the command upon
 each invocation, followed by some number of the arguments read from
 stdin.  The command is repeatedly executed one or more times until stdin
 is exhausted.
-
+.Pp
 Spaces, tabs and newlines may be embedded in arguments using single (`'')
 or double (`"') quotes or backslashes ('\\').  Single quotes escape all
 non-single quote characters, excluding newlines, up to the matching single
 quote.  Double quotes escape all non-double quote characters, excluding
 newlines, up to the matching double quote.  Any single character, including
 newlines, may be escaped by a backslash.
-.SH OPTIONS
-.TP
-.B \-n maxargs
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl n Ar maxargs
 Use at most maxargs arguments per command line.
-.TP
-.BI \-r
+.It Fl r
 Do not run the command if there are no arguments.  Normally the command is
 executed at least once even if there are no arguments.
-.TP
-.B \-E eofstr
+.It Fl E Ar eofstr
 Use eofstr as a logical EOF marker.
-.SH EXIT STATUS
+.El
+.Sh EXIT STATUS
 xargs exits with one of the following values:
-
-           0       All invocations of command returned a zero exit
-                   status.
-           123     One or more invocations of command returned a
-                   nonzero exit status.
-           124     The command exited with a 255 exit status.
-           125     The command was killed or stopped by a signal.
-           126     The command was found but could not be executed.
-           127     The command could not be found.
-           1       Some other error occurred.
+.Bl -tag -width Ds
+.It 0
+All invocations of command returned a zero exit status.
+.It 123
+One or more invocations of command returned a nonzero exit status.
+.It 124
+The command exited with a 255 exit status.
+.It 125
+The command was killed or stopped by a signal.
+.It 126
+The command was found but could not be executed.
+.It 127
+The command could not be found.
+.It 1
+Some other error occurred.
+.El
