@@ -16,7 +16,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	int   pflag = 0;
+	int   pflag = 0, ret = 0;
 	char *d;
 
 	ARGBEGIN {
@@ -33,10 +33,9 @@ main(int argc, char *argv[])
 	for (; argc > 0; argc--, argv++) {
 		if (rmdir(argv[0]) < 0) {
 			weprintf("rmdir %s:", argv[0]);
-			if (pflag)
-				return 1;
+			ret = 1;
 		}
-		if (pflag) {
+		if (pflag && !ret) {
 			d = dirname(argv[0]);
 			for (; strcmp(d, "/") && strcmp(d, ".") ;) {
 				if (rmdir(d) < 0)
@@ -45,5 +44,5 @@ main(int argc, char *argv[])
 			}
 		}
 	}
-	return 0;
+	return ret;
 }
