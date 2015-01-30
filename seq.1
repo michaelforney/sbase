@@ -1,36 +1,34 @@
-.TH SEQ 1 sbase\-VERSION
-.SH NAME
-seq \- print a sequence of numbers
-.SH SYNOPSIS
-.B seq
-.RB [ \-w ]
-.RB [ \-f
-.IR fmt ]
-.RB [ \-s
-.IR separator ]
-.RI [ start
-.RI [ step ]]
-.IR end
-.SH DESCRIPTION
-.B seq
+.Dd January 30, 2015
+.Dt SEQ 1 sbase\-VERSION
+.Os
+.Sh NAME
+.Nm seq
+.Nd print a sequence of numbers
+.Sh SYNOPSIS
+.Nm
+.Op Fl w
+.Op Fl f Ar fmt
+.Op Fl s Ar separator
+.Op Ar start Op Ar step
+.Ar end
+.Sh DESCRIPTION
+.Nm
 will print a sequence of numbers from
-.I start
+.Ar start
 (default 1) to
-.IR end ,
+.Ar end ,
 in
-.IR step
+.Ar step
 intervals (default 1).
-.SH OPTIONS
-.TP
-.BI \-f " format"
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl f Ar format
 specifies the format used for output lines, as per
-.IR printf (3).
-.TP
-.BI \-s " separator"
+.Xr printf 3 .
+.It Fl s Ar separator
 specifies the separator to print between output lines
-.TP
-.BI \-w
+.It Fl w
 tells seq to print out lines in equal width
-
-.SH SEE ALSO
-.IR printf (3)
+.El
+.Sh SEE ALSO
+.Xr printf 3
