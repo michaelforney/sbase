@@ -1,16 +1,19 @@
-.TH UUENCODE 1 sbase\-VERSION
-.SH NAME
-uuencode \- encode a binary file
-.SH SYNOPSIS
-.B uuencode
-.RI [file]
-.RB name
-.SH DESCRIPTION
-.B uuencode
+.Dd January 30, 2015
+.Dt UUENCODE 1 sbase\-VERSION
+.Os
+.Sh NAME
+.Nm uuencode
+.Nd encode a binary file
+.Sh SYNOPSIS
+.Nm
+.Op Ar file
+.Ar name
+.Sh DESCRIPTION
+.Nm
 reads file (or by default, the standard input) and writes an encoded
 version to the standard output.  The encoding uses only printing ASCII
 characters and includes the mode of the file and the operand name
 for use by uudecode.
-.SH NOTES
+.Sh IMPLEMENTATION NOTES
 This version of uuencode does not currently support the base64
 encoding algorithm.

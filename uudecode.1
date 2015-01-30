@@ -1,17 +1,20 @@
-.TH UUDECODE 1 sbase\-VERSION
-.SH NAME
-uudecode \- decode a uuencoded file
-.SH SYNOPSIS
-.B uudecode
-.RI [file]
-.SH DESCRIPTION
-.B uudecode
+.Dd January 30, 2015
+.Dt UUDECODE 1 sbase\-VERSION
+.Os
+.Sh NAME
+.Nm uudecode
+.Nd decode a uuencoded file
+.Sh SYNOPSIS
+.Nm
+.Op Ar file
+.Sh DESCRIPTION
+.Nm
 reads file (or by default, the standard input) and writes a decoded
 version to the file specified in the uuencoded header. In case that
 the file already exists, it is truncated. Otherwise a new file is
 created. After the operation the permissions of the created/accessed
 are changed to reflect the mode in the header.
-.SH NOTES
+.Sh IMPLEMENTATION NOTES
 This version of uudecode does not currently support the base64
 encoding algorithm.
 For safety currently uudecode operates only on regular files and
