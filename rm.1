@@ -1,22 +1,40 @@
-.TH RM 1 sbase\-VERSION
-.SH NAME
-rm \- remove files and directories
-.SH SYNOPSIS
-.B rm
-.RB [ \-fRr ]
-.RI [ file ...]
-.SH DESCRIPTION
-.B rm
-removes the given files and directories.
-.SH OPTIONS
-.TP
-.B \-f
-ignore files that cannot be removed.
-.TP
-.B \-R
-equivalent to -r.
-.TP
-.B \-r
-remove directories recursively.
-.SH SEE ALSO
-.IR remove (3)
+.Dd January 30, 2015
+.Dt RM 1 sbase\-VERSION
+.Sh NAME
+.Nm rm
+.Nd remove directory entries
+.Sh SYNOPSIS
+.Nm rm
+.Op Fl f | Fl i
+.Op Fl Rr
+.Ar file ...
+.Sh DESCRIPTION
+.Nm
+removes each
+.Ar file .
+If
+.Ar file
+is a directory, it has to be empty unless
+.Fl R
+or
+.Fl r
+is specified.
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl f | Fl i
+Do not prompt | Prompt before removing
+.Ar file .
+In the former case, do not report when
+.Ar file
+doesn't exist or couldn't be removed.
+.It Fl Rr
+Remove directories recursively.
+.El
+.Sh SEE ALSO
+.Xr remove 3
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification except from prompting.
