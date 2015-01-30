@@ -74,6 +74,6 @@ estrtonum(const char *numstr, long long minval, long long maxval)
 
 	ll = strtonum(numstr, minval, maxval, &errstr);
 	if (errstr)
-		eprintf("strtonum %s: invalid value\n", numstr);
+		eprintf("strtonum %s: %s\n", numstr, errstr);
 	return ll;
 }
