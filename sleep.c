@@ -23,7 +23,7 @@ main(int argc, char *argv[])
 	if (argc < 1)
 		usage();
 
-	seconds = estrtoul(argv[0], 0);
+	seconds = estrtonum(argv[0], 0, UINT_MAX);
 	while ((seconds = sleep(seconds)) > 0)
 		;
 	return 0;
