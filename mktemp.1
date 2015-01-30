@@ -1,25 +1,28 @@
-.TH MKTEMP 1 sbase\-VERSION
-.SH NAME
-mktemp \- make temporary filename
-.SH SYNOPSIS
-.B mktemp
-.RB [ \-dq ]
-.RB [ template ]
-.SH DESCRIPTION
-.B mktemp
+.Dd January 30, 2015
+.Dt MKTEMP 1 sbase\-VERSION
+.Os
+.Sh NAME
+.Nm mktemp
+.Nd make temporary filename
+.Sh SYNOPSIS
+.Nm
+.Op Fl dq
+.Op Ar template
+.Sh DESCRIPTION
+.Nm
 takes the given filename template and overwrites a portion of it
 to create a unique filename.  The template may be any filename with at least
 six `Xs' appended to it.  If no template is specified a default of
 `tmp.XXXXXXXXXX' is used and the tmpdir is set to `/tmp' unless the
 TMPDIR envrionment variable has been set.
-.SH OPTIONS
-.TP
-.B \-d
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl d
 Make a directory instead of a file
-.TP
-.B \-q
+.It Fl q
 Fail silently if an error occurs.  This is useful if a script
 does not want error output to go to standard error.
-.SH SEE ALSO
-.IR mkdtemp (3),
-.IR mkstemp (3)
+.El
+.Sh SEE ALSO
+.Xr mkdtemp 3 ,
+.Xr mkstemp 3
