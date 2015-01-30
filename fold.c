@@ -53,7 +53,7 @@ foldline(const char *str, size_t width)
 }
 
 static void
-fold(FILE *fp, long width)
+fold(FILE *fp, size_t width)
 {
 	char *buf = NULL;
 	size_t size = 0;
