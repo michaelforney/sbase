@@ -10,12 +10,15 @@
 .Op Ar file
 .Sh DESCRIPTION
 .Nm
-writes the last 10 lines of the file to stdout.  If no file is given, tail reads
-from stdin.
+writes the last 10 lines of the file to stdout. If no
+.Ar file
+is given,
+.Nm
+reads from stdin.
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl n Ar lines
-outputs the given number of lines.  If
+outputs the given number of lines. If
 .Ar lines
 begins with '+' it is used as an offset from the beginning of the file.
 .El

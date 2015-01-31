@@ -10,21 +10,29 @@
 .Op Ar file ...
 .Sh DESCRIPTION
 .Nm
-reads each file in sequence and writes them to stdout,
-in as many vertical columns as will fit in
+reads each file in sequence and writes them to stdout, in as many vertical
+columns as will fit in
 .Ar chars
-character columns.
-If no file is given, cols reads from stdin.
+character columns. If no
+.Ar file
+is given,
+.Nm
+reads from stdin.
 .Sh OPTIONS
 .Bl -tag -width xxxxxxxx
 .It Fl c Ar chars
 Specifies the maximum number of character columns to use
 (unless the input contains lines longer than
 .Ar chars
-characters).  By default cols tries to figure out the width
-of the output device, if that fails it defaults to 65
-chars.
+characters). By default cols tries to figure out the width of the output
+device, if that fails it defaults to 65 chars.
 .El
+.Sh HISTORY
+.Nm
+is similar to the mc(1) command on Plan 9. It was renamed to
+.Nm
+to avoid the name collision with the popular file manager
+Midnight Commander.
 .Sh BUGS
 This implementation of
 .Nm
@@ -33,9 +41,3 @@ and thus mishandles TAB characters (among others).
 .Pp
 .Nm
 currently mangles files which contain embedded NULs.
-.Sh HISTORY
-.Nm
-is similar to the mc(1) command on Plan 9.  It was renamed to
-.Nm
-to avoid the name collision with the popular file manager
-Midnight Commander.

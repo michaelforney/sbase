@@ -10,17 +10,17 @@
 .Op Ar template
 .Sh DESCRIPTION
 .Nm
-takes the given filename template and overwrites a portion of it
-to create a unique filename.  The template may be any filename with at least
-six `Xs' appended to it.  If no template is specified a default of
-`tmp.XXXXXXXXXX' is used and the tmpdir is set to `/tmp' unless the
-TMPDIR envrionment variable has been set.
+takes the given filename template and overwrites a portion of it to create a
+unique filename. The template may be any filename with at least six `Xs'
+appended to it. If no template is specified a default of `tmp.XXXXXXXXXX' is
+used and the tmpdir is set to `/tmp' unless the TMPDIR envrionment variable
+has been set.
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl d
 Make a directory instead of a file
 .It Fl q
-Fail silently if an error occurs.  This is useful if a script
+Fail silently if an error occurs. This is useful if a script
 does not want error output to go to standard error.
 .El
 .Sh SEE ALSO

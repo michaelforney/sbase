@@ -17,7 +17,7 @@ searches the input files for lines that match the
 .Ar pattern ,
 a regular expression as defined in
 .Xr regex 7 .
-By default each matching line is printed to stdout.  If no file is given
+By default each matching line is printed to stdout. If no file is given
 .Nm
 reads from stdin.
 .Sh OPTIONS
@@ -25,8 +25,8 @@ reads from stdin.
 .It Fl E
 Match using extended regex.
 .It Fl F
-Match using fixed strings.  Treat each pattern specified as a string instead of a regular
-expression.
+Match using fixed strings. Treat each pattern specified as a string instead of
+a regular expression.
 .It Fl H
 Prefix each matching line with its filename in the output. This is the
 default when there is more than one file specified.
@@ -54,7 +54,8 @@ Prefix each matching line with its line number in the input.
 .It Fl q
 Print nothing, only return status.
 .It Fl s
-Suppress the error messages ordinarily written for nonexistent or unreadable files.
+Suppress the error messages ordinarily written for nonexistent or unreadable
+files.
 .It Fl v
 Select lines which do
 .Sy not
@@ -62,8 +63,9 @@ match the pattern.
 .It Fl w
 The expression is searched for as a word (as if surrounded by '\<' and '\>').
 .It Fl x
-Consider only input lines that use all characters in the line excluding the terminating <newline> to
-match an entire fixed string or regular expression to be matching lines.
+Consider only input lines that use all characters in the line excluding the
+terminating <newline> to match an entire fixed string or regular expression to
+be matching lines.
 .El
 .Sh EXIT STATUS
 .Bl -tag -width Ds
@@ -75,8 +77,8 @@ No lines were matched.
 An error occurred.
 .El
 .Sh SEE ALSO
-.Xr regex 7 ,
-.Xr sed 1
+.Xr sed 1 ,
+.Xr regex 7
 .Sh STANDARDS
 The
 .Nm

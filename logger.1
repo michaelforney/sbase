@@ -20,10 +20,10 @@ system log module.
 .It Fl i
 Log the process ID of the logger process with each line.
 .It Fl p Ar priority
-Enter the message with the specified priority.  They priority
-has to be specified symbolically as
+Enter the message with the specified priority. They priority has to be
+specified symbolically as
 .Dq facility.level
-pair.  The default is
+pair. The default is
 .Dq user.notice .
 .It Fl s
 Log the message to standard error, as well as the system log.
@@ -31,12 +31,11 @@ Log the message to standard error, as well as the system log.
 Mark every line in the log with the specified
 .Ar tag .
 .It Ar message
-Write the message to the log; if not specified, standard input
-is logged.
+Write the message to the log; if not specified, standard input is logged.
 .El
 .Sh SEE ALSO
-.Xr syslog 3 ,
-.Xr syslogd 1
+.Xr syslogd 1 ,
+.Xr syslog 3
 .Sh STANDARDS
 The
 .Nm
