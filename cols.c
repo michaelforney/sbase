@@ -11,12 +11,12 @@
 #include "utf.h"
 #include "util.h"
 
-static long chars = 65;
+static size_t chars = 65;
 static int cflag;
 static struct linebuf b = EMPTY_LINEBUF;
 
-static long n_columns;
-static long n_rows;
+static size_t n_columns;
+static size_t n_rows;
 
 static void
 usage(void)
@@ -27,16 +27,14 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	long i, l, col;
-	size_t len, bytes;
-	int maxlen = 0;
+	size_t i, l, col, len, bytes, maxlen = 0;
 	struct winsize w;
 	FILE *fp;
 
 	ARGBEGIN {
 	case 'c':
 		cflag = 1;
-		chars = estrtonum(EARGF(usage()), 3, LONG_MAX);
+		chars = estrtonum(EARGF(usage()), 3, MIN(LLONG_MAX, SIZE_MAX));
 		break;
 	default:
 		usage();
@@ -84,7 +82,7 @@ main(int argc, char *argv[])
 			len = utflen(b.lines[l]);
 			fputs(b.lines[l], stdout);
 			if (col < n_columns)
-				printf("%*s", maxlen + 1 - (int)len, "");
+				printf("%*s", (int)(maxlen + 1 - len), "");
 		}
 		fputs("\n", stdout);
 	}

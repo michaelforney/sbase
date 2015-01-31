@@ -2,8 +2,8 @@
 
 struct linebuf {
 	char **lines;
-	long nlines;
-	long capacity;
+	size_t nlines;
+	size_t capacity;
 };
 #define EMPTY_LINEBUF {NULL, 0, 0,}
 void getlines(FILE *, struct linebuf *);

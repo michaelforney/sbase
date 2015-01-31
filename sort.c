@@ -52,7 +52,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	long i;
+	size_t i;
 	FILE *fp;
 	struct linebuf linebuf = EMPTY_LINEBUF;
 	int global_flags = 0;
