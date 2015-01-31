@@ -18,7 +18,7 @@ struct crypt_ops md5_ops = {
 static void
 usage(void)
 {
-	eprintf("usage: %s [-c] [file...]\n", argv0);
+	eprintf("usage: %s [-c] [file ...]\n", argv0);
 }
 
 int

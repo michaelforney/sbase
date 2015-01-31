@@ -8,7 +8,7 @@
 static void
 usage(void)
 {
-	eprintf("usage: chroot dir [command [arg...]]\n");
+	eprintf("usage: chroot dir [cmd [arg ...]]\n");
 }
 
 int

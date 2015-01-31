@@ -15,7 +15,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =  chgrp           no                              -h, -H, -L, -P
 =* chmod           yes                             none
 =  chown           no                              -h, -H, -L, -P
-=  chroot          non-posix                       none
+=* chroot          non-posix                       none
 =* cksum           yes                             none
    cmp             yes                             none
    cols            non-posix                       none
@@ -41,7 +41,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =* logger          yes                             none
 =* logname         yes                             none
 =  ls              no                              -C, -R, -q, -u
-   md5sum          non-posix                       none
+=* md5sum          non-posix                       none
 =* mkdir           yes                             none
 =* mkfifo          yes                             none
 =  mktemp          non-posix                       none
