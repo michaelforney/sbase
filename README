@@ -34,7 +34,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 #* fold            yes                             none
 =* grep            yes                             none
 =* head            yes                             none
-=  hostname        non-posix                       none
+=* hostname        non-posix                       none
 =* kill            yes                             none
 =* link            yes                             none
 =* ln              yes                             none
