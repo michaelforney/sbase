@@ -168,6 +168,7 @@ install: all
 	cp -f $(BIN) $(DESTDIR)$(PREFIX)/bin
 	cd $(DESTDIR)$(PREFIX)/bin && chmod 755 $(BIN)
 	mkdir -p $(DESTDIR)$(MANPREFIX)/man1
+	for m in $(MAN); do sed "s/.Os sbase/.Os sbase $(VERSION)/g" < "$$m" > $(DESTDIR)$(MANPREFIX)/man1/"$$m"; done
 	cd $(DESTDIR)$(MANPREFIX)/man1 && chmod 644 $(MAN)
 
 uninstall:
