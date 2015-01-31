@@ -57,7 +57,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =* renice          yes                             none
 =* rm              yes                             (-i)
 =* rmdir           yes                             none
-=  setsid          non-posix                       none
+=* setsid          non-posix                       none
 =* sleep           yes                             none
    sort            no                              -m, -o, -d, -f, -i
    split           yes                             none
