@@ -1,21 +1,20 @@
-.Dd January 30, 2015
+.Dd January 31, 2015
 .Dt PRINTENV 1
 .Os sbase
 .Sh NAME
 .Nm printenv
-.Nd print out the environment or the values of specific variables.
+.Nd print the environment or values of variables
 .Sh SYNOPSIS
 .Nm
 .Op Ar var ...
 .Sh DESCRIPTION
 .Nm
-prints the entire environment as key=values pairs when
-no
+prints the entire environment as key=value pairs if no
 .Ar var
-is specified. Otherwise, in the order specified,
+is given. Otherwise,
 .Nm
-prints the value only of each
-.Ar var ,
-one per line.
+prints only the value of each
+.Ar var
+one per line in the order specified.
 .Sh SEE ALSO
 .Xr env 1

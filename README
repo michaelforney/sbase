@@ -50,7 +50,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =  nl              no                              -d, -f, -h, -l, -n, -p, -v, -w
 =* nohup           yes                             none
 #* paste           yes                             none
-=  printenv        non-posix                       none
+=* printenv        non-posix                       none
    printf          stolen                          stolen
 =* pwd             yes                             none
 =  readlink        non-posix                       none
