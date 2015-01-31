@@ -13,8 +13,9 @@
 static void
 usage(void)
 {
-	eprintf("usage: %1$s [-f] [-L | -P | -s] target [name]\n"
-	        "       %1$s [-f] [-L | -P | -s] target ... directory\n", argv0);
+	eprintf("usage: %s [-f] [-L | -P | -s] target [name]\n"
+	        "       %s [-f] [-L | -P | -s] target ... directory\n",
+		argv0, argv0);
 }
 
 int
