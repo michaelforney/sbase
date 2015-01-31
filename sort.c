@@ -168,6 +168,7 @@ linecmp(const char **a, const char **b)
 {
 	char *s1, *s2;
 	int res = 0;
+	long double x, y;
 	struct kdlist *node;
 
 	for (node = head; node && res == 0; node = node->next) {
@@ -176,12 +177,15 @@ linecmp(const char **a, const char **b)
 
 		/* if -u is given, don't use default key definition
 		 * unless it is the only one */
-		if (uflag && node == tail && head != tail)
+		if (uflag && node == tail && head != tail) {
 			res = 0;
-		else if (node->keydef.flags & MOD_N)
-			res = strtol(s1, 0, 10) - strtol(s2, 0, 10);
-		else
+		} else if (node->keydef.flags & MOD_N) {
+			x = strtold(s1, NULL);
+			y = strtold(s2, NULL);
+			res = x < y ? -1 : x > y;
+		} else {
 			res = strcmp(s1, s2);
+		}
 
 		if (node->keydef.flags & MOD_R)
 			res = -res;
