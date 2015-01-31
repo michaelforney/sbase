@@ -1,58 +1,48 @@
-.TH SPLIT 1 sbase\-VERSION
-.SH NAME
-split \- split up a file
-.SH SYNOPSIS
-.B split
-.RB [ \-d ]
-.RB [ \-a
-.IR len ]
-.RB [ \-b
-.RI [ bytes [k|m|g]]]
-.RB [ \-l
-.RI [ lines ]]
-.RI [ input
-.RI [ prefix ]]
-
-.SH DESCRIPTION
-.B split
-Reads a file, splitting it into smaller files, every
-.IR bytes
+.Dd January 30, 2015
+.Dt SPLIT 1 sbase\-VERSION
+.Os
+.Sh NAME
+.Nm split
+.Nd split up a file
+.Sh SYNOPSIS
+.Nm
+.Op Fl a Ar len
+.Op Fl b Ar bytes[k|m|g]
+.Op Fl d
+.Op Fl l Ar lines
+.Op Ar input Op Ar prefix
+.Sh DESCRIPTION
+.Nm
+reads a file, splitting it into smaller files, every
+.Ar bytes
 bytes
 or
-.IR lines
+.Ar lines
 lines. If
-.B split
+.Nm
 runs out of filenames before all the data can be written, it stops at the
 last valid filename, leaving all the written data on the disk.
-
 The
-.IR b
+.Fl b
 and
-.IR l
+.Fl l
 flags are mutually exclusive. Only the last one specified will be obeyed.
-
-.SH OPTIONS
-.TP
-.B \-d
-Use decimal suffixes rather than alphabetical.
-
-.TP
-.B \-a "len"
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl a Ar len
 Set the suffix length to
-.IR len
+.Ar len
 characters long.
-
-.TP
-.B \-b [bytes[k|m|g]]
-Start a new file every
-.IR bytes
+.It Fl b Ar bytes[k|m|g]
+start a new file every
+.Ar bytes
 bytes. The units k, m, and g are case insensitive, and powers of 2, not 10.
-
-.TP
-.B \-l [lines]
+.It Fl d
+Use decimal suffixes rather than alphabetical.
+.It Fl l Ar lines
 Start a new file every
-.IR lines
+.Ar lines
 lines.
-
-.SH SEE ALSO
-.IR cat (1)
+.El
+.Sh SEE ALSO
+.Xr cat 1
