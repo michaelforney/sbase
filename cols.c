@@ -12,7 +12,7 @@
 #include "util.h"
 
 static size_t chars = 65;
-static int cflag;
+static int    cflag;
 static struct linebuf b = EMPTY_LINEBUF;
 
 static size_t n_columns;
@@ -58,8 +58,8 @@ main(int argc, char *argv[])
 	for (l = 0; l < b.nlines; ++l) {
 		len = utflen(b.lines[l]);
 		bytes = strlen(b.lines[l]);
-		if (len > 0 && b.lines[l][bytes-1] == '\n') {
-			b.lines[l][bytes-1] = '\0';
+		if (len > 0 && b.lines[l][bytes - 1] == '\n') {
+			b.lines[l][bytes - 1] = '\0';
 			--len;
 		}
 		if (len > maxlen)
