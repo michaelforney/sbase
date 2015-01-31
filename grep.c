@@ -205,10 +205,10 @@ addpatternfile(FILE *fp)
 {
 	static char *buf = NULL;
 	static size_t size = 0;
-	size_t len = 0;
+	ssize_t len = 0;
 
 	while ((len = getline(&buf, &size, fp)) != -1) {
-		if (len && buf[len - 1] == '\n')
+		if (len > 0 && buf[len - 1] == '\n')
 			buf[len - 1] = '\0';
 		addpattern(buf);
 	}
@@ -221,7 +221,7 @@ grep(FILE *fp, const char *str)
 {
 	static char *buf = NULL;
 	static size_t size = 0;
-	size_t len = 0;
+	ssize_t len = 0;
 	long c = 0, n;
 	struct pattern *pnode;
 	int match = NoMatch;
