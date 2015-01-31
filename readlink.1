@@ -1,31 +1,33 @@
-.Dd January 30, 2015
+.Dd January 31, 2015
 .Dt READLINK 1
 .Os sbase
 .Sh NAME
 .Nm readlink
-.Nd print value of a symbolic link or canonical file name
+.Nd print symbolic link target or canonical file name
 .Sh SYNOPSIS
 .Nm
 .Op Fl fn
-.Ar file
+.Ar name
 .Sh DESCRIPTION
-The
+If
+.Ar name
+is a symbolic link,
 .Nm
-utility when invoked with the pathname of a symbolic link as
-its argument dereferences the symbolic link and prints the name of the target
-on standard output. If the
+writes its target to stdout.
+If
 .Fl f
-option is not specified and
+is not set and
+.Ar name
+is not a symbolic link,
 .Nm
-is
-invoked with an argument other than the pathname of a symbolic link, it
 exits with a nonzero exit code without printing anything.
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl f
-Canonicalize by following every symlink in every component of the
-given path recursively. The argument does not need to be a symbolic
-link.
+Canonicalize
+.Ar name ,
+which does not need to be a symlink,
+by recursively following every symlink in its components.
 .It Fl n
 Do not output the trailing newline.
 .El

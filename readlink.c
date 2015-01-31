@@ -11,7 +11,7 @@
 static void
 usage(void)
 {
-	eprintf("usage: %s [-efmn] file\n", argv0);
+	eprintf("usage: %s [-efmn] name\n", argv0);
 }
 
 int
