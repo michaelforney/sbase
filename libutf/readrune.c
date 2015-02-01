@@ -27,7 +27,7 @@ readrune(const char *file, FILE *fp, Rune *r)
 	}
 
 	buf[0] = c;
-	for (i = 1; ;) {
+	for (i = 1; i < UTFmax; ) {
 		if ((c = fgetc(fp)) == EOF) {
 			if (ferror(fp)) {
 				fprintf(stderr, "%s: read error: %s\n",
