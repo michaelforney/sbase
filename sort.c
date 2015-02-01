@@ -33,10 +33,11 @@ static struct kdlist *tail = NULL;
 static void addkeydef(char *, int);
 static void check(FILE *);
 static int linecmp(const char **, const char **);
-static char *skipblank(char *);
 static int parse_flags(char **, int *, int);
 static int parse_keydef(struct keydef *, char *, int);
-static char *nextcol(char *);
+static char *skipblank(char *);
+static char *skipnonblank(char *);
+static char *skipcolumn(char *, char *, int);
 static char *columns(char *, const struct keydef *);
 
 static int Cflag = 0, cflag = 0, uflag = 0;
@@ -173,24 +174,30 @@ parse_keydef(struct keydef *kd, char *s, int flags)
 static char *
 skipblank(char *s)
 {
-	while (*s && isblank(*s))
+	while (isblank(*s))
 		s++;
-
 	return s;
 }
 
 static char *
-nextcol(char *s)
+skipnonblank(char *s)
 {
-	if (!fieldsep) {
-		s = skipblank(s);
-		while (*s && !isblank(*s))
-			s++;
-	} else {
-		if (!strchr(s, *fieldsep))
-			s = strchr(s, '\0');
+	while (*s && *s != '\n' && !isblank(*s))
+		s++;
+	return s;
+}
+
+static char *
+skipcolumn(char *s, char *eol, int next_col)
+{
+	if (fieldsep) {
+		if ((s = strstr(s, fieldsep)))
+			s += next_col ? strlen(fieldsep) : 0;
 		else
-			s = strchr(s, *fieldsep) + 1;
+			s = eol;
+	} else {
+		s = skipblank(s);
+		s = skipnonblank(s);
 	}
 	return s;
 }
@@ -198,30 +205,28 @@ nextcol(char *s)
 static char *
 columns(char *line, const struct keydef *kd)
 {
-	char *start, *end;
+	char *start, *end, *eol = strchr(line, '\n');
 	int i;
 
 	for (i = 1, start = line; i < kd->start_column; i++)
-		start = nextcol(start);
+		start = skipcolumn(start, eol, 1);
 	if (kd->flags & MOD_STARTB)
 		start = skipblank(start);
-	start += MIN(kd->start_char, nextcol(start) - start) - 1;
+	start = MIN(eol, start + kd->start_char - 1);
 
 	if (kd->end_column) {
 		for (i = 1, end = line; i < kd->end_column; i++)
-			end = nextcol(end);
+			end = skipcolumn(end, eol, 1);
 		if (kd->flags & MOD_ENDB)
 			end = skipblank(end);
 		if (kd->end_char)
-			end += MIN(kd->end_char, nextcol(end) - end);
+			end = MIN(eol, end + kd->end_char);
 		else
-			end = nextcol(end);
+			end = skipcolumn(end, eol, 0);
 	} else {
-		if (!(end = strchr(line, '\n')))
-			end = strchr(line, '\0');
+		end = eol;
 	}
-
-	return enstrndup(2, start, end - start);
+	return enstrndup(2, start, start > end ? 0 : end - start);
 }
 
 static void
@@ -270,8 +275,6 @@ main(int argc, char *argv[])
 		break;
 	case 't':
 		fieldsep = EARGF(usage());
-		if (strlen(fieldsep) != 1)
-			usage();
 		break;
 	case 'u':
 		uflag = 1;
