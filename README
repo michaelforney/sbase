@@ -60,7 +60,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =* setsid          non-posix                       none
 =* sleep           yes                             none
    sort            no                              -m, -o, -d, -f, -i
-   split           yes                             none
+=* split           yes                             none
 =  sponge          non-posix                       none
    strings         no                              -a, -n, -t
 =  sync            non-posix                       none
