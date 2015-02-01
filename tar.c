@@ -316,7 +316,7 @@ main(int argc, char *argv[])
 	switch (mode) {
 	case 'c':
 		if (file) {
-			if (!(fp = fopen(file, "wb")))
+			if (!(fp = fopen(file, "w")))
 				eprintf("fopen %s:", file);
 			if (lstat(file, &st) < 0)
 				eprintf("tar: stat '%s':", file);
@@ -332,7 +332,7 @@ main(int argc, char *argv[])
 	case 't':
 	case 'x':
 		if (file) {
-			if (!(fp = fopen(file, "rb")))
+			if (!(fp = fopen(file, "r")))
 				eprintf("fopen %s:", file);
 		} else {
 			fp = stdin;
