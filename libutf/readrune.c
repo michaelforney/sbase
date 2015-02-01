@@ -42,5 +42,5 @@ readrune(const char *file, FILE *fp, Rune *r)
 			break;
 		}
 	}
-	return 1;
+	return i;
 }
