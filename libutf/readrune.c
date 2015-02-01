@@ -34,7 +34,8 @@ readrune(const char *file, FILE *fp, Rune *r)
 					file, strerror(errno));
 				exit(1);
 			}
-			return 0;
+			*r = Runeerror;
+			return i;
 		}
 		buf[i++] = c;
 		if (fullrune(buf, i)) {
