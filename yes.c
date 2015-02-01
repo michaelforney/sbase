@@ -20,8 +20,11 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	for (i = 0; ;i++, i %= argc) {
-		printf("%s", (argc > 0) ? argv[i] : "y");
+	if (argc == 0)
+		for (;;)
+			puts("y");
+	for (i = 0; ; i++, i %= argc) {
+		printf("%s", argv[i]);
 		putchar((i == argc - 1) ? '\n' : ' ');
 	}
 	return 1; /* should not reach */
