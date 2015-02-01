@@ -32,12 +32,12 @@ output(const char *str, size_t nc, size_t nl, size_t nw)
 void
 wc(FILE *fp, const char *str)
 {
-	int word = 0, read;
+	int word = 0, rlen;
 	Rune c;
 	size_t nc = 0, nl = 0, nw = 0;
 
-	while ((read = readrune(str, fp, &c))) {
-		nc += (cmode == 'c') ? read :
+	while ((rlen = readrune(str, fp, &c))) {
+		nc += (cmode == 'c') ? rlen :
 		      (c != Runeerror) ? 1 : 0;
 		if (c == '\n')
 			nl++;
