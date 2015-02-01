@@ -10,9 +10,13 @@
 .Ar name
 .Sh DESCRIPTION
 .Nm
-reads file (or by default, the standard input) and writes an encoded version
+reads
+.Ar file
+(or by default, the standard input) and writes an encoded version
 to the standard output. The encoding uses only printing ASCII characters and
-includes the mode of the file and the operand name for use by uudecode.
+includes the mode of the file and the operand
+.Ar name
+for use by uudecode.
 .Sh IMPLEMENTATION NOTES
 This version of uuencode does not currently support the base64
 encoding algorithm.

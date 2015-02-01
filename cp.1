@@ -15,29 +15,36 @@
 .Op Ar directory
 .Sh DESCRIPTION
 .Nm
-copies a given file, naming it the given name. If multiple files are listed
-they will be copied into the given directory.
+copies a given
+.Ar file ,
+naming it the given
+.Ar name .
+If multiple
+.Ar files
+are listed
+they will be copied into the given
+.Ar directory .
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl a
-preserve mode, timestamp, links and permissions. Implies
+Preserve mode, timestamp, links and permissions. Implies
 .Fl d ,
 .Fl p
 and
 .Fl r .
-.It Fl P
-don't dereference symbolic links.
-.It Fl p
-preserve mode, timestamp and permissions.
 .It Fl f
-if an existing destination file cannot be opened, remove it and try again.
+If an existing destination file cannot be opened, remove it and try again.
+.It Fl P
+Don't dereference symbolic links.
+.It Fl p
+Preserve mode, timestamp and permissions.
 .It Fl R
-equivalent to -r.
+Equivalent to -r.
 .It Fl r
-copies directories recursively. If this flag is not specified, directories
+Copies directories recursively. If this flag is not specified, directories
 are not copied.
 .It Fl v
-print names of source and destination per file to stdout. In the format:
+Print names of source and destination per file to stdout. In the format:
 "source \-> destination".
 .El
 .Sh SEE ALSO

@@ -21,13 +21,13 @@
 by default sends a TERM signal to the given processes.
 .Sh OPTIONS
 .Bl -tag -width Ds
-.It Fl s Ar signal_name
-A symbolic signal name specifying the signal to be sent instead of the
-default SIGTERM. Sends the named signal.
 .It Fl l Op Ar exit_status
 Lists available signals. If an
 .Ar exit_status
 is given, only the corresponding signal name will be printed.
+.It Fl s Ar signal_name
+A symbolic signal name specifying the signal to be sent instead of the
+default SIGTERM. Sends the named signal.
 .It Fl signal_name
 A symbolic signal name specifying the signal to be sent instead
 of the default SIGTERM.

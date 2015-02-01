@@ -15,20 +15,22 @@
 .Nm
 will print a sequence of numbers from
 .Ar start
-(default 1) to
+(default: 1) to
 .Ar end ,
 in
 .Ar step
-intervals (default 1).
+intervals (default: 1).
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl f Ar format
-specifies the format used for output lines, as per
+Specifies the format used for output lines, as per
 .Xr printf 3 .
 .It Fl s Ar separator
-specifies the separator to print between output lines
+Specifies the separator to print between output lines.
 .It Fl w
-tells seq to print out lines in equal width
+Tells
+.Nm
+to print out lines in equal width.
 .El
 .Sh SEE ALSO
 .Xr printf 3

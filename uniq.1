@@ -10,16 +10,22 @@
 .Op Ar file
 .Sh DESCRIPTION
 .Nm
-reads file and writes one copy of a line from each group of consecutive
-duplicate lines to stdout. If no file is given, uniq reads from stdin.
+reads
+.Ar file
+and writes one copy of a line from each group of consecutive
+duplicate lines to stdout. If no
+.Ar file
+is given,
+.Nm
+reads from stdin.
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl c
-prefixes each line with a count of its consecutive occurrences in the input.
+Prefixes each line with a count of its consecutive occurrences in the input.
 .It Fl d
-suppresses non-duplicate lines (thus 'uniq -d' prints only duplicates).
+Suppresses non-duplicate lines (thus 'uniq -d' prints only duplicates).
 .It Fl u
-suppresses non-unique lines (thus 'uniq -u' prints only uniques).
+Suppresses non-unique lines (thus 'uniq -u' prints only uniques).
 .El
 .Sh BUGS
 The original sbase implementation of

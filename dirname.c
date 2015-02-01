@@ -9,7 +9,7 @@
 static void
 usage(void)
 {
-	eprintf("usage: %s pathname\n", argv0);
+	eprintf("usage: %s path\n", argv0);
 }
 
 int

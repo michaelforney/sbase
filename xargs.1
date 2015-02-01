@@ -11,12 +11,16 @@
 .Op Fl E Ar eofstr
 .Op Ar cmd Op Ar arg...
 .Sh DESCRIPTION
-xargs reads space, tab, newline and EOF delimited strings from stdin
-and executes the specified cmd with the strings as arguments.
+.Nm
+reads space, tab, newline and EOF delimited strings from stdin
+and executes the specified
+.Ar cmd
+with the strings as
+.Ar arguments .
 .Pp
 Any arguments specified on the command line are given to the command upon
 each invocation, followed by some number of the arguments read from
-stdin.  The command is repeatedly executed one or more times until stdin
+stdin. The command is repeatedly executed one or more times until stdin
 is exhausted.
 .Pp
 Spaces, tabs and newlines may be embedded in arguments using single (`'')
@@ -28,12 +32,16 @@ newlines, may be escaped by a backslash.
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl n Ar maxargs
-Use at most maxargs arguments per command line.
+Use at most
+.Ar maxargs
+arguments per command line.
 .It Fl r
 Do not run the command if there are no arguments.  Normally the command is
 executed at least once even if there are no arguments.
 .It Fl E Ar eofstr
-Use eofstr as a logical EOF marker.
+Use
+.Ar eofstr
+as a logical EOF marker.
 .El
 .Sh EXIT STATUS
 xargs exits with one of the following values:

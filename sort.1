@@ -12,23 +12,29 @@
 .Op Ar file ...
 .Sh DESCRIPTION
 .Nm
-writes the sorted concatenation of the given files to stdout. If no file is
-given, sort reads from stdin.
+writes the sorted concatenation of the given
+.Ar files
+to stdout. If no
+.Ar file
+is given,
+.Nm
+reads from stdin.
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl C
-check that the concatenation of the given files is sorted rather than sorting
-them. In this mode, no output is printed to stdout, and the exit status
-indicates the result of the check.
+Check that the concatenation of the given
+.Ar files
+is sorted rather than sorting them. In this mode, no output is printed to
+stdout, and the exit status indicates the result of the check.
 .It Fl b
-skip leading whitespace of columns when sorting.
+Skip leading whitespace of columns when sorting.
 .It Fl c
-the same as
+The same as
 .Fl C
 except that when disorder is detected, a message is printed to stderr
 indicating the location of the disorder.
 .It Fl k Ar key
-specifies a key definition of the form
+Specifies a key definition of the form
 .Sm off
 .Sy S
 .No [.
@@ -74,11 +80,11 @@ that only apply to this key definition.
 .Sy b
 is special in that it only applies to the column that it was specified after.
 .It Fl n
-perform a numeric sort.
+Perform a numeric sort.
 .It Fl r
-reverses the sort.
+Reverses the sort.
 .It Fl t Ar delim
-specifies the field delimiter.
+Specifies the field delimiter.
 .It Fl u
-prints equal lines only once.
+Prints equal lines only once.
 .El

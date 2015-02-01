@@ -11,18 +11,20 @@
 .Op Ar file ...
 .Sh DESCRIPTION
 .Nm
-processes the named files or the standard input, writing the
+processes the named
+.Ar files
+or the standard input, writing the
 standard output with consecutive blanks (spaces and tabs) converted
 into tabs. Backspace characters are preserved into the output and
 decrement the column count for tab calculations.
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl a
-convert blanks to tabs everywhere, not just at the start of lines
+Convert blanks to tabs everywhere, not just at the start of lines.
 .It Fl t Ar n
-set tab size to
+Set tab size to
 .Ar n
-spaces (default: 8)
+spaces (default: 8).
 .El
 .Sh SEE ALSO
 .Xr expand 1

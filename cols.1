@@ -26,12 +26,16 @@ reads from stdin.
 Set the maximum number of character columns to use
 (unless the input contains lines longer than
 .Ar num
-characters). By default cols tries to figure out the width of the output
+characters). By default
+.Nm cols
+tries to figure out the width of the output
 device. If that fails, it defaults to 65 chars.
 .El
 .Sh HISTORY
 .Nm
-is similar to mc(1) in Plan 9. It was renamed to
+is similar to
+.Xr mc 1
+in Plan 9. It was renamed to
 .Nm
 to avoid the name collision with the popular file manager
 Midnight Commander.

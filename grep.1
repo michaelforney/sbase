@@ -17,7 +17,9 @@ searches the input files for lines that match the
 .Ar pattern ,
 a regular expression as defined in
 .Xr regex 7 .
-By default each matching line is printed to stdout. If no file is given
+By default each matching line is printed to stdout. If no
+.Ar file
+is given
 .Nm
 reads from stdin.
 .Sh OPTIONS
@@ -36,7 +38,7 @@ Print only a count of matching lines.
 Specify a pattern used during the search of the input: an input
 line is selected if it matches any of the specified patterns.
 This option is most useful when multiple -e options are used to
-specify multiple patterns, or when a pattern begins with a dash
+specify multiple patterns, or when a pattern begins with a dash.
 .It Fl f Ar file
 Read one or more patterns from the file named by the pathname file.
 Patterns in file shall be terminated by a <newline>. A null pattern can be
