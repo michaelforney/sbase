@@ -1,12 +1,14 @@
-.Dd January 30, 2015
+.Dd January 31, 2015
 .Dt YES 1
 .Os sbase
 .Sh NAME
 .Nm yes
-.Nd output a string repeatedly
+.Nd output strings repeatedly
 .Sh SYNOPSIS
 .Nm
 .Op Ar string ...
 .Sh DESCRIPTION
 .Nm
-will repeatedly output 'y' or the strings specified.
+will repeatedly write 'y' or a line with each
+.Ar string
+to stdout.
