@@ -11,7 +11,7 @@ static void usage(void);
 void
 usage(void)
 {
-	eprintf("usage: %s name [suffix]\n", argv0);
+	eprintf("usage: %s path [suffix]\n", argv0);
 }
 
 int
