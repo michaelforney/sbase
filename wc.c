@@ -3,7 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <wctype.h>
 
+#include "utf.h"
 #include "util.h"
 
 static int    lflag = 0;
@@ -30,16 +32,16 @@ output(const char *str, size_t nc, size_t nl, size_t nw)
 void
 wc(FILE *fp, const char *str)
 {
-	int word = 0;
-	int c;
+	int word = 0, read;
+	Rune c;
 	size_t nc = 0, nl = 0, nw = 0;
 
-	while ((c = getc(fp)) != EOF) {
-		if (cmode != 'm' || UTF8_POINT(c))
-			nc++;
+	while ((read = readrune(str, fp, &c))) {
+		nc += (cmode == 'c') ? read :
+		      (c != Runeerror) ? 1 : 0;
 		if (c == '\n')
 			nl++;
-		if (!isspace(c))
+		if (!iswspace(c))
 			word = 1;
 		else if (word) {
 			word = 0;
