@@ -1,4 +1,4 @@
-.Dd January 30, 2015
+.Dd February 1, 2015
 .Dt WC 1
 .Os sbase
 .Sh NAME
@@ -6,26 +6,27 @@
 .Nd word count
 .Sh SYNOPSIS
 .Nm
-.Op Fl clmw
+.Op Fl c | Fl m
+.Op Fl lw
 .Op Ar file ...
 .Sh DESCRIPTION
 .Nm
-prints the number of lines, words, and bytes in each file. If any flags are
-given,
+prints the number of lines, words and bytes in each
+.Ar file ,
+unless set differently with flags.
+If no
+.Ar file
+is given
 .Nm
-will print only the requested information. If no
-.Ar files
-are given,
-.Nm
-reads stdin.
+reads from stdin.
 .Sh OPTIONS
 .Bl -tag -width Ds
-.It Fl c
-print the number of bytes.
-.It Fl l
-print the number of lines.
-.It Fl m
-print the number of characters, not bytes.
-.It Fl w
-print the number of words.
+.It Fl c | Fl l | Fl m | Fl w
+Print the number of bytes | lines | characters | words.
 .El
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.

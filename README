@@ -82,7 +82,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =  sha1sum         non-posix                       none
 =  sha256sum       non-posix                       none
 =  sha512sum       non-posix                       none
-   wc              yes                             none
+#* wc              yes                             none
 =  xargs           no                              -I, -L, -p, -s, -t, -x
 =* yes             non-posix                       none
 
