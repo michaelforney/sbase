@@ -110,7 +110,7 @@ digitsright(const char *d)
 	int shift, after;
 
 	exp = strpbrk(d, "eE");
-	shift = exp ? estrtonum(&exp[1], -INT_MAX, INT_MAX) : 0;
+	shift = exp ? estrtonum(&exp[1], INT_MIN, INT_MAX) : 0;
 	after = (d = strchr(d, '.')) ? strspn(&d[1], "0123456789") : 0;
 
 	return MAX(0, after - shift);

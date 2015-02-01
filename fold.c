@@ -1,6 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 #include <ctype.h>
 #include <limits.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -84,7 +85,7 @@ main(int argc, char *argv[])
 		sflag = 1;
 		break;
 	case 'w':
-		width = estrtonum(EARGF(usage()), 1, LLONG_MAX);
+		width = estrtonum(EARGF(usage()), 1, MIN(LLONG_MAX, SIZE_MAX));
 		break;
 	ARGNUM:
 		width = ARGNUMF();

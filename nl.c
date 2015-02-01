@@ -2,6 +2,7 @@
 #include <limits.h>
 #include <regex.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -9,12 +10,29 @@
 #include "text.h"
 #include "util.h"
 
-static void nl(const char *, FILE *);
-
-static char mode = 't';
+static char        mode = 't';
 static const char *sep = "\t";
-static long incr = 1;
-static regex_t preg;
+static size_t      incr = 1;
+static regex_t     preg;
+
+void
+nl(const char *name, FILE *fp)
+{
+	char *buf = NULL;
+	size_t n = 0, size = 0;
+
+	while (getline(&buf, &size, fp) != -1) {
+		if ((mode == 'a')
+		    || (mode == 'p' && !regexec(&preg, buf, 0, NULL, 0))
+		    || (mode == 't' && buf[0] != '\n'))
+			printf("%6ld%s%s", n += incr, sep, buf);
+		else
+			printf("       %s", buf);
+	}
+	free(buf);
+	if (ferror(fp))
+		eprintf("%s: read error:", name);
+}
 
 static void
 usage(void)
@@ -38,7 +56,7 @@ main(int argc, char *argv[])
 			usage();
 		break;
 	case 'i':
-		incr = estrtonum(EARGF(usage()), 0, LONG_MAX);
+		incr = estrtonum(EARGF(usage()), 0, MIN(LLONG_MAX, SIZE_MAX));
 		break;
 	case 's':
 		sep = EARGF(usage());
@@ -59,24 +77,4 @@ main(int argc, char *argv[])
 		fclose(fp);
 	}
 	return 0;
-}
-
-void
-nl(const char *name, FILE *fp)
-{
-	char *buf = NULL;
-	long n = 0;
-	size_t size = 0;
-
-	while (getline(&buf, &size, fp) != -1) {
-		if ((mode == 'a')
-		    || (mode == 'p' && !regexec(&preg, buf, 0, NULL, 0))
-		    || (mode == 't' && buf[0] != '\n'))
-			printf("%6ld%s%s", n += incr, sep, buf);
-		else
-			printf("       %s", buf);
-	}
-	free(buf);
-	if (ferror(fp))
-		eprintf("%s: read error:", name);
 }

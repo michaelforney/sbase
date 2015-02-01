@@ -65,7 +65,7 @@ main(int argc, char *argv[])
 		mflag = 1;
 		break;
 	case 't':
-		t = estrtonum(EARGF(usage()), 0, LLONG_MAX);
+		t = estrtonum(EARGF(usage()), 0, MIN(LLONG_MAX, (time_t)-1));
 		break;
 	default:
 		usage();

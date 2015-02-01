@@ -1,5 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 #include <limits.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -34,14 +35,14 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	long n = 10;
+	size_t n = 10;
 	FILE *fp;
 	int ret = 0;
 	int newline, many;
 
 	ARGBEGIN {
 	case 'n':
-		n = estrtonum(EARGF(usage()), 0, LONG_MAX);
+		n = estrtonum(EARGF(usage()), 0, MIN(LLONG_MAX, SIZE_MAX));
 		break;
 	ARGNUM:
 		n = ARGNUMF();

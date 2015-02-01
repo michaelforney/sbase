@@ -1,5 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 #include <limits.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,9 +8,9 @@
 #include "utf.h"
 #include "util.h"
 
-static int      iflag      = 0;
-static size_t  *tablist    = NULL;
-static size_t   tablistlen = 0;
+static int     iflag      = 0;
+static size_t *tablist    = NULL;
+static size_t  tablistlen = 0;
 
 static size_t
 parselist(const char *s)
@@ -22,7 +23,7 @@ parselist(const char *s)
 		if (*p == '\0')
 			eprintf("empty field in tablist\n");
 		tablist = erealloc(tablist, (i + 1) * sizeof(*tablist));
-		tablist[i] = estrtonum(p, 1, LLONG_MAX);
+		tablist[i] = estrtonum(p, 1, MIN(LLONG_MAX, SIZE_MAX));
 		if (i > 0 && tablist[i - 1] >= tablist[i])
 			eprintf("tablist must be ascending\n");
 	}

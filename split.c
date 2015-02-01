@@ -28,7 +28,7 @@ main(int argc, char *argv[])
 	char *prefix = "x";
 	char *file = NULL;
 	char *tmp, *end;
-	uint64_t size = 1000, scale = 1, n;
+	size_t size = 1000, scale = 1, n;
 	int always = 0;
 	FILE *in = stdin, *out = NULL;
 
@@ -55,7 +55,7 @@ main(int argc, char *argv[])
 		default:
 			usage();
 		}
-		if (size > (UINT64_MAX/scale))
+		if (size > (SIZE_MAX/scale))
 			eprintf("'%s': out of range\n", tmp);
 		size *= scale;
 		break;
@@ -63,7 +63,7 @@ main(int argc, char *argv[])
 		always = 0;
 		tmp = ARGF();
 		if (tmp)
-			size = estrtonum(tmp, 0, LLONG_MAX);
+			size = estrtonum(tmp, 0, MIN(LLONG_MAX, SIZE_MAX));
 		break;
 	case 'a':
 		slen = estrtonum(EARGF(usage()), 0, INT_MAX);
