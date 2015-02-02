@@ -208,8 +208,12 @@ read:
 	off1 = off2 = 0;
 	for (i = 0; i < set1ranges; i++) {
 		if (set1[i].start <= r && r <= set1[i].end) {
-			if (dflag && !cflag)
-				goto read;
+			if (dflag) {
+				if (cflag)
+					goto write;
+				else
+					goto read;
+			}
 			if (sflag) {
 				if (r == lastrune)
 					goto read;
@@ -237,8 +241,11 @@ read:
 		}
 	}
 	if (set1check && set1check((wint_t)r)) {
-		if (dflag && !cflag)
-			goto read;
+		if (dflag)
+			if (cflag)
+				goto write;
+			else
+				goto read;
 		if (sflag) {
 			if (r == lastrune)
 				goto read;
