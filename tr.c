@@ -202,6 +202,8 @@ main(int argc, char *argv[])
 		eprintf("set2 must be non-empty.\n");
 	if (set2check && set2check != iswlower && set2check != iswupper)
 		eprintf("set2 can only be the 'lower' or 'upper' class.\n");
+	if (set2check && cflag && !dflag)
+		eprintf("set2 can't be imaged to from a complement.\n");
 read:
 	if (!readrune("<stdin>", stdin, &r))
 		return 0;
@@ -209,10 +211,10 @@ read:
 	for (i = 0; i < set1ranges; i++) {
 		if (set1[i].start <= r && r <= set1[i].end) {
 			if (dflag) {
-				if (cflag)
-					goto write;
-				else
+				if (!cflag || (sflag && r == lastrune))
 					goto read;
+				else
+					goto write;
 			}
 			if (sflag) {
 				if (r == lastrune)
@@ -241,11 +243,12 @@ read:
 		}
 	}
 	if (set1check && set1check((wint_t)r)) {
-		if (dflag)
-			if (cflag)
-				goto write;
-			else
+		if (dflag) {
+			if (!cflag || (sflag && r == lastrune))
 				goto read;
+			else
+				goto write;
+		}
 		if (sflag) {
 			if (r == lastrune)
 				goto read;
@@ -257,9 +260,11 @@ read:
 		else if (set1check == iswlower && set2check == iswupper)
 			r = towupper((wint_t)r);
 		else if (set2ranges > 0)
-			r = set2[set2ranges - 1].end;
+			r = cflag ? r : set2[set2ranges - 1].end;
 		else
 			eprintf("Misaligned character classes.\n");
+	} else if (cflag && set2ranges > 0) {
+		r = set2[set2ranges - 1].end;
 	}
 	if (dflag && cflag)
 		goto read;
