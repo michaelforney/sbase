@@ -156,11 +156,11 @@ $(OBJ): $(HDR) config.mk
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 
 $(LIBUTF): $(LIBUTFOBJ)
-	$(AR) -r -c $@ $?
+	$(AR) rc $@ $?
 	$(RANLIB) $@
 
 $(LIBUTIL): $(LIBUTILOBJ)
-	$(AR) -r -c $@ $?
+	$(AR) rc $@ $?
 	$(RANLIB) $@
 
 install: all
