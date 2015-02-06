@@ -67,6 +67,7 @@ main(int argc, char *argv[])
 {
 	FILE *fp;
 	int i;
+	int ret = 0;
 
 	ARGBEGIN {
 	case 'c':
@@ -91,6 +92,7 @@ main(int argc, char *argv[])
 		for (i = 0; i < argc; i++) {
 			if (!(fp = fopen(argv[i], "r"))) {
 				weprintf("fopen %s:", argv[i]);
+				ret = 1;
 				continue;
 			}
 			wc(fp, argv[i]);
@@ -99,5 +101,5 @@ main(int argc, char *argv[])
 		if (argc > 1)
 			output("total", tc, tl, tw);
 	}
-	return 0;
+	return ret;
 }
