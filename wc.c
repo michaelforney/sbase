@@ -17,13 +17,14 @@ void
 output(const char *str, size_t nc, size_t nl, size_t nw)
 {
 	int noflags = !cmode && !lflag && !wflag;
+	int first = 1;
 
 	if (lflag || noflags)
-		printf(" %5zu", nl);
+		printf("%*.zu", first ? (first = 0) : 7, nl);
 	if (wflag || noflags)
-		printf(" %5zu", nw);
+		printf("%*.zu", first ? (first = 0) : 7, nw);
 	if (cmode || noflags)
-		printf(" %5zu", nc);
+		printf("%*.zu", first ? (first = 0) : 7, nc);
 	if (str)
 		printf(" %s", str);
 	putchar('\n');
