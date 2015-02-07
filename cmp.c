@@ -18,7 +18,7 @@ int
 main(int argc, char *argv[])
 {
 	FILE *fp[2];
-	size_t i, line = 1, n = 1;
+	size_t line = 1, n;
 	int lflag = 0, sflag = 0, same = 1, b[2];
 
 	ARGBEGIN {
@@ -38,13 +38,13 @@ main(int argc, char *argv[])
 	if (!strcmp(argv[0], argv[1]))
 		return Same;
 
-	for (i = 0; i < 2; i++) {
-		if (argv[i][0] == '-' && !argv[i][1])
-			argv[i] = "/dev/fd/0";
-		fp[i] = fopen(argv[i], "r");
-		if (!fp[i]) {
+	for (n = 0; n < 2; n++) {
+		if (argv[n][0] == '-' && !argv[n][1])
+			argv[n] = "/dev/fd/0";
+		fp[n] = fopen(argv[n], "r");
+		if (!fp[n]) {
 			if (!sflag)
-				weprintf("fopen %s:", argv[i]);
+				weprintf("fopen %s:", argv[n]);
 			exit(Error);
 		}
 	}
