@@ -203,7 +203,7 @@ main(int argc, char *argv[])
 	if (set2check && set2check != iswlower && set2check != iswupper)
 		eprintf("set2 can only be the 'lower' or 'upper' class.\n");
 	if (set2check && cflag && !dflag)
-		eprintf("set2 can't be imaged to form a complement.\n");
+		eprintf("set2 can't be imaged to from a complement.\n");
 read:
 	if (!readrune("<stdin>", stdin, &r))
 		return 0;
