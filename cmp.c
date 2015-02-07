@@ -76,10 +76,8 @@ main(int argc, char *argv[])
 			same = 0;
 		}
 	}
-
-	for (n = 1; n < 2; n++)
-		if (fp[n] != stdin)
-			fclose(fp[n]);
+	fclose(fp[0]);
+	fclose(fp[1]);
 
 	return same ? Same : Diff;
 }
