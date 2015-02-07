@@ -1,6 +1,5 @@
 /* See LICENSE file for copyright and license details. */
 #include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
 
 #include "util.h"
@@ -23,5 +22,6 @@ main(int argc, char *argv[])
 
 	tty = ttyname(STDIN_FILENO);
 	puts(tty ? tty : "not a tty");
+
 	return tty ? 0 : 1;
 }

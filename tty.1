@@ -1,4 +1,4 @@
-.Dd January 30, 2015
+.Dd February 7, 2015
 .Dt TTY 1
 .Os sbase
 .Sh NAME
@@ -8,9 +8,21 @@
 .Nm
 .Sh DESCRIPTION
 .Nm
-prints the name of the terminal open on stdin.
-.Pp
-The status code is 0 if stdin is a terminal, and 1 if not. If an error occurred
-the status code is 2.
+writes the name of the terminal open on stdin to stdout.
+.Sh EXIT STATUS
+.Bl -tag -width Ds
+.It 0
+stdin is a terminal.
+.It 1
+stdin is not a terminal.
+.It > 1
+An error occurred.
+.El
 .Sh SEE ALSO
 .Xr ttyname 3
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.
