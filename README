@@ -17,7 +17,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =  chown           no                              -h, -H, -L, -P
 =* chroot          non-posix                       none
 =* cksum           yes                             none
-   cmp             yes                             none
+=* cmp             yes                             none
 #* cols            non-posix                       none
 =* comm            yes                             none
 =  cp              no                              -H, (-i), -L
