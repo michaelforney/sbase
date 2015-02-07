@@ -9,12 +9,10 @@
 .Op Fl amnrsv
 .Sh DESCRIPTION
 .Nm
-prints system information. If no flags are given,
+writes system information to stdout. If no flags are given,
 .Nm
-will print only the
-name of the operating system as
-.Fl s
-would.
+implies
+.Fl s .
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl a
@@ -22,7 +20,7 @@ Print all the information below.
 .It Fl m
 Print the machine's architecture.
 .It Fl n
-Print the system's network name.
+Print the system's network node hostname.
 .It Fl r
 Print the operating system's release name.
 .It Fl s
@@ -32,3 +30,9 @@ Print the operating system's version name.
 .El
 .Sh SEE ALSO
 .Xr uname 2
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.

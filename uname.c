@@ -1,6 +1,5 @@
 /* See LICENSE file for copyright and license details. */
 #include <stdio.h>
-#include <stdlib.h>
 #include <sys/utsname.h>
 #include <unistd.h>
 
@@ -15,12 +14,8 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	int mflag = 0;
-	int nflag = 0;
-	int rflag = 0;
-	int sflag = 0;
-	int vflag = 0;
 	struct utsname u;
+	int mflag = 0, nflag = 0, rflag = 0, sflag = 0, vflag = 0;
 
 	ARGBEGIN {
 	case 'a':
@@ -44,6 +39,7 @@ main(int argc, char *argv[])
 	default:
 		usage();
 	} ARGEND;
+
 	if (uname(&u) < 0)
 		eprintf("uname:");
 
