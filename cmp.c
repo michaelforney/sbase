@@ -35,17 +35,17 @@ main(int argc, char *argv[])
 	if (argc != 2 || (lflag && sflag))
 		usage();
 
-	if (!strcmp(argv[0], argv[1]))
-		return Same;
-
 	for (n = 0; n < 2; n++) {
-		if (argv[n][0] == '-' && !argv[n][1])
-			argv[n] = "/dev/fd/0";
-		fp[n] = fopen(argv[n], "r");
-		if (!fp[n]) {
-			if (!sflag)
-				weprintf("fopen %s:", argv[n]);
-			exit(Error);
+		if (argv[n][0] == '-' && !argv[n][1]) {
+			argv[n] = "<stdin>";
+			fp[n] = stdin;
+		} else {
+			fp[n] = fopen(argv[n], "r");
+			if (!fp[n]) {
+				if (!sflag)
+					weprintf("fopen %s:", argv[n]);
+				exit(Error);
+			}
 		}
 	}
 
@@ -76,5 +76,10 @@ main(int argc, char *argv[])
 			same = 0;
 		}
 	}
+
+	for (n = 1; n < 2; n++)
+		if (fp[n] != stdin)
+			fclose(fp[n]);
+
 	return same ? Same : Diff;
 }
