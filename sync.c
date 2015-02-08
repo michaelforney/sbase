@@ -12,7 +12,12 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	if (argc != 1)
+	ARGBEGIN {
+	default:
+		usage();
+	} ARGEND;
+
+	if (argc)
 		usage();
 	sync();
 

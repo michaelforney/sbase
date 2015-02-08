@@ -12,11 +12,16 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	if (argc != 2)
+	ARGBEGIN {
+	default:
+		usage();
+	} ARGEND;
+
+	if (argc != 1)
 		usage();
 
-	if (unlink(argv[1]) < 0)
-		eprintf("unlink: '%s':", argv[1]);
+	if (unlink(argv[0]) < 0)
+		eprintf("unlink: '%s':", argv[0]);
 
 	return 0;
 }
