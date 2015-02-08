@@ -65,7 +65,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
    strings         no                              -a, -n, -t
 =* sync            non-posix                       none
 =  tail            no                              -c, -f
-=  tar             non-posix                       none
+=* tar             non-posix                       none
 =* tee             yes                             none
    test            yes                             none
 =  touch           no                              -r
