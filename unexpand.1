@@ -1,30 +1,45 @@
-.Dd January 30, 2015
+.Dd February 8, 2015
 .Dt UNEXPAND 1
 .Os sbase
 .Sh NAME
 .Nm unexpand
-.Nd convert blanks to tabs
+.Nd unexpand spaces to tabs
 .Sh SYNOPSIS
 .Nm
 .Op Fl a
-.Op Fl t Ar n
+.Op Fl t Ar tablist
 .Op Ar file ...
 .Sh DESCRIPTION
 .Nm
-processes the named
-.Ar files
-or the standard input, writing the
-standard output with consecutive blanks (spaces and tabs) converted
-into tabs. Backspace characters are preserved into the output and
-decrement the column count for tab calculations.
+converts spaces to tabs in each
+.Ar file
+as specified in
+.Ar tablist .
+If no file is given,
+.Nm
+reads from stdin.
+.Pp
+Backspace characters are preserved and decrement the column count
+for tab calculations.
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl a
-Convert blanks to tabs everywhere, not just at the start of lines.
-.It Fl t Ar n
-Set tab size to
-.Ar n
-spaces (default: 8).
+Convert spaces to tabs everywhere, not just at the start of lines.
+.It Fl t Ar tablist
+Specify tab size or tabstops.
+.Ar tablist
+is a list of one (in the former case) or multiple (in the latter case)
+strictly positive integers separated by ' ' or ','.
+.Pp
+The default
+.Ar tablist
+is "8".
 .El
 .Sh SEE ALSO
 .Xr expand 1
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.

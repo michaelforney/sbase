@@ -1,5 +1,5 @@
 /* See LICENSE file for copyright and license details. */
-#include <limits.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <wchar.h>
@@ -7,15 +7,126 @@
 #include "utf.h"
 #include "util.h"
 
-static void unexpand(const char *, FILE *);
+static int     aflag      = 0;
+static size_t *tablist    = NULL;
+static int     tablistlen = 8;
 
-static int aflag = 0;
-static int tabsize = 8;
+static size_t
+parselist(const char *s)
+{
+        size_t i;
+        char  *p, *tmp;
+
+        tmp = estrdup(s);
+        for (i = 0; (p = strsep(&tmp, " ,")); i++) {
+                if (*p == '\0')
+                        eprintf("empty field in tablist\n");
+                tablist = erealloc(tablist, (i + 1) * sizeof(*tablist));
+                tablist[i] = estrtonum(p, 1, MIN(LLONG_MAX, SIZE_MAX));
+                if (i > 0 && tablist[i - 1] >= tablist[i])
+                        eprintf("tablist must be ascending\n");
+        }
+        tablist = erealloc(tablist, (i + 1) * sizeof(*tablist));
+        return i;
+}
+
+static void
+unexpandspan(size_t last, size_t col)
+{
+	size_t off, i, j;
+	Rune r;
+
+	if (tablistlen == 1) {
+		i = 0;
+		off = last % tablist[i];
+
+		if ((col - last) + off >= tablist[i] && last < col)
+			last -= off;
+
+		r = '\t';
+		for (; last + tablist[i] <= col; last += tablist[i])
+			writerune("<stdout>", stdout, &r);
+		r = ' ';
+		for (; last < col; last++)
+			writerune("<stdout>", stdout, &r);
+	} else {
+		for (i = 0; i < tablistlen; i++)
+			if (col < tablist[i])
+				break;
+		for (j = 0; j < tablistlen; j++)
+			if (last < tablist[j])
+				break;
+		r = '\t';
+		for (; j < i; j++) {
+			writerune("<stdout>", stdout, &r);
+			last = tablist[j];
+		}
+		r = ' ';
+		for (; last < col; last++)
+			writerune("<stdout>", stdout, &r);
+	}
+
+}
+
+static void
+unexpand(const char *file, FILE *fp)
+{
+	Rune r;
+	size_t last = 0, col = 0, i;
+	int bol = 1;
+
+	while (readrune(file, fp, &r)) {
+		switch (r) {
+		case ' ':
+			if (!bol && !aflag)
+				last++;
+			col++;
+			break;
+		case '\t':
+			if (tablistlen == 1) {
+				if (!bol && !aflag)
+					last += tablist[0] - col % tablist[0];
+				col += tablist[0] - col % tablist[0];
+			} else {
+				for (i = 0; i < tablistlen; i++)
+					if (col < tablist[i])
+						break;
+				if (!bol && !aflag)
+					last = tablist[i];
+				col = tablist[i];
+			}
+			break;
+		case '\b':
+			if (bol || aflag)
+				unexpandspan(last, col);
+			col -= (col > 0);
+			last = col;
+			bol = 0;
+			break;
+		case '\n':
+			if (bol || aflag)
+				unexpandspan(last, col);
+			last = col = 0;
+			bol = 1;
+			break;
+		default:
+			if (bol || aflag)
+				unexpandspan(last, col);
+			last = ++col;
+			bol = 0;
+			break;
+		}
+		if ((r != ' ' && r != '\t') || (!aflag && !bol))
+			writerune("<stdout>", stdout, &r);
+	}
+	if (last < col && (bol || aflag))
+		unexpandspan(last, col);
+}
 
 static void
 usage(void)
 {
-	eprintf("usage: %s [-a] [-t n] [file ...]\n", argv0);
+	eprintf("usage: %s [-a] [-t tablist] [file ...]\n", argv0);
 }
 
 int
@@ -23,12 +134,13 @@ main(int argc, char *argv[])
 {
 	FILE *fp;
 	int ret = 0;
+	char *tl = "8";
 
 	ARGBEGIN {
 	case 't':
-		tabsize = estrtonum(EARGF(usage()), 0, INT_MAX);
-		if (tabsize <= 0)
-			eprintf("unexpand: invalid tabsize\n");
+		tl = EARGF(usage());
+		if (!*tl)
+			eprintf("tablist cannot be empty\n");
 		/* Fallthrough: -t implies -a */
 	case 'a':
 		aflag = 1;
@@ -37,9 +149,11 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc == 0) {
+	tablistlen = parselist(tl);
+
+	if (argc == 0)
 		unexpand("<stdin>", stdin);
-	} else {
+	else {
 		for (; argc > 0; argc--, argv++) {
 			if (!(fp = fopen(argv[0], "r"))) {
 				weprintf("fopen %s:", argv[0]);
@@ -51,70 +165,4 @@ main(int argc, char *argv[])
 		}
 	}
 	return ret;
-}
-
-static void
-unexpandspan(unsigned int n, unsigned int col)
-{
-	unsigned int off = (col-n) % tabsize;
-	Rune r;
-
-	if (n + off >= tabsize && n > 1)
-		n += off;
-
-	r = '\t';
-	for (; n >= tabsize; n -= tabsize)
-		writerune("<stdout>", stdout, &r);
-	r = ' ';
-	while (n--)
-		writerune("<stdout>", stdout, &r);
-}
-
-static void
-unexpand(const char *file, FILE *fp)
-{
-	unsigned int n = 0, col = 0;
-	Rune r;
-	int bol = 1;
-
-	while (1) {
-		if (!readrune(file, fp, &r))
-			break;
-
-		switch (r) {
-		case ' ':
-			if (bol || aflag)
-				n++;
-			col++;
-			break;
-		case '\t':
-			if (bol || aflag)
-				n += tabsize - col % tabsize;
-			col += tabsize - col % tabsize;
-			break;
-		case '\b':
-			if (bol || aflag)
-				unexpandspan(n, col);
-			col -= (col > 0);
-			n = 0;
-			bol = 0;
-			break;
-		case '\n':
-			if (bol || aflag)
-				unexpandspan(n, col);
-			n = col = 0;
-			bol = 1;
-			break;
-		default:
-			if (bol || aflag)
-				unexpandspan(n, col);
-			n = 0;
-			col++;
-			bol = 0;
-		}
-		if ((r != ' ' && r != '\t') || (!aflag && !bol))
-			writerune("<stdout>", stdout, &r);
-	}
-	if (n > 0 && (bol || aflag))
-		unexpandspan(n, col);
 }
