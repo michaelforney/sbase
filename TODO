@@ -22,21 +22,19 @@ stty
 tabs
 tput
 
-The  following  program(s) have  been  imported  from  OpenBSD and  need
+The  following  programs have  been  imported  from  OpenBSD and  need
 replacing or cleaning up:
 
 printf
 
-If you are looking for some work  to do on sbase, another option is to
-pick a utility of interest and check the POSIX specification to see if
-there are any features missing.
+If you are looking for some work to do on sbase, another option is to
+pick a utility from the list in the README which has missing flags or
+features noted.
 
-We also need to add support for UTF-8.  We have imported libutf from
-suckless.org.  As a first step we should rework existing tools that use
-wide characters to use the libutf library.
-
-Update manpages to use mdoc(7).  Look at grep.1 or at the OpenBSD
-manpages for more information.
+We also need to add support for UTF-8. We have imported libutf from
+suckless.org and reworked all tools which used wchar.h.
+What is left to do is replace all instances of wctype.h-usage with
+functions in runetypebody.h, which is much saner than wctype.h.
 
 [0] http://landley.net/toybox/roadmap.html
 [1] http://git.suckless.org/ubase/
