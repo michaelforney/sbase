@@ -26,7 +26,7 @@ main(int argc, char *argv[])
 	t = time(NULL);
 	ARGBEGIN {
 	case 'd':
-		t = estrtonum(EARGF(usage()), 0, MIN(LLONG_MAX, (time_t)-1));
+		t = estrtonum(EARGF(usage()), 0, LLONG_MAX);
 		break;
 	case 'u':
 		tztime = gmtime;

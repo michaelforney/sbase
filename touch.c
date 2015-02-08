@@ -73,7 +73,7 @@ main(int argc, char *argv[])
 		t = st.st_mtime;
 		break;
 	case 't':
-		t = estrtonum(EARGF(usage()), 0, MIN(LLONG_MAX, (time_t)-1));
+		t = estrtonum(EARGF(usage()), 0, LLONG_MAX);
 		break;
 	default:
 		usage();
