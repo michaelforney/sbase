@@ -2,7 +2,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <wchar.h>
 
 #include "utf.h"
 #include "util.h"
