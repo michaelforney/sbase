@@ -65,7 +65,6 @@ unexpandspan(size_t last, size_t col)
 		for (; last < col; last++)
 			writerune("<stdout>", stdout, &r);
 	}
-
 }
 
 static void
