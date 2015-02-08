@@ -1,4 +1,4 @@
-.Dd January 30, 2015
+.Dd February 8, 2015
 .Dt SPONGE 1
 .Os sbase
 .Sh NAME
@@ -14,7 +14,6 @@ reads stdin completely, then writes the saved contents to
 This makes it possible to easily create pipes which read from and write to
 the same file.
 .Pp
-If the given
+If
 .Ar file
-is a symbolic link, it writes to the links destination
-instead.
+is a symbolic link, it writes to its destination instead.

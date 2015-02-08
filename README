@@ -61,7 +61,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =* sleep           yes                             none
    sort            no                              -m, -o, -d, -f, -i
 =* split           yes                             none
-=  sponge          non-posix                       none
+=* sponge          non-posix                       none
    strings         no                              -a, -n, -t
 =* sync            non-posix                       none
 =  tail            no                              -c, -f
