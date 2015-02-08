@@ -46,12 +46,14 @@ touch(const char *file)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-acm] [-t stamp] file ...\n", argv0);
+	eprintf("usage: %s [-acm] [-r ref_file | -t timestamp] file ...\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
+	struct stat st;
+	char *ref;
 	t = time(NULL);
 
 	ARGBEGIN {
@@ -63,6 +65,12 @@ main(int argc, char *argv[])
 		break;
 	case 'm':
 		mflag = 1;
+		break;
+	case 'r':
+		ref = EARGF(usage());
+		if (stat(ref, &st) < 0)
+			eprintf("stat '%s':", ref);
+		t = st.st_mtime;
 		break;
 	case 't':
 		t = estrtonum(EARGF(usage()), 0, MIN(LLONG_MAX, (time_t)-1));
