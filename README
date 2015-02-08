@@ -75,7 +75,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =* uname           yes                             none
 #* unexpand        yes                             none
 =  uniq            no                              -f, -s
-=  unlink          yes                             none
+=* unlink          yes                             none
 =  uudecode        no                              -o
 =  uuencode        no                              -m
    seq             non-posix                       none
