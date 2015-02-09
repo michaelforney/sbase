@@ -101,13 +101,12 @@ main(int argc, char *argv[])
 			tail(fp, argv[0], n);
 
 			if (fflag && argc == 1) {
-				for(;; tmp = NULL, tmpsize = 0) {
+				tmp = NULL;
+				tmpsize = 0;
+				for(;;) {
 					while (getline(&tmp, &tmpsize, fp) != -1) {
 						fputs(tmp, stdout);
 						fflush(stdout);
-						free(tmp);
-						tmp = NULL;
-						tmpsize = 0;
 					}
 					if (ferror(fp))
 						eprintf("readline '%s':", argv[0]);
