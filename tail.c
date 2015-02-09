@@ -1,4 +1,6 @@
 /* See LICENSE file for copyright and license details. */
+#include <sys/stat.h>
+
 #include <limits.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -59,6 +61,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
+	struct stat st1, st2;
 	FILE *fp;
 	size_t n = 10, tmpsize;
 	int ret = 0, newline, many;
@@ -96,6 +99,8 @@ main(int argc, char *argv[])
 			if (many)
 				printf("%s==> %s <==\n",
 				       newline ? "\n" : "", argv[0]);
+			if (stat(argv[0], &st1) < 0)
+				eprintf("stat %s:", argv[0]);
 			newline = 1;
 			tail(fp, argv[0], n);
 
@@ -108,8 +113,18 @@ main(int argc, char *argv[])
 						fflush(stdout);
 					}
 					if (ferror(fp))
-						eprintf("readline '%s':", argv[0]);
+						eprintf("readline %s:", argv[0]);
 					clearerr(fp);
+					/* ignore error in case file was removed, we continue
+					 * tracking the existing open file descriptor */
+					if (!stat(argv[0], &st2)) {
+						if (st2.st_size < st1.st_size) {
+							fprintf(stderr, "%s: file truncated\n", argv[0]);
+							rewind(fp);
+						}
+						st1 = st2;
+					}
+					sleep(1);
 				}
 			}
 			fclose(fp);
