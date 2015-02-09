@@ -15,9 +15,8 @@ static void
 dropinit(FILE *fp, const char *str, size_t n)
 {
 	char *buf = NULL;
-	size_t size = 0;
+	size_t size = 0, i = 0;
 	ssize_t len;
-	unsigned long i = 0;
 
 	while (i < n && (len = getline(&buf, &size, fp)) != -1)
 		if (len > 0 && buf[len - 1] == '\n')
@@ -30,14 +29,13 @@ static void
 taketail(FILE *fp, const char *str, size_t n)
 {
 	char **ring = NULL;
-	long i, j;
-	size_t *size = NULL;
+	size_t i, j, *size = NULL;
 
 	ring = ecalloc(n, sizeof *ring);
 	size = ecalloc(n, sizeof *size);
 
-	for (i = j = 0; getline(&ring[i], &size[i], fp) != -1; i = j = (i + 1) % n)
-		;
+	for (i = j = 0; getline(&ring[i], &size[i], fp) != -1; )
+		i = j = (i + 1) % n;
 	if (ferror(fp))
 		eprintf("%s: read error:", str);
 
