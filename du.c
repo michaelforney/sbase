@@ -21,6 +21,7 @@ static int dflag = 0;
 static int sflag = 0;
 static int kflag = 0;
 static int hflag = 0;
+static char HLflag = 'P';
 
 static char *
 xrealpath(const char *pathname, char *resolved)
@@ -68,7 +69,7 @@ nblks(struct stat *st)
 }
 
 static size_t
-du(const char *path)
+du(const char *path, char follow)
 {
 	struct dirent *dent;
 	struct stat st;
@@ -81,8 +82,12 @@ du(const char *path)
 		eprintf("stat: %s:", path);
 	n = nblks(&st);
 
-	if (!S_ISDIR(st.st_mode))
+	if (!(S_ISDIR(st.st_mode) ||
+	    (follow != 'P' && S_ISLNK(st.st_mode) &&
+	    stat(path, &st) == 0 && S_ISDIR(st.st_mode))))
 		goto done;
+
+	follow = follow == 'H' ? 'P' : follow;
 
 	dp = opendir(path);
 	if (!dp) {
@@ -97,10 +102,12 @@ du(const char *path)
 			continue;
 		if (lstat(dent->d_name, &st) < 0)
 			eprintf("stat: %s:", dent->d_name);
-		if (S_ISDIR(st.st_mode)) {
+		if (S_ISDIR(st.st_mode) ||
+		    (follow != 'P' && S_ISLNK(st.st_mode) &&
+		     stat(dent->d_name, &st) == 0 && S_ISDIR(st.st_mode))) {
 			t = curdepth;
 			curdepth++;
-			n += du(dent->d_name);
+			n += du(dent->d_name, follow);
 			curdepth = t;
 			continue;
 		}
@@ -157,6 +164,10 @@ main(int argc, char *argv[])
 	case 'h':
 		hflag = 1;
 		break;
+	case 'H':
+	case 'L':
+		HLflag = ARGC();
+		break;
 	default:
 		usage();
 	} ARGEND;
@@ -172,13 +183,13 @@ main(int argc, char *argv[])
 		blksize = 1024;
 
 	if (argc < 1) {
-		n = du(".");
+		n = du(".", HLflag);
 		if (sflag)
 			print(n, xrealpath(".", file));
 	} else {
 		for (; argc > 0; argc--, argv++) {
 			curdepth = 0;
-			n = du(argv[0]);
+			n = du(argv[0], HLflag);
 			if (sflag)
 				print(n, xrealpath(argv[0], file));
 		}
