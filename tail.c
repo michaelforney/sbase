@@ -1,5 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 #include <limits.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,7 +12,7 @@
 static int fflag = 0;
 
 static void
-dropinit(FILE *fp, const char *str, long n)
+dropinit(FILE *fp, const char *str, size_t n)
 {
 	char *buf = NULL;
 	size_t size = 0;
@@ -26,7 +27,7 @@ dropinit(FILE *fp, const char *str, long n)
 }
 
 static void
-taketail(FILE *fp, const char *str, long n)
+taketail(FILE *fp, const char *str, size_t n)
 {
 	char **ring = NULL;
 	long i, j;
@@ -64,7 +65,7 @@ main(int argc, char *argv[])
 	size_t n = 10, tmpsize;
 	int ret = 0, newline, many;
 	char *lines, *tmp;
-	void (*tail)(FILE *, const char *, long) = taketail;
+	void (*tail)(FILE *, const char *, size_t) = taketail;
 
 	ARGBEGIN {
 	case 'f':
@@ -72,7 +73,7 @@ main(int argc, char *argv[])
 		break;
 	case 'n':
 		lines = EARGF(usage());
-		n = estrtonum(lines, 0, LONG_MAX);
+		n = estrtonum(lines, 0, MIN(LLONG_MAX, SIZE_MAX));
 		if (lines[0] == '+')
 			tail = dropinit;
 		break;
