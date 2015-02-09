@@ -101,6 +101,8 @@ main(int argc, char *argv[])
 				       newline ? "\n" : "", argv[0]);
 			if (stat(argv[0], &st1) < 0)
 				eprintf("stat %s:", argv[0]);
+			if (!(S_ISFIFO(st1.st_mode) || S_ISREG(st1.st_mode)))
+				fflag = 0;
 			newline = 1;
 			tail(fp, argv[0], n);
 
