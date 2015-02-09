@@ -67,7 +67,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =* tail            yes                          none
 =* tar             non-posix                    none
 =* tee             yes                          none
-   test            yes                          none
+#* test            yes                          none
 =* touch           yes                          none
 #* tr              yes                          none
 =* true            yes                          none

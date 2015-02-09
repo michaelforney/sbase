@@ -67,13 +67,19 @@ strtonum(const char *numstr, long long minval, long long maxval,
 }
 
 long long
-estrtonum(const char *numstr, long long minval, long long maxval)
+enstrtonum(int status, const char *numstr, long long minval, long long maxval)
 {
 	const char *errstr;
 	long long ll;
 
 	ll = strtonum(numstr, minval, maxval, &errstr);
 	if (errstr)
-		eprintf("strtonum %s: %s\n", numstr, errstr);
+		enprintf(status, "strtonum %s: %s\n", numstr, errstr);
 	return ll;
+}
+
+long long
+estrtonum(const char *numstr, long long minval, long long maxval)
+{
+	return enstrtonum(1, numstr, minval, maxval);
 }

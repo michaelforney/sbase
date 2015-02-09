@@ -1,22 +1,14 @@
 /* See LICENSE file for copyright and license details. */
-#include <errno.h>
+#include <limits.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "utf.h"
 #include "util.h"
 
-static void
-stoi(char *s, int *a)
-{
-	char *p;
-	errno = 0;
-	*a = strtol(s, &p, 0);
-	if (errno || !*s || *p)
-		enprintf(2, "bad integer %s\n", s);
-}
+#define STOI(s) enstrtonum(2, s, LLONG_MIN, LLONG_MAX)
 
 static int unary_b(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; return S_ISBLK  (buf.st_mode); }
 static int unary_c(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; return S_ISCHR  (buf.st_mode); }
@@ -29,32 +21,32 @@ static int unary_S(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; ret
 static int unary_s(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; return           buf.st_size ; }
 static int unary_u(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; return S_ISUID & buf.st_mode ; }
 
-static int unary_n(char *s) { return  strlen(s); }
-static int unary_z(char *s) { return !strlen(s); }
+static int unary_n(char *s) { return  utflen(s); }
+static int unary_z(char *s) { return !utflen(s); }
 
 static int unary_e(char *s) { return access(s, F_OK); }
 static int unary_r(char *s) { return access(s, R_OK); }
 static int unary_w(char *s) { return access(s, W_OK); }
 static int unary_x(char *s) { return access(s, X_OK); }
 
-static int unary_t(char *s) { int fd; stoi(s, &fd); return isatty(fd); }
+static int unary_t(char *s) { int fd = enstrtonum(2, s, 0, INT_MAX); return isatty(fd); }
 
 static int binary_se(char *s1, char *s2) { return strcmp(s1, s2) == 0; }
 static int binary_sn(char *s1, char *s2) { return strcmp(s1, s2) != 0; }
 
-static int binary_eq(char *s1, char *s2) { int a, b; stoi(s1, &a); stoi(s2, &b); return a == b; }
-static int binary_ne(char *s1, char *s2) { int a, b; stoi(s1, &a); stoi(s2, &b); return a != b; }
-static int binary_gt(char *s1, char *s2) { int a, b; stoi(s1, &a); stoi(s2, &b); return a >  b; }
-static int binary_ge(char *s1, char *s2) { int a, b; stoi(s1, &a); stoi(s2, &b); return a >= b; }
-static int binary_lt(char *s1, char *s2) { int a, b; stoi(s1, &a); stoi(s2, &b); return a <  b; }
-static int binary_le(char *s1, char *s2) { int a, b; stoi(s1, &a); stoi(s2, &b); return a <= b; }
+static int binary_eq(char *s1, char *s2) { long long a = STOI(s1), b = STOI(s2); return a == b; }
+static int binary_ne(char *s1, char *s2) { long long a = STOI(s1), b = STOI(s2); return a != b; }
+static int binary_gt(char *s1, char *s2) { long long a = STOI(s1), b = STOI(s2); return a >  b; }
+static int binary_ge(char *s1, char *s2) { long long a = STOI(s1), b = STOI(s2); return a >= b; }
+static int binary_lt(char *s1, char *s2) { long long a = STOI(s1), b = STOI(s2); return a <  b; }
+static int binary_le(char *s1, char *s2) { long long a = STOI(s1), b = STOI(s2); return a <= b; }
 
-typedef struct {
+struct test {
 	char *name;
 	int (*func)();
-} Test;
+};
 
-static Test unary[] = {
+static struct test unary[] = {
 	{ "-b", unary_b },
 	{ "-c", unary_c },
 	{ "-d", unary_d },
@@ -77,7 +69,7 @@ static Test unary[] = {
 	{ NULL, NULL },
 };
 
-static Test binary[] = {
+static struct test binary[] = {
 	{ "="  , binary_se },
 	{ "!=" , binary_sn },
 	{ "-eq", binary_eq },
@@ -90,10 +82,10 @@ static Test binary[] = {
 	{ NULL, NULL },
 };
 
-static Test *
-find_test(Test *tests, char *name)
+static struct test *
+find_test(struct test *tests, char *name)
 {
-	Test *t;
+	struct test *t;
 
 	for (t = tests; t->name; ++t)
 		if (strcmp(t->name, name) == 0)
@@ -116,7 +108,7 @@ onearg(char **argv)
 static int
 twoarg(char **argv)
 {
-	Test *t = find_test(unary, *argv);
+	struct test *t = find_test(unary, *argv);
 
 	if (strcmp(argv[0], "!") == 0)
 		return !onearg(argv + 1);
@@ -130,7 +122,7 @@ twoarg(char **argv)
 static int
 threearg(char **argv)
 {
-	Test *t = find_test(binary, argv[1]);
+	struct test *t = find_test(binary, argv[1]);
 
 	if (t)
 		return t->func(argv[0], argv[2]);
@@ -154,11 +146,10 @@ int
 main(int argc, char **argv)
 {
 	int (*narg[])(char**) = { noarg, onearg, twoarg, threearg, fourarg };
-	int len = strlen(argv[0]);
+	size_t len = strlen(argv[0]);
 
-	if (len && argv[0][len - 1] == '[')
-		if (strcmp(argv[--argc], "]") != 0)
-			enprintf(2, "no matching ]\n");
+	if (len && argv[0][len - 1] == '[' && strcmp(argv[--argc], "]") != 0)
+		enprintf(2, "no matching ]\n");
 
 	--argc; ++argv;
 
