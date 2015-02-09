@@ -75,7 +75,7 @@ main(int argc, char *argv[])
 	case 'n':
 		lines = EARGF(usage());
 		n = MIN(llabs(estrtonum(lines, LLONG_MIN + 1, MIN(LLONG_MAX, SIZE_MAX))), SIZE_MAX);
-		if (lines[0] == '+')
+		if (strchr(lines, '+'))
 			tail = dropinit;
 		break;
 	ARGNUM:
