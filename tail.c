@@ -74,7 +74,8 @@ main(int argc, char *argv[])
 		break;
 	case 'n':
 		lines = EARGF(usage());
-		n = estrtonum(lines, 0, MIN(LLONG_MAX, SIZE_MAX));
+		n = estrtonum(lines[0] == '-' ? lines + 1 : lines,
+		              0, MIN(LLONG_MAX, SIZE_MAX));
 		if (lines[0] == '+')
 			tail = dropinit;
 		break;
