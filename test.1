@@ -1,4 +1,4 @@
-.Dd February 9, 2015
+.Dd February 10, 2015
 .Dt TEST 1
 .Os sbase
 .Sh NAME
@@ -14,52 +14,95 @@ returns the status of the
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Sy ! Ar expression
-.Sy invert
+invert
 .Ar expression .
-.It Sy -(e | s) Ar file
+.It ( Fl e | Fl s ) Ar file
 .Ar file
-.Sy exists
-and has
-.Sy arbitrary size | size greater than zero .
-.It Sy -(f | d | p | hL | S | b | c) Ar file
+exists and has (any size
+.Op Fl e
+| non-zero size
+.Op Fl s ) .
+.It Sy ( Fl f | Fl d | Fl p | Fl hL | Fl S | Fl b | Fl c ) Ar file
 .Ar file
-.Sy exists
-and is
-.Sy regular file | directory | named pipe | symbolic link | socket | block special | character special .
-.It Sy -(k | g | u | r | w | x) Ar file
+exists and is a
+(regular file
+.Op Fl f
+| directory
+.Op Fl d
+| named pipe
+.Op Fl p
+| symbolic link
+.Op Fl h | Fl L
+| socket
+.Op Fl S
+| block special
+.Op Fl b
+| character special
+.Op Fl c ) .
+.It Sy ( Fl k | Fl g | Fl u | Fl r | Fl w | Fl x ) Ar file
 .Ar file
-.Sy exists
-and is
-.Sy sticky(1) | setgid(2) | setuid(4) | readable | writable | executable (or searchable) .
+exists and has
+.Xr ( sticky 1
+.Op Fl k
+|
+.Xr setgid 2
+.Op Fl g
+|
+.Xr setuid 4
+.Op Fl u
+|
+.Xr read 4
+.Op Fl r
+|
+.Xr write 2
+.Op Fl w
+|
+.Xr execute 1
+.Op Fl x )
+permissions.
 .It Fl t Ar fd
 .Ar fd
-as a file descriptor is
-.Sy associated with a terminal .
+as a file descriptor is associated with a terminal.
 .It Ar string
 True if
 .Ar string
-is
-.Sy not the null string .
-.It Sy -(z | n) Ar string
+is not the null string.
+.It Sy ( Fl z | Fl n ) Ar string
 True if
 .Ar string
-has
-.Sy zero | non-zero
+has (zero
+.Op Fl z
+| non-zero
+.Op Fl n )
 length.
-.It Ar s1 Sy (= | !=) Ar s2
+.It Ar s1 Sy ( = | != ) Ar s2
 True if strings
 .Ar s1
 and
 .Ar s2
 are
-.Sy identical | different .
-.It Ar n1 Sy -(eq | ne | gt | ge | le | lt) Ar n2
+(identical
+.Oo Sy = Oc
+| different
+.Oo Sy != Oc ) .
+.It Ar n1 Sy ( Fl eq | Fl ne | Fl gt | Fl ge | Fl le | Fl lt ) Ar n2
 True if integers
 .Ar n1
 and
 .Ar n2
-are
-.Sy = | != | > | >= | <= | < .
+are (=
+.Op Fl eq
+| !=
+.Op Fl ne
+| >
+.Op Fl gt
+| >=
+.Op Fl ge
+| <=
+.Op Fl le
+| <
+.Op Fl lt ) .
+.El
 .Sh EXIT STATUS
 .Bl -tag -width Ds
 .It 0
