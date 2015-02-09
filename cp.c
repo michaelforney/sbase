@@ -19,10 +19,8 @@ main(int argc, char *argv[])
 	ARGBEGIN {
 	case 'a':
 		/* implies -dpr */
-		cp_aflag = cp_Pflag = cp_pflag = cp_rflag = 1;
-		break;
-	case 'P':
-		cp_Pflag = 1;
+		cp_HLPflag = 'P';
+		cp_aflag = cp_pflag = cp_rflag = 1;
 		break;
 	case 'p':
 		cp_pflag = 1;
@@ -30,9 +28,14 @@ main(int argc, char *argv[])
 	case 'f':
 		cp_fflag = 1;
 		break;
-	case 'R':
 	case 'r':
+	case 'R':
 		cp_rflag = 1;
+		break;
+	case 'H':
+	case 'L':
+	case 'P':
+		cp_HLPflag = ARGC();
 		break;
 	case 'v':
 		cp_vflag = 1;
@@ -46,6 +49,6 @@ main(int argc, char *argv[])
 
 	if (argc > 2 && !(stat(argv[argc-1], &st) == 0 && S_ISDIR(st.st_mode)))
 		eprintf("%s: not a directory\n", argv[argc-1]);
-	enmasse(argc, argv, cp);
+	enmasse(argc, argv, cp, cp_HLPflag);
 	return cp_status;
 }

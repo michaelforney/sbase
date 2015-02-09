@@ -11,14 +11,14 @@
 static int mv_status = 0;
 
 static int
-mv(const char *s1, const char *s2)
+mv(const char *s1, const char *s2, char ff)
 {
 	if (rename(s1, s2) == 0)
 		return (mv_status = 0);
 	if (errno == EXDEV) {
-		cp_rflag = 1;
+		cp_aflag = cp_rflag = cp_pflag = 1;
 		rm_rflag = 1;
-		cp(s1, s2);
+		cp(s1, s2, ff);
 		rm(s1);
 		return (mv_status = cp_status || rm_status);
 	}
@@ -50,7 +50,7 @@ main(int argc, char *argv[])
 
 	if (argc > 3 && !(stat(argv[argc-1], &st) == 0 && S_ISDIR(st.st_mode)))
 		eprintf("%s: not a directory\n", argv[argc-1]);
-	enmasse(argc, &argv[0], mv);
+	enmasse(argc, &argv[0], mv, 'P');
 
 	return mv_status;
 }

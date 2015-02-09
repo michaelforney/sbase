@@ -48,8 +48,8 @@ int enregcomp(int, regex_t *, const char *, int);
 int eregcomp(regex_t *, const char *, int);
 
 /* misc */
-void enmasse(int, char **, int (*)(const char *, const char *));
-void fnck(const char *, const char *, int (*)(const char *, const char *));
+void enmasse(int, char **, int (*)(const char *, const char *, char), char);
+void fnck(const char *, const char *, int (*)(const char *, const char *, char), char);
 mode_t getumask(void);
 char *humansize(double);
 mode_t parsemode(const char *, mode_t, mode_t);

@@ -17,14 +17,14 @@
 
 int cp_aflag = 0;
 int cp_fflag = 0;
-int cp_Pflag = 0;
 int cp_pflag = 0;
 int cp_rflag = 0;
 int cp_vflag = 0;
 int cp_status = 0;
+char cp_HLPflag = 'L';
 
 int
-cp(const char *s1, const char *s2)
+cp(const char *s1, const char *s2, char ff)
 {
 	FILE *f1, *f2;
 	char *ns1, *ns2;
@@ -39,9 +39,9 @@ cp(const char *s1, const char *s2)
 	if (cp_vflag)
 		printf("'%s' -> '%s'\n", s1, s2);
 
-	r = cp_Pflag ? lstat(s1, &st) : stat(s1, &st);
+	r = ff == 'P' ? lstat(s1, &st) : stat(s1, &st);
 	if (r < 0) {
-		weprintf("%s %s:", cp_Pflag ? "lstat" : "stat", s1);
+		weprintf("%s %s:", ff == 'P' ? "lstat" : "stat", s1);
 		cp_status = 1;
 		return 0;
 	}
@@ -83,7 +83,7 @@ cp(const char *s1, const char *s2)
 					eprintf("%s/%s: filename too long\n",
 						s2, d->d_name);
 				}
-				fnck(ns1, ns2, cp);
+				fnck(ns1, ns2, cp, ff == 'H' ? 'P' : ff);
 			}
 		}
 		closedir(dp);
