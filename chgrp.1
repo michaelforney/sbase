@@ -7,6 +7,9 @@
 .Sh SYNOPSIS
 .Nm
 .Op Fl R
+.Op Fl H
+.Op Fl L
+.Op Fl P
 .Ar groupname
 .Op Ar file...
 .Sh DESCRIPTION
@@ -15,10 +18,18 @@ sets the group id of the files specified by
 .Ar file
 to the gid of the group named
 .Ar group.
-If the
-.Fl R
-flag is specified, this process is recursively applied to
-everything in
+.El
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl R
+Change file group ownership recursively.
+.It Fl H
+Only dereference symbolic links that are passed as command line arguments when
+recursively traversing directories.
+.It Fl L
+Always dereference symbolic links while recursively traversing directories.
+.It Fl P
+Don't dereference symbolic links (default).
 .Ar file .
 .Sh SEE ALSO
 .Xr chmod 1 ,
