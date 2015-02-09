@@ -12,10 +12,12 @@
 #include "utf.h"
 #include "util.h"
 
-static int fflag = 0;
+static int    fflag = 0;
+static size_t num   = 10;
+static char   mode  = 'n';
 
 static void
-dropinit(FILE *fp, const char *str, size_t n, char mode)
+dropinit(FILE *fp, const char *str)
 {
 	Rune r;
 	char *buf = NULL;
@@ -23,11 +25,11 @@ dropinit(FILE *fp, const char *str, size_t n, char mode)
 	ssize_t len;
 
 	if (mode == 'n') {
-		while (i < n && (len = getline(&buf, &size, fp)) != -1)
+		while (i < num && (len = getline(&buf, &size, fp)) != -1)
 			if (len > 0 && buf[len - 1] == '\n')
 				i++;
 	} else {
-		while (i < n && (len = readrune(str, fp, &r)))
+		while (i < num && (len = readrune(str, fp, &r)))
 			i++;
 	}
 	free(buf);
@@ -35,23 +37,23 @@ dropinit(FILE *fp, const char *str, size_t n, char mode)
 }
 
 static void
-taketail(FILE *fp, const char *str, size_t n, char mode)
+taketail(FILE *fp, const char *str)
 {
 	Rune *r = NULL;
 	char **ring = NULL;
 	size_t i, j, *size = NULL;
 
 	if (mode == 'n') {
-		ring = ecalloc(n, sizeof *ring);
-		size = ecalloc(n, sizeof *size);
+		ring = ecalloc(num, sizeof *ring);
+		size = ecalloc(num, sizeof *size);
 
 		for (i = j = 0; getline(&ring[i], &size[i], fp) != -1; )
-			i = j = (i + 1) % n;
+			i = j = (i + 1) % num;
 	} else {
-		r = ecalloc(n, sizeof *r);
+		r = ecalloc(num, sizeof *r);
 
 		for (i = j = 0; readrune(str, fp, &r[i]); )
-			i = j = (i + 1) % n;
+			i = j = (i + 1) % num;
 	}
 	if (ferror(fp))
 		eprintf("%s: read error:", str);
@@ -60,20 +62,20 @@ taketail(FILE *fp, const char *str, size_t n, char mode)
 		if (ring && ring[j]) {
 			fputs(ring[j], stdout);
 			free(ring[j]);
-		}
-		if (r) {
+		} else if (r) {
 			writerune("<stdout>", stdout, &r[j]);
 		}
-	} while ((j = (j + 1) % n) != i);
+	} while ((j = (j + 1) % num) != i);
 
 	free(ring);
 	free(size);
+	free(r);
 }
 
 static void
 usage(void)
 {
-	eprintf("usage: %s [-f] [-n lines] [file ...]\n", argv0);
+	eprintf("usage: %s [-f] [-c num | -n num] [file ...]\n", argv0);
 }
 
 int
@@ -81,10 +83,10 @@ main(int argc, char *argv[])
 {
 	struct stat st1, st2;
 	FILE *fp;
-	size_t num = 10, tmpsize;
+	size_t tmpsize;
 	int ret = 0, newline, many;
-	char mode = 'n', *numstr, *tmp;
-	void (*tail)(FILE *, const char *, size_t, char) = taketail;
+	char *numstr, *tmp;
+	void (*tail)(FILE *, const char *) = taketail;
 
 	ARGBEGIN {
 	case 'f':
@@ -106,7 +108,7 @@ main(int argc, char *argv[])
 	} ARGEND;
 
 	if (argc == 0)
-		tail(stdin, "<stdin>", num, mode);
+		tail(stdin, "<stdin>");
 	else {
 		if ((many = argc > 1) && fflag)
 			usage();
@@ -124,7 +126,7 @@ main(int argc, char *argv[])
 			if (!(S_ISFIFO(st1.st_mode) || S_ISREG(st1.st_mode)))
 				fflag = 0;
 			newline = 1;
-			tail(fp, argv[0], num, mode);
+			tail(fp, argv[0]);
 
 			if (fflag && argc == 1) {
 				tmp = NULL;
