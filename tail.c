@@ -9,42 +9,60 @@
 #include <unistd.h>
 
 #include "text.h"
+#include "utf.h"
 #include "util.h"
 
 static int fflag = 0;
 
 static void
-dropinit(FILE *fp, const char *str, size_t n)
+dropinit(FILE *fp, const char *str, size_t n, char mode)
 {
+	Rune r;
 	char *buf = NULL;
 	size_t size = 0, i = 0;
 	ssize_t len;
 
-	while (i < n && (len = getline(&buf, &size, fp)) != -1)
-		if (len > 0 && buf[len - 1] == '\n')
+	if (mode == 'n') {
+		while (i < n && (len = getline(&buf, &size, fp)) != -1)
+			if (len > 0 && buf[len - 1] == '\n')
+				i++;
+	} else {
+		while (i < n && (len = readrune(str, fp, &r)))
 			i++;
+	}
 	free(buf);
 	concat(fp, str, stdout, "<stdout>");
 }
 
 static void
-taketail(FILE *fp, const char *str, size_t n)
+taketail(FILE *fp, const char *str, size_t n, char mode)
 {
+	Rune *r = NULL;
 	char **ring = NULL;
 	size_t i, j, *size = NULL;
 
-	ring = ecalloc(n, sizeof *ring);
-	size = ecalloc(n, sizeof *size);
+	if (mode == 'n') {
+		ring = ecalloc(n, sizeof *ring);
+		size = ecalloc(n, sizeof *size);
 
-	for (i = j = 0; getline(&ring[i], &size[i], fp) != -1; )
-		i = j = (i + 1) % n;
+		for (i = j = 0; getline(&ring[i], &size[i], fp) != -1; )
+			i = j = (i + 1) % n;
+	} else {
+		r = ecalloc(n, sizeof *r);
+
+		for (i = j = 0; readrune(str, fp, &r[i]); )
+			i = j = (i + 1) % n;
+	}
 	if (ferror(fp))
 		eprintf("%s: read error:", str);
 
 	do {
-		if (ring[j]) {
+		if (ring && ring[j]) {
 			fputs(ring[j], stdout);
 			free(ring[j]);
+		}
+		if (r) {
+			writerune("<stdout>", stdout, &r[j]);
 		}
 	} while ((j = (j + 1) % n) != i);
 
@@ -63,30 +81,32 @@ main(int argc, char *argv[])
 {
 	struct stat st1, st2;
 	FILE *fp;
-	size_t n = 10, tmpsize;
+	size_t num = 10, tmpsize;
 	int ret = 0, newline, many;
-	char *lines, *tmp;
-	void (*tail)(FILE *, const char *, size_t) = taketail;
+	char mode = 'n', *numstr, *tmp;
+	void (*tail)(FILE *, const char *, size_t, char) = taketail;
 
 	ARGBEGIN {
 	case 'f':
 		fflag = 1;
 		break;
+	case 'c':
 	case 'n':
-		lines = EARGF(usage());
-		n = MIN(llabs(estrtonum(lines, LLONG_MIN + 1, MIN(LLONG_MAX, SIZE_MAX))), SIZE_MAX);
-		if (strchr(lines, '+'))
+		mode = ARGC();
+		numstr = EARGF(usage());
+		num = MIN(llabs(estrtonum(numstr, LLONG_MIN + 1, MIN(LLONG_MAX, SIZE_MAX))), SIZE_MAX);
+		if (strchr(numstr, '+'))
 			tail = dropinit;
 		break;
 	ARGNUM:
-		n = ARGNUMF();
+		num = ARGNUMF();
 		break;
 	default:
 		usage();
 	} ARGEND;
 
 	if (argc == 0)
-		tail(stdin, "<stdin>", n);
+		tail(stdin, "<stdin>", num, mode);
 	else {
 		if ((many = argc > 1) && fflag)
 			usage();
@@ -104,7 +124,7 @@ main(int argc, char *argv[])
 			if (!(S_ISFIFO(st1.st_mode) || S_ISREG(st1.st_mode)))
 				fflag = 0;
 			newline = 1;
-			tail(fp, argv[0], n);
+			tail(fp, argv[0], num, mode);
 
 			if (fflag && argc == 1) {
 				tmp = NULL;
