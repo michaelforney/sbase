@@ -7,7 +7,7 @@
 .Sh SYNOPSIS
 .Nm
 .Op Fl f
-.Op Fl c Ar num | Fl n Ar num
+.Op Fl c Ar num | Fl n Ar num | Fl N
 .Op Ar file ...
 .Sh DESCRIPTION
 .Nm
@@ -20,16 +20,19 @@ is given,
 reads from stdin.
 .Sh OPTIONS
 .Bl -tag -width Ds
-.It Fl c Ar num | Fl n Ar num
-Display
+.It Fl c Ar num | Fl n Ar num | Fl N
+Display last
 .Ar num
-last characters | lines. If
+characters | lines |
+.Ar N
+lines. If
 .Ar num
-begins with '+' it is used as an offset from the beginning of each
+begins with '+'
+it is an offset from the beginning of each
 .Ar file .
 If
 .Ar num
-begins with '-' it is handled the same as if no sign was given.
+begins with '-' it is as if no sign was given.
 .It Fl f
 If one
 .Ar file
