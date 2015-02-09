@@ -12,11 +12,13 @@
 .Op Fl f Ar file
 .Nm
 .Op Fl C Ar dir
+.Op Fl h
 .Op Fl j | Fl z
 .Fl c Ar dir
 .Op Fl f Ar file
 .Nm
 .Op Fl C Ar dir
+.Op Fl h
 .Op Fl j | Fl z
 .Fl cf
 .Ar file Ar dir
@@ -42,6 +44,8 @@ Do not preserve modification time.
 List all files in the archive.
 .It Fl x
 Extract archive.
+.It Fl h
+Always dereference symbolic links while recursively traversing directories.
 .It Fl j | Fl z
 Use bzip2 | gzip compression. The
 .Xr bzip2 1 |
