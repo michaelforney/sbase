@@ -8,6 +8,8 @@
 .Nm
 .Op Fl a | s
 .Op Fl d Ar depth
+.Op Fl H
+.Op Fl L
 .Op Fl h
 .Op Fl k
 .Op Ar file ...
@@ -26,6 +28,11 @@ is displayed.
 Display an entry for each file in the file hierarchy.
 .It Fl d Ar depth
 Maximum directory depth to print files and directories.
+.It Fl H
+Only dereference symbolic links that are passed as command line arguments when
+recursively traversing directories.
+.It Fl L
+Always dereference symbolic links while recursively traversing directories.
 .It Fl h
 Enable human-readable output.
 .It Fl k
