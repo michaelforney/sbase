@@ -34,6 +34,12 @@ and
 .Fl r .
 .It Fl f
 If an existing destination file cannot be opened, remove it and try again.
+.It Fl H
+Only dereference symbolic links that are passed as command line arguments when
+recursively traversing directories.
+.It Fl L
+Always dereference symbolic links while recursively traversing directories
+(default).
 .It Fl P
 Don't dereference symbolic links.
 .It Fl p
