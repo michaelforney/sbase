@@ -1,4 +1,4 @@
-.Dd January 30, 2015
+.Dd February 9, 2015
 .Dt TAIL 1
 .Os sbase
 .Sh NAME
@@ -6,21 +6,33 @@
 .Nd display final lines of files
 .Sh SYNOPSIS
 .Nm
-.Op Fl n Ar lines
-.Op Ar file
+.Op Fl f
+.Op Fl n Ar num
+.Op Ar file ...
 .Sh DESCRIPTION
 .Nm
-writes the last 10 lines of the file to stdout. If no
+writes the last 10 lines of each
+.Ar file
+to stdout. If no
 .Ar file
 is given,
 .Nm
 reads from stdin.
 .Sh OPTIONS
 .Bl -tag -width Ds
+.It Fl f
+If one
+.Ar file
+is specified, append lines to output as
+.Ar file
+grows.
 .It Fl n Ar lines
-Outputs the given number of lines. If
-.Ar lines
-begins with '+' it is used as an offset from the beginning of the file.
+Display
+.Ar num
+lines. If
+.Ar num
+begins with '+' it is used as an offset from the beginning of each
+.Ar file .
 .El
 .Sh SEE ALSO
 .Xr head 1
