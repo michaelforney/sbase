@@ -10,19 +10,20 @@
 static int gid;
 static int status;
 static int rflag;
+static char fflag = 'P';
 static struct stat st;
 static char *chown_f_name = "chown";
 static int (*chown_f)(const char *, uid_t, gid_t) = chown;
 
 static void
-chgrp(const char *path)
+chgrp(const char *path, char fflag)
 {
 	if (chown_f(path, st.st_uid, gid) < 0) {
 		weprintf("%s %s:", chown_f_name, path);
 		status = 1;
 	}
 	if (rflag)
-		recurse(path, chgrp);
+		recurse(path, chgrp, fflag);
 }
 
 static void
@@ -43,6 +44,11 @@ main(int argc, char *argv[])
 		break;
 	case 'R':
 		rflag = 1;
+		break;
+	case 'H':
+	case 'L':
+	case 'P':
+		fflag = ARGC();
 		break;
 	default:
 		usage();
@@ -67,7 +73,7 @@ main(int argc, char *argv[])
 			status = 1;
 			continue;
 		}
-		chgrp(*argv);
+		chgrp(*argv, fflag);
 	}
 	return status;
 }

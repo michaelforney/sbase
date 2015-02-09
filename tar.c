@@ -44,7 +44,7 @@ static void putoctal(char *, unsigned, int);
 static int archive(const char *);
 static int unarchive(char *, int, char[Blksiz]);
 static int print(char *, int , char[Blksiz]);
-static void c(const char *);
+static void c(const char *, char);
 static void xt(int (*)(char*, int, char[Blksiz]));
 
 static FILE *tarfile;
@@ -52,6 +52,7 @@ static ino_t tarinode;
 static dev_t tardev;
 
 static int mflag;
+static char fflag = 'P';
 static char filtermode;
 
 static FILE *
@@ -245,10 +246,10 @@ print(char * fname, int l, char b[Blksiz])
 }
 
 static void
-c(const char * path)
+c(const char * path, char fflag)
 {
 	archive(path);
-	recurse(path, c);
+	recurse(path, c, fflag);
 }
 
 static void
@@ -304,6 +305,9 @@ main(int argc, char *argv[])
 			usage();
 		filtermode = ARGC();
 		break;
+	case 'h':
+		fflag = 'L';
+		break;
 	default:
 		usage();
 	} ARGEND;
@@ -325,7 +329,7 @@ main(int argc, char *argv[])
 			tarfile = stdout;
 		}
 		chdir(dir);
-		c(argv[0]);
+		c(argv[0], fflag);
 		break;
 	case 't':
 	case 'x':

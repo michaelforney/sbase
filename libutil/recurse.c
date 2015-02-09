@@ -11,14 +11,16 @@
 #include "../util.h"
 
 void
-recurse(const char *path, void (*fn)(const char *))
+recurse(const char *path, void (*fn)(const char *, char), char follow)
 {
 	char buf[PATH_MAX];
 	struct dirent *d;
-	struct stat st;
+	struct stat lst, st;
 	DIR *dp;
 
-	if (lstat(path, &st) < 0 || !S_ISDIR(st.st_mode))
+	if (lstat(path, &lst) < 0 || stat(path, &st) < 0 ||
+	    !(S_ISDIR(lst.st_mode) ||
+	    (follow != 'P' && S_ISLNK(lst.st_mode) && S_ISDIR(st.st_mode))))
 		return;
 
 	if (!(dp = opendir(path)))
@@ -35,7 +37,7 @@ recurse(const char *path, void (*fn)(const char *))
 				eprintf("path too long\n");
 		if (strlcat(buf, d->d_name, sizeof(buf)) >= sizeof(buf))
 			eprintf("path too long\n");
-		fn(buf);
+		fn(buf, follow == 'H' ? 'P' : follow);
 	}
 
 	closedir(dp);

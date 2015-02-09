@@ -12,7 +12,7 @@ void
 rm(const char *path)
 {
 	if (rm_rflag)
-		recurse(path, rm);
+		recurse(path, rm, 'P');
 	if (remove(path) < 0) {
 		if (!rm_fflag)
 			weprintf("remove %s:", path);

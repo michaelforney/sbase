@@ -9,7 +9,7 @@ static mode_t mask    = 0;
 static int    ret     = 0;
 
 void
-chmodr(const char *path)
+chmodr(const char *path, char fflag)
 {
 	struct stat st;
 	mode_t m;
@@ -26,7 +26,7 @@ chmodr(const char *path)
 		ret = 1;
 	}
 	if (rflag)
-		recurse(path, chmodr);
+		recurse(path, chmodr, fflag);
 }
 
 static void
@@ -65,7 +65,7 @@ done:
 		usage();
 
 	for (++i; i < argc; i++)
-		chmodr(argv[i]);
+		chmodr(argv[i], 'P');
 
 	return ret;
 }

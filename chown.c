@@ -9,6 +9,7 @@
 #include "util.h"
 
 static int    rflag = 0;
+static int    fflag = 'P';
 static uid_t  uid = -1;
 static gid_t  gid = -1;
 static int    ret = 0;
@@ -16,14 +17,14 @@ static char *chown_f_name = "chown";
 static int (*chown_f)(const char *, uid_t, gid_t) = chown;
 
 static void
-chownpwgr(const char *path)
+chownpwgr(const char *path, int fflag)
 {
 	if (chown_f(path, uid, gid) < 0) {
 		weprintf("%s %s:", chown_f_name, path);
 		ret = 1;
 	}
 	if (rflag)
-		recurse(path, chownpwgr);
+		recurse(path, chownpwgr, fflag);
 }
 
 static void
@@ -47,6 +48,11 @@ main(int argc, char *argv[])
 	case 'R':
 	case 'r':
 		rflag = 1;
+		break;
+	case 'H':
+	case 'L':
+	case 'P':
+		fflag = ARGC();
 		break;
 	default:
 		usage();
@@ -88,7 +94,7 @@ main(int argc, char *argv[])
 		}
 	}
 	for (; argc > 0; argc--, argv++)
-		chownpwgr(argv[0]);
+		chownpwgr(argv[0], fflag);
 
 	return ret;
 }
