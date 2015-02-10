@@ -56,9 +56,13 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =  readlink        non-posix                    -e, -m
 =* renice          yes                          none
 =* rm              yes                          none (-i)
-#  sed
 =* rmdir           yes                          none
+#  sed
+   seq             non-posix                    none
 =* setsid          non-posix                    none
+=  sha1sum         non-posix                    none
+=  sha256sum       non-posix                    none
+=  sha512sum       non-posix                    none
 =* sleep           yes                          none
    sort            no                           -m, -o, -d, -f, -i
 =* split           yes                          none
@@ -79,10 +83,6 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =* unlink          yes                          none
 =  uudecode        no                           -o
 =  uuencode        no                           -m
-   seq             non-posix                    none
-=  sha1sum         non-posix                    none
-=  sha256sum       non-posix                    none
-=  sha512sum       non-posix                    none
 #* wc              yes                          none
 =  xargs           no                           -I, -L, -p, -s, -t, -x
 =* yes             non-posix                    none
