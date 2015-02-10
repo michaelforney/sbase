@@ -120,10 +120,8 @@ main(int argc, char *argv[])
 			dsc[i].fp = stdin;
 		else
 			dsc[i].fp = fopen(argv[i], "r");
-
 		if (!dsc[i].fp)
 			eprintf("fopen %s:", argv[i]);
-
 		dsc[i].name = argv[i];
 	}
 
@@ -132,10 +130,8 @@ main(int argc, char *argv[])
 	else
 		parallel(dsc, argc, delim, len);
 
-	for (i = 0; i < argc; i++) {
-		if (dsc[i].fp != stdin)
-			(void)fclose(dsc[i].fp);
-	}
+	for (i = 0; i < argc; i++)
+		fclose(dsc[i].fp);
 
 	return 0;
 }
