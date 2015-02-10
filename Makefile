@@ -108,6 +108,7 @@ BIN =\
 	renice\
 	rm\
 	rmdir\
+	sed\
 	seq\
 	setsid\
 	sha1sum\

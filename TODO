@@ -17,7 +17,6 @@ make
 od
 patch
 pathchk
-sed
 stty
 tabs
 tput
