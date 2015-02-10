@@ -173,16 +173,16 @@ uudecodeb64(FILE *fp, FILE *outfp)
 					if (++t < 4)
 						continue;
 					else
-						return;
+						goto flush;
 				} else if (b == 1) {
 					eprintf("unexpected \"=\" appeared.");
 				} else if (b == 2) {
 					*po++ = b24[0];
-					fwrite(out, 1, (po - out), outfp);
+					goto flush;
 				} else if (b == 3) {
 					*po++ = b24[0];
 					*po++ = b24[1];
-					fwrite(out, 1, (po - out), outfp);
+					goto flush;
 				}
 			}
 			if ((e = b64dt[(int)*pb]) == -1) {
@@ -205,9 +205,11 @@ uudecodeb64(FILE *fp, FILE *outfp)
 				b = 0;
 			}
 		}
-		fwrite(out, 1, (po - out), outfp);
+		goto flush;
 	}
 	eprintf("invalid uudecode footer \"====\" not found\n");
+flush:
+	fwrite(out, 1, (po - out), outfp);
 }
 
 static void
