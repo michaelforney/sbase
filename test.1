@@ -13,7 +13,7 @@ returns the status of the
 .Ar expression .
 .Sh OPTIONS
 .Bl -tag -width Ds
-.It Sy ! Ar expression
+.It ! Ar expression
 invert
 .Ar expression .
 .It ( Fl e | Fl s ) Ar file
@@ -22,7 +22,7 @@ exists and has (any size
 .Op Fl e
 | non-zero size
 .Op Fl s ) .
-.It Sy ( Fl f | Fl d | Fl p | Fl hL | Fl S | Fl b | Fl c ) Ar file
+.It ( Fl f | Fl d | Fl p | Fl hL | Fl S | Fl b | Fl c ) Ar file
 .Ar file
 exists and is a
 (regular file
@@ -39,7 +39,7 @@ exists and is a
 .Op Fl b
 | character special
 .Op Fl c ) .
-.It Sy ( Fl k | Fl g | Fl u | Fl r | Fl w | Fl x ) Ar file
+.It ( Fl k | Fl g | Fl u | Fl r | Fl w | Fl x ) Ar file
 .Ar file
 exists and has
 .Xr ( sticky 1
@@ -67,7 +67,7 @@ as a file descriptor is associated with a terminal.
 True if
 .Ar string
 is not the null string.
-.It Sy ( Fl z | Fl n ) Ar string
+.It ( Fl z | Fl n ) Ar string
 True if
 .Ar string
 has (zero
@@ -85,7 +85,7 @@ are
 .Oo Sy = Oc
 | different
 .Oo Sy != Oc ) .
-.It Ar n1 Sy ( Fl eq | Fl ne | Fl gt | Fl ge | Fl le | Fl lt ) Ar n2
+.It Ar n1 ( Fl eq | Fl ne | Fl gt | Fl ge | Fl le | Fl lt ) Ar n2
 True if integers
 .Ar n1
 and
