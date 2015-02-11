@@ -53,7 +53,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =* printenv        non-posix                    none
    printf          stolen                       stolen
 =* pwd             yes                          none
-=  readlink        non-posix                    -e, -m
+=  readlink        non-posix                    -e
 =* renice          yes                          none
 =* rm              yes                          none (-i)
 =* rmdir           yes                          none
@@ -79,7 +79,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =* tty             yes                          none
 =* uname           yes                          none
 #* unexpand        yes                          none
-=  uniq            no                           -f, -s
+=  uniq            no                           none
 =* unlink          yes                          none
 =  uudecode        no                           -o
 =  uuencode        no                           -m
