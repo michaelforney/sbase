@@ -57,7 +57,8 @@ main(int argc, char *argv[])
 				arg[2] = '\0';
 			} else
 				arg[0] = '\0';
-			strncat(arg, argv[0], PATH_MAX);
+			if (strlcat(arg, argv[0], PATH_MAX) >= PATH_MAX)
+				eprintf("path too long\n");
 			while ((p = strchr(p, '/'))) {
 				*p = '\0';
 				if (!realpath(arg, b)) {
@@ -75,7 +76,8 @@ mdone:
 					/* drop the extra '/' on root */
 					lp += (argv[0][0] == '/' &&
 					       lp - arg == 1);
-					strncat(b, lp, PATH_MAX);
+					if (strlcat(b, lp, PATH_MAX) >= PATH_MAX)
+						eprintf("path too long\n");
 				}
 			}
 			break;
