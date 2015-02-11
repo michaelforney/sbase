@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <ctype.h>
 
 #include "text.h"
 #include "util.h"
@@ -14,8 +15,11 @@ static void uniqfinish(void);
 static const char *countfmt = "";
 static int dflag = 0;
 static int uflag = 0;
+static int fskip = 0;
+static int sskip = 0;
 
 static char *prevline = NULL;
+static char *prevoffset = NULL;
 static long prevlinecount = 0;
 
 static void
@@ -41,6 +45,12 @@ main(int argc, char *argv[])
 	case 'u':
 		uflag = 1;
 		break;
+	case 'f':
+		fskip = estrtonum(EARGF(usage()), 0, INT_MAX);
+		break;
+	case 's':
+		sskip = estrtonum(EARGF(usage()), 0, INT_MAX);
+		break;
 	default:
 		usage();
 	} ARGEND;
@@ -59,12 +69,29 @@ main(int argc, char *argv[])
 	return 0;
 }
 
+static char *
+uniqskip(char *l)
+{
+	char *lo = l;
+	int f = fskip, s = sskip;
+	for (; f; --f) {
+		while (isblank(*lo))
+			lo++;
+		while (*lo && !isblank(*lo))
+			lo++;
+	}
+	for (; s && *lo && *lo != '\n'; --s, ++lo);
+	return lo;
+}
+
 static void
 uniqline(char *l)
 {
+	char *loffset = l ? uniqskip(l) : l;
+
 	int linesequel = (!l || !prevline)
 		? l == prevline
-		: !strcmp(l, prevline);
+		: !strcmp(loffset, prevoffset);
 
 	if (linesequel) {
 		++prevlinecount;
@@ -78,11 +105,13 @@ uniqline(char *l)
 			fputs(prevline, stdout);
 		}
 		free(prevline);
-		prevline = NULL;
+		prevline = prevoffset = NULL;
 	}
 
-	if (l)
+	if (l) {
 		prevline = estrdup(l);
+		prevoffset = prevline + (loffset - l);
+	}
 	prevlinecount = 1;
 }
 
