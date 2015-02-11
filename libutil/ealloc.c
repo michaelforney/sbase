@@ -28,6 +28,12 @@ estrdup(const char *s)
 	return enstrdup(1, s);
 }
 
+char *
+estrndup(const char *s, size_t n)
+{
+	return enstrndup(1, s, n);
+}
+
 void *
 encalloc(int status, size_t nmemb, size_t size)
 {
@@ -67,5 +73,16 @@ enstrdup(int status, const char *s)
 	p = strdup(s);
 	if (!p)
 		enprintf(status, "strdup: out of memory\n");
+	return p;
+}
+
+char *
+enstrndup(int status, const char *s, size_t n)
+{
+	char *p;
+
+	p = strndup(s, n);
+	if (!p)
+		enprintf(status, "strndup: out of memory\n");
 	return p;
 }
