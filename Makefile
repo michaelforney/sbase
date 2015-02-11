@@ -22,7 +22,7 @@ LIBUTFSRC =\
 	libutf/rune.c\
 	libutf/runetype.c\
 	libutf/utf.c\
-	libutf/chartorunearr.c\
+	libutf/utftorunestr.c\
 	libutf/fgetrune.c\
 	libutf/fputrune.c\
 	libutf/isalnumrune.c\

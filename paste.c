@@ -110,7 +110,8 @@ main(int argc, char *argv[])
 
 	/* populate delimiters */
 	unescape(adelim);
-	len = chartorunearr(adelim, &delim);
+	delim = emalloc((utflen(adelim) + 1) * sizeof(*delim));
+	len = utftorunestr(adelim, delim);
 
 	/* populate file list */
 	dsc = emalloc(argc * sizeof(*dsc));

@@ -59,9 +59,9 @@ int isxdigitrune(Rune);
 Rune tolowerrune(Rune);
 Rune toupperrune(Rune);
 
+int utftorunestr(const char*, Rune *);
+
 int fgetrune(Rune *, FILE *);
 int efgetrune(Rune *, FILE *, const char *);
 int fputrune(const Rune *, FILE *);
 int efputrune(const Rune *, FILE *, const char *);
-
-int chartorunearr(const char*, Rune **);

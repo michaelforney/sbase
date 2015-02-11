@@ -79,7 +79,8 @@ makeset(char *str, struct range **set, int (**check)(Rune))
 
 	/* rstr defines at most len ranges */
 	unescape(str);
-	len = chartorunearr(str, &rstr);
+	rstr = emalloc((utflen(str) + 1) * sizeof(*rstr));
+	len = utftorunestr(str, rstr);
 	*set = emalloc(len * sizeof(**set));
 
 	for (i = 0; i < len; i++) {
