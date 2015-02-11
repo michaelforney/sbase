@@ -7,13 +7,13 @@
 #include "../utf.h"
 
 int
-fgetrune(Rune *p, FILE *fp)
+fgetrune(Rune *r, FILE *fp)
 {
 	char buf[UTFmax];
 	int i;
 
 	for (i = 0; i < UTFmax && (buf[i] = fgetc(fp)) != EOF && ++i ;)
-		if (charntorune(p, buf, i) > 0)
+		if (charntorune(r, buf, i) > 0)
 			break;
 	if (ferror(fp))
 		return -1;
@@ -22,11 +22,11 @@ fgetrune(Rune *p, FILE *fp)
 }
 
 int
-efgetrune(Rune *p, FILE *fp, const char *file)
+efgetrune(Rune *r, FILE *fp, const char *file)
 {
 	int ret;
 
-	if ((ret = fgetrune(p, fp)) < 0) {
+	if ((ret = fgetrune(r, fp)) < 0) {
 		fprintf(stderr, "fgetrune %s: %s\n", file, strerror(errno));
 		exit(1);
 	}
