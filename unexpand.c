@@ -44,10 +44,10 @@ unexpandspan(size_t last, size_t col)
 
 		r = '\t';
 		for (; last + tablist[i] <= col; last += tablist[i])
-			writerune("<stdout>", stdout, &r);
+			efputrune(&r, stdout, "<stdout>");
 		r = ' ';
 		for (; last < col; last++)
-			writerune("<stdout>", stdout, &r);
+			efputrune(&r, stdout, "<stdout>");
 	} else {
 		for (i = 0; i < tablistlen; i++)
 			if (col < tablist[i])
@@ -57,12 +57,12 @@ unexpandspan(size_t last, size_t col)
 				break;
 		r = '\t';
 		for (; j < i; j++) {
-			writerune("<stdout>", stdout, &r);
+			efputrune(&r, stdout, "<stdout>");
 			last = tablist[j];
 		}
 		r = ' ';
 		for (; last < col; last++)
-			writerune("<stdout>", stdout, &r);
+			efputrune(&r, stdout, "<stdout>");
 	}
 }
 
@@ -115,7 +115,7 @@ unexpand(const char *file, FILE *fp)
 			break;
 		}
 		if ((r != ' ' && r != '\t') || (!aflag && !bol))
-			writerune("<stdout>", stdout, &r);
+			efputrune(&r, stdout, "<stdout>");
 	}
 	if (last < col && (bol || aflag))
 		unexpandspan(last, col);

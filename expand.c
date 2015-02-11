@@ -72,7 +72,7 @@ expand(const char *file, FILE *fp)
 			col++;
 			if (r != ' ')
 				bol = 0;
-			writerune("<stdout>", stdout, &r);
+			efputrune(&r, stdout, "<stdout>");
 			break;
 		}
 	}

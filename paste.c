@@ -26,17 +26,17 @@ sequential(struct fdescr *dsc, int fdescrlen, Rune *delim, size_t delimlen)
 		while (efgetrune(&c, dsc[i].fp, dsc[i].name)) {
 			if (last == '\n') {
 				if (delim[d] != '\0')
-					writerune("<stdout>", stdout, &delim[d]);
+					efputrune(&delim[d], stdout, "<stdout>");
 				d = (d + 1) % delimlen;
 			}
 
 			if (c != '\n')
-				writerune("<stdout>", stdout, &c);
+				efputrune(&c, stdout, "<stdout>");
 			last = c;
 		}
 
 		if (last == '\n')
-			writerune("<stdout>", stdout, &last);
+			efputrune(&last, stdout, "<stdout>");
 	}
 }
 
@@ -56,22 +56,22 @@ nextline:
 
 		for (; efgetrune(&c, dsc[i].fp, dsc[i].name) ;) {
 			for (m = last + 1; m < i; m++)
-				writerune("<stdout>", stdout, &(delim[m % delimlen]));
+				efputrune(&(delim[m % delimlen]), stdout, "<stdout>");
 			last = i;
 			if (c == '\n') {
 				if (i != fdescrlen - 1)
 					c = d;
-				writerune("<stdout>", stdout, &c);
+				efputrune(&c, stdout, "<stdout>");
 				break;
 			}
-			writerune("<stdout>", stdout, &c);
+			efputrune(&c, stdout, "<stdout>");
 		}
 
 		if (c == 0 && last != -1) {
 			if (i == fdescrlen - 1)
 				putchar('\n');
 			else
-				writerune("<stdout>", stdout, &d);
+				efputrune(&d, stdout, "<stdout>");
 				last++;
 		}
 	}

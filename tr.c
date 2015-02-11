@@ -271,6 +271,6 @@ read:
 		goto read;
 write:
 	lastrune = r;
-	writerune("<stdout>", stdout, &r);
+	efputrune(&r, stdout, "<stdout>");
 	goto read;
 }

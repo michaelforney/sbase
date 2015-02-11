@@ -24,7 +24,7 @@ LIBUTFSRC =\
 	libutf/utf.c\
 	libutf/chartorunearr.c\
 	libutf/fgetrune.c\
-	libutf/writerune.c\
+	libutf/fputrune.c\
 	libutf/isalnumrune.c\
 	libutf/isalpharune.c\
 	libutf/isblankrune.c\

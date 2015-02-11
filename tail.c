@@ -63,7 +63,7 @@ taketail(FILE *fp, const char *str)
 			fputs(ring[j], stdout);
 			free(ring[j]);
 		} else if (r) {
-			writerune("<stdout>", stdout, &r[j]);
+			efputrune(&r[j], stdout, "<stdout>");
 		}
 	} while ((j = (j + 1) % num) != i);
 

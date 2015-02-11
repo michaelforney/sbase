@@ -61,5 +61,7 @@ Rune toupperrune(Rune);
 
 int fgetrune(Rune *, FILE *);
 int efgetrune(Rune *, FILE *, const char *);
-void writerune(const char *, FILE *, Rune *);
+int fputrune(const Rune *, FILE *);
+int efputrune(const Rune *, FILE *, const char *);
+
 int chartorunearr(const char*, Rune **);
