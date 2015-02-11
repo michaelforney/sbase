@@ -162,34 +162,49 @@ uudecodeb64(FILE *fp, FILE *outfp)
 	char bufb[60], *pb;
 	char out[45], *po;
 	size_t n;
-	int b = 0, e, t = 0;
+	int b = 0, e, t = -1, l = 1;
 	unsigned char b24[3] = {0, 0, 0};
 
 	while ((n = fread(bufb, 1, sizeof(bufb), fp))) {
 		for (pb = bufb, po = out; pb < bufb + n; pb++) {
-			if (*pb == '=') {
-				if (b == 0 || t) {
-					/* footer size is ==== is 4 */
-					if (++t < 4)
-						continue;
-					else
-						goto flush;
-				} else if (b == 1) {
-					eprintf("unexpected \"=\" appeared.");
-				} else if (b == 2) {
-					*po++ = b24[0];
-					goto flush;
-				} else if (b == 3) {
-					*po++ = b24[0];
-					*po++ = b24[1];
-					goto flush;
-				}
-			}
-			if ((e = b64dt[(int)*pb]) == -1) {
-				eprintf("invalid byte \"%c\"", *pb);
-			} else if (e == -2) /* whitespace */
+			if (*pb == '\n') {
+				l++;
 				continue;
-			switch (b) {
+			} else if (*pb == '=') {
+				switch (b) {
+					case 0:
+						/* expected '=' remaining
+						 * including footer */
+						if (--t) {
+							fwrite(out, 1,
+							       (po - out),
+							       outfp);
+							return;
+						}
+						continue;
+					case 1:
+						eprintf("%d: unexpected \"=\""
+						        "appeared.", l);
+					case 3:
+						*po++ = b24[0];
+						*po++ = b24[1];
+						b = 0;
+						t = 6; /* expect 6 '=' */
+						continue;
+					case 2:
+						*po++ = b24[0];
+						b = 0;
+						t = 5; /* expect 5 '=' */
+						continue;
+				}
+			} else if ((e = b64dt[(int)*pb]) == -1)
+				eprintf("%d: invalid byte \"%c\"", l, *pb);
+			else if (e == -2) /* whitespace */
+				continue;
+			else if (t > 0) /* state is parsing pad/footer */
+				eprintf("%d: invalid byte \"%c\" after padding",
+				        l, *pb);
+			switch (b) { /* decode next base64 chr based on state */
 				case 0: b24[0] |= e << 2; break;
 				case 1: b24[0] |= (e >> 4) & 0x3;
 				        b24[1] |= (e & 0xf) << 4; break;
@@ -197,7 +212,7 @@ uudecodeb64(FILE *fp, FILE *outfp)
 				        b24[2] |= (e & 0x3) << 6; break;
 				case 3: b24[2] |= e; break;
 			}
-			if (++b == 4) {
+			if (++b == 4) { /* complete decoding an octet */
 				*po++ = b24[0];
 				*po++ = b24[1];
 				*po++ = b24[2];
@@ -205,11 +220,9 @@ uudecodeb64(FILE *fp, FILE *outfp)
 				b = 0;
 			}
 		}
-		goto flush;
+		fwrite(out, 1, (po - out), outfp);
 	}
-	eprintf("invalid uudecode footer \"====\" not found\n");
-flush:
-	fwrite(out, 1, (po - out), outfp);
+	eprintf("%d: invalid uudecode footer \"====\" not found\n", l);
 }
 
 static void
