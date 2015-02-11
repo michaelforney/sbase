@@ -25,7 +25,7 @@ static long prevlinecount = 0;
 static void
 usage(void)
 {
-	eprintf("usage: %s [-c] [-d | -u| [-f fields] [-s chars] [file]\n", argv0);
+	eprintf("usage: %s [-c] [-d | -u] [-f fields] [-s chars] [file]\n", argv0);
 }
 
 int
