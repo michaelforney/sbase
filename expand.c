@@ -39,7 +39,7 @@ expand(const char *file, FILE *fp)
 	size_t bol = 1, col = 0, i;
 	Rune r;
 
-	while (readrune(file, fp, &r)) {
+	while (efgetrune(&r, fp, file)) {
 		switch (r) {
 		case '\t':
 			if (tablistlen == 1)

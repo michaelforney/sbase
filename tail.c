@@ -29,7 +29,7 @@ dropinit(FILE *fp, const char *str)
 			if (len > 0 && buf[len - 1] == '\n')
 				i++;
 	} else {
-		while (i < num && (len = readrune(str, fp, &r)))
+		while (i < num && (len = efgetrune(&r, fp, str)))
 			i++;
 	}
 	free(buf);
@@ -52,7 +52,7 @@ taketail(FILE *fp, const char *str)
 	} else {
 		r = ecalloc(num, sizeof *r);
 
-		for (i = j = 0; readrune(str, fp, &r[i]); )
+		for (i = j = 0; efgetrune(&r[i], fp, str); )
 			i = j = (i + 1) % num;
 	}
 	if (ferror(fp))

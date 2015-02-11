@@ -73,7 +73,7 @@ unexpand(const char *file, FILE *fp)
 	size_t last = 0, col = 0, i;
 	int bol = 1;
 
-	while (readrune(file, fp, &r)) {
+	while (efgetrune(&r, fp, file)) {
 		switch (r) {
 		case ' ':
 			if (!bol && !aflag)

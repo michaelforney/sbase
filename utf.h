@@ -59,6 +59,7 @@ int isxdigitrune(Rune);
 Rune tolowerrune(Rune);
 Rune toupperrune(Rune);
 
-int readrune(const char *, FILE *, Rune *);
+int fgetrune(Rune *, FILE *);
+int efgetrune(Rune *, FILE *, const char *);
 void writerune(const char *, FILE *, Rune *);
 int chartorunearr(const char*, Rune **);

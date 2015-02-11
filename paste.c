@@ -23,7 +23,7 @@ sequential(struct fdescr *dsc, int fdescrlen, Rune *delim, size_t delimlen)
 		d = 0;
 		last = 0;
 
-		while (readrune(dsc[i].name, dsc[i].fp, &c)) {
+		while (efgetrune(&c, dsc[i].fp, dsc[i].name)) {
 			if (last == '\n') {
 				if (delim[d] != '\0')
 					writerune("<stdout>", stdout, &delim[d]);
@@ -54,7 +54,7 @@ nextline:
 		d = delim[i % delimlen];
 		c = 0;
 
-		for (; readrune(dsc[i].name, dsc[i].fp, &c) ;) {
+		for (; efgetrune(&c, dsc[i].fp, dsc[i].name) ;) {
 			for (m = last + 1; m < i; m++)
 				writerune("<stdout>", stdout, &(delim[m % delimlen]));
 			last = i;

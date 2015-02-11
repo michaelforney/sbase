@@ -204,7 +204,7 @@ main(int argc, char *argv[])
 	if (set2check && cflag && !dflag)
 		eprintf("set2 can't be imaged to from a complement.\n");
 read:
-	if (!readrune("<stdin>", stdin, &r))
+	if (!efgetrune(&r, stdin, "<stdin>"))
 		return 0;
 	off1 = off2 = 0;
 	for (i = 0; i < set1ranges; i++) {

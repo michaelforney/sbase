@@ -34,7 +34,7 @@ wc(FILE *fp, const char *str)
 	Rune c;
 	size_t nc = 0, nl = 0, nw = 0;
 
-	while ((rlen = readrune(str, fp, &c))) {
+	while ((rlen = efgetrune(&c, fp, str))) {
 		nc += (cmode == 'c') ? rlen :
 		      (c != Runeerror) ? 1 : 0;
 		if (c == '\n')
