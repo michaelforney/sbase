@@ -10,7 +10,6 @@ HDR =\
 	fs.h\
 	md5.h\
 	queue.h\
-	runetypebody.h\
 	sha1.h\
 	sha256.h\
 	sha512.h\
@@ -20,12 +19,25 @@ HDR =\
 
 LIBUTF = libutf.a
 LIBUTFSRC =\
-	libutf/chartorunearr.c\
-	libutf/readrune.c\
 	libutf/rune.c\
 	libutf/runetype.c\
 	libutf/utf.c\
-	libutf/writerune.c
+	libutf/chartorunearr.c\
+	libutf/readrune.c\
+	libutf/writerune.c\
+	libutf/isalnumrune.c\
+	libutf/isalpharune.c\
+	libutf/isblankrune.c\
+	libutf/iscntrlrune.c\
+	libutf/isdigitrune.c\
+	libutf/isgraphrune.c\
+	libutf/isprintrune.c\
+	libutf/ispunctrune.c\
+	libutf/isspacerune.c\
+	libutf/istitlerune.c\
+	libutf/isxdigitrune.c\
+	libutf/lowerrune.c\
+	libutf/upperrune.c
 
 LIBUTIL = libutil.a
 LIBUTILSRC =\

@@ -19,23 +19,8 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
-#include "../utf.h"
 
-int
-rune1cmp(const void *v1, const void *v2)
-{
-	Rune r1 = *(Rune *)v1, r2 = *(Rune *)v2;
+#define nelem(x)  (sizeof (x) / sizeof *(x))
 
-	return r1 - r2;
-}
-
-int
-rune2cmp(const void *v1, const void *v2)
-{
-	Rune r = *(Rune *)v1, *p = (Rune *)v2;
-
-	if(r >= p[0] && r <= p[1])
-		return 0;
-	else
-		return r - p[0];
-}
+int rune1cmp(const void *, const void *);
+int rune2cmp(const void *, const void *);
