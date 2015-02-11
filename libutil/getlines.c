@@ -20,13 +20,13 @@ getlines(FILE *fp, struct linebuf *b)
 			b->lines = nline;
 		}
 		linelen = len + 1;
-		b->lines[b->nlines-1] = emalloc(linelen);
-		memcpy(b->lines[b->nlines-1], line, linelen);
+		b->lines[b->nlines - 1] = emalloc(linelen);
+		memcpy(b->lines[b->nlines - 1], line, linelen);
 	}
 	free(line);
-	if (strchr(b->lines[b->nlines-1], '\n') == NULL) {
-		b->lines[b->nlines-1] = erealloc(b->lines[b->nlines-1], linelen + 1);
-		b->lines[b->nlines-1][linelen-1] = '\n';
-		b->lines[b->nlines-1][linelen] = '\0';
+	if (!strchr(b->lines[b->nlines - 1], '\n')) {
+		b->lines[b->nlines - 1] = erealloc(b->lines[b->nlines - 1], linelen + 1);
+		b->lines[b->nlines - 1][linelen - 1] = '\n';
+		b->lines[b->nlines - 1][linelen] = '\0';
 	}
 }
