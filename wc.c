@@ -1,9 +1,6 @@
 /* See LICENSE file for copyright and license details. */
-#include <ctype.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
-#include <wctype.h>
 
 #include "utf.h"
 #include "util.h"
@@ -42,7 +39,7 @@ wc(FILE *fp, const char *str)
 		      (c != Runeerror) ? 1 : 0;
 		if (c == '\n')
 			nl++;
-		if (!iswspace(c))
+		if (!isspacerune(c))
 			word = 1;
 		else if (word) {
 			word = 0;
