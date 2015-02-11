@@ -131,9 +131,7 @@ addkeydef(char *def, int flags)
 {
 	struct kdlist *node;
 
-	node = malloc(sizeof(*node));
-	if (!node)
-		enprintf(2, "malloc:");
+	node = enmalloc(2, sizeof(*node));
 	if (!head)
 		head = node;
 	if (parse_keydef(&node->keydef, def, flags))
@@ -282,7 +280,6 @@ static char *
 columns(char *line, const struct keydef *kd)
 {
 	char *start, *end;
-	char *res;
 	int i;
 
 	for (i = 1, start = line; i < kd->start_column; i++)
@@ -305,7 +302,5 @@ columns(char *line, const struct keydef *kd)
 			end = strchr(line, '\0');
 	}
 
-	if (!(res = strndup(start, end - start)))
-		enprintf(2, "strndup:");
-	return res;
+	return enstrndup(2, start, end - start);
 }

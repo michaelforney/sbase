@@ -115,9 +115,7 @@ match(Val vstr, Val vregx)
 	str = valstr(vstr, buf1, sizeof(buf1));
 	regx = valstr(vregx, buf2, sizeof(buf2));
 
-	anchreg = malloc(strlen(regx) + 2);
-	if (!anchreg)
-		enprintf(3, "malloc:");
+	anchreg = enmalloc(3, strlen(regx) + 2);
 	snprintf(anchreg, strlen(regx) + 2, "^%s", regx);
 
 	enregcomp(3, &re, anchreg, 0);
@@ -131,9 +129,7 @@ match(Val vstr, Val vregx)
 	if (re.re_nsub) {
 		regfree(&re);
 		len = matches[1].rm_eo - matches[1].rm_so + 1;
-		ret = malloc(len);
-		if (!ret)
-			enprintf(3, "malloc:");
+		ret = enmalloc(3, len);
 		strlcpy(ret, str + matches[1].rm_so, len);
 		d = strtoimax(ret, &p, 10);
 		if (*ret && !*p) {

@@ -162,18 +162,14 @@ addpattern(const char *pattern)
 			pattern = ".";
 
 	if (!Fflag && xflag) {
-		tmp = malloc(strlen(pattern) + 3);
-		if (!tmp)
-			enprintf(Error, "malloc:");
+		tmp = enmalloc(Error, strlen(pattern) + 3);
 		snprintf(tmp, strlen(pattern) + 3, "%s%s%s",
 			 pattern[0] == '^' ? "" : "^",
 			 pattern,
 			 pattern[strlen(pattern) - 1] == '$' ? "" : "$");
 	} else if (!Fflag && wflag) {
 		len = strlen(pattern) + 5 + (Eflag ? 2 : 4);
-		tmp = malloc(len);
-		if (!tmp)
-			enprintf(Error, "malloc:");
+		tmp = enmalloc(Error, len);
 
 		bol = eol = 0;
 		if (pattern[0] == '^')
@@ -188,14 +184,10 @@ addpattern(const char *pattern)
 		         Eflag ? ")" : "\\)",
 		         eol ? "$" : "");
 	} else {
-		tmp = strdup(pattern);
-		if (!tmp)
-			enprintf(Error, "strdup:");
+		tmp = enstrdup(Error, pattern);
 	}
 
-	pnode = malloc(sizeof(*pnode));
-	if (!pnode)
-		enprintf(Error, "malloc:");
+	pnode = enmalloc(Error, sizeof(*pnode));
 	pnode->pattern = tmp;
 	SLIST_INSERT_HEAD(&phead, pnode, entry);
 }
