@@ -8,9 +8,9 @@
 #include "text.h"
 #include "util.h"
 
-static void uniqline(char *);
-static void uniq(FILE *, const char *);
-static void uniqfinish(void);
+static void uniqline(FILE *, char *);
+static void uniq(FILE *, FILE *);
+static void uniqfinish(FILE *);
 
 static const char *countfmt = "";
 static int dflag = 0;
@@ -25,13 +25,14 @@ static long prevlinecount = 0;
 static void
 usage(void)
 {
-	eprintf("usage: %s [-c] [-d | -u] [-f fields] [-s chars] [file]\n", argv0);
+	eprintf("usage: %s [-c] [-d | -u] [-f fields] [-s chars]"
+	        " [[input] output]\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
-	FILE *fp;
+	FILE *fp = stdin, *ofp = stdout;
 
 	ARGBEGIN {
 	case 'c':
@@ -54,15 +55,24 @@ main(int argc, char *argv[])
 	} ARGEND;
 
 	if (argc == 0) {
-		uniq(stdin, "<stdin>");
-	} else if (argc == 1) {
-		if (!(fp = fopen(argv[0], "r")))
+		uniq(stdin, stdout);
+	} else if (argc >= 1) {
+		if (strcmp(argv[0], "-") && !(fp = fopen(argv[0], "r")))
 			eprintf("fopen %s:", argv[0]);
-		uniq(fp, argv[0]);
-		fclose(fp);
+		if (argc == 2) {
+			if (strcmp(argv[1], "-") &&
+			    !(ofp = fopen(argv[1], "w")))
+				eprintf("fopen %s:", argv[1]);
+		} else
+			eprintf("extra argument: %s\n", argv[2]);
+		uniq(fp, ofp);
+		if (fp != stdin)
+			fclose(fp);
 	} else
 		usage();
-	uniqfinish();
+	uniqfinish(ofp);
+	if (ofp != stdout)
+		fclose(ofp);
 
 	return 0;
 }
@@ -84,7 +94,7 @@ uniqskip(char *l)
 }
 
 static void
-uniqline(char *l)
+uniqline(FILE *ofp, char *l)
 {
 	char *loffset = l ? uniqskip(l) : l;
 
@@ -100,8 +110,8 @@ uniqline(char *l)
 	if (prevline) {
 		if ((prevlinecount == 1 && !dflag) ||
 		    (prevlinecount != 1 && !uflag)) {
-			printf(countfmt, prevlinecount);
-			fputs(prevline, stdout);
+			fprintf(ofp, countfmt, prevlinecount);
+			fputs(prevline, ofp);
 		}
 		free(prevline);
 		prevline = prevoffset = NULL;
@@ -115,17 +125,17 @@ uniqline(char *l)
 }
 
 static void
-uniq(FILE *fp, const char *str)
+uniq(FILE *fp, FILE *ofp)
 {
 	char *buf = NULL;
 	size_t size = 0;
 
 	while (getline(&buf, &size, fp) != -1)
-		uniqline(buf);
+		uniqline(ofp, buf);
 }
 
 static void
-uniqfinish(void)
+uniqfinish(FILE *ofp)
 {
-	uniqline(NULL);
+	uniqline(ofp, NULL);
 }
