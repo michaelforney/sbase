@@ -1,5 +1,4 @@
 /* See LICENSE file for copyright and license details. */
-#include <wctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -18,28 +17,28 @@ struct range {
 
 static struct {
 	char    *name;
-	int    (*check)(wint_t);
+	int    (*check)(Rune);
 } classes[] = {
-	{ "alnum",  iswalnum  },
-	{ "alpha",  iswalpha  },
-	{ "blank",  iswblank  },
-	{ "cntrl",  iswcntrl  },
-	{ "digit",  iswdigit  },
-	{ "graph",  iswgraph  },
-	{ "lower",  iswlower  },
-	{ "print",  iswprint  },
-	{ "punct",  iswpunct  },
-	{ "space",  iswspace  },
-	{ "upper",  iswupper  },
-	{ "xdigit", iswxdigit },
+	{ "alnum",  isalnumrune  },
+	{ "alpha",  isalpharune  },
+	{ "blank",  isblankrune  },
+	{ "cntrl",  iscntrlrune  },
+	{ "digit",  isdigitrune  },
+	{ "graph",  isgraphrune  },
+	{ "lower",  islowerrune  },
+	{ "print",  isprintrune  },
+	{ "punct",  ispunctrune  },
+	{ "space",  isspacerune  },
+	{ "upper",  isupperrune  },
+	{ "xdigit", isxdigitrune },
 };
 
-static struct range *set1          = NULL;
-static size_t set1ranges           = 0;
-static int    (*set1check)(wint_t) = NULL;
-static struct range *set2          = NULL;
-static size_t set2ranges           = 0;
-static int    (*set2check)(wint_t) = NULL;
+static struct range *set1        = NULL;
+static size_t set1ranges         = 0;
+static int    (*set1check)(Rune) = NULL;
+static struct range *set2        = NULL;
+static size_t set2ranges         = 0;
+static int    (*set2check)(Rune) = NULL;
 
 
 static size_t
@@ -71,7 +70,7 @@ rstrmatch(Rune *r, char *s, size_t n)
 }
 
 static size_t
-makeset(char *str, struct range **set, int (**check)(wint_t))
+makeset(char *str, struct range **set, int (**check)(Rune))
 {
 	Rune  *rstr;
 	size_t len, i, j, m, n;
@@ -200,7 +199,7 @@ main(int argc, char *argv[])
 		set2ranges = makeset(argv[1], &set2, &set2check);
 	if (dflag == sflag && !set2ranges && !set2check)
 		eprintf("set2 must be non-empty.\n");
-	if (set2check && set2check != iswlower && set2check != iswupper)
+	if (set2check && set2check != islowerrune && set2check != isupperrune)
 		eprintf("set2 can only be the 'lower' or 'upper' class.\n");
 	if (set2check && cflag && !dflag)
 		eprintf("set2 can't be imaged to from a complement.\n");
@@ -242,7 +241,7 @@ read:
 			goto write;
 		}
 	}
-	if (set1check && set1check((wint_t)r)) {
+	if (set1check && set1check(r)) {
 		if (dflag) {
 			if (!cflag || (sflag && r == lastrune))
 				goto read;
@@ -255,10 +254,10 @@ read:
 			else
 				goto write;
 		}
-		if (set1check == iswupper && set2check == iswlower)
-			r = towlower((wint_t)r);
-		else if (set1check == iswlower && set2check == iswupper)
-			r = towupper((wint_t)r);
+		if (set1check == isupperrune && set2check == islowerrune)
+			r = tolowerrune(r);
+		else if (set1check == islowerrune && set2check == isupperrune)
+			r = toupperrune(r);
 		else if (set2ranges > 0)
 			r = cflag ? r : set2[set2ranges - 1].end;
 		else
