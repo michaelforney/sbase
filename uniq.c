@@ -74,6 +74,7 @@ uniqskip(char *l)
 {
 	char *lo = l;
 	int f = fskip, s = sskip;
+
 	for (; f; --f) {
 		while (isblank(*lo))
 			lo++;
