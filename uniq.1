@@ -6,7 +6,10 @@
 .Nd report or filter out repeated lines in a file
 .Sh SYNOPSIS
 .Nm
-.Op Fl cdu
+.Op Fl c
+.Op Fl d | u
+.Op Fl f Ar fields
+.Op Fl s Ar chars
 .Op Ar file
 .Sh DESCRIPTION
 .Nm
@@ -26,20 +29,12 @@ Prefixes each line with a count of its consecutive occurrences in the input.
 Suppresses non-duplicate lines (thus 'uniq -d' prints only duplicates).
 .It Fl u
 Suppresses non-unique lines (thus 'uniq -u' prints only uniques).
+.It Fl f Ar fields
+Ignore the first
+.Ar fields
+in each input line when doing comparisons.
+.It Fl s Ar chars
+Ignore the first
+.Ar chars
+characters in each input line when doing comparisons.
 .El
-.Sh BUGS
-The original sbase implementation of
-.Nm
-supported multiple input-file arguments as e.g.
-.Xr cat 1
-and
-.Xr grep 1
-do.
-Unfortunately, POSIX uniq treats its second argument (if present) as an
-output filename and clobbers it. Since users and scripts which rely on
-.Nm
-supporting multiple input-file arguments would be at risk of data loss
-if they ever ran into a POSIX-compatible
-.Nm
-, support for multiple input-file arguments was removed from this
-implementation.

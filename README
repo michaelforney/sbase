@@ -79,7 +79,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =* tty             yes                          none
 =* uname           yes                          none
 #* unexpand        yes                          none
-=  uniq            no                           none
+=  uniq            no                           [infile [outfile]]
 =* unlink          yes                          none
 =  uudecode        no                           -o
 =  uuencode        no                           -m
