@@ -22,9 +22,13 @@ char *agetcwd(void);
 void apathmax(char **, long *);
 
 void *ecalloc(size_t, size_t);
-void *emalloc(size_t size);
+void *emalloc(size_t);
 void *erealloc(void *, size_t);
 char *estrdup(const char *);
+void *encalloc(int, size_t, size_t);
+void *enmalloc(int, size_t);
+void *enrealloc(int, void *, size_t);
+char *enstrdup(int, const char *);
 
 void enprintf(int, const char *, ...);
 void eprintf(const char *, ...);

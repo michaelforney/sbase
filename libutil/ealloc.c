@@ -7,41 +7,65 @@
 void *
 ecalloc(size_t nmemb, size_t size)
 {
-	void *p;
-
-	p = calloc(nmemb, size);
-	if (!p)
-		eprintf("calloc: out of memory\n");
-	return p;
+	return encalloc(1, nmemb, size);
 }
 
 void *
 emalloc(size_t size)
 {
-	void *p;
-
-	p = malloc(size);
-	if (!p)
-		eprintf("malloc: out of memory\n");
-	return p;
+	return enmalloc(1, size);
 }
 
 void *
 erealloc(void *p, size_t size)
 {
-	p = realloc(p, size);
-	if (!p)
-		eprintf("realloc: out of memory\n");
-	return p;
+	return enrealloc(1, p, size);
 }
 
 char *
 estrdup(const char *s)
 {
+	return enstrdup(1, s);
+}
+
+void *
+encalloc(int status, size_t nmemb, size_t size)
+{
+	void *p;
+
+	p = calloc(nmemb, size);
+	if (!p)
+		enprintf(status, "calloc: out of memory\n");
+	return p;
+}
+
+void *
+enmalloc(int status, size_t size)
+{
+	void *p;
+
+	p = malloc(size);
+	if (!p)
+		enprintf(status, "malloc: out of memory\n");
+	return p;
+}
+
+void *
+enrealloc(int status, void *p, size_t size)
+{
+	p = realloc(p, size);
+	if (!p)
+		enprintf(status, "realloc: out of memory\n");
+	return p;
+}
+
+char *
+enstrdup(int status, const char *s)
+{
 	char *p;
 
 	p = strdup(s);
 	if (!p)
-		eprintf("strdup: out of memory\n");
+		enprintf(status, "strdup: out of memory\n");
 	return p;
 }
