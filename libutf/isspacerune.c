@@ -4,13 +4,18 @@
 #include "../utf.h"
 #include "runetype.h"
 
+static Rune space3[][2] = {
+	{ 0x0009, 0x000B },
+};
+
 static Rune space2[][2] = {
+	{ 0x000B, 0x000C },
+	{ 0x001F, 0x0020 },
 	{ 0x2000, 0x200A },
 	{ 0x2028, 0x2029 },
 };
 
 static Rune space1[] = {
-	0x0020,
 	0x00A0,
 	0x1680,
 	0x202F,
@@ -21,6 +26,10 @@ static Rune space1[] = {
 int
 isspacerune(Rune r)
 {
+	Rune *match;
+
+	if(match = bsearch(&r, space3, nelem(space3), sizeof *space3, &rune2cmp))
+		return !((r - match[0]) % 2);
 	if(bsearch(&r, space2, nelem(space2), sizeof *space2, &rune2cmp))
 		return 1;
 	if(bsearch(&r, space1, nelem(space1), sizeof *space1, &rune1cmp))
