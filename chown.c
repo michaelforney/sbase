@@ -12,13 +12,14 @@ static int    rflag = 0;
 static uid_t  uid = -1;
 static gid_t  gid = -1;
 static int    ret = 0;
-static int (*chown_func)(const char *, uid_t, gid_t) = chown;
+static char *chown_f_name = "chown";
+static int (*chown_f)(const char *, uid_t, gid_t) = chown;
 
 static void
 chownpwgr(const char *path)
 {
-	if (chown_func(path, uid, gid) < 0) {
-		weprintf("chown %s:", path);
+	if (chown_f(path, uid, gid) < 0) {
+		weprintf("%s %s:", chown_f_name, path);
 		ret = 1;
 	}
 	if (rflag)
@@ -40,7 +41,8 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	case 'h':
-		chown_func = lchown;
+		chown_f_name = "lchown";
+		chown_f = lchown;
 		break;
 	case 'R':
 	case 'r':
