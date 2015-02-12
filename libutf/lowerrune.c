@@ -290,7 +290,7 @@ islowerrune(Rune r)
 {
 	Rune *match;
 
-	if(match = bsearch(&r, lower4, nelem(lower4), sizeof *lower4, &rune2cmp))
+	if((match = bsearch(&r, lower4, nelem(lower4), sizeof *lower4, &rune2cmp)))
 		return !((r - match[0]) % 2);
 	if(bsearch(&r, lower2, nelem(lower2), sizeof *lower2, &rune2cmp))
 		return 1;

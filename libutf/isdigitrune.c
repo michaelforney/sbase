@@ -64,4 +64,3 @@ isdigitrune(Rune r)
 		return 1;
 	return 0;
 }
-

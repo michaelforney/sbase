@@ -215,7 +215,7 @@ isupperrune(Rune r)
 {
 	Rune *match;
 
-	if(match = bsearch(&r, upper3, nelem(upper3), sizeof *upper3, &rune2cmp))
+	if((match = bsearch(&r, upper3, nelem(upper3), sizeof *upper3, &rune2cmp)))
 		return !((r - match[0]) % 2);
 	if(bsearch(&r, upper2, nelem(upper2), sizeof *upper2, &rune2cmp))
 		return 1;

@@ -23,12 +23,9 @@ static Rune space1[] = {
 int
 isspacerune(Rune r)
 {
-	Rune *match;
-
 	if(bsearch(&r, space2, nelem(space2), sizeof *space2, &rune2cmp))
 		return 1;
 	if(bsearch(&r, space1, nelem(space1), sizeof *space1, &rune1cmp))
 		return 1;
 	return 0;
 }
-
