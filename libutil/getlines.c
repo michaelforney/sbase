@@ -20,8 +20,7 @@ getlines(FILE *fp, struct linebuf *b)
 			b->lines = nline;
 		}
 		linelen = len + 1;
-		b->lines[b->nlines - 1] = emalloc(linelen);
-		memcpy(b->lines[b->nlines - 1], line, linelen);
+		b->lines[b->nlines - 1] = memcpy(emalloc(linelen), line, linelen);
 	}
 	free(line);
 	if (!strchr(b->lines[b->nlines - 1], '\n')) {
