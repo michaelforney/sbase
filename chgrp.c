@@ -14,22 +14,24 @@ static int gid;
 static int status;
 static int rflag;
 static struct stat st;
-
-static void
-usage(void)
-{
-	eprintf("usage: chgrp [-R] groupname file...\n");
-}
+static char *chown_f_name = "chown";
+static int (*chown_f)(const char *, uid_t, gid_t) = chown;
 
 static void
 chgrp(const char *path)
 {
-	if (chown(path, st.st_uid, gid) < 0) {
-		weprintf("chown %s:", path);
+	if (chown_f(path, st.st_uid, gid) < 0) {
+		weprintf("%s %s:", chown_f_name, path);
 		status = 1;
 	}
 	if (rflag)
 		recurse(path, chgrp);
+}
+
+static void
+usage(void)
+{
+	eprintf("usage: chgrp [-hR] groupname file...\n");
 }
 
 int
@@ -38,6 +40,10 @@ main(int argc, char *argv[])
 	struct group *gr;
 
 	ARGBEGIN {
+	case 'h':
+		chown_f_name = "lchown";
+		chown_f = lchown;
+		break;
 	case 'R':
 		rflag = 1;
 		break;

@@ -8,17 +8,27 @@
 
 #include "util.h"
 
-static void chownpwgr(const char *);
+static int    rflag = 0;
+static uid_t  uid = -1;
+static gid_t  gid = -1;
+static int    ret = 0;
+static int (*chown_func)(const char *, uid_t, gid_t) = chown;
 
-static int rflag = 0;
-static uid_t uid = -1;
-static gid_t gid = -1;
-static int ret = 0;
+static void
+chownpwgr(const char *path)
+{
+	if (chown_func(path, uid, gid) < 0) {
+		weprintf("chown %s:", path);
+		ret = 1;
+	}
+	if (rflag)
+		recurse(path, chownpwgr);
+}
 
 static void
 usage(void)
 {
-	eprintf("usage: %s [-Rr] [owner][:[group]] file...\n", argv0);
+	eprintf("usage: %s [-hRr] [owner][:[group]] file...\n", argv0);
 }
 
 int
@@ -29,6 +39,9 @@ main(int argc, char *argv[])
 	struct group *gr;
 
 	ARGBEGIN {
+	case 'h':
+		chown_func = lchown;
+		break;
 	case 'R':
 	case 'r':
 		rflag = 1;
@@ -76,15 +89,4 @@ main(int argc, char *argv[])
 		chownpwgr(argv[0]);
 
 	return ret;
-}
-
-void
-chownpwgr(const char *path)
-{
-	if (chown(path, uid, gid) < 0) {
-		weprintf("chown %s:", path);
-		ret = 1;
-	}
-	if (rflag)
-		recurse(path, chownpwgr);
 }
