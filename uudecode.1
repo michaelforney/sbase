@@ -1,4 +1,4 @@
-.Dd January 30, 2015
+.Dd February 13, 2015
 .Dt UUDECODE 1
 .Os sbase
 .Sh NAME
@@ -6,6 +6,8 @@
 .Nd decode a uuencoded file
 .Sh SYNOPSIS
 .Nm
+.Op Fl m
+.Op Fl o Ar output
 .Op Ar file
 .Sh DESCRIPTION
 .Nm
@@ -16,9 +18,24 @@ version to the file specified in the uuencoded header. In case that
 the file already exists, it is truncated. Otherwise a new file is
 created. After the operation the permissions of the created/accessed
 are changed to reflect the mode in the header.
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl m
+Use Base64 for decoding.
+.It Fl o Ar output
+Use the file specified by
+.Ar output
+instead of standard output.
+.El
+.Sh SEE ALSO
+.Xr uuencode 1
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.
 .Sh IMPLEMENTATION NOTES
-This version of uudecode does not currently support the base64
-encoding algorithm.
 For safety currently uudecode operates only on regular files and
 stdout. Trying to uudecode to a link, directory, or special file
 yields an error.
