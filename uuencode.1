@@ -1,4 +1,4 @@
-.Dd January 30, 2015
+.Dd February 13, 2015
 .Dt UUENCODE 1
 .Os sbase
 .Sh NAME
@@ -6,6 +6,7 @@
 .Nd encode a binary file
 .Sh SYNOPSIS
 .Nm
+.Op Fl m
 .Op Ar file
 .Ar name
 .Sh DESCRIPTION
@@ -17,6 +18,16 @@ to the standard output. The encoding uses only printing ASCII characters and
 includes the mode of the file and the operand
 .Ar name
 for use by uudecode.
-.Sh IMPLEMENTATION NOTES
-This version of uuencode does not currently support the base64
-encoding algorithm.
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl m
+Use Base64 for encoding.
+.El
+.Sh SEE ALSO
+.Xr uudecode 1
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.
