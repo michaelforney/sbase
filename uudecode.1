@@ -27,6 +27,10 @@ Use the file specified by
 .Ar output
 instead of standard output.
 .El
+.Sh IMPLEMENTATION NOTES
+For safety currently uudecode operates only on regular files and
+stdout. Trying to uudecode to a link, directory, or special file
+yields an error.
 .Sh SEE ALSO
 .Xr uuencode 1
 .Sh STANDARDS
@@ -39,7 +43,3 @@ specification.
 The
 .Op Fl m
 flag is an extension to that specification.
-.Sh IMPLEMENTATION NOTES
-For safety currently uudecode operates only on regular files and
-stdout. Trying to uudecode to a link, directory, or special file
-yields an error.
