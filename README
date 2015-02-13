@@ -81,8 +81,8 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 #* unexpand        yes                          none
 =* uniq            yes                          none
 =* unlink          yes                          none
-=  uudecode        no                           -m -o
-=  uuencode        no                           -m
+=  uudecode        yes                          none
+=  uuencode        yes                          none
 #* wc              yes                          none
 =  xargs           no                           -I, -L, -p, -s, -t, -x
 =* yes             non-posix                    none
