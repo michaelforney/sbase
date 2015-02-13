@@ -10,11 +10,13 @@ int
 fgetrune(Rune *r, FILE *fp)
 {
 	char buf[UTFmax];
-	int i;
+	int  i = 0, c;
 
-	for (i = 0; i < UTFmax && (buf[i] = fgetc(fp)) != EOF && ++i ;)
+	while (i < UTFmax && (c = fgetc(fp)) != EOF) {
+		buf[i++] = c;
 		if (charntorune(r, buf, i) > 0)
 			break;
+	}
 	if (ferror(fp))
 		return -1;
 
