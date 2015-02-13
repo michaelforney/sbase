@@ -9,55 +9,13 @@
 
 static int mflag = 0;
 
-static void uuencodeb64(FILE *, const char *, const char *);
-static void uuencode(FILE *, const char *, const char *);
-
-static void
-usage(void)
-{
-	eprintf("usage: %s [-m] [file] name\n", argv0);
-}
-
-int
-main(int argc, char *argv[])
-{
-	FILE *fp;
-
-	ARGBEGIN {
-	case 'm':
-		mflag = 1;
-		break;
-	default:
-		usage();
-	} ARGEND;
-
-	if (argc == 0 || argc > 2)
-		usage();
-
-	if (argc == 1) {
-		if (mflag)
-			uuencodeb64(stdin, argv[0], "<stdin>");
-		else
-			uuencode(stdin, argv[0], "<stdin>");
-	} else {
-		if (!(fp = fopen(argv[0], "r")))
-			eprintf("fopen %s:", argv[0]);
-		if (mflag)
-			uuencodeb64(fp, argv[1], argv[0]);
-		else
-			uuencode(fp, argv[1], argv[0]);
-		fclose(fp);
-	}
-	return 0;
-}
-
-static const char b64et[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-/* much faster */
 static unsigned int
 b64e(unsigned char b[2])
 {
 	unsigned int o = 0;
 	unsigned int p = b[2] | (b[1] << 8) | (b[0] << 16);
+	const char b64et[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
 	o = b64et[p & 0x3f]; p >>= 6;
 	o = (o << 8) | b64et[p & 0x3f]; p >>= 6;
 	o = (o << 8) | b64et[p & 0x3f]; p >>= 6;
@@ -72,6 +30,7 @@ uuencodeb64(FILE *fp, const char *name, const char *s)
 	ssize_t n, m = 0;
 	unsigned char buf[45], *pb;
 	unsigned int out[sizeof(buf)/3 + 1], *po;
+
 	if (fstat(fileno(fp), &st) < 0)
 		eprintf("fstat %s:", s);
 	printf("begin-base64 %o %s\n", st.st_mode & 0777, name);
@@ -132,4 +91,43 @@ uuencode(FILE *fp, const char *name, const char *s)
 	if (ferror(fp))
 		eprintf("'%s' read error:", s);
 	printf("%c\nend\n", '`');
+}
+
+static void
+usage(void)
+{
+	eprintf("usage: %s [-m] [file] name\n", argv0);
+}
+
+int
+main(int argc, char *argv[])
+{
+	FILE *fp;
+
+	ARGBEGIN {
+	case 'm':
+		mflag = 1;
+		break;
+	default:
+		usage();
+	} ARGEND;
+
+	if (argc == 0 || argc > 2)
+		usage();
+
+	if (argc == 1) {
+		if (mflag)
+			uuencodeb64(stdin, argv[0], "<stdin>");
+		else
+			uuencode(stdin, argv[0], "<stdin>");
+	} else {
+		if (!(fp = fopen(argv[0], "r")))
+			eprintf("fopen %s:", argv[0]);
+		if (mflag)
+			uuencodeb64(fp, argv[1], argv[0]);
+		else
+			uuencode(fp, argv[1], argv[0]);
+		fclose(fp);
+	}
+	return 0;
 }
