@@ -11,79 +11,8 @@
 #include "text.h"
 #include "util.h"
 
-static void uudecodeb64(FILE *, FILE *);
-static void uudecode(FILE *, FILE *);
-static void parseheader(FILE *, const char *, char **, mode_t *, char **);
-static FILE *parsefile(const char *);
-
-static void
-usage(void)
-{
-	eprintf("usage: %s [-m] [-o output] [file]\n", argv0);
-}
-
 static int mflag = 0;
 static int oflag = 0;
-
-int
-main(int argc, char *argv[])
-{
-	FILE *fp = NULL, *nfp = NULL;
-	char *fname, *header;
-	const char *ifname;
-	mode_t mode = 0;
-	void (*d) (FILE *, FILE *) = NULL;
-	char *ofname = NULL;
-
-	ARGBEGIN {
-	case 'm':
-		mflag = 1; /* accepted but unused (autodetect file type) */
-		break;
-	case 'o':
-		oflag = 1;
-		ofname = EARGF(usage());
-		break;
-	default:
-		usage();
-	} ARGEND;
-
-	if (argc > 1)
-		usage();
-
-	if (argc == 0) {
-		fp = stdin;
-		ifname = "<stdin>";
-	} else {
-		if (!(fp = fopen(argv[0], "r")))
-			eprintf("fopen %s:", argv[0]);
-		ifname = argv[0];
-	}
-
-	parseheader(fp, ifname, &header, &mode, &fname);
-
-	if (!strncmp(header, "begin", sizeof("begin")))
-		d = uudecode;
-	else if (!strncmp(header, "begin-base64", sizeof("begin-base64")))
-		d = uudecodeb64;
-	else
-		eprintf("unknown header %s:", header);
-
-	if (oflag)
-		fname = ofname;
-	if (!(nfp = parsefile(fname)))
-		eprintf("fopen %s:", fname);
-
-	d(fp, nfp);
-
-	if (nfp != stdout && chmod(fname, mode) < 0)
-		eprintf("chmod %s:", fname);
-	if (fp)
-		fclose(fp);
-	if (nfp)
-		fclose(nfp);
-
-	return 0;
-}
 
 static FILE *
 parsefile(const char *fname)
@@ -142,6 +71,7 @@ parseheader(FILE *fp, const char *s, char **header, mode_t *mode,
 	if (n > 0)
 		*fname = q;
 }
+
 static const char b64dt[] = {
 	-1,-1,-1,-1,-1,-1,-1,-1,-1,-2,-2,-2,-2,-2,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 	-1,-1,-1,-1,-1,-1,-1,-1,-2,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,62,-1,-1,-1,63,
@@ -285,4 +215,70 @@ uudecode(FILE *fp, FILE *outfp)
 	if (len < 3 || strncmp(bufb, "end", 3) != 0 || bufb[3] != '\n')
 		eprintf("invalid uudecode footer \"end\" not found\n");
 	free(bufb);
+}
+
+static void
+usage(void)
+{
+	eprintf("usage: %s [-m] [-o output] [file]\n", argv0);
+}
+
+int
+main(int argc, char *argv[])
+{
+	FILE *fp = NULL, *nfp = NULL;
+	char *fname, *header;
+	const char *ifname;
+	mode_t mode = 0;
+	void (*d) (FILE *, FILE *) = NULL;
+	char *ofname = NULL;
+
+	ARGBEGIN {
+	case 'm':
+		mflag = 1; /* accepted but unused (autodetect file type) */
+		break;
+	case 'o':
+		oflag = 1;
+		ofname = EARGF(usage());
+		break;
+	default:
+		usage();
+	} ARGEND;
+
+	if (argc > 1)
+		usage();
+
+	if (argc == 0) {
+		fp = stdin;
+		ifname = "<stdin>";
+	} else {
+		if (!(fp = fopen(argv[0], "r")))
+			eprintf("fopen %s:", argv[0]);
+		ifname = argv[0];
+	}
+
+	parseheader(fp, ifname, &header, &mode, &fname);
+
+	if (!strncmp(header, "begin", sizeof("begin")))
+		d = uudecode;
+	else if (!strncmp(header, "begin-base64", sizeof("begin-base64")))
+		d = uudecodeb64;
+	else
+		eprintf("unknown header %s:", header);
+
+	if (oflag)
+		fname = ofname;
+	if (!(nfp = parsefile(fname)))
+		eprintf("fopen %s:", fname);
+
+	d(fp, nfp);
+
+	if (nfp != stdout && chmod(fname, mode) < 0)
+		eprintf("chmod %s:", fname);
+	if (fp)
+		fclose(fp);
+	if (nfp)
+		fclose(nfp);
+
+	return 0;
 }
