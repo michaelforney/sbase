@@ -1,10 +1,7 @@
 /* See LICENSE file for copyright and license details. */
-#include <sys/types.h>
 #include <sys/wait.h>
 
 #include <errno.h>
-#include <limits.h>
-#include <signal.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>

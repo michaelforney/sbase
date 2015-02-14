@@ -1,9 +1,9 @@
 /* See LICENSE file for copyright and license details. */
+#include <sys/stat.h>
+
 #include <errno.h>
 #include <fcntl.h>
-#include <limits.h>
 #include <stdlib.h>
-#include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
 #include <utime.h>

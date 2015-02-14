@@ -1,10 +1,8 @@
 /* See LICENSE file for copyright and license details. */
-#include <errno.h>
-#include <limits.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <sys/resource.h>
-#include <sys/time.h>
+
+#include <errno.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #include "util.h"

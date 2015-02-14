@@ -1,10 +1,8 @@
 /* See LICENSE file for copyright and license details. */
 #include <sys/stat.h>
 #include <sys/time.h>
-#include <sys/types.h>
 
 #include <grp.h>
-#include <limits.h>
 #include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>

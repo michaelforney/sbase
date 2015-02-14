@@ -1,7 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 #include <sys/stat.h>
 
-#include <limits.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>

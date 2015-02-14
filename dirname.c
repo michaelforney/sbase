@@ -1,8 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 #include <libgen.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 
 #include "util.h"
 

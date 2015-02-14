@@ -3,11 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
-#include <unistd.h>
 
 #include "queue.h"
-#include "text.h"
 #include "util.h"
 
 enum { Match = 0, NoMatch = 1, Error = 2 };

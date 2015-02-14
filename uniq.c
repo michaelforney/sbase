@@ -1,11 +1,9 @@
 /* See LICENSE file for copyright and license details. */
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <ctype.h>
 
-#include "text.h"
 #include "util.h"
 
 static void uniqline(FILE *, char *);

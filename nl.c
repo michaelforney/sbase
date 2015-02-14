@@ -1,11 +1,8 @@
 /* See LICENSE file for copyright and license details. */
-#include <limits.h>
-#include <regex.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 #include "text.h"
 #include "util.h"

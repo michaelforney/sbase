@@ -1,9 +1,6 @@
 /* See LICENSE file for copyright and license details. */
-#include <locale.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 
 #include "utf.h"
 #include "util.h"

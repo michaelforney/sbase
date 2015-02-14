@@ -1,9 +1,7 @@
 /* See LICENSE file for copyright and license details. */
-#include <stdio.h>
-#include <stdlib.h>
 #include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
+
+#include <stdio.h>
 
 #include "util.h"
 

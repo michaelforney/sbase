@@ -1,14 +1,11 @@
 /* See LICENSE file for copyright and license details. */
+#include <sys/stat.h>
+
 #include <errno.h>
-#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
 
-#include "text.h"
 #include "util.h"
 
 static int mflag = 0;
