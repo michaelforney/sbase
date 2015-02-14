@@ -1,5 +1,4 @@
 /* See LICENSE file for copyright and license details. */
-#include <assert.h>
 #include <limits.h>
 #include <stdint.h>
 #include <stdio.h>
