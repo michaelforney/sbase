@@ -30,10 +30,5 @@ If you are looking for some work to do on sbase, another option is to
 pick a utility from the list in the README which has missing flags or
 features noted.
 
-We also need to add support for UTF-8. We have imported libutf from
-suckless.org and reworked all tools which used wchar.h.
-What is left to do is replace all instances of wctype.h-usage with
-functions in runetypebody.h, which is much saner than wctype.h.
-
 [0] http://landley.net/toybox/roadmap.html
 [1] http://git.suckless.org/ubase/
