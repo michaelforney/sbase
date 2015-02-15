@@ -60,7 +60,7 @@ mode_t getumask(void);
 char *humansize(double);
 mode_t parsemode(const char *, mode_t, mode_t);
 void putword(const char *);
-void recurse(const char *, void (*)(const char *, char), char);
+void recurse(const char *, void (*)(const char *, char), int);
 #undef strtonum
 long long strtonum(const char *, long long, long long, const char **);
 long long enstrtonum(int, const char *, long long, long long);

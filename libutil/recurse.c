@@ -11,7 +11,7 @@
 #include "../util.h"
 
 void
-recurse(const char *path, void (*fn)(const char *, char), char follow)
+recurse(const char *path, void (*fn)(const char *, char), int follow)
 {
 	char buf[PATH_MAX];
 	struct dirent *d;
