@@ -8,12 +8,14 @@
 #include "utf.h"
 #include "util.h"
 
-static void usage(void)
+static void
+usage(void)
 {
 	eprintf("%s format [arg ...]\n", argv0);
 }
 
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
 	Rune *rarg;
 	size_t i, j, argi, lastargi, formatlen, arglen;
