@@ -32,7 +32,8 @@ int main(int argc, char *argv[])
 		cooldown = 1;
 	}
 	formatlen = unescape(format);
-
+	if (formatlen == 0)
+		return 0;
 	lastargi = 0;
 	for (i = 0, argi = 2; !cooldown || i < formatlen; i++, i = cooldown ? i : (i % formatlen)) {
 		if (i == 0) {
