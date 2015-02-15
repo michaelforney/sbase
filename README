@@ -51,7 +51,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =* nohup           yes                          none
 #* paste           yes                          none
 =* printenv        non-posix                    none
-   printf          stolen                       stolen
+#* printf          yes                          none
 =* pwd             yes                          none
 =  readlink        non-posix                    none
 =* renice          yes                          none

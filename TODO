@@ -24,7 +24,7 @@ tput
 The  following  programs have  been  imported  from  OpenBSD and  need
 replacing or cleaning up:
 
-printf
+(none)
 
 If you are looking for some work to do on sbase, another option is to
 pick a utility from the list in the README which has missing flags or
