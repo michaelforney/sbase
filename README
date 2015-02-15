@@ -12,9 +12,9 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =* basename        yes                          none
 =* cal             yes                          none
 =* cat             yes                          none
-=  chgrp           no                           -H -L -P
+=* chgrp           yes                          none
 =* chmod           yes                          none
-=  chown           no                           -H -L -P
+=* chown           yes                          none
 =* chroot          non-posix                    none
 =* cksum           yes                          none
 =* cmp             yes                          none
