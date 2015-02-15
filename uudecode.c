@@ -52,13 +52,13 @@ parseheader(FILE *fp, const char *s, char **header, mode_t *mode,
 		eprintf("header string too long or non-newline terminated file\n");
 	p = bufs;
 	if (!(q = strchr(p, ' ')))
-		eprintf("malformed mode string in header\n");
+		eprintf("malformed mode string in header, expected ' '\n");
 	*header = bufs;
 	*q++ = '\0';
 	p = q;
 	/* now header should be null terminated, q points to mode */
 	if (!(q = strchr(p, ' ')))
-		eprintf("malformed mode string in header\n");
+		eprintf("malformed mode string in header, expected ' '\n");
 	*q++ = '\0';
 	/* now mode should be null terminated, q points to fname */
 	*mode = parsemode(p, *mode, 0);
@@ -67,6 +67,8 @@ parseheader(FILE *fp, const char *s, char **header, mode_t *mode,
 		q[--n] = '\0';
 	if (n > 0)
 		*fname = q;
+	else
+		eprintf("header string does not contain output file\n");
 }
 
 static const char b64dt[] = {
@@ -111,7 +113,7 @@ uudecodeb64(FILE *fp, FILE *outfp)
 						continue;
 					case 1:
 						eprintf("%d: unexpected \"=\""
-						        "appeared.", l);
+						        "appeared\n", l);
 					case 3:
 						*po++ = b24[0];
 						*po++ = b24[1];
@@ -125,11 +127,12 @@ uudecodeb64(FILE *fp, FILE *outfp)
 						continue;
 				}
 			} else if ((e = b64dt[(int)*pb]) == -1)
-				eprintf("%d: invalid byte \"%c\"", l, *pb);
+				eprintf("%d: invalid byte \"%c\"\n", l, *pb);
 			else if (e == -2) /* whitespace */
 				continue;
 			else if (t > 0) /* state is parsing pad/footer */
-				eprintf("%d: invalid byte \"%c\" after padding",
+				eprintf("%d: invalid byte \"%c\""
+					" after padding\n",
 				        l, *pb);
 			switch (b) { /* decode next base64 chr based on state */
 				case 0: b24[0] |= e << 2; break;
