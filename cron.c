@@ -38,7 +38,6 @@ struct jobentry {
 	TAILQ_ENTRY(jobentry) entry;
 };
 
-char *argv0;
 static sig_atomic_t chldreap;
 static sig_atomic_t reload;
 static sig_atomic_t quit;
