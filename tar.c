@@ -21,8 +21,8 @@ struct header {
 	char chksum[8];
 	char type;
 	char link[100];
-	char *magic;
-	char *version;
+	char magic[6];
+	char version[2];
 	char uname[32];
 	char gname[32];
 	char major[8];
@@ -111,8 +111,8 @@ archive(const char* path)
 	putoctal(h->gid,   (unsigned)st.st_gid,         sizeof(h->gid));
 	putoctal(h->size,  0,                           sizeof(h->size));
 	putoctal(h->mtime, (unsigned)st.st_mtime,       sizeof(h->mtime));
-	h->magic = "ustar";
-	h->version = "00";
+	memcpy(h->magic,   "ustar",                     sizeof(h->magic));
+	memcpy(h->version, "00",                        sizeof(h->version));
 	snprintf(h->uname, sizeof h->uname, "%s", pw ? pw->pw_name : "");
 	snprintf(h->gname, sizeof h->gname, "%s", gr ? gr->gr_name : "");
 
