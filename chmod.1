@@ -6,9 +6,12 @@
 .Nd change file mode
 .Sh SYNOPSIS
 .Nm
-.Op Fl R
+.Oo
+.Fl R
+.Op Fl H | L | P
+.Oc
 .Ar mode
-.Op Ar file ...
+.Ar file ...
 .Sh DESCRIPTION
 .Nm
 changes the file mode of the given
@@ -54,9 +57,17 @@ read | write | execute | setuid and setgid | sticky
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl R
-Change modes recursively
+Change modes recursively.
+.It Fl H
+Only dereference symbolic links that are passed as command line arguments when
+recursively traversing directories.
+.It Fl L
+Always dereference symbolic links while recursively traversing directories.
+.It Fl P
+Don't dereference symbolic links (default).
 .El
 .Sh SEE ALSO
+.Xr chgrp 1 ,
 .Xr umask 1
 .Sh STANDARDS
 The
@@ -66,5 +77,5 @@ utility is compliant with the
 specification.
 .Pp
 The
-.Op Fl R
-flag is an extension to that specification.
+.Op Fl HLP
+flags are an extension to that specification.

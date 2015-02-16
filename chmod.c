@@ -3,7 +3,8 @@
 
 #include "util.h"
 
-static int    rflag   = 0;
+static int    Rflag   = 0;
+static int    fflag   = 'P';
 static char  *modestr = "";
 static mode_t mask    = 0;
 static int    ret     = 0;
@@ -25,14 +26,14 @@ chmodr(const char *path, int fflag)
 		weprintf("chmod %s:", path);
 		ret = 1;
 	}
-	if (rflag)
+	if (Rflag)
 		recurse(path, chmodr, fflag);
 }
 
 static void
 usage(void)
 {
-	eprintf("usage: %s [-R] mode [file ...]\n", argv0);
+	eprintf("usage: %s [-R [-H | -L | -P]] mode file ...\n", argv0);
 }
 
 int
@@ -44,7 +45,12 @@ main(int argc, char *argv[])
 	for (i = 1; i < argc && argv[i][0] == '-'; i++) {
 		switch (argv[i][1]) {
 		case 'R':
-			rflag = 1;
+			Rflag = 1;
+			break;
+		case 'H':
+		case 'L':
+		case 'P':
+			fflag = argv[i][1];
 			break;
 		case 'r': case 'w': case 'x': case 's': case 't':
 			/*
@@ -65,7 +71,7 @@ done:
 		usage();
 
 	for (++i; i < argc; i++)
-		chmodr(argv[i], 'P');
+		chmodr(argv[i], fflag);
 
 	return ret;
 }
