@@ -9,7 +9,7 @@
 
 static int gid;
 static int status;
-static int rflag;
+static int Rflag;
 static int fflag = 'P';
 static struct stat st;
 static char *chown_f_name = "chown";
@@ -22,14 +22,14 @@ chgrp(const char *path, int fflag)
 		weprintf("%s %s:", chown_f_name, path);
 		status = 1;
 	}
-	if (rflag)
+	if (Rflag)
 		recurse(path, chgrp, fflag);
 }
 
 static void
 usage(void)
 {
-	eprintf("usage: chgrp [-hR] groupname file...\n");
+	eprintf("usage: chgrp [-h] [-R [-H | -L | -P]] group file ...\n");
 }
 
 int
@@ -43,7 +43,7 @@ main(int argc, char *argv[])
 		chown_f = lchown;
 		break;
 	case 'R':
-		rflag = 1;
+		Rflag = 1;
 		break;
 	case 'H':
 	case 'L':
@@ -54,7 +54,7 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc < 2)
+	if (argc < 2 || (chown_f == lchown && Rflag))
 		usage();
 
 	errno = 0;

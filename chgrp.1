@@ -6,20 +6,25 @@
 .Nd change the file group ownership
 .Sh SYNOPSIS
 .Nm
-.Op Fl R
-.Op Fl H
-.Op Fl L
-.Op Fl P
-.Ar groupname
-.Op Ar file...
+.Op Fl h
+.Oo
+.Fl R
+.Op Fl H | L | P
+.Oc
+.Ar group
+.Ar file...
 .Sh DESCRIPTION
 .Nm
 sets the group id of the files specified by
 .Ar file
 to the gid of the group named
-.Ar group.
+.Ar group .
 .Sh OPTIONS
 .Bl -tag -width Ds
+.It Fl h
+Change the group ID of the symlink itself.  This flag cannot be used
+with
+.Op Fl R .
 .It Fl R
 Change file group ownership recursively.
 .It Fl H
@@ -42,4 +47,4 @@ The
 .Nm
 utility is compliant with the
 .St -p1003.1-2008
-specification except from the -h flag.
+specification.
