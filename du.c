@@ -21,7 +21,7 @@ static int dflag = 0;
 static int sflag = 0;
 static int kflag = 0;
 static int hflag = 0;
-static char HLflag = 'P';
+static int HLflag = 'P';
 
 static char *
 xrealpath(const char *pathname, char *resolved)

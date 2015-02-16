@@ -9,7 +9,7 @@ static mode_t mask    = 0;
 static int    ret     = 0;
 
 void
-chmodr(const char *path, char fflag)
+chmodr(const char *path, int fflag)
 {
 	struct stat st;
 	mode_t m;

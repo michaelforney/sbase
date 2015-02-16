@@ -10,13 +10,13 @@
 static int gid;
 static int status;
 static int rflag;
-static char fflag = 'P';
+static int fflag = 'P';
 static struct stat st;
 static char *chown_f_name = "chown";
 static int (*chown_f)(const char *, uid_t, gid_t) = chown;
 
 static void
-chgrp(const char *path, char fflag)
+chgrp(const char *path, int fflag)
 {
 	if (chown_f(path, st.st_uid, gid) < 0) {
 		weprintf("%s %s:", chown_f_name, path);

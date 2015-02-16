@@ -18,7 +18,7 @@ mv(const char *s1, const char *s2, char ff)
 		cp_aflag = cp_rflag = cp_pflag = 1;
 		rm_rflag = 1;
 		cp(s1, s2, ff);
-		rm(s1);
+		rm(s1, 0);
 		return (mv_status = cp_status || rm_status);
 	}
 	mv_status = 1;

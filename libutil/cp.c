@@ -21,7 +21,7 @@ int cp_pflag = 0;
 int cp_rflag = 0;
 int cp_vflag = 0;
 int cp_status = 0;
-char cp_HLPflag = 'L';
+int cp_HLPflag = 'L';
 
 int
 cp(const char *s1, const char *s2, char ff)

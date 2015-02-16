@@ -9,7 +9,7 @@ int rm_rflag = 0;
 int rm_status = 0;
 
 void
-rm(const char *path)
+rm(const char *path, int unused)
 {
 	if (rm_rflag)
 		recurse(path, rm, 'P');
