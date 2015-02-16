@@ -11,8 +11,7 @@
 
 #include "util.h"
 
-typedef struct Header Header;
-struct Header {
+struct header {
 	char name[100];
 	char mode[8];
 	char uid[8];
@@ -22,8 +21,8 @@ struct Header {
 	char chksum[8];
 	char type;
 	char link[100];
-	char magic[6];
-	char version[2];
+	char *magic;
+	char *version;
 	char uname[32];
 	char gname[32];
 	char major[8];
@@ -31,43 +30,34 @@ struct Header {
 	char prefix[155];
 };
 
-enum {
-	Blksiz = 512
-};
+#define BLKSIZ 512
 
 enum Type {
 	REG = '0', AREG = '\0', HARDLINK = '1', SYMLINK = '2', CHARDEV = '3',
 	BLOCKDEV = '4', DIRECTORY = '5', FIFO = '6'
 };
 
-static void putoctal(char *, unsigned, int);
-static int archive(const char *);
-static int unarchive(char *, int, char[Blksiz]);
-static int print(char *, int , char[Blksiz]);
-static void c(const char *, int);
-static void xt(int (*)(char*, int, char[Blksiz]));
-
 static FILE *tarfile;
 static ino_t tarinode;
 static dev_t tardev;
 
-static int mflag;
-static int fflag = 'P';
+static int  mflag;
+static int  fflag = 'P';
 static char filtermode;
 
 static FILE *
 decomp(FILE *fp)
 {
-	int   fds[2];
 	pid_t pid;
+	int   fds[2];
 
 	if (pipe(fds) < 0)
 		eprintf("pipe:");
 
 	pid = fork();
-	if (pid < 0) {
+	if (pid < 0)
 		eprintf("fork:");
-	} else if (!pid) {
+	else if (!pid) {
 		dup2(fileno(fp), 0);
 		dup2(fds[1], 1);
 		close(fds[0]);
@@ -83,7 +73,6 @@ decomp(FILE *fp)
 			break;
 		}
 	}
-
 	close(fds[1]);
 	return fdopen(fds[0], "r");
 }
@@ -91,21 +80,20 @@ decomp(FILE *fp)
 static void
 putoctal(char *dst, unsigned num, int n)
 {
-	snprintf(dst, n, "%.*o", n-1, num);
+	snprintf(dst, n, "%.*o", n - 1, num);
 }
 
 static int
 archive(const char* path)
 {
-	unsigned char b[Blksiz];
-	unsigned chksum;
-	int l, x;
-	Header *h = (void*)b;
-	FILE *f = NULL;
-	struct stat st;
-	struct passwd *pw;
-	struct group *gr;
+	FILE *f;
 	mode_t mode;
+	struct group *gr;
+	struct header *h;
+	struct passwd *pw;
+	struct stat st;
+	size_t chksum, l, x;
+	unsigned char b[BLKSIZ];
 
 	lstat(path, &st);
 	if (st.st_ino == tarinode && st.st_dev == tardev) {
@@ -115,15 +103,16 @@ archive(const char* path)
 	pw = getpwuid(st.st_uid);
 	gr = getgrgid(st.st_gid);
 
-	memset(b, 0, sizeof b);
-	snprintf(h->name, sizeof h->name, "%s", path);
-	putoctal(h->mode,  (unsigned)st.st_mode&0777, sizeof h->mode);
-	putoctal(h->uid,   (unsigned)st.st_uid,       sizeof h->uid);
-	putoctal(h->gid,   (unsigned)st.st_gid,       sizeof h->gid);
-	putoctal(h->size,  0,                         sizeof h->size);
-	putoctal(h->mtime, (unsigned)st.st_mtime,     sizeof h->mtime);
-	memcpy(h->magic,   "ustar",                   sizeof h->magic);
-	memcpy(h->version, "00",                      sizeof h->version);
+	h = (void*)b;
+	memset(b, 0, sizeof(b));
+	snprintf(h->name, sizeof(h->name), "%s", path);
+	putoctal(h->mode,  (unsigned)st.st_mode & 0777, sizeof(h->mode));
+	putoctal(h->uid,   (unsigned)st.st_uid,         sizeof(h->uid));
+	putoctal(h->gid,   (unsigned)st.st_gid,         sizeof(h->gid));
+	putoctal(h->size,  0,                           sizeof(h->size));
+	putoctal(h->mtime, (unsigned)st.st_mtime,       sizeof(h->mtime));
+	h->magic = "ustar";
+	h->version = "00";
 	snprintf(h->uname, sizeof h->uname, "%s", pw ? pw->pw_name : "");
 	snprintf(h->gname, sizeof h->gname, "%s", gr ? gr->gr_name : "");
 
@@ -154,26 +143,26 @@ archive(const char* path)
 		chksum += b[x];
 	putoctal(h->chksum, chksum, sizeof h->chksum);
 
-	fwrite(b, Blksiz, 1, tarfile);
+	fwrite(b, BLKSIZ, 1, tarfile);
 	if (!f)
 		return 0;
-	while ((l = fread(b, 1, Blksiz, f)) > 0) {
-		if (l < Blksiz)
-			memset(b+l, 0, Blksiz-l);
-		fwrite(b, Blksiz, 1, tarfile);
+	while ((l = fread(b, 1, BLKSIZ, f)) > 0) {
+		if (l < BLKSIZ)
+			memset(b+l, 0, BLKSIZ-l);
+		fwrite(b, BLKSIZ, 1, tarfile);
 	}
 	fclose(f);
 	return 0;
 }
 
 static int
-unarchive(char *fname, int l, char b[Blksiz])
+unarchive(char *fname, int l, char b[BLKSIZ])
 {
-	char lname[101];
 	FILE *f = NULL;
-	unsigned long  mode, major, minor, type, mtime;
 	struct timeval times[2];
-	Header *h = (void*)b;
+	struct header *h = (void*)b;
+	unsigned long mode, major, minor, type, mtime;
+	char lname[101];
 
 	if (!mflag)
 		mtime = strtoul(h->mtime, 0, 8);
@@ -215,12 +204,11 @@ unarchive(char *fname, int l, char b[Blksiz])
 	default:
 		fprintf(stderr, "usupported tarfiletype %c\n", h->type);
 	}
-	if (getuid() == 0 && chown(fname, strtoul(h->uid, 0, 8),
-	                                  strtoul(h->gid, 0, 8)))
+	if (getuid() == 0 && chown(fname, strtoul(h->uid, 0, 8), strtoul(h->gid, 0, 8)))
 		perror(fname);
 
-	for (; l > 0; l -= Blksiz) {
-		fread(b, Blksiz, 1, tarfile);
+	for (; l > 0; l -= BLKSIZ) {
+		fread(b, BLKSIZ, 1, tarfile);
 		if (f)
 			fwrite(b, MIN(l, 512), 1, f);
 	}
@@ -237,11 +225,11 @@ unarchive(char *fname, int l, char b[Blksiz])
 }
 
 static int
-print(char * fname, int l, char b[Blksiz])
+print(char * fname, int l, char b[BLKSIZ])
 {
 	puts(fname);
-	for (; l > 0; l -= Blksiz)
-		fread(b, Blksiz, 1, tarfile);
+	for (; l > 0; l -= BLKSIZ)
+		fread(b, BLKSIZ, 1, tarfile);
 	return 0;
 }
 
@@ -253,12 +241,12 @@ c(const char * path, int fflag)
 }
 
 static void
-xt(int (*fn)(char*, int, char[Blksiz]))
+xt(int (*fn)(char*, int, char[BLKSIZ]))
 {
-	char b[Blksiz], fname[257], *s;
-	Header *h = (void*)b;
+	char b[BLKSIZ], fname[257], *s;
+	struct header *h = (void*)b;
 
-	while (fread(b, Blksiz, 1, tarfile) && h->name[0] != '\0') {
+	while (fread(b, BLKSIZ, 1, tarfile) && h->name[0] != '\0') {
 		s = fname;
 		if (h->prefix[0] != '\0')
 			s += sprintf(s, "%.*s/", (int)sizeof h->prefix, h->prefix);
@@ -277,10 +265,9 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	struct stat st;
-	char *file = NULL, *dir = ".";
-	char mode = '\0';
 	FILE *fp;
+	struct stat st;
+	char *file = NULL, *dir = ".", mode = '\0';
 
 	ARGBEGIN {
 	case 'x':
