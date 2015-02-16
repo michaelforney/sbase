@@ -102,7 +102,9 @@ main(int argc, char *argv[])
 		case 'b':
 			if ((tmp = strstr(arg, "\\c"))) {
 				*tmp = 0;
-				argi = argc;
+				unescape(arg);
+				fputs(arg, stdout);
+				return 0;
 			}
 			unescape(arg);
 			fputs(arg, stdout);
