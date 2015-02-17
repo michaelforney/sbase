@@ -25,18 +25,16 @@ main(int argc, char *argv[])
 {
 	uint8_t md[SHA256_DIGEST_LENGTH];
 	char *checkfile = NULL;
-	int cflag = 0;
 
 	ARGBEGIN {
 	case 'c':
-		cflag = 1;
 		checkfile = ARGF();
 		break;
 	default:
 		usage();
 	} ARGEND;
 
-	if (cflag)
+	if (checkfile)
 		return cryptcheck(checkfile, argc, argv, &sha256_ops, md, sizeof(md));
 	return cryptmain(argc, argv, &sha256_ops, md, sizeof(md));
 }
