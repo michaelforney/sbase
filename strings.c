@@ -27,17 +27,17 @@ strings(FILE *fp, const char *fname, size_t len)
 			i = 0;
 			continue;
 		}
-		if (i <= len) {
+		if (i < len) {
 			rbuf[i++] = r;
-			if (i < len)
-				continue;
-		} else {
+			continue;
+		} else if (i > len) {
 			efputrune(&r, stdout, "<stdout>");
 			continue;
 		}
 		printf(format, (long)off - i);
 		for (i = 0; i < len; i++)
 			efputrune(rbuf + i, stdout, "<stdout>");
+		efputrune(&r, stdout, "<stdout>");
 		i++;
 	}
 	free(rbuf);
