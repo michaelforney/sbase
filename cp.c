@@ -7,7 +7,7 @@
 static void
 usage(void)
 {
-	eprintf("usage: %s [-adfpRrv] source... dest\n", argv0);
+	eprintf("usage: %s [-afpv] [-R [-H | -L | -P]] source... dest\n", argv0);
 }
 
 int
@@ -21,11 +21,14 @@ main(int argc, char *argv[])
 		cp_HLPflag = 'P';
 		cp_aflag = cp_pflag = cp_rflag = 1;
 		break;
+	case 'f':
+		cp_fflag = 1;
+		break;
 	case 'p':
 		cp_pflag = 1;
 		break;
-	case 'f':
-		cp_fflag = 1;
+	case 'v':
+		cp_vflag = 1;
 		break;
 	case 'r':
 	case 'R':
@@ -35,9 +38,6 @@ main(int argc, char *argv[])
 	case 'L':
 	case 'P':
 		cp_HLPflag = ARGC();
-		break;
-	case 'v':
-		cp_vflag = 1;
 		break;
 	default:
 		usage();

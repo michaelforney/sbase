@@ -1,4 +1,4 @@
-.Dd January 30, 2015
+.Dd February 17, 2015
 .Dt CP 1
 .Os sbase
 .Sh NAME
@@ -6,11 +6,11 @@
 .Nd copy files and directories
 .Sh SYNOPSIS
 .Nm
-.Op Fl Rr
-.Ar file
-.Op Ar name
-.Nm
-.Op Fl aPpRrv
+.Op Fl afpv
+.Oo
+.Fl R
+.Op Fl H | L | P
+.Oc
 .Op Ar file ...
 .Op Ar directory
 .Sh DESCRIPTION
@@ -34,6 +34,14 @@ and
 .Fl r .
 .It Fl f
 If an existing destination file cannot be opened, remove it and try again.
+.It Fl p
+Preserve mode, timestamp and permissions.
+.It Fl v
+Print names of source and destination per file to stdout. In the format:
+"source \-> destination".
+.It Fl R
+Copies directories recursively. If this flag is not specified, directories
+are not copied.
 .It Fl H
 Only dereference symbolic links that are passed as command line arguments when
 recursively traversing directories.
@@ -42,16 +50,6 @@ Always dereference symbolic links while recursively traversing directories
 (default).
 .It Fl P
 Don't dereference symbolic links.
-.It Fl p
-Preserve mode, timestamp and permissions.
-.It Fl R
-Equivalent to -r.
-.It Fl r
-Copies directories recursively. If this flag is not specified, directories
-are not copied.
-.It Fl v
-Print names of source and destination per file to stdout. In the format:
-"source \-> destination".
 .El
 .Sh SEE ALSO
 .Xr mv 1
