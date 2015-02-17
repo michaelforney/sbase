@@ -1,4 +1,4 @@
-.Dd January 20, 2015
+.Dd February 17, 2015
 .Dt LS 1
 .Os sbase
 .Sh NAME
@@ -6,7 +6,7 @@
 .Nd list directory contents
 .Sh SYNOPSIS
 .Nm
-.Op Fl 1acdFHhiLlrtU
+.Op Fl 1acdFHhiLlqrtU
 .Op Ar file ...
 .Sh DESCRIPTION
 .Nm
@@ -36,6 +36,8 @@ themselves.
 .It Fl l
 List detailed information about each file, including their type, permissions,
 links, owner, group, size, and last file status/modification time.
+.It Fl q
+Replace non-printable characters in filenames with '?'.
 .It Fl r
 Reverse the sort order.
 .It Fl t

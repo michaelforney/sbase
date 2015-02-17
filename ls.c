@@ -10,6 +10,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "utf.h"
 #include "util.h"
 
 struct entry {
@@ -32,6 +33,7 @@ static int hflag = 0;
 static int iflag = 0;
 static int Lflag = 0;
 static int lflag = 0;
+static int qflag = 0;
 static int rflag = 0;
 static int tflag = 0;
 static int Uflag = 0;
@@ -174,9 +176,10 @@ static void
 lsdir(const char *path)
 {
 	DIR *dp;
+	Rune r;
 	struct entry ent, *ents = NULL;
 	struct dirent *d;
-	size_t i, n = 0;
+	size_t i, j, k, n = 0, len;
 	char *cwd, *p;
 
 	cwd = agetcwd();
@@ -201,6 +204,28 @@ lsdir(const char *path)
 		} else {
 			ents = erealloc(ents, ++n * sizeof(*ents));
 			p = estrdup(d->d_name);
+			if (qflag) {
+				len = strlen(p);
+				for (i = 1, j = 0; j + i <= len;) {
+					if (!fullrune(p + j, i)) {
+						i++;
+						continue;
+					}
+					charntorune(&r, p + j, i);
+					if (isprintrune(r)) {
+						j += i;
+						i = 1;
+						continue;
+					}
+					p[j] = '?';
+					for (k = j + 1;  k < len - i + 2; k++) {
+						p[k] = p[k + i - 1];
+					}
+					len -= i - 1;
+					j += 1;
+					i = 1;
+				}
+			}
 			mkent(&ents[n - 1], p, tflag || Fflag || lflag || iflag, Lflag);
 		}
 	}
@@ -231,7 +256,7 @@ ls(const struct entry *ent)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-1acdFHhiLlrtU] [file ...]\n", argv0);
+	eprintf("usage: %s [-1acdFHhiLlqrtU] [file ...]\n", argv0);
 }
 
 int
@@ -270,6 +295,9 @@ main(int argc, char *argv[])
 		break;
 	case 'l':
 		lflag = 1;
+		break;
+	case 'q':
+		qflag = 1;
 		break;
 	case 'r':
 		rflag = 1;
