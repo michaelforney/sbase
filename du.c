@@ -21,7 +21,7 @@ static int dflag = 0;
 static int sflag = 0;
 static int kflag = 0;
 static int hflag = 0;
-static int HLflag = 'P';
+static int HLPflag = 'P';
 
 static char *
 xrealpath(const char *pathname, char *resolved)
@@ -138,7 +138,7 @@ done:
 static void
 usage(void)
 {
-	eprintf("usage: %s [-a | -s] [-d depth] [-h] [-k] [file ...]\n", argv0);
+	eprintf("usage: %s [-a | -s] [-d depth] [-h] [-k] [-H | -L | -P] [file ...]\n", argv0);
 }
 
 int
@@ -166,7 +166,8 @@ main(int argc, char *argv[])
 		break;
 	case 'H':
 	case 'L':
-		HLflag = ARGC();
+	case 'P':
+		HLPflag = ARGC();
 		break;
 	default:
 		usage();
@@ -183,13 +184,13 @@ main(int argc, char *argv[])
 		blksize = 1024;
 
 	if (argc < 1) {
-		n = du(".", HLflag);
+		n = du(".", HLPflag);
 		if (sflag)
 			print(n, xrealpath(".", file));
 	} else {
 		for (; argc > 0; argc--, argv++) {
 			curdepth = 0;
-			n = du(argv[0], HLflag);
+			n = du(argv[0], HLPflag);
 			if (sflag)
 				print(n, xrealpath(argv[0], file));
 		}

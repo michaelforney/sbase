@@ -1,4 +1,4 @@
-.Dd January 30, 2015
+.Dd February 17, 2015
 .Dt DU 1
 .Os sbase
 .Sh NAME
@@ -8,10 +8,9 @@
 .Nm
 .Op Fl a | s
 .Op Fl d Ar depth
-.Op Fl H
-.Op Fl L
 .Op Fl h
 .Op Fl k
+.Op Fl H | L | P
 .Op Ar file ...
 .Sh DESCRIPTION
 .Nm
@@ -26,13 +25,10 @@ is displayed.
 .Bl -tag -width Ds
 .It Fl a
 Display an entry for each file in the file hierarchy.
+.It Fl s
+Display only the grand total for the specified files.
 .It Fl d Ar depth
 Maximum directory depth to print files and directories.
-.It Fl H
-Only dereference symbolic links that are passed as command line arguments when
-recursively traversing directories.
-.It Fl L
-Always dereference symbolic links while recursively traversing directories.
 .It Fl h
 Enable human-readable output.
 .It Fl k
@@ -40,6 +36,11 @@ By default all sizes are reported in 512-byte block counts.
 The
 .Fl k
 option causes the numbers to be reported in kilobyte counts.
-.It Fl s
-Display only the grand total for the specified files.
+.It Fl H
+Only dereference symbolic links that are passed as command line arguments when
+recursively traversing directories.
+.It Fl L
+Always dereference symbolic links while recursively traversing directories.
+.It FL P
+Don't dereference symbolic links. This is the default.
 .El
