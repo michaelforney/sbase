@@ -55,9 +55,9 @@ decomp(FILE *fp)
 		eprintf("pipe:");
 
 	pid = fork();
-	if (pid < 0)
+	if (pid < 0) {
 		eprintf("fork:");
-	else if (!pid) {
+	} else if (!pid) {
 		dup2(fileno(fp), 0);
 		dup2(fds[1], 1);
 		close(fds[0]);
