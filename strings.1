@@ -7,6 +7,7 @@
 .Sh SYNOPSIS
 .Nm
 .Op Fl a
+.Op Fl n Ar len
 .Op Ar file ...
 .Sh DESCRIPTION
 .Nm
@@ -20,6 +21,10 @@ reads from stdin.
 .Bl -tag -width Ds
 .It Fl a
 Scan files in their entirety. This is the default.
+.It Fl n Ar len
+Only print sequences that are at least
+.Ar len
+characters.  The default is 4 characters.
 .El
 .Sh STANDARDS
 .Nm
