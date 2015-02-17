@@ -148,9 +148,9 @@ main(int argc, char *argv[])
 
 	tablistlen = parselist(tl);
 
-	if (argc == 0)
+	if (argc == 0) {
 		unexpand("<stdin>", stdin);
-	else {
+	} else {
 		for (; argc > 0; argc--, argv++) {
 			if (!(fp = fopen(argv[0], "r"))) {
 				weprintf("fopen %s:", argv[0]);
