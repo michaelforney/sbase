@@ -9,7 +9,7 @@ static void dostrings(FILE *fp, const char *fname);
 static void
 usage(void)
 {
-	eprintf("usage: %s [file ...]\n", argv0);
+	eprintf("usage: %s [-a] [file ...]\n", argv0);
 }
 
 int
@@ -19,6 +19,8 @@ main(int argc, char *argv[])
 	int ret = 0;
 
 	ARGBEGIN {
+	case 'a':
+		break;
 	default:
 		usage();
 	} ARGEND;

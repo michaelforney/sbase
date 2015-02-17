@@ -6,6 +6,7 @@
 .Nd print the strings of printable characters in files
 .Sh SYNOPSIS
 .Nm
+.Op Fl a
 .Op Ar file ...
 .Sh DESCRIPTION
 .Nm
@@ -15,6 +16,11 @@ long. If no
 are given,
 .Nm
 reads from stdin.
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl a
+Scan files in their entirety. This is the default.
+.El
 .Sh STANDARDS
 .Nm
 mirrors the semantics of Plan9
