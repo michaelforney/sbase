@@ -21,23 +21,23 @@ strings(FILE *fp, const char *fname, size_t len)
 		off += bread;
 		if (r == Runeerror)
 			continue;
-		else if (!isprintrune(r)) {
+		if (!isprintrune(r)) {
 			if (i > len)
 				putchar('\n');
 			i = 0;
 			continue;
 		}
-		if (i < len) {
+		if (i <= len) {
 			rbuf[i++] = r;
-			continue;
-		} else if (i > len) {
+			if (i < len)
+				continue;
+		} else {
 			efputrune(&r, stdout, "<stdout>");
 			continue;
 		}
 		printf(format, (long)off - i);
-		for (i = 0; i < len; i++) {
+		for (i = 0; i < len; i++)
 			efputrune(rbuf + i, stdout, "<stdout>");
-		}
 		i++;
 	}
 	free(rbuf);
