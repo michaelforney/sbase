@@ -1,32 +1,52 @@
-.Dd November 23, 2014
+.Dd Februrary 17, 2015
 .Dt STRINGS 1
 .Os sbase
 .Sh NAME
 .Nm strings
-.Nd print the strings of printable characters in files
+.Nd print strings of printable characters in files
 .Sh SYNOPSIS
 .Nm
 .Op Fl a
-.Op Fl n Ar len
+.Op Fl n Ar num
+.Op Fl t Ar format
 .Op Ar file ...
 .Sh DESCRIPTION
 .Nm
-prints the printable character sequences that are at least 4 characters
-long. If no
-.Ar files
-are given,
+writes sequences of at least 4 printable characters in each
+.Ar file
+to stdout.
+If no
+.Ar file
+is given,
 .Nm
 reads from stdin.
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl a
-Scan files in their entirety. This is the default.
-.It Fl n Ar len
-Only print sequences that are at least
-.Ar len
-characters.  The default is 4 characters.
+Scan each
+.Ar file
+entirely. This is the default.
+.It Fl n Ar num
+Print sequences of at least
+.Ar num
+characters.  The default is 4.
+.It Fl t Ar format
+Prepend each string with its byte offset, with
+.Ar format
+being one of
+.Sy d , o , x
+for decimal, octal or hexadecimal numbers.
 .El
 .Sh STANDARDS
+The
 .Nm
-mirrors the semantics of Plan9
-.Xr strings 1 .
+utility is compliant with the
+.St -p1003.1-2008
+specification.
+.Pp
+The
+.Op Fl t
+output format has been changed from "%F %s" to "%8lF: %s", with
+.Sy F
+being one of
+.Sy d , o , x .
