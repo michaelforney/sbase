@@ -1,4 +1,4 @@
-.Dd January 30, 2015
+.Dd Feburary 17, 2015
 .Dt CHOWN 1
 .Os sbase
 .Sh NAME
@@ -6,10 +6,11 @@
 .Nd change file ownership
 .Sh SYNOPSIS
 .Nm
-.Op Fl Rr
-.Op Fl H
-.Op Fl L
-.Op Fl P
+.Op Fl h
+.Oo
+.Fl R
+.Op Fl H | L | P
+.Oc
 .Op Ar owner Op Ar :group
 .Op Ar file ...
 .Sh DESCRIPTION
@@ -18,9 +19,11 @@ changes the user or group ownership for the given
 .Ar files .
 .Sh OPTIONS
 .Bl -tag -width Ds
+.It Fl h
+Change the user ID and/or group ID of the symlink itself.  This flag cannot be used
+with
+.Op Fl R .
 .It Fl R
-Equivalent to \-r.
-.It Fl r
 Change directory ownership recursively.
 .It Fl H
 Only dereference symbolic links that are passed as command line arguments when
@@ -32,3 +35,9 @@ Don't dereference symbolic links (default).
 .El
 .Sh SEE ALSO
 .Xr chown 2
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.

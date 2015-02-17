@@ -9,7 +9,7 @@
 #include "util.h"
 
 static int    rflag = 0;
-static int    fflag = 'P';
+static int    HLPflag = 'P';
 static uid_t  uid = -1;
 static gid_t  gid = -1;
 static int    ret = 0;
@@ -17,20 +17,20 @@ static char *chown_f_name = "chown";
 static int (*chown_f)(const char *, uid_t, gid_t) = chown;
 
 static void
-chownpwgr(const char *path, int fflag)
+chownpwgr(const char *path, int HLPflag)
 {
 	if (chown_f(path, uid, gid) < 0) {
 		weprintf("%s %s:", chown_f_name, path);
 		ret = 1;
 	}
 	if (rflag)
-		recurse(path, chownpwgr, fflag);
+		recurse(path, chownpwgr, HLPflag);
 }
 
 static void
 usage(void)
 {
-	eprintf("usage: %s [-hRr] [owner][:[group]] file...\n", argv0);
+	eprintf("usage: %s [-h] [-R [-H | -L | -P]] [owner][:[group]] file...\n", argv0);
 }
 
 int
@@ -45,14 +45,14 @@ main(int argc, char *argv[])
 		chown_f_name = "lchown";
 		chown_f = lchown;
 		break;
-	case 'R':
 	case 'r':
+	case 'R':
 		rflag = 1;
 		break;
 	case 'H':
 	case 'L':
 	case 'P':
-		fflag = ARGC();
+		HLPflag = ARGC();
 		break;
 	default:
 		usage();
@@ -94,7 +94,7 @@ main(int argc, char *argv[])
 		}
 	}
 	for (; argc > 0; argc--, argv++)
-		chownpwgr(argv[0], fflag);
+		chownpwgr(argv[0], HLPflag);
 
 	return ret;
 }
