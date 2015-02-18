@@ -11,6 +11,7 @@
 .Op Fl h
 .Op Fl k
 .Op Fl H | L | P
+.Op Fl x
 .Op Ar file ...
 .Sh DESCRIPTION
 .Nm
@@ -43,4 +44,6 @@ recursively traversing directories.
 Always dereference symbolic links while recursively traversing directories.
 .It Fl P
 Don't dereference symbolic links. This is the default.
+.It Fl x
+Do not traverse file systems mount points.
 .El

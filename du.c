@@ -21,6 +21,7 @@ static int dflag = 0;
 static int sflag = 0;
 static int kflag = 0;
 static int hflag = 0;
+static int xflag = 0;
 static int HLPflag = 'P';
 
 static char *
@@ -72,19 +73,19 @@ static size_t
 du(const char *path, char follow)
 {
 	struct dirent *dent;
-	struct stat st;
+	struct stat pst, st;
 	DIR *dp;
 	size_t n = 0, m, t;
 	int r;
 	char *cwd;
 
-	if (lstat(path, &st) < 0)
+	if (lstat(path, &pst) < 0)
 		eprintf("stat: %s:", path);
-	n = nblks(&st);
+	n = nblks(&pst);
 
-	if (!(S_ISDIR(st.st_mode) ||
-	    (follow != 'P' && S_ISLNK(st.st_mode) &&
-	    stat(path, &st) == 0 && S_ISDIR(st.st_mode))))
+	if (!(S_ISDIR(pst.st_mode) ||
+	    (follow != 'P' && S_ISLNK(pst.st_mode) &&
+	    stat(path, &pst) == 0 && S_ISDIR(pst.st_mode))))
 		goto done;
 
 	follow = follow == 'H' ? 'P' : follow;
@@ -102,6 +103,8 @@ du(const char *path, char follow)
 			continue;
 		if (lstat(dent->d_name, &st) < 0)
 			eprintf("stat: %s:", dent->d_name);
+		if (xflag && st.st_dev != pst.st_dev)
+			continue;
 		if (S_ISDIR(st.st_mode) ||
 		    (follow != 'P' && S_ISLNK(st.st_mode) &&
 		     stat(dent->d_name, &st) == 0 && S_ISDIR(st.st_mode))) {
@@ -138,7 +141,7 @@ done:
 static void
 usage(void)
 {
-	eprintf("usage: %s [-a | -s] [-d depth] [-h] [-k] [-H | -L | -P] [file ...]\n", argv0);
+	eprintf("usage: %s [-a | -s] [-d depth] [-h] [-k] [-H | -L | -P] [-x] [file ...]\n", argv0);
 }
 
 int
@@ -168,6 +171,9 @@ main(int argc, char *argv[])
 	case 'L':
 	case 'P':
 		HLPflag = ARGC();
+		break;
+	case 'x':
+		xflag = 1;
 		break;
 	default:
 		usage();
