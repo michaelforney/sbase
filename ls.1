@@ -1,4 +1,4 @@
-.Dd February 17, 2015
+.Dd February 18, 2015
 .Dt LS 1
 .Os sbase
 .Sh NAME
@@ -6,7 +6,7 @@
 .Nd list directory contents
 .Sh SYNOPSIS
 .Nm
-.Op Fl 1acdFHhiLlqrtU
+.Op Fl 1acdFHhiLlqrtUu
 .Op Ar file ...
 .Sh DESCRIPTION
 .Nm
@@ -44,6 +44,9 @@ Reverse the sort order.
 Sort files by last file status/modification time instead of by name.
 .It Fl U
 Keep the list unsorted.
+.It Fl u
+Use file's last access time instead of last modification time for
+sorting or printing.
 .El
 .Sh SEE ALSO
 .Xr stat 2

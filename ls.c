@@ -37,6 +37,7 @@ static int qflag = 0;
 static int rflag = 0;
 static int tflag = 0;
 static int Uflag = 0;
+static int uflag = 0;
 static int first = 1;
 static int many;
 
@@ -55,7 +56,12 @@ mkent(struct entry *ent, char *path, int dostat, int follow)
 	ent->uid   = st.st_uid;
 	ent->gid   = st.st_gid;
 	ent->size  = st.st_size;
-	ent->t     = cflag ? st.st_ctime : st.st_mtime;
+	if (cflag)
+		ent->t = st.st_ctime;
+	else if (uflag)
+		ent->t = st.st_atime;
+	else
+		ent->t = st.st_mtime;
 	ent->ino   = st.st_ino;
 	if (S_ISLNK(ent->mode))
 		ent->tmode = stat(path, &st) == 0 ? st.st_mode : 0;
@@ -247,7 +253,7 @@ ls(const struct entry *ent)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-1acdFHhiLlqrtU] [file ...]\n", argv0);
+	eprintf("usage: %s [-1acdFHhiLlqrtUu] [file ...]\n", argv0);
 }
 
 int
@@ -265,6 +271,7 @@ main(int argc, char *argv[])
 		break;
 	case 'c':
 		cflag = 1;
+		uflag = 0;
 		break;
 	case 'd':
 		dflag = 1;
@@ -298,6 +305,10 @@ main(int argc, char *argv[])
 		break;
 	case 'U':
 		Uflag = 1;
+		break;
+	case 'u':
+		uflag = 1;
+		cflag = 0;
 		break;
 	default:
 		usage();
