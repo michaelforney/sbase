@@ -4,8 +4,6 @@
  * nul bytes cause explosions due to use of libc string functions. thoughts?
  * lack of newline at end of file, currently we add one. what should we do?
  * allow "\\t" for "\t" etc. in regex? in replacement text?
- * do I need to isdigit() -> isdigitrune()?
- * fix libutf isspacerune() (isspacerune('\t') returns 0)
  * POSIX says don't flush on N when out of input, but GNU and busybox do.
  * currently call fatal() when compiling and when running, do we need to fclose
  *     wfiles when compiling and nothing has been written to them? if not don't
@@ -130,7 +128,6 @@ void stracpy(String *dst, char *src);
 void strnacpy(String *dst, char *src, size_t n);
 
 /* Cleanup and errors */
-void swarn(char *s);
 void fatal(char *s);
 void usage(void);
 
@@ -363,13 +360,6 @@ strnacpy(String *dst, char *src, size_t n)
 	strlcpy(dst->str, src, len);
 }
 
-/* FIXME: swarn -> weprintf everywhere */
-void
-swarn(char *s)
-{
-	fprintf(stderr, "%zu: %s\n", lineno, s);
-}
-
 /* FIXME: more info, better error messages
  * this currently exists as a place to close all wfiles when not doing a full
  * cleanup() on fatal errors. also means I don't use all the ealloc etc. libutil
@@ -381,7 +371,7 @@ fatal(char *s)
 	while (wfiles.size) {
 		Wfile *wp = (Wfile *)pop(&wfiles);
 		if (wp->file && fclose(wp->file))
-			swarn("fclose failed");
+			weprintf("fclose failed\n");
 	}
 	eprintf("%zu: %s: %s\n", lineno, s, strerror(errno));
 }
@@ -457,7 +447,7 @@ compile(char *s, int isfile)
 	}
 
 	if (fclose(f))
-		swarn("fclose failed");
+		weprintf("fclose failed\n");
 }
 
 /* FIXME: if we decide to honor lack of trailing newline, set/clear a global
@@ -609,8 +599,7 @@ chompr(char *s, Rune rune)
 	size_t rlen;
 	char  *end = s + strlen(s);
 
-	/* FIXME: fix libutf's isspacerune(), for now manually check '\t' I know there are more */
-	while (*s && (rlen = echarntorune(&r, s, end - s)) && (isspacerune(r) || r == rune || r == '\t'))
+	while (*s && (rlen = echarntorune(&r, s, end - s)) && (isspacerune(r) || r == rune))
 		s += rlen;
 	return s;
 }
@@ -1155,7 +1144,7 @@ next_file(void)
 	if (file == stdin)
 		clearerr(file);
 	else if (file && fclose(file))
-		swarn("fclose failed");
+		weprintf("fclose failed\n");
 	file = NULL;
 
 	do {
@@ -1167,8 +1156,8 @@ next_file(void)
 			file = stdin;
 			files++;
 		} else if (!(file = fopen(*files++, "r"))) {
-			/* swarn this file didn't open, but move on to next */
-			swarn("fopen failed");
+			/* warn this file didn't open, but move on to next */
+			weprintf("fopen failed\n");
 		}
 	} while (!file && *files);
 	first = 0;
@@ -1224,7 +1213,7 @@ write_file(char *path, FILE *out)
 		check_puts(genbuf.str, out);
 
 	if (fclose(in))
-		swarn("fclose failed");
+		weprintf("fclose failed\n");
 }
 
 void
