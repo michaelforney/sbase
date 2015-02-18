@@ -51,7 +51,7 @@ push(const char *path)
 
 	cwd = agetcwd();
 	if (chdir(path) < 0)
-		eprintf("chdir: %s:", path);
+		weprintf("chdir: %s:", path);
 	return cwd;
 }
 
@@ -59,7 +59,7 @@ static void
 pop(char *path)
 {
 	if (chdir(path) < 0)
-		eprintf("chdir: %s:", path);
+		weprintf("chdir: %s:", path);
 	free(path);
 }
 
