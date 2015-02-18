@@ -5,9 +5,6 @@
  * lack of newline at end of file, currently we add one. what should we do?
  * allow "\\t" for "\t" etc. in regex? in replacement text?
  * POSIX says don't flush on N when out of input, but GNU and busybox do.
- * currently call fatal() when compiling and when running, do we need to fclose
- *     wfiles when compiling and nothing has been written to them? if not don't
- *     need fatal() when compiling only when running
  */
 
 #include <ctype.h>
@@ -128,7 +125,6 @@ void stracpy(String *dst, char *src);
 void strnacpy(String *dst, char *src, size_t n);
 
 /* Cleanup and errors */
-void fatal(char *s);
 void usage(void);
 
 /* Parsing functions and related utilities */
@@ -279,8 +275,7 @@ resize(void **ptr, size_t *nmemb, size_t size, size_t new_nmemb, void **next)
 	void *n, *tmp;
 
 	if (new_nmemb) {
-		if (!(tmp = realloc(*ptr, new_nmemb * size)))
-			fatal("realloc failed");
+		tmp = erealloc(*ptr, new_nmemb * size);
 	} else { /* turns out realloc(*ptr, 0) != free(*ptr) */
 		free(*ptr);
 		tmp = NULL;
@@ -360,22 +355,6 @@ strnacpy(String *dst, char *src, size_t n)
 	strlcpy(dst->str, src, len);
 }
 
-/* FIXME: more info, better error messages
- * this currently exists as a place to close all wfiles when not doing a full
- * cleanup() on fatal errors. also means I don't use all the ealloc etc. libutil
- * functions because I need to do this first. what's a better way to do that?
- */
-void
-fatal(char *s)
-{
-	while (wfiles.size) {
-		Wfile *wp = (Wfile *)pop(&wfiles);
-		if (wp->file && fclose(wp->file))
-			weprintf("fclose failed\n");
-	}
-	eprintf("%zu: %s: %s\n", lineno, s, strerror(errno));
-}
-
 /* FIXME: write usage message */
 void
 usage(void)
@@ -397,7 +376,7 @@ compile(char *s, int isfile)
 
 	f = isfile ? fopen(s, "r") : fmemopen(s, strlen(s), "r");
 	if (!f)
-		fatal("fopen/fmemopen failed");
+		eprintf("fopen/fmemopen failed\n");
 
 	/* NOTE: get arg functions can't use genbuf */
 	while (read_line(f, &genbuf) != EOF) {
@@ -434,9 +413,9 @@ compile(char *s, int isfile)
 			s = chompr(s, '!');
 
 			if (!isascii(*s) || !(pc->fninfo = &fns[(unsigned)*s])->fn)
-				fatal("bad sed function");
+				eprintf("bad sed function\n");
 			if (pc->range.naddr > pc->fninfo->naddr)
-				fatal("wrong number of addresses");
+				eprintf("wrong number of addresses\n");
 			s++;
 
 			if (pc->fninfo->getarg)
@@ -463,7 +442,7 @@ read_line(FILE *f, String *s)
 
 	if ((len = getline(&s->str, &s->cap, f)) < 0) {
 		if (ferror(f))
-			fatal("getline failed");
+			eprintf("getline failed\n");
 		return EOF;
 	}
 	if (s->str[--len] == '\n')
@@ -485,7 +464,7 @@ make_range(Range *range, char *s)
 	if      (range->beg.type == EVERY  && range->end.type == IGNORE) range->naddr = 0;
 	else if (range->beg.type != IGNORE && range->end.type == IGNORE) range->naddr = 1;
 	else if (range->beg.type != IGNORE && range->end.type != IGNORE) range->naddr = 2;
-	else fatal("this is impossible...");
+	else eprintf("this is impossible...\n");
 
 	return s;
 }
@@ -511,7 +490,7 @@ make_addr(Addr *addr, char *s)
 			rlen = echarntorune(&r, s, p - s);
 		}
 		if (r == '\\')
-			fatal("bad delimiter '\\'");
+			eprintf("bad delimiter '\\'\n");
 		delim = r;
 		s += rlen;
 		rlen = echarntorune(&r, s, p - s);
@@ -522,11 +501,10 @@ make_addr(Addr *addr, char *s)
 			addr->type = REGEX;
 			p = find_delim(s, delim, 1);
 			if (!*p)
-				fatal("unclosed regex");
+				eprintf("unclosed regex\n");
 			p -= escapes(s, p, delim, 0);
 			*p++ = '\0';
-			if (!(addr->u.re = malloc(sizeof(*addr->u.re))))
-				fatal("malloc failed");
+			addr->u.re = emalloc(sizeof(*addr->u.re));
 			eregcomp(addr->u.re, s, 0);
 			s = p;
 		}
@@ -609,9 +587,7 @@ chompr(char *s, Rune rune)
 Rune *
 strtorunes(char *s, size_t nrunes)
 {
-	Rune *rs = malloc(sizeof(*rs) * nrunes + 1), *rp = rs;
-	if (!rs)
-		fatal("malloc failed");
+	Rune *rs = emalloc(sizeof(*rs) * nrunes + 1), *rp = rs;
 
 	while (nrunes--)
 		s += chartorune(rp++, s);
@@ -628,9 +604,9 @@ stol(char *s, char **endp)
 	n = strtol(s, endp, 10);
 
 	if (errno)
-		fatal("strtol failed");
+		eprintf("strtol %s:", s);
 	if (*endp == s)
-		fatal("no number");
+		eprintf("strtol %s: invalid number\n", s);
 
 	return n;
 }
@@ -692,7 +668,7 @@ echarntorune(Rune *r, char *s, size_t n)
 {
 	size_t rlen = charntorune(r, s, n);
 	if (!rlen || *r == Runeerror)
-		fatal("invalid UTF-8");
+		eprintf("invalid UTF-8\n");
 	return rlen;
 }
 
@@ -716,7 +692,7 @@ insert_labels(void)
 				}
 			}
 			if (i == labels.size)
-				fatal("bad label");
+				eprintf("bad label\n");
 		}
 	}
 }
@@ -795,8 +771,7 @@ get_bt_arg(Cmd *c, char *s)
 	char *p = semicolon_arg(s = chomp(s));
 
 	if (p != s) {
-		if (!(c->u.label = strndup(s, p - s)))
-			fatal("strdup failed");
+		c->u.label = estrndup(s, p - s);
 	} else {
 		c->u.label = NULL;
 	}
@@ -820,11 +795,9 @@ get_r_arg(Cmd *c, char *s)
 	char *p = semicolon_arg(s = chomp(s));
 
 	if (p == s)
-		fatal("no file name");
+		eprintf("no file name\n");
 
-	if (!(c->u.acir.str.str = strndup(s, p - s)))
-		fatal("strdup failed");
-
+	c->u.acir.str.str = estrndup(s, p - s);
 	c->u.acir.print = write_file;
 
 	return p;
@@ -852,7 +825,7 @@ get_s_arg(Cmd *c, char *s)
 		c->u.s.p = 0;
 
 		if (!*s || *s == '\\')
-			fatal("bad delimiter");
+			eprintf("bad delimiter\n");
 
 		p = s + strlen(s);
 		s += echarntorune(&delim, s, p - s);
@@ -864,15 +837,14 @@ get_s_arg(Cmd *c, char *s)
 
 		p = find_delim(s, delim, 1);
 		if (!*p)
-			fatal("missing second delimiter");
+			eprintf("missing second delimiter\n");
 		p -= escapes(s, p, delim, 0);
 		*p = '\0';
 
 		if (lastre) {
 			c->u.s.re = NULL;
 		} else {
-			if (!(c->u.s.re = emalloc(sizeof(*c->u.s.re))))
-				fatal("malloc failed");
+			c->u.s.re = emalloc(sizeof(*c->u.s.re));
 			/* FIXME: different eregcomp that calls fatal */
 			eregcomp(c->u.s.re, s, 0);
 		}
@@ -887,7 +859,7 @@ get_s_arg(Cmd *c, char *s)
 	if (!*p) { /* no third delimiter */
 		/* FIXME: same backslash counting as aci_append() */
 		if (p[-1] != '\\')
-			fatal("missing third delimiter or <backslash><newline>");
+			eprintf("missing third delimiter or <backslash><newline>\n");
 		p[-1] = '\n';
 		gflags.s_cont = 1;
 	} else {
@@ -900,7 +872,7 @@ get_s_arg(Cmd *c, char *s)
 		if (esc) {
 			esc = 0;
 			if (isdigit(*p) && c->u.s.re && (size_t)(*p - '0') > c->u.s.re->re_nsub)
-				fatal("back reference number greater than number of groups");
+				eprintf("back reference number greater than number of groups\n");
 		} else if (*p == '\\') {
 			esc = 1;
 		}
@@ -955,7 +927,7 @@ get_w_arg(Cmd *c, char *s)
 	Wfile *w, **wp;
 
 	if (p == s)
-		fatal("no file name");
+		eprintf("no file name\n");
 
 	/* man -Wsigncompare is annoying */
 	for (wp = (Wfile **)wfiles.data; (size_t)(wp - (Wfile **)wfiles.data) < wfiles.size; wp++) {
@@ -965,14 +937,11 @@ get_w_arg(Cmd *c, char *s)
 		}
 	}
 
-	if (!(w = malloc(sizeof(*w))))
-		fatal("malloc failed");
-
-	if (!(w->path = strndup(s, p - s)))
-		fatal("strdup failed");
+	w = emalloc(sizeof(*w));
+	w->path = estrndup(s, p - s);
 
 	if (!(w->file = fopen(w->path, "w")))
-		fatal("fopen failed");
+		eprintf("fopen failed\n");
 
 	c->u.file = w->file;
 
@@ -1002,7 +971,7 @@ get_y_arg(Cmd *c, char *s)
 	nrunes2 = utfnlen(s, p - s);
 
 	if (nrunes1 != nrunes2)
-		fatal("different set lengths");
+		eprintf("different set lengths\n");
 
 	c->u.y.set2 = strtorunes(s, utfnlen(s, p - s));
 
@@ -1023,11 +992,9 @@ get_colon_arg(Cmd *c, char *s)
 	char *p = semicolon_arg(s = chomp(s));
 
 	if (p == s)
-		fatal("no label name");
+		eprintf("no label name\n");
 
-	if (!(c->u.label = strndup(s, p - s)))
-		fatal("strdup failed");
-
+	c->u.label = estrndup(s, p - s);
 	push(&labels, (void *)(c - prog));
 	return p;
 }
@@ -1045,7 +1012,7 @@ get_rbrace_arg(Cmd *c, char *s)
 	Cmd *lbrace;
 
 	if (!braces.size)
-		fatal("extra }");
+		eprintf("extra }\n");
 
 	lbrace = prog + (ptrdiff_t)pop(&braces);
 	lbrace->u.offset = c - prog;
@@ -1075,7 +1042,7 @@ run(void)
 {
 	lineno = 0;
 	if (braces.size)
-		fatal("extra {");
+		eprintf("extra {\n");
 
 	/* genbuf has already been initialized, patt will be in new_line
 	 * (or we'll halt) */
@@ -1127,7 +1094,7 @@ match_addr(Addr *a)
 		return !regexec(a->u.re, patt.str, 0, NULL, 0);
 	case LASTRE:
 		if (!lastre)
-			fatal("no previous regex");
+			eprintf("no previous regex\n");
 		return !regexec(lastre, patt.str, 0, NULL, 0);
 	}
 }
@@ -1175,9 +1142,9 @@ is_eof(FILE *f)
 
 	c = fgetc(f);
 	if (c == EOF && ferror(f))
-		fatal("fgetc failed");
+		eprintf("fgetc failed\n");
 	if (c != EOF && ungetc(c, f) == EOF)
-		fatal("ungetc failed");
+		eprintf("ungetc failed\n");
 
 	return c == EOF;
 }
@@ -1220,9 +1187,9 @@ void
 check_puts(char *s, FILE *f)
 {
 	if (s && fputs(s, f) == EOF)
-		fatal("fputs failed");
+		eprintf("fputs failed\n");
 	if (fputs("\n", f) == EOF)
-		fatal("fputs failed");
+		eprintf("fputs failed\n");
 }
 
 /* iterate from beg to end updating ranges so we don't miss any commands
@@ -1362,24 +1329,21 @@ cmd_l(Cmd *c)
 	 */
 	for (p = patt.str, end = p + strlen(p); p < end; p += rlen) {
 		if (isascii(*p) && escapes[(unsigned)*p]) {
-			if (printf("%s", escapes[(unsigned)*p]) < 0)
-				fatal("printf failed");
+			printf("%s", escapes[(unsigned)*p]);
 			rlen = 1;
 		} else if (!(rlen = charntorune(&r, p, end - p))) {
 		/* ran out of chars, print the bytes of the short sequence */
 			for (; p < end; p++)
-				if (printf("\\%03hho", (unsigned char)*p) < 0)
-					fatal("printf failed");
+				printf("\\%03hho", (unsigned char)*p);
 			break;
 		} else if (r == Runeerror) {
 			for (; rlen; rlen--, p++)
-				if (printf("\\%03hho", (unsigned char)*p) < 0)
-					fatal("printf failed");
+				printf("\\%03hho", (unsigned char)*p);
 		} else {
 			while (fwrite(p, rlen, 1, stdout) < 1 && errno == EINTR)
 				;
 			if (ferror(stdout))
-				fatal("fwrite failed");
+				eprintf("fwrite failed\n");
 		}
 	}
 	check_puts("$", stdout);
@@ -1456,7 +1420,7 @@ cmd_s(Cmd *c)
 		return;
 
 	if (!c->u.s.re && !lastre)
-		fatal("no previous regex");
+		eprintf("no previous regex\n");
 
 	regex_t *re = c->u.s.re ? c->u.s.re : lastre;
 	regmatch_t pmatch[re->re_nsub + 1];
@@ -1489,7 +1453,7 @@ cmd_s(Cmd *c)
 				strnacat(&genbuf, p, len);
 				p += len;
 				switch (*p) {
-				default: fatal("this shouldn't be possible");
+				default: eprintf("this shouldn't be possible\n");
 				case '\0':
 					/* we're at the end, back up one so the ++p will put us on
 					 * the null byte to break out of the loop */
@@ -1502,7 +1466,7 @@ cmd_s(Cmd *c)
 					if (isdigit(*++p)) { /* backreference */
 						/* only need to check here if using lastre, otherwise we checked when building */
 						if (!c->u.s.re && (size_t)(*p - '0') > re->re_nsub)
-							fatal("back reference number greater than number of groups");
+							eprintf("back reference number greater than number of groups\n");
 						regmatch_t *rm = &pmatch[*p - '0'];
 						strnacat(&genbuf, s + rm->rm_so, rm->rm_eo - rm->rm_so);
 					} else { /* character after backslash taken literally (well one byte, but it works) */
@@ -1629,8 +1593,7 @@ void
 cmd_equal(Cmd *c)
 {
 	if (in_range(c))
-		if (printf("%zu\n", lineno) < 0)
-			fatal("printf failed");
+		printf("%zu\n", lineno);
 }
 
 void
