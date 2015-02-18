@@ -179,8 +179,8 @@ lsdir(const char *path)
 	Rune r;
 	struct entry ent, *ents = NULL;
 	struct dirent *d;
-	size_t i, j, k, n = 0, len;
-	char *cwd, *p;
+	size_t i, n = 0, len;
+	char *cwd, *p, *q, *name;
 
 	cwd = agetcwd();
 	if (!(dp = opendir(path)))
@@ -203,30 +203,21 @@ lsdir(const char *path)
 			output(&ent);
 		} else {
 			ents = erealloc(ents, ++n * sizeof(*ents));
-			p = estrdup(d->d_name);
+			name = p = estrdup(d->d_name);
 			if (qflag) {
-				len = strlen(p);
-				for (i = 1, j = 0; j + i <= len;) {
-					if (!fullrune(p + j, i)) {
-						i++;
-						continue;
-					}
-					charntorune(&r, p + j, i);
+				q = d->d_name;
+				while (*p) {
+					len = chartorune(&r, p);
 					if (isprintrune(r)) {
-						j += i;
-						i = 1;
-						continue;
+						memcpy(p, q, len);
+						p += len, q += len;
+					} else {
+						*p++ = '?';
+						q += len;
 					}
-					p[j] = '?';
-					for (k = j + 1;  k < len - i + 2; k++) {
-						p[k] = p[k + i - 1];
-					}
-					len -= i - 1;
-					j += 1;
-					i = 1;
 				}
 			}
-			mkent(&ents[n - 1], p, tflag || Fflag || lflag || iflag, Lflag);
+			mkent(&ents[n - 1], name, tflag || Fflag || lflag || iflag, Lflag);
 		}
 	}
 	closedir(dp);
