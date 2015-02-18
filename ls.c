@@ -209,11 +209,11 @@ lsdir(const char *path)
 			output(&ent);
 		} else {
 			ents = erealloc(ents, ++n * sizeof(*ents));
-			name = p = estrdup(d->d_name);
+			name = p = emalloc(strlen(d->d_name) + 1);
 			if (qflag) {
 				q = d->d_name;
-				while (*p) {
-					len = chartorune(&r, p);
+				while (*q) {
+					len = chartorune(&r, q);
 					if (isprintrune(r)) {
 						memcpy(p, q, len);
 						p += len, q += len;
@@ -222,6 +222,7 @@ lsdir(const char *path)
 						q += len;
 					}
 				}
+				*p = '\0';
 			}
 			mkent(&ents[n - 1], name, tflag || Fflag || lflag || iflag, Lflag);
 		}
