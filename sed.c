@@ -355,6 +355,15 @@ strnacpy(String *dst, char *src, size_t n)
 	strlcpy(dst->str, src, len);
 }
 
+void
+leprintf(char *s)
+{
+	if (errno)
+		eprintf("%zu: %s: %s\n", lineno, s, strerror(errno));
+	else
+		eprintf("%zu: %s\n", lineno, s);
+}
+
 /* FIXME: write usage message */
 void
 usage(void)
@@ -413,9 +422,9 @@ compile(char *s, int isfile)
 			s = chompr(s, '!');
 
 			if (!isascii(*s) || !(pc->fninfo = &fns[(unsigned)*s])->fn)
-				eprintf("bad sed function\n");
+				leprintf("bad sed function");
 			if (pc->range.naddr > pc->fninfo->naddr)
-				eprintf("wrong number of addresses\n");
+				leprintf("wrong number of addresses");
 			s++;
 
 			if (pc->fninfo->getarg)
@@ -464,7 +473,7 @@ make_range(Range *range, char *s)
 	if      (range->beg.type == EVERY  && range->end.type == IGNORE) range->naddr = 0;
 	else if (range->beg.type != IGNORE && range->end.type == IGNORE) range->naddr = 1;
 	else if (range->beg.type != IGNORE && range->end.type != IGNORE) range->naddr = 2;
-	else eprintf("this is impossible...\n");
+	else leprintf("this is impossible...");
 
 	return s;
 }
@@ -490,7 +499,7 @@ make_addr(Addr *addr, char *s)
 			rlen = echarntorune(&r, s, p - s);
 		}
 		if (r == '\\')
-			eprintf("bad delimiter '\\'\n");
+			leprintf("bad delimiter '\\'");
 		delim = r;
 		s += rlen;
 		rlen = echarntorune(&r, s, p - s);
@@ -501,7 +510,7 @@ make_addr(Addr *addr, char *s)
 			addr->type = REGEX;
 			p = find_delim(s, delim, 1);
 			if (!*p)
-				eprintf("unclosed regex\n");
+				leprintf("unclosed regex");
 			p -= escapes(s, p, delim, 0);
 			*p++ = '\0';
 			addr->u.re = emalloc(sizeof(*addr->u.re));
@@ -604,9 +613,9 @@ stol(char *s, char **endp)
 	n = strtol(s, endp, 10);
 
 	if (errno)
-		eprintf("strtol %s:", s);
+		leprintf("strtol:");
 	if (*endp == s)
-		eprintf("strtol %s: invalid number\n", s);
+		leprintf("strtol: invalid number");
 
 	return n;
 }
@@ -668,7 +677,7 @@ echarntorune(Rune *r, char *s, size_t n)
 {
 	size_t rlen = charntorune(r, s, n);
 	if (!rlen || *r == Runeerror)
-		eprintf("invalid UTF-8\n");
+		leprintf("invalid UTF-8");
 	return rlen;
 }
 
@@ -692,7 +701,7 @@ insert_labels(void)
 				}
 			}
 			if (i == labels.size)
-				eprintf("bad label\n");
+				leprintf("bad label");
 		}
 	}
 }
@@ -795,7 +804,7 @@ get_r_arg(Cmd *c, char *s)
 	char *p = semicolon_arg(s = chomp(s));
 
 	if (p == s)
-		eprintf("no file name\n");
+		leprintf("no file name");
 
 	c->u.acir.str.str = estrndup(s, p - s);
 	c->u.acir.print = write_file;
@@ -825,7 +834,7 @@ get_s_arg(Cmd *c, char *s)
 		c->u.s.p = 0;
 
 		if (!*s || *s == '\\')
-			eprintf("bad delimiter\n");
+			leprintf("bad delimiter");
 
 		p = s + strlen(s);
 		s += echarntorune(&delim, s, p - s);
@@ -837,7 +846,7 @@ get_s_arg(Cmd *c, char *s)
 
 		p = find_delim(s, delim, 1);
 		if (!*p)
-			eprintf("missing second delimiter\n");
+			leprintf("missing second delimiter");
 		p -= escapes(s, p, delim, 0);
 		*p = '\0';
 
@@ -859,7 +868,7 @@ get_s_arg(Cmd *c, char *s)
 	if (!*p) { /* no third delimiter */
 		/* FIXME: same backslash counting as aci_append() */
 		if (p[-1] != '\\')
-			eprintf("missing third delimiter or <backslash><newline>\n");
+			leprintf("missing third delimiter or <backslash><newline>");
 		p[-1] = '\n';
 		gflags.s_cont = 1;
 	} else {
@@ -872,7 +881,7 @@ get_s_arg(Cmd *c, char *s)
 		if (esc) {
 			esc = 0;
 			if (isdigit(*p) && c->u.s.re && (size_t)(*p - '0') > c->u.s.re->re_nsub)
-				eprintf("back reference number greater than number of groups\n");
+				leprintf("back reference number greater than number of groups");
 		} else if (*p == '\\') {
 			esc = 1;
 		}
@@ -927,7 +936,7 @@ get_w_arg(Cmd *c, char *s)
 	Wfile *w, **wp;
 
 	if (p == s)
-		eprintf("no file name\n");
+		leprintf("no file name");
 
 	/* man -Wsigncompare is annoying */
 	for (wp = (Wfile **)wfiles.data; (size_t)(wp - (Wfile **)wfiles.data) < wfiles.size; wp++) {
@@ -941,7 +950,7 @@ get_w_arg(Cmd *c, char *s)
 	w->path = estrndup(s, p - s);
 
 	if (!(w->file = fopen(w->path, "w")))
-		eprintf("fopen failed\n");
+		leprintf("fopen failed");
 
 	c->u.file = w->file;
 
@@ -971,7 +980,7 @@ get_y_arg(Cmd *c, char *s)
 	nrunes2 = utfnlen(s, p - s);
 
 	if (nrunes1 != nrunes2)
-		eprintf("different set lengths\n");
+		leprintf("different set lengths");
 
 	c->u.y.set2 = strtorunes(s, utfnlen(s, p - s));
 
@@ -992,7 +1001,7 @@ get_colon_arg(Cmd *c, char *s)
 	char *p = semicolon_arg(s = chomp(s));
 
 	if (p == s)
-		eprintf("no label name\n");
+		leprintf("no label name");
 
 	c->u.label = estrndup(s, p - s);
 	push(&labels, (void *)(c - prog));
@@ -1012,7 +1021,7 @@ get_rbrace_arg(Cmd *c, char *s)
 	Cmd *lbrace;
 
 	if (!braces.size)
-		eprintf("extra }\n");
+		leprintf("extra }");
 
 	lbrace = prog + (ptrdiff_t)pop(&braces);
 	lbrace->u.offset = c - prog;
@@ -1042,7 +1051,7 @@ run(void)
 {
 	lineno = 0;
 	if (braces.size)
-		eprintf("extra {\n");
+		leprintf("extra {");
 
 	/* genbuf has already been initialized, patt will be in new_line
 	 * (or we'll halt) */
@@ -1094,7 +1103,7 @@ match_addr(Addr *a)
 		return !regexec(a->u.re, patt.str, 0, NULL, 0);
 	case LASTRE:
 		if (!lastre)
-			eprintf("no previous regex\n");
+			leprintf("no previous regex");
 		return !regexec(lastre, patt.str, 0, NULL, 0);
 	}
 }
@@ -1420,7 +1429,7 @@ cmd_s(Cmd *c)
 		return;
 
 	if (!c->u.s.re && !lastre)
-		eprintf("no previous regex\n");
+		leprintf("no previous regex");
 
 	regex_t *re = c->u.s.re ? c->u.s.re : lastre;
 	regmatch_t pmatch[re->re_nsub + 1];
@@ -1453,7 +1462,7 @@ cmd_s(Cmd *c)
 				strnacat(&genbuf, p, len);
 				p += len;
 				switch (*p) {
-				default: eprintf("this shouldn't be possible\n");
+				default: leprintf("this shouldn't be possible");
 				case '\0':
 					/* we're at the end, back up one so the ++p will put us on
 					 * the null byte to break out of the loop */
@@ -1466,7 +1475,7 @@ cmd_s(Cmd *c)
 					if (isdigit(*++p)) { /* backreference */
 						/* only need to check here if using lastre, otherwise we checked when building */
 						if (!c->u.s.re && (size_t)(*p - '0') > re->re_nsub)
-							eprintf("back reference number greater than number of groups\n");
+							leprintf("back reference number greater than number of groups");
 						regmatch_t *rm = &pmatch[*p - '0'];
 						strnacat(&genbuf, s + rm->rm_so, rm->rm_eo - rm->rm_so);
 					} else { /* character after backslash taken literally (well one byte, but it works) */
