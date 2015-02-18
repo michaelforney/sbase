@@ -17,7 +17,6 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	case 'a':
-		/* implies -dpr */
 		cp_HLPflag = 'P';
 		cp_aflag = cp_pflag = cp_rflag = 1;
 		break;
