@@ -25,7 +25,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 #* cut             yes                          none
 =* date            yes                          none
 =* dirname         yes                          none
-=  du              yes                          none
+=* du              yes                          none
 =* echo            yes                          none
 =* env             yes                          none
 #* expand          yes                          none
