@@ -209,7 +209,7 @@ lsdir(const char *path)
 			output(&ent);
 		} else {
 			ents = erealloc(ents, ++n * sizeof(*ents));
-			name = p = emalloc(strlen(d->d_name) + 1);
+			name = p = estrdup(d->d_name);
 			if (qflag) {
 				q = d->d_name;
 				while (*q) {
