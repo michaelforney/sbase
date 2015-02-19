@@ -73,7 +73,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =* tar             non-posix                    none
 =* tee             yes                          none
 #* test            yes                          none
-=* touch           yes                          none (-d) (-t)
+=* touch           yes                          none
 #* tr              yes                          none
 =* true            yes                          none
 =* tty             yes                          none

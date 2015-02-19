@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <unistd.h>
 #include <utime.h>
@@ -43,6 +44,61 @@ touch(const char *file)
 	touch(file);
 }
 
+time_t
+parsetime(char *str, time_t current)
+{
+	struct tm *cur, t;
+	char *format;
+	size_t len = strlen(str);
+
+	cur = localtime(&current);
+	t.tm_isdst = -1;
+
+	switch (len) {
+	/* -t flag argument */
+	case 8:
+		t.tm_sec = 0;
+		t.tm_year = cur->tm_year;
+		format = "%m%d%H%M";
+		break;
+	case 10:
+		t.tm_sec = 0;
+		format = "%y%m%d%H%M";
+		break;
+	case 11:
+		t.tm_year = cur->tm_year;
+		format = "%m%d%H%M.%S";
+		break;
+	case 12:
+		t.tm_sec = 0;
+		format = "%Y%m%d%H%M";
+		break;
+	case 13:
+		format = "%y%m%d%H%M.%S";
+		break;
+	case 15:
+		format = "%Y%m%d%H%M.%S";
+		break;
+	/* -d flag argument */
+	case 19:
+		format = "%Y-%m-%dT%H:%M:%S";
+		break;
+	case 20:
+		/* only Zulu-timezone supported */
+		if (str[19] != 'Z')
+			goto default;
+		format = "%Y-%m-%dT%H:%M:%S%Z";
+		break;
+	default:
+		eprintf("Invalid date format length\n", str);
+	}
+
+	if (!strptime(str, format, &t))
+		weprintf("strptime %s: Invalid date format\n", str);
+
+	return mktime(&t);
+}
+
 static void
 usage(void)
 {
@@ -72,8 +128,11 @@ main(int argc, char *argv[])
 			eprintf("stat '%s':", ref);
 		t = st.st_mtime;
 		break;
-	case 't':
+	case 'T':
 		t = estrtonum(EARGF(usage()), 0, LLONG_MAX);
+		break;
+	case 't':
+		t = parsetime(EARGF(usage()), t);
 		break;
 	default:
 		usage();
@@ -81,6 +140,8 @@ main(int argc, char *argv[])
 
 	if (argc < 1)
 		usage();
+	if (!aflag && !mflag)
+		aflag = mflag = 1;
 
 	for (; argc > 0; argc--, argv++)
 		touch(argv[0]);

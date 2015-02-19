@@ -1,4 +1,4 @@
-.Dd February 19, 2015
+.Dd February 9, 2015
 .Dt TOUCH 1
 .Os sbase
 .Sh NAME
@@ -7,11 +7,11 @@
 .Sh SYNOPSIS
 .Nm
 .Op Fl acm
-.Op Fl r Ar ref_file | Fl t Ar timestamp
+.Op Fl d Ar time | Fl r Ar ref_file | Fl T Ar time | Fl t Ar time
 .Ar file ...
 .Sh DESCRIPTION
 .Nm
-sets the access or modification time of each
+sets the access and modification time of each
 .Ar file
 to the current time of day. If
 .Ar file
@@ -25,19 +25,30 @@ Set the access | modification time of
 Don't create
 .Ar file
 if it doesn't exist, not affecting exit status.
+.It Fl d Ar time
+Set the
+.Ar time
+of the format YYYY-MM-DDThh:mm:SS[Z] used for
+.Op Fl am .
 .It Fl r Ar ref_file
-Set the timestamp
-to be used with
+Set the
+.Ar time
+used for
 .Op Fl am
 to the modification time of
 .Ar ref_file .
-.It Fl t Ar timestamp
+.It Fl T Ar time
 Set the
-.Ar timestamp
-to be used with
+.Ar time
+used for
 .Op Fl am
 given as the number of seconds since the
 Unix epoch 1970-01-01T00:00:00Z.
+.It Fl t Ar time
+Set the
+.Ar time
+of the format [[CC]YY]MMDDhhmm[.SS] used for
+.Op Fl am .
 .El
 .Sh SEE ALSO
 .Xr date 1
@@ -46,10 +57,10 @@ The
 .Nm
 utility is compliant with the
 .St -p1003.1-2008
-specification except for
-.Fl d
-and the
-.Ar timestamp
-format of the
-.Fl t
-flag.
+specification, except from fractional seconds in the
+.Op Fl d
+argument.
+.Pp
+The
+.Op Fl T
+flag is an extension to this specification.
