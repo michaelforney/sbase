@@ -1,4 +1,4 @@
-.Dd January 28, 2015
+.Dd February 19, 2015
 .Dt MV 1
 .Os sbase
 .Sh NAME
@@ -6,7 +6,7 @@
 .Nd move files and directories
 .Sh SYNOPSIS
 .Nm
-.Op Fl f | Fl i
+.Op Fl f
 .Ar source ...
 .Ar destination
 .Sh DESCRIPTION
@@ -24,8 +24,8 @@ is not a directory,
 overwrites the latter with the former.
 .Sh OPTIONS
 .Bl -tag -width Ds
-.It Fl f | Fl i
-Do not prompt | Prompt before overwriting
+.It Fl f
+Do not prompt before overwriting.
 .Ar destination .
 Prompting has not been implemented yet.
 .El

@@ -28,7 +28,7 @@ mv(const char *s1, const char *s2, char ff)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-f | -i] source... dest\n", argv0);
+	eprintf("usage: %s [-f] source... dest\n", argv0);
 }
 
 int
@@ -38,7 +38,6 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	case 'f':
-	case 'i':
 		break;
 	default:
 		usage();
