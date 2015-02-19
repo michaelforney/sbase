@@ -23,7 +23,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =  cp              yes                          none (-i)
 =* cron            non-posix                    none
 #* cut             yes                          none
-=* date            yes                          none
+=* date            yes                          -u
 =* dirname         yes                          none
 =* du              yes                          none
 =* echo            yes                          none
@@ -40,7 +40,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =* ln              yes                          none
 =* logger          yes                          none
 =* logname         yes                          none
-=  ls              no                           -C, -R
+=  ls              no                           -A, (-C), -R, -S, -f, -m, -n, -p, -s, -x
 =* md5sum          non-posix                    none
 =* mkdir           yes                          none
 =* mkfifo          yes                          none
@@ -73,7 +73,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =* tar             non-posix                    none
 =* tee             yes                          none
 #* test            yes                          none
-=* touch           yes                          none
+=* touch           yes                          -d
 #* tr              yes                          none
 =* true            yes                          none
 =* tty             yes                          none
