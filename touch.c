@@ -86,7 +86,7 @@ parsetime(char *str, time_t current)
 	case 20:
 		/* only Zulu-timezone supported */
 		if (str[19] != 'Z')
-			goto default;
+			eprintf("Invalid time zone\n");
 		format = "%Y-%m-%dT%H:%M:%S%Z";
 		break;
 	default:
