@@ -48,6 +48,7 @@ time_t
 parsetime(char *str, time_t current)
 {
 	struct tm *cur, t;
+	int zulu = 0;
 	char *format;
 	size_t len = strlen(str);
 
@@ -87,7 +88,9 @@ parsetime(char *str, time_t current)
 		/* only Zulu-timezone supported */
 		if (str[19] != 'Z')
 			eprintf("Invalid time zone\n");
-		format = "%Y-%m-%dT%H:%M:%S%Z";
+		str[19] = 0;
+		zulu = 1;
+		format = "%Y-%m-%dT%H:%M:%S";
 		break;
 	default:
 		eprintf("Invalid date format length\n", str);
@@ -95,6 +98,11 @@ parsetime(char *str, time_t current)
 
 	if (!strptime(str, format, &t))
 		weprintf("strptime %s: Invalid date format\n", str);
+	if (zulu) {
+		t.tm_hour += t.tm_gmtoff / 60;
+		t.tm_gmtoff = 0;
+		t.tm_zone = "Z";
+	}
 
 	return mktime(&t);
 }
