@@ -33,6 +33,7 @@ static int hflag = 0;
 static int iflag = 0;
 static int Lflag = 0;
 static int lflag = 0;
+static int pflag = 0;
 static int qflag = 0;
 static int rflag = 0;
 static int tflag = 0;
@@ -70,21 +71,22 @@ mkent(struct entry *ent, char *path, int dostat, int follow)
 static char *
 indicator(mode_t mode)
 {
-	if (!Fflag)
-		return "";
+	if (pflag || Fflag)
+		if (S_ISDIR(mode))
+			return "/";
 
-	if (S_ISLNK(mode))
-		return "@";
-	else if (S_ISDIR(mode))
-		return "/";
-	else if (S_ISFIFO(mode))
-		return "|";
-	else if (S_ISSOCK(mode))
-		return "=";
-	else if (mode & S_IXUSR || mode & S_IXGRP || mode & S_IXOTH)
-		return "*";
-	else
-		return "";
+	if (Fflag) {
+		if (S_ISLNK(mode))
+			return "@";
+		else if (S_ISFIFO(mode))
+			return "|";
+		else if (S_ISSOCK(mode))
+			return "=";
+		else if (mode & S_IXUSR || mode & S_IXGRP || mode & S_IXOTH)
+			return "*";
+	}
+
+	return "";
 }
 
 static void
@@ -205,7 +207,7 @@ lsdir(const char *path)
 		if (d->d_name[0] == '.' && !aflag)
 			continue;
 		if (Uflag){
-			mkent(&ent, d->d_name, Fflag || lflag || iflag, Lflag);
+			mkent(&ent, d->d_name, Fflag || lflag || pflag || iflag, Lflag);
 			output(&ent);
 		} else {
 			ents = erealloc(ents, ++n * sizeof(*ents));
@@ -224,7 +226,7 @@ lsdir(const char *path)
 				}
 				*p = '\0';
 			}
-			mkent(&ents[n - 1], name, tflag || Fflag || lflag || iflag, Lflag);
+			mkent(&ents[n - 1], name, tflag || Fflag || iflag || lflag || pflag, Lflag);
 		}
 	}
 	closedir(dp);
@@ -294,6 +296,9 @@ main(int argc, char *argv[])
 		break;
 	case 'l':
 		lflag = 1;
+		break;
+	case 'p':
+		pflag = 1;
 		break;
 	case 'q':
 		qflag = 1;
