@@ -24,7 +24,7 @@ static void
 usage(void)
 {
 	eprintf("usage: %s [-c] [-d | -u] [-f fields] [-s chars]"
-	        " [[input] output]\n", argv0);
+	        " [input [output]]\n", argv0);
 }
 
 int
