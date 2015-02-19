@@ -102,7 +102,7 @@ parsetime(char *str, time_t current)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-acm] [-r ref_file | -t timestamp] file ...\n", argv0);
+	eprintf("usage: %s [-acm] [-d time | -r ref_file | -t time | -T time] file ...\n", argv0);
 }
 
 int
@@ -118,6 +118,9 @@ main(int argc, char *argv[])
 		break;
 	case 'c':
 		cflag = 1;
+		break;
+	case 'd':
+		t = parsetime(EARGF(usage()), t);
 		break;
 	case 'm':
 		mflag = 1;
