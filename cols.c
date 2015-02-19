@@ -31,6 +31,7 @@ main(int argc, char *argv[])
 	size_t i, l, col, len, bytes, maxlen = 0;
 	struct winsize w;
 	FILE *fp;
+	char *p;
 
 	ARGBEGIN {
 	case 'c':
@@ -42,8 +43,9 @@ main(int argc, char *argv[])
 	} ARGEND;
 
 	if (cflag == 0) {
-		ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-		if (w.ws_col != 0)
+		if ((p = getenv("COLUMNS")))
+			chars = estrtonum(p, 1, MIN(LLONG_MAX, SIZE_MAX));
+		else if (!ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) && w.ws_col > 0)
 			chars = w.ws_col;
 	}
 

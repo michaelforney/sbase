@@ -1,4 +1,4 @@
-.Dd February 1, 2015
+.Dd February 19, 2015
 .Dt COLS 1
 .Os sbase
 .Sh NAME
@@ -20,16 +20,24 @@ character columns. If no
 is given,
 .Nm
 reads from stdin.
+.Pp
+By default
+.Nm cols
+tries to figure out the width of the output
+device. If that fails, it defaults to 65 chars.
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl c Ar chars
 Set the maximum number of character columns to use
 (unless the input contains lines longer than
 .Ar num
-characters). By default
-.Nm cols
-tries to figure out the width of the output
-device. If that fails, it defaults to 65 chars.
+characters).
+.El
+.Sh ENVIRONMENT
+.Bl -tag -width COLUMNS
+.It COLUMNS
+If this variable is set, the value is used as the
+width of the output device.
 .El
 .Sh HISTORY
 .Nm
