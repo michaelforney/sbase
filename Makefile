@@ -210,8 +210,8 @@ sbase-box: $(LIB) $(SRC)
 	echo "else if (!strcmp(s, \"[\")) return test_main(argc, argv);" >> build/$@.c
 	for f in $(SRC); do echo "else if(!strcmp(s, \"$${f%.c}\")) return $${f%.c}_main(argc, argv);" >> build/$@.c; done
 	echo 'else {' >> build/$@.c
-	echo "printf(\"[\"); putchar(' ');" >> build/$@.c
-	for f in $(SRC); do echo "printf(\"$${f%.c}\"); putchar(' ');" >> build/$@.c; done
+	echo "fputs(\"[ \", stdout);" >> build/$@.c
+	for f in $(SRC); do echo "fputs(\"$${f%.c} \", stdout);" >> build/$@.c; done
 	echo "putchar(0xa); }; return 0; }" >> build/$@.c
 	$(LD) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ build/*.c $(LIB)
 	rm -r build
