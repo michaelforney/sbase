@@ -820,6 +820,7 @@ char *
 get_s_arg(Cmd *c, char *s)
 {
 	Rune delim, r;
+	Cmd buf;
 	char *p;
 	int esc;
 
@@ -901,13 +902,13 @@ get_s_arg(Cmd *c, char *s)
 	for (; s < p; s++) {
 		if (isdigit(*s)) {
 			c->u.s.occurrence = stol(s, &s);
-		} else switch (*s) {
-			case 'p' : c->u.s.p = 1;          break;
-			case 'g' : c->u.s.occurrence = 0; break;
-			case 'w' : {
+		} else {
+			switch (*s) {
+			case 'g': c->u.s.occurrence = 0; break;
+			case 'p': c->u.s.p = 1;          break;
+			case 'w':
 				/* must be last flag, take everything up to newline/semicolon
 				 * s == p after this */
-				Cmd buf;
 				s = get_w_arg(&buf, s);
 				c->u.s.file = buf.u.file;
 				break;
@@ -926,7 +927,6 @@ free_s_arg(Cmd *c)
 	}
 	free(c->u.s.repl.str);
 }
-
 
 /* see get_r_arg notes */
 char *
@@ -1092,13 +1092,13 @@ match_addr(Addr *a)
 	switch (a->type) {
 	default:
 	case IGNORE: return 0;
-	case EVERY : return 1;
-	case LINE  : return lineno == a->u.lineno;
-	case LAST  :
+	case EVERY: return 1;
+	case LINE: return lineno == a->u.lineno;
+	case LAST:
 		while (is_eof(file) && !next_file())
 			;
 		return !file;
-	case REGEX :
+	case REGEX:
 		lastre = a->u.re;
 		return !regexec(a->u.re, patt.str, 0, NULL, 0);
 	case LASTRE:

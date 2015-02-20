@@ -69,7 +69,7 @@ main(int argc, char *argv[])
 	openlog(tag ? tag : getlogin(), logflags, 0);
 
 	if (argc == 0) {
-		while(getline(&buf, &sz, stdin) != -1)
+		while (getline(&buf, &sz, stdin) != -1)
 			syslog(priority, "%s", buf);
 		if (ferror(stdin))
 			eprintf("%s: read error:", "<stdin>");

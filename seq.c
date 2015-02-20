@@ -27,7 +27,7 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	case 'f':
-		if(!validfmt(tmp=EARGF(usage())))
+		if (!validfmt(tmp=EARGF(usage())))
 			eprintf("%s: invalid format\n", tmp);
 		fmt = tmp;
 		break;

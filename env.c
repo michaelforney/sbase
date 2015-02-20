@@ -20,7 +20,7 @@ main(int argc, char *argv[])
 {
 	ARGBEGIN {
 	case 'i':
-		if(environ)
+		if (environ)
 			*environ = NULL;
 		break;
 	case 'u':

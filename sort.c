@@ -254,7 +254,7 @@ parse_keydef(struct keydef *kd, char *s, int flags)
 static char *
 skipblank(char *s)
 {
-	while(*s && isblank(*s))
+	while (*s && isblank(*s))
 		s++;
 	return s;
 }
@@ -264,7 +264,7 @@ nextcol(char *s)
 {
 	if (!fieldsep) {
 		s = skipblank(s);
-		while(*s && !isblank(*s))
+		while (*s && !isblank(*s))
 			s++;
 	} else {
 		if (!strchr(s, *fieldsep))

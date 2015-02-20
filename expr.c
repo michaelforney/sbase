@@ -80,10 +80,10 @@ doop(int *op, int **opp, Val *val, Val **valp)
 		break;
 	case '=': ret = (Val){ NULL, valcmp(a, b) == 0 }; break;
 	case '>': ret = (Val){ NULL, valcmp(a, b) >  0 }; break;
-	case GE : ret = (Val){ NULL, valcmp(a, b) >= 0 }; break;
+	case GE: ret = (Val){ NULL, valcmp(a, b) >= 0 }; break;
 	case '<': ret = (Val){ NULL, valcmp(a, b) <  0 }; break;
-	case LE : ret = (Val){ NULL, valcmp(a, b) <= 0 }; break;
-	case NE : ret = (Val){ NULL, valcmp(a, b) != 0 }; break;
+	case LE: ret = (Val){ NULL, valcmp(a, b) <= 0 }; break;
+	case NE: ret = (Val){ NULL, valcmp(a, b) != 0 }; break;
 
 	case '+': enan(a); enan(b); ret = (Val){ NULL, a.n + b.n }; break;
 	case '-': enan(a); enan(b); ret = (Val){ NULL, a.n - b.n }; break;

@@ -44,7 +44,7 @@ uuencodeb64(FILE *fp, const char *name, const char *s)
 		if (m != 0) {
 			unsigned int mask = 0xffffffff, dest = 0x3d3d3d3d;
 			/* m==2 -> 0x00ffffff; m==1 -> 0x0000ffff */
-			mask >>= ((3-m) << 3); 
+			mask >>= ((3-m) << 3);
 			po[-1] = (po[-1] & mask) | (dest & ~mask);
 		}
 		*po++ = '\n';

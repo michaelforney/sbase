@@ -130,7 +130,7 @@ main(int argc, char *argv[])
 			if (fflag && argc == 1) {
 				tmp = NULL;
 				tmpsize = 0;
-				for(;;) {
+				for (;;) {
 					while (getline(&tmp, &tmpsize, fp) != -1) {
 						fputs(tmp, stdout);
 						fflush(stdout);
