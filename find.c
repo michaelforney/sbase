@@ -458,7 +458,7 @@ pri_print(Arg *arg)
 static int
 pri_newer(Arg *arg)
 {
-	return arg->st->st_mtim.tv_sec > (time_t)arg->extra.i;
+	return arg->st->st_mtime > (time_t)arg->extra.i;
 }
 
 static int
@@ -677,7 +677,7 @@ get_newer_arg(char **argv, Extra *extra)
 	if (stat(*argv, &st))
 		eprintf("failed to stat '%s':", *argv);
 
-	extra->i = st.st_mtim.tv_sec;
+	extra->i = st.st_mtime;
 	return argv;
 }
 
