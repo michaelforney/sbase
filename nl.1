@@ -8,6 +8,7 @@
 .Nm
 .Op Fl b Ar type
 .Op Fl i Ar incr
+.Op Fl n Ar format
 .Op Fl s Ar sep
 .Op Fl v Ar startnum
 .Op Fl w Ar width
@@ -40,6 +41,23 @@ a regular expression as defined in
 .El
 .It Fl i Ar incr
 Defines the increment between numbered lines.
+.It Fl n Ar format
+Specify the line number output format.
+The
+.Ar format
+can be any of the following:
+.Bl -tag -width pstringXX
+.It ln
+Left justified.
+.It rn
+Right justified.
+.It rz
+Right justified with leading zeroes.
+.El
+.Pp
+The default
+.Ar format
+is rn.
 .It Fl s Ar sep
 Defines the string used to separate line numbers and lines. By default this is
 a tab.

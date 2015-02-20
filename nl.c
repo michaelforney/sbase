@@ -8,7 +8,12 @@
 #include "text.h"
 #include "util.h"
 
+#define FORMAT_LN "%-*ld%s%s"
+#define FORMAT_RN "%*ld%s%s"
+#define FORMAT_RZ "%0*ld%s%s"
+
 static char        mode = 't';
+static const char *format = FORMAT_RN;
 static const char *sep = "\t";
 static int         width = 6;
 static size_t      startnum = 1;
@@ -25,7 +30,7 @@ nl(const char *name, FILE *fp)
 		if ((mode == 'a')
 		    || (mode == 'p' && !regexec(&preg, buf, 0, NULL, 0))
 		    || (mode == 't' && buf[0] != '\n')) {
-			printf("%*ld%s%s", width, startnum, sep, buf);
+			printf(format, width, startnum, sep, buf);
 			startnum += incr;
 		} else {
 			printf("       %s", buf);
@@ -39,7 +44,7 @@ nl(const char *name, FILE *fp)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-b type] [-i incr] [-s sep] [-v startnum] [-w width] [file]\n", argv0);
+	eprintf("usage: %s [-b type] [-i incr] [-n format] [-s sep] [-v startnum] [-w width] [file]\n", argv0);
 }
 
 int
@@ -59,6 +64,17 @@ main(int argc, char *argv[])
 		break;
 	case 'i':
 		incr = estrtonum(EARGF(usage()), 0, MIN(LLONG_MAX, SIZE_MAX));
+		break;
+	case 'n':
+		format = EARGF(usage());
+		if (!strcmp(format, "ln"))
+			format = FORMAT_LN;
+		else if (!strcmp(format, "rn"))
+			format = FORMAT_RN;
+		else if (!strcmp(format, "rz"))
+			format = FORMAT_RZ;
+		else
+			eprintf("%s: bad format\n", format);
 		break;
 	case 's':
 		sep = EARGF(usage());
