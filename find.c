@@ -64,7 +64,7 @@ struct Tok {
 /* structures used for Arg.extra.p and Tok.extra.p */
 typedef struct {
 	mode_t        mode;
-	unsigned int  exact:1;
+	unsigned char exact;
 } Permarg;
 
 typedef struct {
@@ -83,7 +83,7 @@ typedef struct {
 
 typedef struct {
 	Narg n;
-	unsigned int bytes:1; /* size is in bytes, not 512 byte sectors */
+	unsigned char bytes; /* size is in bytes, not 512 byte sectors */
 } Sizearg;
 
 typedef struct {
@@ -100,7 +100,7 @@ typedef struct {
 		} p; /* plus */
 	} u;
 	char        **argv; /* NULL terminated list of arguments (allocated if isplus) */
-	unsigned int isplus:1; /* -exec + instead of -exec ; */
+	unsigned char isplus; /* -exec + instead of -exec ; */
 } Execarg;
 
 /* used to find loops while recursing through directory structure */
@@ -221,14 +221,14 @@ size_t envlen; /* number of bytes in environ, used to calculate against ARG_MAX 
 size_t argmax; /* value of ARG_MAX retrieved using sysconf(3p) */
 
 struct {
-	unsigned ret  :1; /* return value from main                                  */
-	unsigned depth:1; /* -depth, directory contents before directory itself      */
-	unsigned h    :1; /* -H, follow symlinks on command line                     */
-	unsigned l    :1; /* -L, follow all symlinks (command line and search)       */
-	unsigned prune:1; /* hit -prune, eval should return STW_PRUNE (return values
+	unsigned ret  ; /* return value from main                                  */
+	unsigned depth; /* -depth, directory contents before directory itself      */
+	unsigned h    ; /* -H, follow symlinks on command line                     */
+	unsigned l    ; /* -L, follow all symlinks (command line and search)       */
+	unsigned prune; /* hit -prune, eval should return STW_PRUNE (return values
 						 traversing expression tree are boolean so we can't
 						 easily return this. instead set a global flag)          */
-	unsigned xdev :1; /* -xdev, prune directories on different devices           */
+	unsigned xdev ; /* -xdev, prune directories on different devices           */
 } gflags;
 
 /*
