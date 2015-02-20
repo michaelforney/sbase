@@ -165,7 +165,7 @@ uudecode(FILE *fp, FILE *outfp)
 
 #define DEC(c)  (((c) - ' ') & 077) /* single character decode */
 #define IS_DEC(c) ( (((c) - ' ') >= 0) && (((c) - ' ') <= 077 + 1) )
-#define OUT_OF_RANGE(c) eprintf("character %c out of range: [%d-%d]", (c), 1 + ' ', 077 + ' ' + 1)
+#define OUT_OF_RANGE(c) eprintf("character %c out of range: [%d-%d]\n", (c), 1 + ' ', 077 + ' ' + 1)
 
 	while ((len = getline(&bufb, &n, fp)) != -1) {
 		p = bufb;
