@@ -9,6 +9,7 @@
 
 static char        mode = 't';
 static const char *sep = "\t";
+static size_t      startnum = 1;
 static size_t      incr = 1;
 static regex_t     preg;
 
@@ -16,15 +17,17 @@ void
 nl(const char *name, FILE *fp)
 {
 	char *buf = NULL;
-	size_t n = 0, size = 0;
+	size_t size = 0;
 
 	while (getline(&buf, &size, fp) != -1) {
 		if ((mode == 'a')
 		    || (mode == 'p' && !regexec(&preg, buf, 0, NULL, 0))
-		    || (mode == 't' && buf[0] != '\n'))
-			printf("%6ld%s%s", n += incr, sep, buf);
-		else
+		    || (mode == 't' && buf[0] != '\n')) {
+			printf("%6ld%s%s", startnum, sep, buf);
+			startnum += incr;
+		} else {
 			printf("       %s", buf);
+		}
 	}
 	free(buf);
 	if (ferror(fp))
@@ -34,7 +37,7 @@ nl(const char *name, FILE *fp)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-b type] [-i incr] [-s sep] [file]\n", argv0);
+	eprintf("usage: %s [-b type] [-i incr] [-s sep] [-v startnum] [file]\n", argv0);
 }
 
 int
@@ -57,6 +60,9 @@ main(int argc, char *argv[])
 		break;
 	case 's':
 		sep = EARGF(usage());
+		break;
+	case 'v':
+		startnum = estrtonum(EARGF(usage()), 0, MIN(LLONG_MAX, SIZE_MAX));
 		break;
 	default:
 		usage();

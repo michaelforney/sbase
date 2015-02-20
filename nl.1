@@ -1,4 +1,4 @@
-.Dd December 4, 2014
+.Dd February 20, 2015
 .Dt NL 1
 .Os sbase
 .Sh NAME
@@ -9,6 +9,7 @@
 .Op Fl b Ar type
 .Op Fl i Ar incr
 .Op Fl s Ar sep
+.Op Fl v Ar startnum
 .Op Ar file
 .Sh DESCRIPTION
 .Nm
@@ -41,6 +42,10 @@ Defines the increment between numbered lines.
 .It Fl s Ar sep
 Defines the string used to separate line numbers and lines. By default this is
 a tab.
+.It Fl v Ar startnum
+Start counting from
+.Ar startnum
+instead of the default 1.
 .El
 .Sh SEE ALSO
 .Xr pr 1
