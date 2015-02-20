@@ -1003,7 +1003,8 @@ usage(void)
 	eprintf("usage: %s [-H|-L] path... [expression...]\n", argv0);
 }
 
-int main(int argc, char **argv)
+int
+main(int argc, char **argv)
 {
 	char **paths;
 	int npaths;
