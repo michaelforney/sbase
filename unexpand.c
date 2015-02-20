@@ -12,20 +12,20 @@ static int     tablistlen = 8;
 static size_t
 parselist(const char *s)
 {
-        size_t i;
-        char  *p, *tmp;
+	size_t i;
+	char  *p, *tmp;
 
-        tmp = estrdup(s);
-        for (i = 0; (p = strsep(&tmp, " ,")); i++) {
-                if (*p == '\0')
-                        eprintf("empty field in tablist\n");
-                tablist = erealloc(tablist, (i + 1) * sizeof(*tablist));
-                tablist[i] = estrtonum(p, 1, MIN(LLONG_MAX, SIZE_MAX));
-                if (i > 0 && tablist[i - 1] >= tablist[i])
-                        eprintf("tablist must be ascending\n");
-        }
-        tablist = erealloc(tablist, (i + 1) * sizeof(*tablist));
-        return i;
+	tmp = estrdup(s);
+	for (i = 0; (p = strsep(&tmp, " ,")); i++) {
+		if (*p == '\0')
+			eprintf("empty field in tablist\n");
+		tablist = erealloc(tablist, (i + 1) * sizeof(*tablist));
+		tablist[i] = estrtonum(p, 1, MIN(LLONG_MAX, SIZE_MAX));
+		if (i > 0 && tablist[i - 1] >= tablist[i])
+			eprintf("tablist must be ascending\n");
+	}
+	tablist = erealloc(tablist, (i + 1) * sizeof(*tablist));
+	return i;
 }
 
 static void
