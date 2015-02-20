@@ -4,7 +4,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "utf.h"
 #include "util.h"
 
 #define STOI(s) enstrtonum(2, s, LLONG_MIN, LLONG_MAX)
@@ -20,8 +19,8 @@ static int unary_S(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; ret
 static int unary_s(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; return           buf.st_size ; }
 static int unary_u(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; return S_ISUID & buf.st_mode ; }
 
-static int unary_n(char *s) { return  utflen(s); }
-static int unary_z(char *s) { return !utflen(s); }
+static int unary_n(char *s) { return  *s; }
+static int unary_z(char *s) { return !*s; }
 
 static int unary_e(char *s) { return access(s, F_OK); }
 static int unary_r(char *s) { return access(s, R_OK); }
