@@ -180,7 +180,7 @@ $(LIBUTIL): $(LIBUTILOBJ)
 install: all
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
 	cp -f $(BIN) $(DESTDIR)$(PREFIX)/bin
-	cd $(DESTDIR)$(PREFIX)/bin && chmod 755 $(BIN)
+	cd $(DESTDIR)$(PREFIX)/bin && ln -f test [ && chmod 755 $(BIN)
 	mkdir -p $(DESTDIR)$(MANPREFIX)/man1
 	for m in $(MAN); do sed "s/^\.Os sbase/.Os sbase $(VERSION)/g" < "$$m" > $(DESTDIR)$(MANPREFIX)/man1/"$$m"; done
 	cd $(DESTDIR)$(MANPREFIX)/man1 && chmod 644 $(MAN)
@@ -207,8 +207,10 @@ sbase-box: $(LIB) $(SRC)
 	echo '#include "util.h"'   >> build/$@.c
 	for f in $(SRC); do echo "int `basename $$f .c`_main(int, char **);" >> build/$@.c; done
 	echo 'int main(int argc, char *argv[]) { char *s = basename(argv[0]); if(!strcmp(s,"sbase-box")) { argc--; argv++; s = basename(argv[0]); } if(0) ;' >> build/$@.c
+	echo "else if (!strcmp(s, \"[\")) return test_main(argc, argv);" >> build/$@.c
 	for f in $(SRC); do echo "else if(!strcmp(s, \"`basename $$f .c`\")) return `basename $$f .c`_main(argc, argv);" >> build/$@.c; done
 	echo 'else {' >> build/$@.c
+	echo "printf(\"[\"); putchar(' ');" >> build/$@.c
 	for f in $(SRC); do echo "printf(\"`basename $$f .c`\"); putchar(' ');" >> build/$@.c; done
 	echo "putchar(0xa); }; return 0; }" >> build/$@.c
 	$(LD) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ build/*.c $(LIB)
