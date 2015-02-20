@@ -284,14 +284,14 @@ static int
 pri_type(Arg *arg)
 {
 	switch ((char)arg->extra.i) {
-		default : return 0; /* impossible, but placate warnings */
-		case 'b': return S_ISBLK (arg->st->st_mode);
-		case 'c': return S_ISCHR (arg->st->st_mode);
-		case 'd': return S_ISDIR (arg->st->st_mode);
-		case 'l': return S_ISLNK (arg->st->st_mode);
-		case 'p': return S_ISFIFO(arg->st->st_mode);
-		case 'f': return S_ISREG (arg->st->st_mode);
-		case 's': return S_ISSOCK(arg->st->st_mode);
+	default : return 0; /* impossible, but placate warnings */
+	case 'b': return S_ISBLK (arg->st->st_mode);
+	case 'c': return S_ISCHR (arg->st->st_mode);
+	case 'd': return S_ISDIR (arg->st->st_mode);
+	case 'l': return S_ISLNK (arg->st->st_mode);
+	case 'p': return S_ISFIFO(arg->st->st_mode);
+	case 'f': return S_ISREG (arg->st->st_mode);
+	case 's': return S_ISSOCK(arg->st->st_mode);
 	}
 }
 

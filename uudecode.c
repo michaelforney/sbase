@@ -101,30 +101,30 @@ uudecodeb64(FILE *fp, FILE *outfp)
 				continue;
 			} else if (*pb == '=') {
 				switch (b) {
-					case 0:
-						/* expected '=' remaining
-						 * including footer */
-						if (--t) {
-							fwrite(out, 1,
-							       (po - out),
-							       outfp);
-							return;
-						}
-						continue;
-					case 1:
-						eprintf("%d: unexpected \"=\""
-						        "appeared\n", l);
-					case 3:
-						*po++ = b24[0];
-						*po++ = b24[1];
-						b = 0;
-						t = 6; /* expect 6 '=' */
-						continue;
-					case 2:
-						*po++ = b24[0];
-						b = 0;
-						t = 5; /* expect 5 '=' */
-						continue;
+				case 0:
+					/* expected '=' remaining
+					 * including footer */
+					if (--t) {
+						fwrite(out, 1,
+						       (po - out),
+						       outfp);
+						return;
+					}
+					continue;
+				case 1:
+					eprintf("%d: unexpected \"=\""
+					        "appeared\n", l);
+				case 2:
+					*po++ = b24[0];
+					b = 0;
+					t = 5; /* expect 5 '=' */
+					continue;
+				case 3:
+					*po++ = b24[0];
+					*po++ = b24[1];
+					b = 0;
+					t = 6; /* expect 6 '=' */
+					continue;
 				}
 			} else if ((e = b64dt[(int)*pb]) == -1)
 				eprintf("%d: invalid byte \"%c\"\n", l, *pb);

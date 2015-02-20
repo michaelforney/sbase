@@ -45,52 +45,52 @@ main(int argc, char *argv[])
 
 #define SWAP_BUF() (b = (b == buf1 ? buf2 : buf1));
 	switch (mefflag) {
-		case 'm':
-			if (argv[0][0] == '/') { /* case when path is on '/' */
-				arg[0] = '/';
-				arg[1] = '\0';
-				p++;
-			} else if (!strchr(argv[0], '/')) { /* relative path */
-				arg[0] = '.';
-				arg[1] = '/';
-				arg[2] = '\0';
-			} else
-				arg[0] = '\0';
-			if (strlcat(arg, argv[0], PATH_MAX) >= PATH_MAX)
-				eprintf("path too long\n");
-			while ((p = strchr(p, '/'))) {
-				*p = '\0';
-				if (!realpath(arg, b)) {
-					*p = '/';
-					goto mdone;
-				}
-				SWAP_BUF();
-				lp = p;
-				*p++ = '/';
-			}
+	case 'm':
+		if (argv[0][0] == '/') { /* case when path is on '/' */
+			arg[0] = '/';
+			arg[1] = '\0';
+			p++;
+		} else if (!strchr(argv[0], '/')) { /* relative path */
+			arg[0] = '.';
+			arg[1] = '/';
+			arg[2] = '\0';
+		} else
+			arg[0] = '\0';
+		if (strlcat(arg, argv[0], PATH_MAX) >= PATH_MAX)
+			eprintf("path too long\n");
+		while ((p = strchr(p, '/'))) {
+			*p = '\0';
 			if (!realpath(arg, b)) {
-mdone:
-				SWAP_BUF();
-				if (lp) {
-					/* drop the extra '/' on root */
-					lp += (argv[0][0] == '/' &&
-					       lp - arg == 1);
-					if (strlcat(b, lp, PATH_MAX) >= PATH_MAX)
-						eprintf("path too long\n");
-				}
+				*p = '/';
+				goto mdone;
 			}
-			break;
-		case 'e':
-			if (stat(argv[0], &st) < 0)
-				eprintf("stat %s:", argv[0]);
-		case 'f':
-			if (!realpath(argv[0], b))
-				eprintf("realpath %s:", argv[0]);
-			break;
-		default:
-			if ((n = readlink(argv[0], b, PATH_MAX - 1)) < 0)
-				eprintf("readlink %s:", argv[0]);
-			b[n] = '\0';
+			SWAP_BUF();
+			lp = p;
+			*p++ = '/';
+		}
+		if (!realpath(arg, b)) {
+mdone:
+			SWAP_BUF();
+			if (lp) {
+				/* drop the extra '/' on root */
+				lp += (argv[0][0] == '/' &&
+				       lp - arg == 1);
+				if (strlcat(b, lp, PATH_MAX) >= PATH_MAX)
+					eprintf("path too long\n");
+			}
+		}
+		break;
+	case 'e':
+		if (stat(argv[0], &st) < 0)
+			eprintf("stat %s:", argv[0]);
+	case 'f':
+		if (!realpath(argv[0], b))
+			eprintf("realpath %s:", argv[0]);
+		break;
+	default:
+		if ((n = readlink(argv[0], b, PATH_MAX - 1)) < 0)
+			eprintf("readlink %s:", argv[0]);
+		b[n] = '\0';
 	}
 	printf("%s", b);
 	if (!nflag)
