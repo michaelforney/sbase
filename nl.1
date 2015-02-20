@@ -10,6 +10,7 @@
 .Op Fl i Ar incr
 .Op Fl s Ar sep
 .Op Fl v Ar startnum
+.Op Fl w Ar width
 .Op Ar file
 .Sh DESCRIPTION
 .Nm
@@ -46,6 +47,11 @@ a tab.
 Start counting from
 .Ar startnum
 instead of the default 1.
+.It Fl w Ar width
+The number of characters to be occupied by the line number
+will be set to
+.Ar width .
+The default is 6.
 .El
 .Sh SEE ALSO
 .Xr pr 1
