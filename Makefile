@@ -94,6 +94,7 @@ BIN =\
 	expand\
 	expr\
 	false\
+	find\
 	fold\
 	grep\
 	head\
