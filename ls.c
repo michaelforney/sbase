@@ -24,6 +24,7 @@ struct entry {
 	ino_t   ino;
 };
 
+static int Aflag = 0;
 static int aflag = 0;
 static int cflag = 0;
 static int dflag = 0;
@@ -204,8 +205,11 @@ lsdir(const char *path)
 	}
 
 	while ((d = readdir(dp))) {
-		if (d->d_name[0] == '.' && !aflag)
+		if (d->d_name[0] == '.' && !aflag && !Aflag)
 			continue;
+		else if (Aflag)
+			if (strcmp(d->d_name, ".") == 0 || strcmp(d->d_name, "..") == 0)
+				continue;
 		if (Uflag){
 			mkent(&ent, d->d_name, Fflag || lflag || pflag || iflag, Lflag);
 			output(&ent);
@@ -256,7 +260,7 @@ ls(const struct entry *ent)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-1acdFHhiLlqrtUu] [file ...]\n", argv0);
+	eprintf("usage: %s [-1AacdFHhiLlqrtUu] [file ...]\n", argv0);
 }
 
 int
@@ -268,6 +272,9 @@ main(int argc, char *argv[])
 	ARGBEGIN {
 	case '1':
 		/* ignore */
+		break;
+	case 'A':
+		Aflag = 1;
 		break;
 	case 'a':
 		aflag = 1;

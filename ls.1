@@ -1,4 +1,4 @@
-.Dd February 18, 2015
+.Dd February 21, 2015
 .Dt LS 1
 .Os sbase
 .Sh NAME
@@ -6,7 +6,7 @@
 .Nd list directory contents
 .Sh SYNOPSIS
 .Nm
-.Op Fl 1acdFHhiLlqrtUu
+.Op Fl 1AacdFHhiLlqrtUu
 .Op Ar file ...
 .Sh DESCRIPTION
 .Nm
@@ -14,6 +14,8 @@ lists each given file, and the contents of each given directory. If no files
 are given the current directory is listed.
 .Sh OPTIONS
 .Bl -tag -width Ds
+.It Fl A
+List all entries except for '.' and '..'.
 .It Fl a
 Show hidden files (those beginning with '.').
 .It Fl c
