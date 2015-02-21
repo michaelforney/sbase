@@ -768,6 +768,7 @@ parse(int argc, char **argv)
 	char **arg;
 	size_t ntok = 0;
 	int print = 1;
+	Tok and = { .u.oinfo = find_op("-a"), .type = AND };
 
 	/* convert argv to infix expression of Tok, inserting in *tok */
 	for (arg = argv, tok = infix; *arg; arg++, tok++) {
@@ -786,9 +787,7 @@ parse(int argc, char **argv)
 				print = 0;
 
 			if (lasttype == PRIM || lasttype == RPAR) {
-				tok->u.oinfo = find_op("-a"); /* ew? */
-				tok->type = AND;
-				tok++;
+				*tok++ = and;
 				ntok++;
 			}
 			if (pri->getarg) {
@@ -802,6 +801,10 @@ parse(int argc, char **argv)
 		} else if ((op = find_op(*arg))) { /* token is an operator */
 			if (lasttype == LPAR && op->type == RPAR)
 				eprintf("empty parens\n");
+			if (lasttype == PRIM && op->type == NOT) { /* need another implicit -a */
+				*tok++ = and;
+				ntok++;
+			}
 			tok->type = op->type;
 			tok->u.oinfo = op;
 
@@ -866,11 +869,9 @@ parse(int argc, char **argv)
 		out->type = PRIM;
 		out++;
 	}
-	if (print == 2) {
-		out->u.oinfo = find_op("-a");
-		out->type = AND;
-		out++;
-	}
+	if (print == 2)
+		*out++ = and;
+
 	out->type = END;
 
 	/* rpn now holds all operators and arguments in reverse polish notation
