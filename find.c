@@ -40,31 +40,31 @@ typedef struct {
 /* Information about operators, for lookup table */
 typedef struct {
 	char *name;   /* string representation of op           */
-	int   type;   /* from Tok.type                         */
-	int   prec;   /* precedence                            */
-	int   nargs;  /* number of arguments (unary or binary) */
-	int   lassoc; /* left associative                      */
+	char  type;   /* from Tok.type                         */
+	char  prec;   /* precedence                            */
+	char  nargs;  /* number of arguments (unary or binary) */
+	char  lassoc; /* left associative                      */
 } Op_info;
 
 /* Token when lexing/parsing
  * (although also used for the expression tree) */
 typedef struct Tok Tok;
 struct Tok {
-	enum {
-		PRIM = 0, LPAR, RPAR, NOT, AND, OR, END
-	} type;
+	Tok  *left, *right; /* if (type == NOT) left = NULL */
+	Extra extra;
 	union {
 		Pri_info *pinfo; /* if (type == PRIM) */
 		Op_info  *oinfo;
 	} u;
-	Extra extra;
-	Tok  *left, *right; /* if (type == NOT) left = NULL */
+	enum {
+		PRIM = 0, LPAR, RPAR, NOT, AND, OR, END
+	} type;
 };
 
 /* structures used for Arg.extra.p and Tok.extra.p */
 typedef struct {
-	mode_t        mode;
-	unsigned char exact;
+	mode_t mode;
+	char   exact;
 } Permarg;
 
 typedef struct {
@@ -83,7 +83,7 @@ typedef struct {
 
 typedef struct {
 	Narg n;
-	unsigned char bytes; /* size is in bytes, not 512 byte sectors */
+	char bytes; /* size is in bytes, not 512 byte sectors */
 } Sizearg;
 
 typedef struct {
@@ -99,8 +99,8 @@ typedef struct {
 			size_t cap;     /* capacity of argv                               */
 		} p; /* plus */
 	} u;
-	char        **argv; /* NULL terminated list of arguments (allocated if isplus) */
-	unsigned char isplus; /* -exec + instead of -exec ; */
+	char **argv; /* NULL terminated list of arguments (allocated if isplus) */
+	char   isplus; /* -exec + instead of -exec ; */
 } Execarg;
 
 /* used to find loops while recursing through directory structure */
@@ -168,14 +168,14 @@ static int cmp_gt(int a, int b) { return a >  b; }
 static int cmp_eq(int a, int b) { return a == b; }
 static int cmp_lt(int a, int b) { return a <  b; }
 
-int (*cmps[])(int, int) = {
+static int (*cmps[])(int, int) = {
 	[GT] = cmp_gt,
 	[EQ] = cmp_eq,
 	[LT] = cmp_lt,
 };
 
 /* order from find(1p), may want to alphabetize */
-Pri_info primaries[] = {
+static Pri_info primaries[] = {
 	{ "-name"   , pri_name   , get_name_arg , NULL          },
 	{ "-path"   , pri_path   , get_path_arg , NULL          },
 	{ "-nouser" , pri_nouser , NULL         , NULL          },
@@ -200,7 +200,7 @@ Pri_info primaries[] = {
 	{ NULL, NULL, NULL, NULL }
 };
 
-Op_info ops[] = {
+static Op_info ops[] = {
 	{ "(" , LPAR, 0, 0, 0 }, /* parens are handled specially */
 	{ ")" , RPAR, 0, 0, 0 },
 	{ "!" , NOT , 3, 1, 0 },
@@ -212,23 +212,21 @@ Op_info ops[] = {
 
 extern char **environ;
 
-Tok *toks; /* holds allocated array of all Toks created while parsing */
-Tok *root; /* points to root of expression tree, inside toks array */
+static Tok *toks; /* holds allocated array of all Toks created while parsing */
+static Tok *root; /* points to root of expression tree, inside toks array */
 
-struct timespec start; /* time find was started, used for -[acm]time */
+static struct timespec start; /* time find was started, used for -[acm]time */
 
-size_t envlen; /* number of bytes in environ, used to calculate against ARG_MAX */
-size_t argmax; /* value of ARG_MAX retrieved using sysconf(3p) */
+static size_t envlen; /* number of bytes in environ, used to calculate against ARG_MAX */
+static size_t argmax; /* value of ARG_MAX retrieved using sysconf(3p) */
 
-struct {
-	unsigned ret  ; /* return value from main                                  */
-	unsigned depth; /* -depth, directory contents before directory itself      */
-	unsigned h    ; /* -H, follow symlinks on command line                     */
-	unsigned l    ; /* -L, follow all symlinks (command line and search)       */
-	unsigned prune; /* hit -prune, eval should return STW_PRUNE (return values
-						 traversing expression tree are boolean so we can't
-						 easily return this. instead set a global flag)          */
-	unsigned xdev ; /* -xdev, prune directories on different devices           */
+static struct {
+	char ret  ; /* return value from main                             */
+	char depth; /* -depth, directory contents before directory itself */
+	char h    ; /* -H, follow symlinks on command line                */
+	char l    ; /* -L, follow all symlinks (command line and search)  */
+	char prune; /* hit -prune                                         */
+	char xdev ; /* -xdev, prune directories on different devices      */
 } gflags;
 
 /*
@@ -369,7 +367,7 @@ pri_exec(Arg *arg)
 			e->argv[e->u.p.next] = NULL;
 
 			if (!(pid = fork())) { /* child */
-				execv(*e->argv, e->argv);
+				execvp(*e->argv, e->argv);
 				eprintf("exec %s failed:", *e->argv);
 			}
 			waitpid(pid, &status, 0);
@@ -403,7 +401,7 @@ pri_exec(Arg *arg)
 			**brace = arg->path;
 
 		if (!(pid = fork())) { /* child */
-			execv(*e->argv, e->argv);
+			execvp(*e->argv, e->argv);
 			eprintf("exec %s failed:", *e->argv);
 		}
 		/* FIXME: propper course of action for all waitpid() on EINTR? */
@@ -440,7 +438,7 @@ pri_ok(Arg *arg)
 		**brace = arg->path;
 
 	if (!(pid = fork())) { /* child */
-		execv(*o->argv, o->argv);
+		execvp(*o->argv, o->argv);
 		eprintf("exec %s failed:", *o->argv);
 	}
 	waitpid(pid, &status, 0);
@@ -707,7 +705,7 @@ free_exec_arg(Extra extra)
 			pid_t pid = fork();
 
 			if (!pid) { /* child */
-				execv(*e->argv, e->argv);
+				execvp(*e->argv, e->argv);
 				eprintf("exec %s failed:", *e->argv);
 			}
 			waitpid(pid, &status, 0);
