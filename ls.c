@@ -36,12 +36,15 @@ static int Lflag = 0;
 static int lflag = 0;
 static int pflag = 0;
 static int qflag = 0;
+static int Rflag = 0;
 static int rflag = 0;
 static int tflag = 0;
 static int Uflag = 0;
 static int uflag = 0;
 static int first = 1;
 static int many;
+
+static void ls(const struct entry *ent, int recurse);
 
 static void
 mkent(struct entry *ent, char *path, int dostat, int follow)
@@ -197,12 +200,12 @@ lsdir(const char *path)
 	if (chdir(path) < 0)
 		eprintf("chdir %s:", path);
 
-	if (many) {
+	if (many || Rflag) {
 		if (!first)
 			putchar('\n');
 		printf("%s:\n", path);
-		first = 0;
 	}
+	first = 0;
 
 	while ((d = readdir(dp))) {
 		if (d->d_name[0] == '.' && !aflag && !Aflag)
@@ -211,8 +214,8 @@ lsdir(const char *path)
 			if (strcmp(d->d_name, ".") == 0 || strcmp(d->d_name, "..") == 0)
 				continue;
 		if (Uflag){
-			mkent(&ent, d->d_name, Fflag || lflag || pflag || iflag, Lflag);
-			output(&ent);
+			mkent(&ent, d->d_name, Fflag || lflag || pflag || iflag || Rflag, Lflag);
+			ls(&ent, Rflag);
 		} else {
 			ents = erealloc(ents, ++n * sizeof(*ents));
 			name = p = estrdup(d->d_name);
@@ -230,14 +233,14 @@ lsdir(const char *path)
 				}
 				*p = '\0';
 			}
-			mkent(&ents[n - 1], name, tflag || Fflag || iflag || lflag || pflag, Lflag);
+			mkent(&ents[n - 1], name, tflag || Fflag || iflag || lflag || pflag || Rflag, Lflag);
 		}
 	}
 	closedir(dp);
 	if (!Uflag){
 		qsort(ents, n, sizeof(*ents), entcmp);
 		for (i = 0; i < n; i++) {
-			output(&ents[rflag ? (n - i - 1) : i]);
+			ls(&ents[rflag ? (n - i - 1) : i], Rflag);
 			free(ents[rflag ? (n - i - 1) : i].name);
 		}
 	}
@@ -248,9 +251,9 @@ lsdir(const char *path)
 }
 
 static void
-ls(const struct entry *ent)
+ls(const struct entry *ent, int recurse)
 {
-	if ((S_ISDIR(ent->mode) || (S_ISLNK(ent->mode) &&
+	if (recurse && (S_ISDIR(ent->mode) || (S_ISLNK(ent->mode) &&
 	     S_ISDIR(ent->tmode) && !Fflag && !lflag)) && !dflag)
 		lsdir(ent->name);
 	else
@@ -260,7 +263,7 @@ ls(const struct entry *ent)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-1AacdFHhiLlqrtUu] [file ...]\n", argv0);
+	eprintf("usage: %s [-1AacdFHhiLlqRrtUu] [file ...]\n", argv0);
 }
 
 int
@@ -310,6 +313,9 @@ main(int argc, char *argv[])
 	case 'q':
 		qflag = 1;
 		break;
+	case 'R':
+		Rflag = 1;
+		break;
 	case 'r':
 		rflag = 1;
 		break;
@@ -337,7 +343,7 @@ main(int argc, char *argv[])
 		mkent(&ents[i], argv[i], 1, Hflag || Lflag);
 	qsort(ents, argc, sizeof(*ents), entcmp);
 	for (i = 0; i < argc; i++)
-		ls(&ents[rflag ? argc-i-1 : i]);
+		ls(&ents[rflag ? argc-i-1 : i], 1);
 
 	return 0;
 }
