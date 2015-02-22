@@ -100,7 +100,7 @@ noarg(char **argv)
 static int
 onearg(char **argv)
 {
-	return strlen(argv[0]);
+	return unary_n(argv[0]);
 }
 
 static int
