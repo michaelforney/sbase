@@ -6,7 +6,7 @@
 .Nd list directory contents
 .Sh SYNOPSIS
 .Nm
-.Op Fl 1AacdFHhiLlqrtUu
+.Op Fl 1AacdFHhiLlnqrtUu
 .Op Ar file ...
 .Sh DESCRIPTION
 .Nm
@@ -38,6 +38,10 @@ themselves.
 .It Fl l
 List detailed information about each file, including their type, permissions,
 links, owner, group, size, and last file status/modification time.
+.It Fl n
+List detailed information about each file, including their type, permissions,
+links, owner, group, size, and last file status/modification time, but with
+numeric IDs.
 .It Fl p
 Append a file type indicator to directories.
 .It Fl q

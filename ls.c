@@ -34,6 +34,7 @@ static int hflag = 0;
 static int iflag = 0;
 static int Lflag = 0;
 static int lflag = 0;
+static int nflag = 0;
 static int pflag = 0;
 static int qflag = 0;
 static int Rflag = 0;
@@ -140,14 +141,12 @@ output(const struct entry *ent)
 	if (ent->mode & S_ISGID) mode[6] = (mode[6] == 'x') ? 's' : 'S';
 	if (ent->mode & S_ISVTX) mode[9] = (mode[9] == 'x') ? 't' : 'T';
 
-	pw = getpwuid(ent->uid);
-	if (pw)
+	if (!nflag && (pw = getpwuid(ent->uid)))
 		snprintf(pwname, LEN(pwname), "%s", pw->pw_name);
 	else
 		snprintf(pwname, LEN(pwname), "%d", ent->uid);
 
-	gr = getgrgid(ent->gid);
-	if (gr)
+	if (!nflag && (gr = getgrgid(ent->gid)))
 		snprintf(grname, LEN(grname), "%s", gr->gr_name);
 	else
 		snprintf(grname, LEN(grname), "%d", ent->gid);
@@ -159,6 +158,7 @@ output(const struct entry *ent)
 
 	strftime(buf, sizeof(buf), fmt, localtime(&ent->t));
 	printf("%s %4ld %-8.8s %-8.8s ", mode, (long)ent->nlink, pwname, grname);
+
 	if (hflag)
 		printf("%10s ", humansize((unsigned long)ent->size));
 	else
@@ -306,6 +306,10 @@ main(int argc, char *argv[])
 		break;
 	case 'l':
 		lflag = 1;
+		break;
+	case 'n':
+		lflag = 1;
+		nflag = 1;
 		break;
 	case 'p':
 		pflag = 1;
