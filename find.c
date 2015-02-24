@@ -761,7 +761,7 @@ static void
 parse(int argc, char **argv)
 {
 	int lasttype = -1;
-	Tok infix[2 * argc], *stack[argc], *tok, *rpn, *out, **top;
+	Tok infix[2 * argc + 1], *stack[argc], *tok, *rpn, *out, **top;
 	char **arg;
 	size_t ntok = 0;
 	int print = 1;
