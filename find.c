@@ -853,11 +853,8 @@ parse(int argc, char **argv)
 	 * if there was an expression but no -print, -exec, or -ok, add -a -print
 	 * in rpn, not infix
 	 */
-	if (print) {
-		out->u.pinfo = find_primary("-print");
-		out->type = PRIM;
-		out++;
-	}
+	if (print)
+		*out++ = (Tok){ .u.pinfo = find_primary("-print"), .type = PRIM };
 	if (print == 2)
 		*out++ = and;
 
