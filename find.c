@@ -75,9 +75,7 @@ typedef struct {
 /* for all arguments that take a number
  * +n, n, -n mean > n, == n, < n respectively */
 typedef struct {
-	enum {
-		GT, EQ, LT
-	} cmp;
+	int (*cmp)(int a, int b);
 	int n;
 } Narg;
 
@@ -164,12 +162,6 @@ static void usage(void);
 static int cmp_gt(int a, int b) { return a >  b; }
 static int cmp_eq(int a, int b) { return a == b; }
 static int cmp_lt(int a, int b) { return a <  b; }
-
-static int (*cmps[])(int, int) = {
-	[GT] = cmp_gt,
-	[EQ] = cmp_eq,
-	[LT] = cmp_lt,
-};
 
 /* order from find(1p), may want to alphabetize */
 static Pri_info primaries[] = {
@@ -294,7 +286,7 @@ static int
 pri_links(Arg *arg)
 {
 	Narg *n = arg->extra.p;
-	return cmps[n->cmp](arg->st->st_nlink, n->n);
+	return n->cmp(arg->st->st_nlink, n->n);
 }
 
 static int
@@ -318,7 +310,7 @@ pri_size(Arg *arg)
 	if (!s->bytes)
 		size = size / 512 + !!(size % 512);
 
-	return cmps[s->n.cmp](size, s->n.n);
+	return s->n.cmp(size, s->n.n);
 }
 
 /* FIXME: ignoring nanoseconds in atime, ctime, mtime */
@@ -327,7 +319,7 @@ pri_atime(Arg *arg)
 {
 	Narg *n = arg->extra.p;
 	time_t time = (n->n - start.tv_sec) / 86400;
-	return cmps[n->cmp](time, n->n);
+	return n->cmp(time, n->n);
 }
 
 static int
@@ -335,7 +327,7 @@ pri_ctime(Arg *arg)
 {
 	Narg *n = arg->extra.p;
 	time_t time = (n->n - start.tv_sec) / 86400;
-	return cmps[n->cmp](time, n->n);
+	return n->cmp(time, n->n);
 }
 
 static int
@@ -343,7 +335,7 @@ pri_mtime(Arg *arg)
 {
 	Narg *n = arg->extra.p;
 	time_t time = (n->n - start.tv_sec) / 86400;
-	return cmps[n->cmp](time, n->n);
+	return n->cmp(time, n->n);
 }
 
 static int
@@ -514,9 +506,9 @@ get_n_arg(char **argv, Extra *extra)
 	char *end;
 
 	switch (**argv) {
-	case '+': n->cmp = GT; (*argv)++; break;
-	case '-': n->cmp = LT; (*argv)++; break;
-	default : n->cmp = EQ;            break;
+	case '+': n->cmp = cmp_gt; (*argv)++; break;
+	case '-': n->cmp = cmp_lt; (*argv)++; break;
+	default : n->cmp = cmp_eq;            break;
 	}
 
 	n->n = strtol(*argv, &end, 10);
@@ -573,9 +565,9 @@ get_size_arg(char **argv, Extra *extra)
 
 	/* FIXME: no need to have this in get_n_arg and here */
 	switch (**argv) {
-	case '+': s->n.cmp = GT; (*argv)++; break;
-	case '-': s->n.cmp = LT; (*argv)++; break;
-	default : s->n.cmp = EQ;            break;
+	case '+': s->n.cmp = cmp_gt; (*argv)++; break;
+	case '-': s->n.cmp = cmp_lt; (*argv)++; break;
+	default : s->n.cmp = cmp_eq;            break;
 	}
 
 	s->n.n = strtol(*argv, &end, 10);
