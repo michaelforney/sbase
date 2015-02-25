@@ -35,6 +35,7 @@ typedef struct {
 	int    (*func)(Arg *arg);
 	char **(*getarg)(char **argv, Extra *extra);
 	void   (*freearg)(Extra extra);
+	char   narg; /* -xdev, -depth, -print don't take args but have getarg() */
 } Pri_info;
 
 /* Information about operators, for lookup table */
@@ -135,6 +136,7 @@ static int pri_depth  (Arg *arg);
 /* Getargs */
 static char **get_name_arg (char **argv, Extra *extra);
 static char **get_path_arg (char **argv, Extra *extra);
+static char **get_xdev_arg (char **argv, Extra *extra);
 static char **get_perm_arg (char **argv, Extra *extra);
 static char **get_type_arg (char **argv, Extra *extra);
 static char **get_n_arg    (char **argv, Extra *extra);
@@ -143,7 +145,9 @@ static char **get_group_arg(char **argv, Extra *extra);
 static char **get_size_arg (char **argv, Extra *extra);
 static char **get_exec_arg (char **argv, Extra *extra);
 static char **get_ok_arg   (char **argv, Extra *extra);
+static char **get_print_arg(char **argv, Extra *extra);
 static char **get_newer_arg(char **argv, Extra *extra);
+static char **get_depth_arg(char **argv, Extra *extra);
 
 /* Freeargs */
 static void free_extra   (Extra extra);
@@ -151,6 +155,7 @@ static void free_exec_arg(Extra extra);
 static void free_ok_arg  (Extra extra);
 
 /* Parsing/Building/Running */
+static void fill_narg(char *s, Narg *n);
 static Pri_info *find_primary(char *name);
 static Op_info *find_op(char *name);
 static void parse(int argc, char **argv);
@@ -165,28 +170,28 @@ static int cmp_lt(int a, int b) { return a <  b; }
 
 /* order from find(1p), may want to alphabetize */
 static Pri_info primaries[] = {
-	{ "-name"   , pri_name   , get_name_arg , NULL          },
-	{ "-path"   , pri_path   , get_path_arg , NULL          },
-	{ "-nouser" , pri_nouser , NULL         , NULL          },
-	{ "-nogroup", pri_nogroup, NULL         , NULL          },
-	{ "-xdev"   , pri_xdev   , NULL         , NULL          },
-	{ "-prune"  , pri_prune  , NULL         , NULL          },
-	{ "-perm"   , pri_perm   , get_perm_arg , free_extra    },
-	{ "-type"   , pri_type   , get_type_arg , NULL          },
-	{ "-links"  , pri_links  , get_n_arg    , free_extra    },
-	{ "-user"   , pri_user   , get_user_arg , NULL          },
-	{ "-group"  , pri_group  , get_group_arg, NULL          },
-	{ "-size"   , pri_size   , get_size_arg , free_extra    },
-	{ "-atime"  , pri_atime  , get_n_arg    , free_extra    },
-	{ "-ctime"  , pri_ctime  , get_n_arg    , free_extra    },
-	{ "-mtime"  , pri_mtime  , get_n_arg    , free_extra    },
-	{ "-exec"   , pri_exec   , get_exec_arg , free_exec_arg },
-	{ "-ok"     , pri_ok     , get_ok_arg   , free_ok_arg   },
-	{ "-print"  , pri_print  , NULL         , NULL          },
-	{ "-newer"  , pri_newer  , get_newer_arg, NULL          },
-	{ "-depth"  , pri_depth  , NULL         , NULL          },
+	{ "-name"   , pri_name   , get_name_arg , NULL         , 1 },
+	{ "-path"   , pri_path   , get_path_arg , NULL         , 1 },
+	{ "-nouser" , pri_nouser , NULL         , NULL         , 1 },
+	{ "-nogroup", pri_nogroup, NULL         , NULL         , 1 },
+	{ "-xdev"   , pri_xdev   , get_xdev_arg , NULL         , 0 },
+	{ "-prune"  , pri_prune  , NULL         , NULL         , 1 },
+	{ "-perm"   , pri_perm   , get_perm_arg , free_extra   , 1 },
+	{ "-type"   , pri_type   , get_type_arg , NULL         , 1 },
+	{ "-links"  , pri_links  , get_n_arg    , free_extra   , 1 },
+	{ "-user"   , pri_user   , get_user_arg , NULL         , 1 },
+	{ "-group"  , pri_group  , get_group_arg, NULL         , 1 },
+	{ "-size"   , pri_size   , get_size_arg , free_extra   , 1 },
+	{ "-atime"  , pri_atime  , get_n_arg    , free_extra   , 1 },
+	{ "-ctime"  , pri_ctime  , get_n_arg    , free_extra   , 1 },
+	{ "-mtime"  , pri_mtime  , get_n_arg    , free_extra   , 1 },
+	{ "-exec"   , pri_exec   , get_exec_arg , free_exec_arg, 1 },
+	{ "-ok"     , pri_ok     , get_ok_arg   , free_ok_arg  , 1 },
+	{ "-print"  , pri_print  , get_print_arg, NULL         , 0 },
+	{ "-newer"  , pri_newer  , get_newer_arg, NULL         , 1 },
+	{ "-depth"  , pri_depth  , get_depth_arg, NULL         , 0 },
 
-	{ NULL, NULL, NULL, NULL }
+	{ NULL, NULL, NULL, NULL, 0 }
 };
 
 static Op_info ops[] = {
@@ -216,6 +221,7 @@ static struct {
 	char l    ; /* -L, follow all symlinks (command line and search)  */
 	char prune; /* hit -prune                                         */
 	char xdev ; /* -xdev, prune directories on different devices      */
+	char print; /* whether we will need -print when parsing           */
 } gflags;
 
 /*
@@ -341,17 +347,16 @@ pri_mtime(Arg *arg)
 static int
 pri_exec(Arg *arg)
 {
+	int status;
+	pid_t pid;
 	Execarg *e = arg->extra.p;
 
 	if (e->isplus) {
 		size_t len = strlen(arg->path) + 1;
 
-		/* if we've reached ARG_MAX, fork, exec, wait, free file names, reset
-		 * list */
+		/* if we reached ARG_MAX, fork, exec, wait, free file names, reset list */
 		if (len + e->u.p.arglen + e->u.p.filelen + envlen > argmax) {
 			char **arg;
-			int status;
-			pid_t pid;
 
 			e->argv[e->u.p.next] = NULL;
 
@@ -369,8 +374,7 @@ pri_exec(Arg *arg)
 			e->u.p.filelen = 0;
 		}
 
-		/* if we have too many filenames, realloc (with space for NULL
-		 * termination) */
+		/* if we have too many files, realloc (with space for NULL termination) */
 		if (e->u.p.next + 1 == e->u.p.cap)
 			e->argv = erealloc(e->argv, (e->u.p.cap *= 2) * sizeof(*e->argv));
 
@@ -381,9 +385,7 @@ pri_exec(Arg *arg)
 
 		return 1;
 	} else {
-		int status;
 		char ***brace;
-		pid_t pid;
 
 		/* insert path everywhere user gave us {} */
 		for (brace = e->u.s.braces; *brace; brace++)
@@ -416,13 +418,13 @@ pri_ok(Arg *arg)
 		 * byte? probably shouldn't juse fgets() */
 		;
 
-	if (feof(stdin)) /* ferror()? */
+	if (feof(stdin)) /* FIXME: ferror()? */
 		clearerr(stdin);
 
 	if (reply != 'y' && reply != 'Y')
 		return 0;
 
-	/* insert filename everywhere use gave us {} */
+	/* insert filename everywhere user gave us {} */
 	for (brace = o->braces; *brace; brace++)
 		**brace = arg->path;
 
@@ -437,7 +439,8 @@ pri_ok(Arg *arg)
 static int
 pri_print(Arg *arg)
 {
-	puts(arg->path);
+	if (puts(arg->path) == EOF)
+		eprintf("puts failed:");
 	return 1;
 }
 
@@ -474,9 +477,16 @@ get_path_arg(char **argv, Extra *extra)
 }
 
 static char **
+get_xdev_arg(char **argv, Extra *extra)
+{
+	gflags.xdev = 1;
+	return argv;
+}
+
+static char **
 get_perm_arg(char **argv, Extra *extra)
 {
-	Permarg *p = emalloc(sizeof(*p));
+	Permarg *p = extra->p = emalloc(sizeof(*p));
 
 	if (**argv == '-')
 		(*argv)++;
@@ -484,7 +494,6 @@ get_perm_arg(char **argv, Extra *extra)
 		p->exact = 1;
 
 	p->mode = parsemode(*argv, 0, 0);
-	extra->p = p;
 
 	return argv;
 }
@@ -502,20 +511,8 @@ get_type_arg(char **argv, Extra *extra)
 static char **
 get_n_arg(char **argv, Extra *extra)
 {
-	Narg *n = emalloc(sizeof(*n));
-	char *end;
-
-	switch (**argv) {
-	case '+': n->cmp = cmp_gt; (*argv)++; break;
-	case '-': n->cmp = cmp_lt; (*argv)++; break;
-	default : n->cmp = cmp_eq;            break;
-	}
-
-	n->n = strtol(*argv, &end, 10);
-	if (end == *argv || *end)
-		eprintf("bad number '%s'\n", *argv);
-
-	extra->p = n;
+	Narg *n = extra->p = emalloc(sizeof(*n));
+	fill_narg(*argv, n);
 	return argv;
 }
 
@@ -554,27 +551,13 @@ get_group_arg(char **argv, Extra *extra)
 static char **
 get_size_arg(char **argv, Extra *extra)
 {
-	char *end;
 	char *p = *argv + strlen(*argv);
-	Sizearg *s = emalloc(sizeof(*s));
+	Sizearg *s = extra->p = emalloc(sizeof(*s));
 	/* if the number is followed by 'c', the size will by in bytes */
-	s->bytes = p > *argv && *--p == 'c';
-
-	if (s->bytes)
+	if ((s->bytes = (p > *argv && *--p == 'c')))
 		*p = '\0';
 
-	/* FIXME: no need to have this in get_n_arg and here */
-	switch (**argv) {
-	case '+': s->n.cmp = cmp_gt; (*argv)++; break;
-	case '-': s->n.cmp = cmp_lt; (*argv)++; break;
-	default : s->n.cmp = cmp_eq;            break;
-	}
-
-	s->n.n = strtol(*argv, &end, 10);
-	if (end == *argv || *end)
-		eprintf("bad number '%s'\n", *argv);
-
-	extra->p = s;
+	fill_narg(*argv, &s->n);
 	return argv;
 }
 
@@ -583,7 +566,7 @@ get_exec_arg(char **argv, Extra *extra)
 {
 	char **arg;
 	int nbraces = 0;
-	Execarg *e = emalloc(sizeof(*e));
+	Execarg *e = extra->p = emalloc(sizeof(*e));
 
 	for (arg = argv; *arg; arg++)
 		if (!strcmp(*arg, ";"))
@@ -623,7 +606,7 @@ get_exec_arg(char **argv, Extra *extra)
 			if (!strcmp(*arg, "{}"))
 				*braces++ = arg;
 	}
-	extra->p = e;
+	gflags.print = 0;
 	return arg;
 }
 
@@ -632,7 +615,7 @@ get_ok_arg(char **argv, Extra *extra)
 {
 	char **arg, ***braces;
 	int nbraces = 0;
-	Okarg *o = emalloc(sizeof(*o));
+	Okarg *o = extra->p = emalloc(sizeof(*o));
 
 	for (arg = argv; *arg; arg++)
 		if (!strcmp(*arg, ";"))
@@ -651,8 +634,15 @@ get_ok_arg(char **argv, Extra *extra)
 		if (!strcmp(*arg, "{}"))
 			*braces++ = arg;
 
-	extra->p = o;
+	gflags.print = 0;
 	return arg;
+}
+
+static char **
+get_print_arg(char **argv, Extra *extra)
+{
+	gflags.print = 0;
+	return argv;
 }
 
 /* FIXME: ignoring nanoseconds */
@@ -665,6 +655,13 @@ get_newer_arg(char **argv, Extra *extra)
 		eprintf("failed to stat '%s':", *argv);
 
 	extra->i = st.st_mtime;
+	return argv;
+}
+
+static char **
+get_depth_arg(char **argv, Extra *extra)
+{
+	gflags.depth = 1;
 	return argv;
 }
 
@@ -681,6 +678,7 @@ static void
 free_exec_arg(Extra extra)
 {
 	Execarg *e = extra.p;
+
 	if (!e->isplus) {
 		free(e->u.s.braces);
 	} else {
@@ -711,6 +709,7 @@ static void
 free_ok_arg(Extra extra)
 {
 	Okarg *o = extra.p;
+
 	free(o->braces);
 	free(o);
 }
@@ -718,6 +717,21 @@ free_ok_arg(Extra extra)
 /*
  * Parsing/Building/Running
  */
+static void
+fill_narg(char *s, Narg *n)
+{
+	char *end;
+
+	switch (*s) {
+	case '+': n->cmp = cmp_gt; s++; break;
+	case '-': n->cmp = cmp_lt; s++; break;
+	default : n->cmp = cmp_eq;      break;
+	}
+	n->n = strtol(s, &end, 10);
+	if (end == s || *end)
+		eprintf("bad number '%s'\n", s);
+}
+
 static Pri_info *
 find_primary(char *name)
 {
@@ -756,8 +770,9 @@ parse(int argc, char **argv)
 	Tok infix[2 * argc + 1], *stack[argc], *tok, *rpn, *out, **top;
 	char **arg;
 	size_t ntok = 0;
-	int print = 1;
 	Tok and = { .u.oinfo = find_op("-a"), .type = AND };
+
+	gflags.print = 1;
 
 	/* convert argv to infix expression of Tok, inserting in *tok */
 	for (arg = argv, tok = infix; *arg; arg++, tok++) {
@@ -765,28 +780,17 @@ parse(int argc, char **argv)
 		Pri_info *pri = find_primary(*arg);
 
 		if (pri) { /* token is a primary, fill out Tok and get arguments */
-
-			/* FIXME: should never have to ask "which primary is this?" Should
-			 * probably move this into getarg even though there's no arg */
-			if (pri->func == pri_depth)
-				gflags.depth = 1;
-			else if (pri->func == pri_xdev)
-				gflags.xdev = 1;
-			else if (pri->func == pri_exec || pri->func == pri_ok || pri->func == pri_print)
-				print = 0;
-
 			if (lasttype == PRIM || lasttype == RPAR) {
 				*tok++ = and;
 				ntok++;
 			}
 			if (pri->getarg) {
-				if (!*++arg)
+				if (pri->narg && !*++arg)
 					eprintf("no argument for primary %s\n", pri->name);
 				arg = pri->getarg(arg, &tok->extra);
 			}
 			tok->u.pinfo = pri;
 			tok->type = PRIM;
-
 		} else if ((op = find_op(*arg))) { /* token is an operator */
 			if (lasttype == LPAR && op->type == RPAR)
 				eprintf("empty parens\n");
@@ -796,7 +800,6 @@ parse(int argc, char **argv)
 			}
 			tok->type = op->type;
 			tok->u.oinfo = op;
-
 		} else { /* token is neither primary nor operator, must be path in the wrong place */
 			eprintf("paths must precede expression: %s\n", *arg);
 		}
@@ -807,15 +810,14 @@ parse(int argc, char **argv)
 	tok->type = END;
 	ntok++;
 
-	if (print && (arg != argv)) /* need to add -a -print (not just -print) */
-		print++;
+	if (gflags.print && (arg != argv)) /* need to add -a -print (not just -print) */
+		gflags.print++;
 
 	/* use shunting-yard to convert from infix to rpn
 	 * https://en.wikipedia.org/wiki/Shunting-yard_algorithm
 	 * read from infix, resulting rpn ends up in rpn, next position in rpn is out
-	 * push operators onto stack, next position in stack is top
-	 */
-	rpn = emalloc((ntok + print) * sizeof(*rpn));
+	 * push operators onto stack, next position in stack is top */
+	rpn = emalloc((ntok + gflags.print) * sizeof(*rpn));
 	for (tok = infix, out = rpn, top = stack; tok->type != END; tok++) {
 		switch (tok->type) {
 		case PRIM: *out++ = *tok; break;
@@ -851,11 +853,10 @@ parse(int argc, char **argv)
 
 	/* if there was no expression, use -print
 	 * if there was an expression but no -print, -exec, or -ok, add -a -print
-	 * in rpn, not infix
-	 */
-	if (print)
+	 * in rpn, not infix */
+	if (gflags.print)
 		*out++ = (Tok){ .u.pinfo = find_primary("-print"), .type = PRIM };
-	if (print == 2)
+	if (gflags.print == 2)
 		*out++ = and;
 
 	out->type = END;
@@ -864,8 +865,7 @@ parse(int argc, char **argv)
 	 * values are pushed onto stack, operators pop values off stack into left
 	 * and right pointers, pushing operator node back onto stack
 	 * could probably just do this during shunting-yard, but this is simpler
-	 * code IMO
-	 */
+	 * code IMO */
 	for (tok = rpn, top = stack; tok->type != END; tok++) {
 		if (tok->type == PRIM) {
 			*top++ = tok;
