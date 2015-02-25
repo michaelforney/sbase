@@ -39,12 +39,12 @@ static int binary_ge(char *s1, char *s2) { long long a = STOI(s1), b = STOI(s2);
 static int binary_lt(char *s1, char *s2) { long long a = STOI(s1), b = STOI(s2); return a <  b; }
 static int binary_le(char *s1, char *s2) { long long a = STOI(s1), b = STOI(s2); return a <= b; }
 
-struct test {
+typedef struct {
 	char *name;
 	int (*func)();
-};
+} Test;
 
-static struct test unary[] = {
+static Test unary[] = {
 	{ "-b", unary_b },
 	{ "-c", unary_c },
 	{ "-d", unary_d },
@@ -67,7 +67,7 @@ static struct test unary[] = {
 	{ NULL, NULL },
 };
 
-static struct test binary[] = {
+static Test binary[] = {
 	{ "="  , binary_se },
 	{ "!=" , binary_sn },
 	{ "-eq", binary_eq },
@@ -80,10 +80,10 @@ static struct test binary[] = {
 	{ NULL, NULL },
 };
 
-static struct test *
-find_test(struct test *tests, char *name)
+static Test *
+find_test(Test *tests, char *name)
 {
-	struct test *t;
+	Test *t;
 
 	for (t = tests; t->name; ++t)
 		if (strcmp(t->name, name) == 0)
@@ -106,7 +106,7 @@ onearg(char **argv)
 static int
 twoarg(char **argv)
 {
-	struct test *t = find_test(unary, *argv);
+	Test *t = find_test(unary, *argv);
 
 	if (strcmp(argv[0], "!") == 0)
 		return !onearg(argv + 1);
@@ -114,13 +114,14 @@ twoarg(char **argv)
 	if (t)
 		return t->func(argv[1]);
 
-	return enprintf(2, "bad unary test %s\n", argv[0]), 0;
+	enprintf(2, "bad unary test %s\n", argv[0]);
+	return 0; /* NOTREACHED */
 }
 
 static int
 threearg(char **argv)
 {
-	struct test *t = find_test(binary, argv[1]);
+	Test *t = find_test(binary, argv[1]);
 
 	if (t)
 		return t->func(argv[0], argv[2]);
@@ -128,7 +129,8 @@ threearg(char **argv)
 	if (strcmp(argv[0], "!") == 0)
 		return !twoarg(argv + 1);
 
-	return enprintf(2, "bad binary test %s\n", argv[1]), 0;
+	enprintf(2, "bad binary test %s\n", argv[1]);
+	return 0; /* NOTREACHED */
 }
 
 static int
@@ -137,7 +139,8 @@ fourarg(char **argv)
 	if (strcmp(argv[0], "!") == 0)
 		return !threearg(argv + 1);
 
-	return enprintf(2, "too many arguments\n"), 0;
+	enprintf(2, "too many arguments\n");
+	return 0; /* NOTREACHED */
 }
 
 int
