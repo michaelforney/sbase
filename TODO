@@ -18,7 +18,6 @@ patch
 pathchk
 stty
 tabs
-tput
 
 The  following  programs have  been  imported  from  OpenBSD and  need
 replacing or cleaning up:
