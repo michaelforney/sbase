@@ -1,31 +1,23 @@
 /* See LICENSE file for copyright and license details. */
 #include <inttypes.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
+#include "utf.h"
 #include "util.h"
 
+/* token types for lexing/parsing
+ * single character operators represent themselves */
 enum {
 	VAL = CHAR_MAX + 1, GE, LE, NE
 };
 
 typedef struct {
-	char *s;
+	char *s; /* iff s is NULL, Val is an integer */
 	intmax_t n;
 } Val;
 
-static void enan(Val);
-static void ezero(intmax_t);
-static void doop(int*, int**, Val*, Val**);
-static Val match(Val, Val);
-static int valcmp(Val, Val);
-static char *valstr(Val, char *, size_t);
-static int lex(char *);
-static int parse(char **, int);
-
 static size_t intlen;
-static Val lastval;
 
 static void
 enan(Val v)
@@ -41,53 +33,117 @@ ezero(intmax_t n)
 		enprintf(2, "division by zero\n");
 }
 
+static char *
+valstr(Val val, char *buf, size_t bufsiz)
+{
+	if (val.s)
+		return val.s;
+	snprintf(buf, bufsiz, "%"PRIdMAX, val.n);
+	return buf;
+}
+
+static int
+valcmp(Val a, Val b)
+{
+	char buf1[intlen], buf2[intlen];
+	char *astr = valstr(a, buf1, sizeof(buf1));
+	char *bstr = valstr(b, buf2, sizeof(buf2));
+
+	if (!a.s && !b.s)
+		return (a.n > b.n) - (a.n < b.n);
+	return strcmp(astr, bstr);
+}
+
+/* match vstr against BRE vregx (treat both values as strings)
+ * if there is at least one subexpression \(...\)
+ * then return the text matched by it \1 (empty string for no match)
+ * else return number of characters matched (0 for no match)
+ */
+static Val
+match(Val vstr, Val vregx)
+{
+	regex_t re;
+	regmatch_t matches[2];
+	char buf1[intlen], buf2[intlen];
+	char *str = valstr(vstr, buf1, sizeof(buf1));
+	char *regx = valstr(vregx, buf2, sizeof(buf2));;
+	char anchreg[strlen(regx) + 2];
+
+	/* expr(1p) "all patterns are anchored to the beginning of the string" */
+	snprintf(anchreg, sizeof(anchreg), "^%s", regx);
+	enregcomp(3, &re, anchreg, 0);
+
+	if (regexec(&re, str, 2, matches, 0)) {
+		regfree(&re);
+		return (Val){ (re.re_nsub ? "" : NULL), 0 };
+	}
+
+	if (re.re_nsub) {
+		intmax_t d;
+		char *s = str + matches[1].rm_so, *p = str + matches[1].rm_eo;
+		regfree(&re);
+
+		*p = '\0';
+		d = strtoimax(s, &p, 10);
+		if (*s && !*p) /* string matched by subexpression is an integer */
+			return (Val){ NULL, d };
+
+		/* FIXME? string is never free()d, worth fixing?
+		 * need to allocate as it could be in buf1 instead of vstr.s */
+		return (Val){ enstrdup(3, s), 0 };
+	}
+	regfree(&re);
+    str += matches[0].rm_so;
+	return (Val){ NULL, utfnlen(str, matches[0].rm_eo - matches[0].rm_so) };
+}
+
+/* ops  points to a stack of operators, opp  points to one past the last op
+ * vals points to a stack of values   , valp points to one past the last val
+ * guaranteed that opp != ops
+ * ops is unused here, but still included for parity with vals
+ * pop operator, pop two values, apply operator, push result
+ */
 static void
-doop(int *op, int **opp, Val *val, Val **valp)
+doop(int *ops, int **opp, Val *vals, Val **valp)
 {
 	Val ret, a, b;
-	int o;
+	int op;
 
 	/* For an operation, we need a valid operator
 	 * and two values on the stack */
 	if ((*opp)[-1] == '(')
 		enprintf(2, "syntax error: extra (\n");
-	if (*valp - val < 2)
+	if (*valp - vals < 2)
 		enprintf(2, "syntax error: missing expression or extra operator\n");
 
 	a = (*valp)[-2];
 	b = (*valp)[-1];
-	o = (*opp)[-1];
+	op = (*opp)[-1];
 
-	switch (o) {
+	switch (op) {
 	case '|':
-		if (a.s && *a.s) {
-			ret = (Val){ a.s, 0 };
-		} else if (!a.s && a.n) {
-			ret = (Val){ NULL, a.n };
-		} else if (b.s && *b.s) {
-			ret = (Val){ b.s, 0 };
-		} else {
-			ret = (Val){ NULL, b.n };
-		}
+		if      ( a.s && *a.s) ret = (Val){ a.s ,   0 };
+		else if (!a.s &&  a.n) ret = (Val){ NULL, a.n };
+		else if ( b.s && *b.s) ret = (Val){ b.s ,   0 };
+		else                   ret = (Val){ NULL, b.n };
 		break;
 	case '&':
-		if (((a.s && *a.s) || a.n) &&
-		    ((b.s && *b.s) || b.n)) {
+		if (((a.s && *a.s) || a.n) && ((b.s && *b.s) || b.n))
 			ret = a;
-		} else {
+		else
 			ret = (Val){ NULL, 0 };
-		}
 		break;
+
 	case '=': ret = (Val){ NULL, valcmp(a, b) == 0 }; break;
 	case '>': ret = (Val){ NULL, valcmp(a, b) >  0 }; break;
-	case  GE: ret = (Val){ NULL, valcmp(a, b) >= 0 }; break;
+	case GE : ret = (Val){ NULL, valcmp(a, b) >= 0 }; break;
 	case '<': ret = (Val){ NULL, valcmp(a, b) <  0 }; break;
-	case  LE: ret = (Val){ NULL, valcmp(a, b) <= 0 }; break;
-	case  NE: ret = (Val){ NULL, valcmp(a, b) != 0 }; break;
+	case LE : ret = (Val){ NULL, valcmp(a, b) <= 0 }; break;
+	case NE : ret = (Val){ NULL, valcmp(a, b) != 0 }; break;
 
-	case '+': enan(a); enan(b); ret = (Val){ NULL, a.n + b.n }; break;
-	case '-': enan(a); enan(b); ret = (Val){ NULL, a.n - b.n }; break;
-	case '*': enan(a); enan(b); ret = (Val){ NULL, a.n * b.n }; break;
+	case '+': enan(a); enan(b);             ret = (Val){ NULL, a.n + b.n }; break;
+	case '-': enan(a); enan(b);             ret = (Val){ NULL, a.n - b.n }; break;
+	case '*': enan(a); enan(b);             ret = (Val){ NULL, a.n * b.n }; break;
 	case '/': enan(a); enan(b); ezero(b.n); ret = (Val){ NULL, a.n / b.n }; break;
 	case '%': enan(a); enan(b); ezero(b.n); ret = (Val){ NULL, a.n % b.n }; break;
 
@@ -99,110 +155,50 @@ doop(int *op, int **opp, Val *val, Val **valp)
 	(*valp)--;
 }
 
-static Val
-match(Val vstr, Val vregx)
+/* retrn the type of the next token, s
+ * if it is a value, place the value in v for use by parser
+ */
+static int
+lex(char *s, Val *v)
 {
 	intmax_t d;
-	char *anchreg, *ret, *p;
-	char buf1[intlen], buf2[intlen], *str, *regx;
-	regoff_t len;
-	regex_t re;
-	regmatch_t matches[2];
-
-	str = valstr(vstr, buf1, sizeof(buf1));
-	regx = valstr(vregx, buf2, sizeof(buf2));
-
-	anchreg = enmalloc(3, strlen(regx) + 2);
-	snprintf(anchreg, strlen(regx) + 2, "^%s", regx);
-
-	enregcomp(3, &re, anchreg, 0);
-	free(anchreg);
-
-	if (regexec(&re, str, 2, matches, 0)) {
-		regfree(&re);
-		return (Val){ (re.re_nsub ? "" : NULL), 0 };
-	}
-
-	if (re.re_nsub) {
-		regfree(&re);
-		len = matches[1].rm_eo - matches[1].rm_so + 1;
-		ret = enmalloc(3, len);
-		strlcpy(ret, str + matches[1].rm_so, len);
-		d = strtoimax(ret, &p, 10);
-		if (*ret && !*p) {
-			free(ret);
-			return (Val){ NULL, d };
-		}
-		return (Val){ ret, 0 };
-	}
-	regfree(&re);
-	return (Val){ NULL, matches[0].rm_eo - matches[0].rm_so };
-}
-
-
-
-static int
-valcmp(Val a, Val b)
-{
-	char buf1[intlen], buf2[intlen], *astr, *bstr;
-
-	astr = valstr(a, buf1, sizeof(buf1));
-	bstr = valstr(b, buf2, sizeof(buf2));
-
-	return strcmp(astr, bstr);
-}
-
-static char *
-valstr(Val val, char *buf, size_t bufsiz)
-{
-	if (val.s)
-		return val.s;
-	snprintf(buf, bufsiz, "%"PRIdMAX, val.n);
-	return buf;
-}
-
-static int
-lex(char *p)
-{
-	intmax_t d;
-	char *q, *ops = "|&=><+-*/%():";
+	char *p, *ops = "|&=><+-*/%():";
 
 	/* clean integer */
-	d = strtoimax(p, &q, 10);
-	if (*p && !*q) {
-		lastval = (Val){ NULL, d };
+	d = strtoimax(s, &p, 10);
+	if (*s && !*p) {
+		*v = (Val){ NULL, d };
 		return VAL;
 	}
 
 	/* one-char operand */
-	if (*p && !*(p + 1) && strchr(ops, *p))
-		return *p;
+	if (*s && !s[1] && strchr(ops, *s))
+		return *s;
 
 	/* two-char operand */
-	if (*p && *(p + 1) == '=' && !*(p + 2)) {
-		switch (*p) {
-		case '>':
-			return GE;
-		case '<':
-			return LE;
-		case '!':
-			return NE;
-		}
-	}
+	if (!strcmp(s, ">=")) return GE;
+	if (!strcmp(s, "<=")) return LE;
+	if (!strcmp(s, "!=")) return NE;
 
 	/* nothing matched, treat as string */
-	lastval = (Val){ p, 0 };
+	*v = (Val){ s, 0 };
 	return VAL;
 }
 
+/* using shunting-yard to convert from infix to rpn
+ * https://en.wikipedia.org/wiki/Shunting-yard_algorithm
+ * instead of creating rpn output to evaluate later, evaluate it immediately as
+ * it is created
+ * vals is the value    stack, valp points to one past last value on the stack
+ * ops  is the operator stack, opp  points to one past last op    on the stack
+ */
 static int
 parse(char **expr, int exprlen)
 {
-	Val val[exprlen], *valp = val;
-	int op[exprlen], *opp = op;
-	int i, type, lasttype = 0;
-	char prec[] = {
-		[ 0 ] = 0, [VAL] = 0,
+	Val vals[exprlen], *valp = vals;
+	int ops[exprlen], *opp = ops;
+	int i, lasttype = 0;
+	char prec[] = { /* precedence of operators */
 		['|'] = 1,
 		['&'] = 2,
 		['='] = 3, ['>'] = 3, [GE] = 3, ['<'] = 3, [LE] = 3, [NE] = 3,
@@ -212,11 +208,12 @@ parse(char **expr, int exprlen)
 	};
 
 	for (i = 0; i < exprlen; i++) {
-		type = lex(expr[i]);
+		Val v;
+		int type = lex(expr[i], &v);
 
 		switch (type) {
 		case VAL:
-			*valp++ = lastval;
+			*valp++ = v;
 			break;
 		case '(':
 			*opp++ = '(';
@@ -224,31 +221,30 @@ parse(char **expr, int exprlen)
 		case ')':
 			if (lasttype == '(')
 				enprintf(2, "syntax error: empty ( )\n");
-			while (opp > op && opp[-1] != '(')
-				doop(op, &opp, val, &valp);
-			if (opp == op)
+			while (opp > ops && opp[-1] != '(')
+				doop(ops, &opp, vals, &valp);
+			if (opp == ops)
 				enprintf(2, "syntax error: extra )\n");
 			opp--;
 			break;
-		default :
+		default: /* operator */
 			if (prec[lasttype])
 				enprintf(2, "syntax error: extra operator\n");
-			while (opp > op && prec[opp[-1]] >= prec[type])
-				doop(op, &opp, val, &valp);
+			while (opp > ops && prec[opp[-1]] >= prec[type])
+				doop(ops, &opp, vals, &valp);
 			*opp++ = type;
 			break;
 		}
 		lasttype = type;
 	}
-	while (opp > op)
-		doop(op, &opp, val, &valp);
+	while (opp > ops)
+		doop(ops, &opp, vals, &valp);
 
-	if (valp == val)
+	if (valp == vals)
 		enprintf(2, "syntax error: missing expression\n");
-	if (valp - val > 1)
+	if (--valp != vals)
 		enprintf(2, "syntax error: extra expression\n");
 
-	valp--;
 	if (valp->s)
 		printf("%s\n", valp->s);
 	else
@@ -257,10 +253,17 @@ parse(char **expr, int exprlen)
 	return (valp->s && *valp->s) || valp->n;
 }
 
+/* the only way to get usage() is if the user didn't supply -- and expression
+ * begins with a -
+ * expr(1p): "... the conforming application must employ the -- construct ...
+ * if there is any chance the first operand might be a negative integer (or any
+ * string with a leading minus"
+ */
 static void
 usage(void)
 {
-	eprintf("usage: %s expression\n", argv0);
+	enprintf(3, "usage: %s [--] expression\n"
+	            "note : the -- is mandatory if expression begins with a -\n", argv0);
 }
 
 int
@@ -269,11 +272,11 @@ main(int argc, char *argv[])
 	intmax_t n = INTMAX_MIN;
 
 	/* Get the maximum number of digits (+ sign) */
-	for (intlen = (n < 0); n; n /= 10, ++intlen);
+	for (intlen = (n < 0); n; n /= 10, ++intlen)
+		;
 
 	ARGBEGIN {
-	default:
-		usage();
+		default: usage();
 	} ARGEND;
 
 	return !parse(argv, argc);
