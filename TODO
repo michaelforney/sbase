@@ -17,7 +17,6 @@ od
 patch
 pathchk
 stty
-tabs
 
 The  following  programs have  been  imported  from  OpenBSD and  need
 replacing or cleaning up:
