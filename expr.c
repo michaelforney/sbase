@@ -276,7 +276,8 @@ main(int argc, char *argv[])
 		;
 
 	ARGBEGIN {
-		default: usage();
+	default:
+		usage();
 	} ARGEND;
 
 	return !parse(argv, argc);
