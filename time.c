@@ -1,11 +1,14 @@
-#include <stdio.h>
-#include <unistd.h>
+/* See LICENSE file for copyright and license details. */
 #include <sys/times.h>
 #include <sys/wait.h>
 
+#include <errno.h>
+#include <stdio.h>
+#include <unistd.h>
+
 #include "util.h"
 
-void
+static void
 usage(void)
 {
 	eprintf("usage: %s [-p] utility [argument ...]\n", argv0);
@@ -35,19 +38,12 @@ main(int argc, char *argv[])
 	if ((ticks = sysconf(_SC_CLK_TCK)) < 0)
 		eprintf("sysconf() failed to retrieve clock ticks per second:");
 
-	if ((rbeg = times(&tms)) < 0) /* POSIX doesn't say NULL is ok... */
+	if ((rbeg = times(&tms)) < 0)
 		eprintf("times() failed to retrieve start times:");
 
 	if (!(pid = fork())) { /* child */
 		execvp(*argv, argv);
-		/* FIXME: check errno for POSIX exit status
-		 * 126: found could not be invoked
-		 * 127: could not be found
-		 * problem is some like EACCESS can mean either...
-		 * worth doing manual path search for correct value? also gives more
-		 * accurate time as the patch search wouldn't be included in child's
-		 * user/sys times... */
-		enprintf(127, "failed to exec %s:", *argv);
+		enprintf(errno == ENOENT ? 127 : 126, "failed to exec %s:", *argv);
 	}
 	waitpid(pid, &status, 0);
 
