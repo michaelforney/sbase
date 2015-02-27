@@ -137,6 +137,7 @@ BIN =\
 	tar\
 	tee\
 	test\
+	time\
 	touch\
 	tr\
 	true\
