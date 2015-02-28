@@ -23,7 +23,7 @@ main(int argc, char *argv[])
 	} ARGEND;
 
 	for (; argc > 0; argc--, argv++)
-		putword(argv[0]);
+		putword(*argv);
 	if (!nflag)
 		putchar('\n');
 

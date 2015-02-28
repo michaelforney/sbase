@@ -9,7 +9,7 @@ extern char **environ;
 static void
 usage(void)
 {
-	eprintf("usage: %s [variable...]\n", argv0);
+	eprintf("usage: %s [var ...]\n", argv0);
 }
 
 int
@@ -23,16 +23,17 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc == 0) {
+	if (!argc) {
 		while (*environ)
 			printf("%s\n", *environ++);
 	} else {
-		while (*argv) {
-			if ((var = getenv(*argv++)))
+		for (; argc > 0; argc--, argv++) {
+			if ((var = getenv(*argv)))
 				printf("%s\n", var);
 			else
 				ret = 1;
 		}
 	}
+
 	return ret;
 }
