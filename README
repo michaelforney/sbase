@@ -30,7 +30,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =*  env             yes                          none
 #*  expand          yes                          none
 #*  expr            yes                          none
-=*  false           yes                          none
+=*| false           yes                          none
 =   find            yes                          none
 #*  fold            yes                          none
 =*  grep            yes                          none
@@ -77,7 +77,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =   time            no                           none (incorrect exit status)
 =*  touch           yes                          none
 #*  tr              yes                          none
-=*  true            yes                          none
+=*| true            yes                          none
 =*  tty             yes                          none
 =*  uname           yes                          none
 #*  unexpand        yes                          none
