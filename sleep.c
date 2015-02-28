@@ -12,18 +12,19 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	unsigned int seconds;
+	unsigned seconds;
 
 	ARGBEGIN {
 	default:
 		usage();
 	} ARGEND;
 
-	if (argc < 1)
+	if (argc != 1)
 		usage();
 
 	seconds = estrtonum(argv[0], 0, UINT_MAX);
 	while ((seconds = sleep(seconds)) > 0)
 		;
+
 	return 0;
 }
