@@ -20,8 +20,11 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
+	if (argc)
+		usage();
+
 	tty = ttyname(STDIN_FILENO);
 	puts(tty ? tty : "not a tty");
 
-	return tty ? 0 : 1;
+	return !tty;
 }
