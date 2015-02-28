@@ -5,8 +5,6 @@
 
 #include "util.h"
 
-static void usage(void);
-
 void
 usage(void)
 {
@@ -16,25 +14,24 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
+	ssize_t off;
 	char *p;
-	size_t off;
 
 	ARGBEGIN {
 	default:
 		usage();
 	} ARGEND;
 
-	if (argc < 1)
+	if (argc != 1 && argc != 2)
 		usage();
 
-	p = strlen(argv[0]) ? basename(argv[0]) : ".";
-	if (argc == 2 && *p != '/') {
-		if (strlen(argv[1]) < strlen(p)) {
-			off = strlen(p) - strlen(argv[1]);
-			if (strcmp(&p[off], argv[1]) == 0)
-				p[off] = '\0';
-		}
+	p = basename(argv[0]);
+	if (argc == 2) {
+		off = strlen(p) - strlen(argv[1]);
+		if (off > 0 && !strcmp(p + off, argv[1]))
+			p[off] = '\0';
 	}
 	puts(p);
+
 	return 0;
 }
