@@ -125,7 +125,7 @@ void stracpy(String *dst, char *src);
 void strnacpy(String *dst, char *src, size_t n);
 
 /* Cleanup and errors */
-void usage(void);
+static void usage(void);
 
 /* Parsing functions and related utilities */
 void compile(char *s, int isfile);
@@ -365,7 +365,7 @@ leprintf(char *s)
 }
 
 /* FIXME: write usage message */
-void
+static void
 usage(void)
 {
 	eprintf("USAGE\n");

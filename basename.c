@@ -5,7 +5,7 @@
 
 #include "util.h"
 
-void
+static void
 usage(void)
 {
 	eprintf("usage: %s path [suffix]\n", argv0);
