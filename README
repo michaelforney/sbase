@@ -101,7 +101,7 @@ config.mk depending on your system.
 
 You  can  also  build  sbase-box,  which  generates  a  single  binary
 containing  all  the  required  tools.    You  can  then  symlink  the
-individual tools to sbase-box.
+individual tools to sbase-box or run: make sbase-box-install
 
 Ideally you will  want to statically link sbase.  If  you are on Linux
 we recommend using musl-libc[2].
