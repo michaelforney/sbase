@@ -19,6 +19,7 @@ main(int argc, char *argv[])
 
 	if (argc != 2)
 		usage();
+
 	if (link(argv[0], argv[1]) < 0)
 		eprintf("link:");
 

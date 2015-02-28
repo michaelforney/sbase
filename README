@@ -82,7 +82,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =*  uname           yes                          none
 #*  unexpand        yes                          none
 =*  uniq            yes                          none
-=*  unlink          yes                          none
+=*| unlink          yes                          none
 =*  uudecode        yes                          none
 =*  uuencode        yes                          none
 #*  wc              yes                          none

@@ -6,7 +6,7 @@
 static void
 usage(void)
 {
-	eprintf("usage: unlink file\n");
+	eprintf("usage: %s file\n", argv0);
 }
 
 int
