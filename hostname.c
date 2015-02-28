@@ -21,13 +21,16 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc < 1) {
+	if (!argc) {
 		if (gethostname(host, sizeof(host)) < 0)
 			eprintf("gethostname:");
 		puts(host);
-	} else {
+	} else if (argc == 1) {
 		if (sethostname(argv[0], strlen(argv[0])) < 0)
 			eprintf("sethostname:");
+	} else {
+		usage();
 	}
+
 	return 0;
 }
