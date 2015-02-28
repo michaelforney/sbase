@@ -217,6 +217,16 @@ sbase-box: $(LIB) $(SRC)
 	$(LD) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ build/*.c $(LIB)
 	rm -r build
 
+sbase-box-install: sbase-box
+	mkdir -p $(DESTDIR)$(PREFIX)/bin
+	cp -f sbase-box $(DESTDIR)$(PREFIX)/bin
+	chmod 755 $(DESTDIR)$(PREFIX)/bin/sbase-box
+	for f in $(BIN); do ln -sf sbase-box $(DESTDIR)$(PREFIX)/bin/"$$f"; done
+	ln -sf sbase-box $(DESTDIR)$(PREFIX)/bin/[
+	mkdir -p $(DESTDIR)$(MANPREFIX)/man1
+	for m in $(MAN); do sed "s/^\.Os sbase/.Os sbase $(VERSION)/g" < "$$m" > $(DESTDIR)$(MANPREFIX)/man1/"$$m"; done
+	cd $(DESTDIR)$(MANPREFIX)/man1 && chmod 644 $(MAN)
+
 clean:
 	rm -f $(BIN) $(OBJ) $(LIB) sbase-box sbase-$(VERSION).tar.gz
 
