@@ -25,8 +25,6 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	case 'p':
-		/* used to specify POSIX output format, but that's the only format we
-		 * have for now */
 		break;
 	default:
 		usage();
@@ -35,8 +33,8 @@ main(int argc, char *argv[])
 	if (!*argv)
 		usage();
 
-	if ((ticks = sysconf(_SC_CLK_TCK)) < 0)
-		eprintf("sysconf() failed to retrieve clock ticks per second:");
+	if ((ticks = sysconf(_SC_CLK_TCK)) <= 0)
+		eprintf("sysconf() failed to retrieve clock ticks per second\n");
 
 	if ((rbeg = times(&tms)) < 0)
 		eprintf("times() failed to retrieve start times:");
