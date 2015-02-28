@@ -24,7 +24,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =*  cron            non-posix                    none
 #*  cut             yes                          none
 =*  date            yes                          -u
-=*  dirname         yes                          none
+=*| dirname         yes                          none
 =*  du              yes                          none
 =*  echo            yes                          none
 =*  env             yes                          none
