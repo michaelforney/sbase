@@ -23,7 +23,7 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc < 1) {
+	if (!argc) {
 		if (!rm_fflag)
 			usage();
 		else
