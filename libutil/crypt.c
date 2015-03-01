@@ -37,27 +37,21 @@ mdcheckline(const char *s, uint8_t *md, size_t sz)
 	return (i == sz) ? 1 : 0;
 }
 
-int
-cryptcheck(char *sumfile, int argc, char *argv[],
-	  struct crypt_ops *ops, uint8_t *md, size_t sz)
-{
-	FILE *cfp, *fp;
-	char *line = NULL, *file, *p;
-	int r, nonmatch = 0, formatsucks = 0, noread = 0, ret = 0;
+static void
+mdchecklist(FILE *listfp, struct crypt_ops *ops, uint8_t *md, size_t sz,
+            int *formatsucks, int *noread, int *nonmatch) {
+	FILE *fp;
 	size_t bufsiz = 0;
+	int r;
+	char *line = NULL, *file, *p;
 
-	if (!sumfile)
-		cfp = stdin;
-	else if (!(cfp = fopen(sumfile, "r")))
-		eprintf("fopen %s:", sumfile);
-
-	while (getline(&line, &bufsiz, cfp) != -1) {
+	while (getline(&line, &bufsiz, listfp) != -1) {
 		if (!(file = strstr(line, "  "))) {
-			formatsucks++;
+			(*formatsucks)++;
 			continue;
 		}
 		if ((file - line) / 2 != sz) {
-			formatsucks++; /* checksum length mismatch */
+			(*formatsucks)++; /* checksum length mismatch */
 			continue;
 		}
 		*file = '\0';
@@ -66,7 +60,7 @@ cryptcheck(char *sumfile, int argc, char *argv[],
 		*p = '\0';
 		if (!(fp = fopen(file, "r"))) {
 			weprintf("fopen %s:", file);
-			noread++;
+			(*noread)++;
 			continue;
 		}
 		cryptsum(ops, fp, file, md);
@@ -75,33 +69,53 @@ cryptcheck(char *sumfile, int argc, char *argv[],
 			printf("%s: OK\n", file);
 		} else if (r == 0) {
 			printf("%s: FAILED\n", file);
-			nonmatch++;
+			(*nonmatch)++;
 		} else {
-			formatsucks++;
+			(*formatsucks)++;
 		}
 		fclose(fp);
 	}
-	if (sumfile)
-		fclose(cfp);
 	free(line);
-	if (formatsucks > 0) {
+}
+
+int
+cryptcheck(int argc, char *argv[], struct crypt_ops *ops, uint8_t *md, size_t sz)
+{
+	FILE *fp;
+	int formatsucks = 0, noread = 0, nonmatch = 0, ret = 0;
+
+	if (argc == 0) {
+		mdchecklist(stdin, ops, md, sz, &formatsucks, &noread, &nonmatch);
+	} else {
+		for (; argc > 0; argc--, argv++) {
+			if (!(fp = fopen(*argv, "r"))) {
+				weprintf("fopen %s:", *argv);
+				ret = 1;
+				continue;
+			}
+			mdchecklist(fp, ops, md, sz, &formatsucks, &noread, &nonmatch);
+			fclose(fp);
+		}
+	}
+
+	if (formatsucks) {
 		weprintf("%d lines are improperly formatted\n", formatsucks);
 		ret = 1;
 	}
-	if (noread > 0) {
+	if (noread) {
 		weprintf("%d listed file could not be read\n", noread);
 		ret = 1;
 	}
-	if (nonmatch > 0) {
+	if (nonmatch) {
 		weprintf("%d computed checksums did NOT match\n", nonmatch);
 		ret = 1;
 	}
+
 	return ret;
 }
 
 int
-cryptmain(int argc, char *argv[],
-	  struct crypt_ops *ops, uint8_t *md, size_t sz)
+cryptmain(int argc, char *argv[], struct crypt_ops *ops, uint8_t *md, size_t sz)
 {
 	FILE *fp;
 	int ret = 0;
@@ -110,7 +124,7 @@ cryptmain(int argc, char *argv[],
 		cryptsum(ops, stdin, "<stdin>", md);
 		mdprint(md, "<stdin>", sz);
 	} else {
-		for (; argc > 0; argc--) {
+		for (; argc > 0; argc--, argv++) {
 			if (!(fp = fopen(*argv, "r"))) {
 				weprintf("fopen %s:", *argv);
 				ret = 1;
@@ -121,7 +135,6 @@ cryptmain(int argc, char *argv[],
 			else
 				mdprint(md, *argv, sz);
 			fclose(fp);
-			argv++;
 		}
 	}
 	return ret;

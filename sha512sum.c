@@ -17,24 +17,22 @@ struct crypt_ops sha512_ops = {
 static void
 usage(void)
 {
-	eprintf("usage: %s [-c] [file...]\n", argv0);
+	eprintf("usage: %s [-c] [file ...]\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
+	int (*cryptfunc)(int, char **, struct crypt_ops *, uint8_t *, size_t) = cryptmain;
 	uint8_t md[SHA512_DIGEST_LENGTH];
-	char *checkfile = NULL;
 
 	ARGBEGIN {
 	case 'c':
-		checkfile = ARGF();
+		cryptfunc = cryptcheck;
 		break;
 	default:
 		usage();
 	} ARGEND;
 
-	if (checkfile)
-		return cryptcheck(checkfile, argc, argv, &sha512_ops, md, sizeof(md));
-	return cryptmain(argc, argv, &sha512_ops, md, sizeof(md));
+	return cryptfunc(argc, argv, &sha512_ops, md, sizeof(md));
 }

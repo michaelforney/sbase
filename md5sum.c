@@ -24,20 +24,16 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
+	int (*cryptfunc)(int, char **, struct crypt_ops *, uint8_t *, size_t) = cryptmain;
 	uint8_t md[MD5_DIGEST_LENGTH];
-	char *checkfile = NULL;
-	int cflag = 0;
 
 	ARGBEGIN {
 	case 'c':
-		cflag = 1;
-		checkfile = ARGF();
+		cryptfunc = cryptcheck;
 		break;
 	default:
 		usage();
 	} ARGEND;
 
-	if (cflag)
-		return cryptcheck(checkfile, argc, argv, &md5_ops, md, sizeof(md));
-	return cryptmain(argc, argv, &md5_ops, md, sizeof(md));
+	return cryptfunc(argc, argv, &md5_ops, md, sizeof(md));
 }
