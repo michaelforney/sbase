@@ -20,7 +20,7 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc < 1)
+	if (!argc)
 		usage();
 
 	if (getpgrp() == getpid()) {
@@ -38,5 +38,6 @@ main(int argc, char *argv[])
 	execvp(argv[0], argv);
 	savederrno = errno;
 	weprintf("execvp %s:", argv[0]);
+
 	return (savederrno == ENOENT) ? 127 : 126;
 }

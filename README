@@ -60,7 +60,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =*  rmdir           yes                          none
 #   sed
     seq             non-posix                    none
-=*  setsid          non-posix                    none
+=*| setsid          non-posix                    none
 =*| sha1sum         non-posix                    none
 =*| sha256sum       non-posix                    none
 =*| sha512sum       non-posix                    none
