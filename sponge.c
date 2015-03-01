@@ -7,7 +7,7 @@
 static void
 usage(void)
 {
-	eprintf("usage: sponge file\n");
+	eprintf("usage: %s file\n", argv0);
 }
 
 int
@@ -25,7 +25,6 @@ main(int argc, char *argv[])
 
 	if (!(tmpfp = tmpfile()))
 		eprintf("tmpfile:");
-
 	concat(stdin, "<stdin>", tmpfp, "<tmpfile>");
 	rewind(tmpfp);
 
