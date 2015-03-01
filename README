@@ -11,7 +11,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
     -------         --------------------         ---------------
 =*| basename        yes                          none
 =*  cal             yes                          none
-=*  cat             yes                          none
+=*| cat             yes                          none
 =*  chgrp           yes                          none
 =*  chmod           yes                          none
 =*  chown           yes                          none

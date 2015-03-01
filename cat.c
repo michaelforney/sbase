@@ -8,7 +8,7 @@
 static void
 usage(void)
 {
-	eprintf("usage: %s [-u] [file...]\n", argv0);
+	eprintf("usage: %s [-u] [file ...]\n", argv0);
 }
 
 int
@@ -28,17 +28,18 @@ main(int argc, char *argv[])
 	if (argc == 0) {
 		concat(stdin, "<stdin>", stdout, "<stdout>");
 	} else {
-		for (; argc; argc--, argv++) {
-			if (argv[0][0] == '-' && !argv[0][1])
-				argv[0] = "/dev/fd/0";
-			if (!(fp = fopen(argv[0], "r"))) {
-				weprintf("fopen %s:", argv[0]);
+		for (; argc > 0; argc--, argv++) {
+			if ((*argv)[0] == '-' && !(*argv)[1]) {
+				concat(stdin, "<stdin>", stdout, "<stdout>");
+			} else if (!(fp = fopen(*argv, "r"))) {
+				weprintf("fopen %s:", *argv);
 				ret = 1;
-				continue;
+			} else {
+				concat(fp, *argv, stdout, "<stdout>");
+				fclose(fp);
 			}
-			concat(fp, argv[0], stdout, "<stdout>");
-			fclose(fp);
 		}
 	}
+
 	return ret;
 }
