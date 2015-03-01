@@ -1,16 +1,16 @@
-.Dd January 31, 2015
+.Dd March 1, 2015
 .Dt MD5SUM 1
 .Os sbase
 .Sh NAME
 .Nm md5sum
-.Nd compute or check MD5 checksums
+.Nd compute or check MD5 message digests
 .Sh SYNOPSIS
 .Nm
 .Op Fl c
 .Op Ar file ...
 .Sh DESCRIPTION
 .Nm
-writes an MD5 (128-bit) checksum of each
+writes MD5 (128-bit) checksums of each
 .Ar file
 to stdout.
 If no
@@ -24,4 +24,9 @@ reads from stdin.
 Read list of MD5 checksums from each
 .Ar file
 and check them.
+If no
+.Ar file
+is given
+.Nm
+reads from stdin.
 .El

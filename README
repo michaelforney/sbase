@@ -42,7 +42,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =*  logger          yes                          none
 =*  logname         yes                          none
 =   ls              no                           (-C), -S, -f, -m, -s, -x
-=*  md5sum          non-posix                    none
+=*| md5sum          non-posix                    none
 =*  mkdir           yes                          none
 =*  mkfifo          yes                          none
 =*  mktemp          non-posix                    none
@@ -61,9 +61,9 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 #   sed
     seq             non-posix                    none
 =*  setsid          non-posix                    none
-=   sha1sum         non-posix                    none
-=   sha256sum       non-posix                    none
-=   sha512sum       non-posix                    none
+=*| sha1sum         non-posix                    none
+=*| sha256sum       non-posix                    none
+=*| sha512sum       non-posix                    none
 =*| sleep           yes                          none
     sort            no                           -m, -o, -d, -f, -i
 =*  split           yes                          none
