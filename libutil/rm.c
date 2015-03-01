@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <errno.h>
 #include <stdio.h>
 
 #include "../fs.h"
@@ -16,6 +17,6 @@ rm(const char *path, int unused)
 	if (remove(path) < 0) {
 		if (!rm_fflag)
 			weprintf("remove %s:", path);
-		rm_status = 1;
+		rm_status = !(rm_fflag && errno == ENOENT);
 	}
 }
