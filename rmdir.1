@@ -1,24 +1,24 @@
-.Dd January 30, 2015
+.Dd March 2, 2015
 .Dt RMDIR 1
 .Os sbase
 .Sh NAME
 .Nm rmdir
-.Nd remove directories
+.Nd remove empty directories
 .Sh SYNOPSIS
 .Nm
 .Op Fl p
-.Ar directory ...
+.Ar dir ...
 .Sh DESCRIPTION
 .Nm
 removes each empty
-.Ar directory .
+.Ar dir .
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl p
 Remove
-.Ar directory
+.Ar dir
 and its parents in the pathname
-.Ar directory .
+.Ar dir .
 .El
 .Sh SEE ALSO
 .Xr rm 1 ,
