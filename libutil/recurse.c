@@ -15,10 +15,11 @@ int recurse_follow = 'P';
 void
 recurse(const char *path, void (*fn)(const char *, int), int depth)
 {
-	char buf[PATH_MAX];
 	struct dirent *d;
 	struct stat lst, st;
 	DIR *dp;
+	size_t len;
+	char *buf;
 
 	if (lstat(path, &lst) < 0)
 		eprintf("lstat %s:", path);
@@ -31,17 +32,14 @@ recurse(const char *path, void (*fn)(const char *, int), int depth)
 	if (!(dp = opendir(path)))
 		eprintf("opendir %s:", path);
 
+	len = strlen(path);
 	while ((d = readdir(dp))) {
 		if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
 			continue;
-		if (strlcpy(buf, path, sizeof(buf)) >= sizeof(buf))
-			eprintf("path too long\n");
-		if (buf[strlen(buf) - 1] != '/')
-			if (strlcat(buf, "/", sizeof(buf)) >= sizeof(buf))
-				eprintf("path too long\n");
-		if (strlcat(buf, d->d_name, sizeof(buf)) >= sizeof(buf))
-			eprintf("path too long\n");
+		buf = emalloc(len + (*(path + len) != '/') + strlen(d->d_name) + 1);
+		sprintf(buf, "%s%s%s", path, (*(path + len) == '/') ? "" : "/", d->d_name);
 		fn(buf, depth + 1);
+		free(buf);
 	}
 
 	closedir(dp);
