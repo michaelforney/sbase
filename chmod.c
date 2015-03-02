@@ -4,13 +4,12 @@
 #include "util.h"
 
 static int    Rflag   = 0;
-static int    fflag   = 'P';
 static char  *modestr = "";
 static mode_t mask    = 0;
 static int    ret     = 0;
 
 void
-chmodr(const char *path, int fflag)
+chmodr(const char *path, int depth)
 {
 	struct stat st;
 	mode_t m;
@@ -27,7 +26,7 @@ chmodr(const char *path, int fflag)
 		ret = 1;
 	}
 	if (Rflag)
-		recurse(path, chmodr, fflag);
+		recurse(path, chmodr, depth);
 }
 
 static void
@@ -50,7 +49,7 @@ main(int argc, char *argv[])
 		case 'H':
 		case 'L':
 		case 'P':
-			fflag = argv[i][1];
+			recurse_follow = argv[i][1];
 			break;
 		case 'r': case 'w': case 'x': case 's': case 't':
 			/*
@@ -71,7 +70,7 @@ done:
 		usage();
 
 	for (++i; i < argc; i++)
-		chmodr(argv[i], fflag);
+		chmodr(argv[i], 0);
 
 	return ret;
 }

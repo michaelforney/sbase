@@ -10,20 +10,19 @@
 static int gid;
 static int status;
 static int Rflag;
-static int fflag = 'P';
 static struct stat st;
-static char *chown_f_name = "chown";
-static int (*chown_f)(const char *, uid_t, gid_t) = chown;
+static char *chownf_name = "chown";
+static int (*chownf)(const char *, uid_t, gid_t) = chown;
 
 static void
-chgrp(const char *path, int fflag)
+chgrp(const char *path, int depth)
 {
-	if (chown_f(path, st.st_uid, gid) < 0) {
-		weprintf("%s %s:", chown_f_name, path);
+	if (chownf(path, st.st_uid, gid) < 0) {
+		weprintf("%s %s:", chownf_name, path);
 		status = 1;
 	}
 	if (Rflag)
-		recurse(path, chgrp, fflag);
+		recurse(path, chgrp, depth);
 }
 
 static void
@@ -39,8 +38,8 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	case 'h':
-		chown_f_name = "lchown";
-		chown_f = lchown;
+		chownf_name = "lchown";
+		chownf = lchown;
 		break;
 	case 'R':
 		Rflag = 1;
@@ -48,14 +47,18 @@ main(int argc, char *argv[])
 	case 'H':
 	case 'L':
 	case 'P':
-		fflag = ARGC();
+		recurse_follow = ARGC();
 		break;
 	default:
 		usage();
 	} ARGEND;
 
-	if (argc < 2 || (chown_f == lchown && Rflag))
+	if (argc < 2)
 		usage();
+	if (recurse_follow == 'P') {
+		chownf_name = "lchown";
+		chownf = lchown;
+	}
 
 	errno = 0;
 	gr = getgrnam(argv[0]);
@@ -73,7 +76,7 @@ main(int argc, char *argv[])
 			status = 1;
 			continue;
 		}
-		chgrp(*argv, fflag);
+		chgrp(*argv, 0);
 	}
 	return status;
 }

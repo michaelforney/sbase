@@ -42,7 +42,6 @@ static ino_t tarinode;
 static dev_t tardev;
 
 static int  mflag;
-static int  fflag = 'P';
 static char filtermode;
 
 static FILE *
@@ -234,14 +233,14 @@ print(char * fname, int l, char b[BLKSIZ])
 }
 
 static void
-c(const char * path, int fflag)
+c(const char *path, int depth)
 {
 	archive(path);
-	recurse(path, c, fflag);
+	recurse(path, c, depth);
 }
 
 static void
-xt(int (*fn)(char*, int, char[BLKSIZ]))
+xt(int (*fn)(char *, int, char[BLKSIZ]))
 {
 	char b[BLKSIZ], fname[257], *s;
 	struct header *h = (void*)b;
@@ -293,7 +292,7 @@ main(int argc, char *argv[])
 		filtermode = ARGC();
 		break;
 	case 'h':
-		fflag = 'L';
+		recurse_follow = 'L';
 		break;
 	default:
 		usage();
@@ -316,7 +315,7 @@ main(int argc, char *argv[])
 			tarfile = stdout;
 		}
 		chdir(dir);
-		c(argv[0], fflag);
+		c(argv[0], 0);
 		break;
 	case 't':
 	case 'x':

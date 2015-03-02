@@ -56,12 +56,13 @@ int enregcomp(int, regex_t *, const char *, int);
 int eregcomp(regex_t *, const char *, int);
 
 /* misc */
-void enmasse(int, char **, int (*)(const char *, const char *, char), char);
-void fnck(const char *, const char *, int (*)(const char *, const char *, char), char);
+void enmasse(int, char **, int (*)(const char *, const char *, int));
+void fnck(const char *, const char *, int (*)(const char *, const char *, int), int);
 mode_t getumask(void);
 char *humansize(double);
 mode_t parsemode(const char *, mode_t, mode_t);
 void putword(const char *);
+extern int recurse_follow;
 void recurse(const char *, void (*)(const char *, int), int);
 #undef strtonum
 long long strtonum(const char *, long long, long long, const char **);

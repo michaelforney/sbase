@@ -9,22 +9,21 @@
 #include "util.h"
 
 static int    rflag = 0;
-static int    HLPflag = 'P';
 static uid_t  uid = -1;
 static gid_t  gid = -1;
 static int    ret = 0;
-static char *chown_f_name = "chown";
-static int (*chown_f)(const char *, uid_t, gid_t) = chown;
+static char *chownf_name = "chown";
+static int (*chownf)(const char *, uid_t, gid_t) = chown;
 
 static void
-chownpwgr(const char *path, int HLPflag)
+chownpwgr(const char *path, int depth)
 {
-	if (chown_f(path, uid, gid) < 0) {
-		weprintf("%s %s:", chown_f_name, path);
+	if (chownf(path, uid, gid) < 0) {
+		weprintf("%s %s:", chownf_name, path);
 		ret = 1;
 	}
 	if (rflag)
-		recurse(path, chownpwgr, HLPflag);
+		recurse(path, chownpwgr, depth);
 }
 
 static void
@@ -42,8 +41,8 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	case 'h':
-		chown_f_name = "lchown";
-		chown_f = lchown;
+		chownf_name = "lchown";
+		chownf = lchown;
 		break;
 	case 'r':
 	case 'R':
@@ -52,7 +51,7 @@ main(int argc, char *argv[])
 	case 'H':
 	case 'L':
 	case 'P':
-		HLPflag = ARGC();
+		recurse_follow = ARGC();
 		break;
 	default:
 		usage();
@@ -60,6 +59,10 @@ main(int argc, char *argv[])
 
 	if (argc == 0)
 		usage();
+	if (recurse_follow == 'P') {
+		chownf_name = "lchown";
+		chownf = lchown;
+	}
 
 	owner = argv[0];
 	argv++;
@@ -94,7 +97,7 @@ main(int argc, char *argv[])
 		}
 	}
 	for (; argc > 0; argc--, argv++)
-		chownpwgr(argv[0], HLPflag);
+		chownpwgr(argv[0], 0);
 
 	return ret;
 }

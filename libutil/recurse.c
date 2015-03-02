@@ -10,25 +10,29 @@
 
 #include "../util.h"
 
+int recurse_follow = 'P';
+
 void
-recurse(const char *path, void (*fn)(const char *, int), int follow)
+recurse(const char *path, void (*fn)(const char *, int), int depth)
 {
 	char buf[PATH_MAX];
 	struct dirent *d;
 	struct stat lst, st;
 	DIR *dp;
 
-	if (lstat(path, &lst) < 0 || stat(path, &st) < 0 ||
-	    !(S_ISDIR(lst.st_mode) ||
-	    (follow != 'P' && S_ISLNK(lst.st_mode) && S_ISDIR(st.st_mode))))
+	if (lstat(path, &lst) < 0)
+		eprintf("lstat %s:", path);
+	if (stat(path, &st) < 0)
+		eprintf("stat %s:", path);
+	if (!S_ISDIR(lst.st_mode) && !(S_ISLNK(lst.st_mode) && S_ISDIR(st.st_mode) &&
+	    !(recurse_follow == 'P' || (recurse_follow == 'H' && depth > 0))))
 		return;
 
 	if (!(dp = opendir(path)))
 		eprintf("opendir %s:", path);
 
 	while ((d = readdir(dp))) {
-		if (strcmp(d->d_name, ".") == 0 ||
-		    strcmp(d->d_name, "..") == 0)
+		if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
 			continue;
 		if (strlcpy(buf, path, sizeof(buf)) >= sizeof(buf))
 			eprintf("path too long\n");
@@ -37,7 +41,7 @@ recurse(const char *path, void (*fn)(const char *, int), int follow)
 				eprintf("path too long\n");
 		if (strlcat(buf, d->d_name, sizeof(buf)) >= sizeof(buf))
 			eprintf("path too long\n");
-		fn(buf, follow == 'H' ? 'P' : follow);
+		fn(buf, depth + 1);
 	}
 
 	closedir(dp);

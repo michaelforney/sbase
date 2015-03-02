@@ -10,10 +10,10 @@ int rm_rflag = 0;
 int rm_status = 0;
 
 void
-rm(const char *path, int flag)
+rm(const char *path, int depth)
 {
 	if (rm_rflag)
-		recurse(path, rm, 'P');
+		recurse(path, rm, depth);
 	if (remove(path) < 0) {
 		if (!rm_fflag)
 			weprintf("remove %s:", path);

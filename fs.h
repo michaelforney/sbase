@@ -11,5 +11,5 @@ extern int rm_fflag;
 extern int rm_rflag;
 extern int rm_status;
 
-int cp(const char *, const char *, char);
+int cp(const char *, const char *, int);
 void rm(const char *, int);

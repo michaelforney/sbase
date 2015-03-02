@@ -51,7 +51,7 @@ main(int argc, char *argv[])
 		if (!S_ISDIR(st.st_mode))
 			eprintf("%s: not a directory\n", argv[argc - 1]);
 	}
-	enmasse(argc, argv, cp, cp_HLPflag);
+	enmasse(argc, argv, cp);
 
 	return cp_status;
 }

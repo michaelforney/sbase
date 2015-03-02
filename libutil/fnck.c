@@ -5,7 +5,7 @@
 
 void
 fnck(const char *a, const char *b,
-     int (*fn)(const char *, const char *, char), char ff)
+     int (*fn)(const char *, const char *, int), int depth)
 {
 	struct stat sta, stb;
 
@@ -16,6 +16,6 @@ fnck(const char *a, const char *b,
 		eprintf("%s -> %s: same file\n", a, b);
 	}
 
-	if (fn(a, b, ff) < 0)
+	if (fn(a, b, depth) < 0)
 		eprintf("%s -> %s:", a, b);
 }
