@@ -8,20 +8,19 @@
 static void
 usage(void)
 {
-	eprintf("usage: %s [-u] [-d format] [+FORMAT]\n", argv0);
+	eprintf("usage: %s [-u] [-d time] [+format]\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
-	char buf[BUFSIZ];
-	char *fmt = "%c";
-	struct tm *now = NULL;
+	struct tm *now;
 	struct tm *(*tztime)(const time_t *) = localtime;
-	const char *tz = "local";
 	time_t t;
+	char buf[BUFSIZ], *fmt = "%c", *tz = "local";
 
 	t = time(NULL);
+
 	ARGBEGIN {
 	case 'd':
 		t = estrtonum(EARGF(usage()), 0, LLONG_MAX);
@@ -34,8 +33,12 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc > 0 && argv[0][0] == '+')
-		fmt = &argv[0][1];
+	if (argc) {
+		if (argc != 1 || argv[0][0] != '+')
+			usage();
+		else
+			fmt = &argv[0][1];
+	}
 	if (!(now = tztime(&t)))
 		eprintf("%stime failed\n", tz);
 
