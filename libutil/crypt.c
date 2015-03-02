@@ -87,7 +87,7 @@ cryptcheck(int argc, char *argv[], struct crypt_ops *ops, uint8_t *md, size_t sz
 	if (argc == 0) {
 		mdchecklist(stdin, ops, md, sz, &formatsucks, &noread, &nonmatch);
 	} else {
-		for (; argc > 0; argc--, argv++) {
+		for (; *argv; argc--, argv++) {
 			if (!(fp = fopen(*argv, "r"))) {
 				weprintf("fopen %s:", *argv);
 				ret = 1;
@@ -124,7 +124,7 @@ cryptmain(int argc, char *argv[], struct crypt_ops *ops, uint8_t *md, size_t sz)
 		cryptsum(ops, stdin, "<stdin>", md);
 		mdprint(md, "<stdin>", sz);
 	} else {
-		for (; argc > 0; argc--, argv++) {
+		for (; *argv; argc--, argv++) {
 			if (!(fp = fopen(*argv, "r"))) {
 				weprintf("fopen %s:", *argv);
 				ret = 1;

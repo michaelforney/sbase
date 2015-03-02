@@ -28,7 +28,7 @@ main(int argc, char *argv[])
 	if (argc == 0) {
 		concat(stdin, "<stdin>", stdout, "<stdout>");
 	} else {
-		for (; argc > 0; argc--, argv++) {
+		for (; *argv; argc--, argv++) {
 			if ((*argv)[0] == '-' && !(*argv)[1]) {
 				concat(stdin, "<stdin>", stdout, "<stdout>");
 			} else if (!(fp = fopen(*argv, "r"))) {

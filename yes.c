@@ -12,16 +12,16 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	size_t i;
+	char **p;
 
 	ARGBEGIN {
 	default:
 		usage();
 	} ARGEND;
 
-	for (i = 0; ; i++, i %= argc ? argc : 1) {
-		fputs(argc ? argv[i] : "y", stdout);
-		putchar((!argc || i == argc - 1) ? '\n' : ' ');
+	for (p = argv; ; p = (*p && *(p + 1)) ? p + 1 : argv) {
+		fputs(*p ? *p : "y", stdout);
+		putchar((!*p || !*(p + 1)) ? '\n' : ' ');
 	}
 
 	return 1; /* not reached */

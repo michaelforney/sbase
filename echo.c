@@ -22,7 +22,7 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	for (; argc > 0; argc--, argv++)
+	for (; *argv; argc--, argv++)
 		putword(*argv);
 	if (!nflag)
 		putchar('\n');

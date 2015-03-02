@@ -24,12 +24,12 @@ main(int argc, char *argv[])
 	} ARGEND;
 
 	if (!argc) {
-		while (*environ)
-			printf("%s\n", *environ++);
+		for (; *environ; environ++)
+			puts(*environ);
 	} else {
-		for (; argc > 0; argc--, argv++) {
+		for (; *argv; argc--, argv++) {
 			if ((var = getenv(*argv)))
-				printf("%s\n", var);
+				puts(var);
 			else
 				ret = 1;
 		}

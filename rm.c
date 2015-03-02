@@ -30,8 +30,8 @@ main(int argc, char *argv[])
 			return 0;
 	}
 
-	for (; argc > 0; argc--, argv++)
-		rm(argv[0], 0);
+	for (; *argv; argc--, argv++)
+		rm(*argv, 0);
 
 	return rm_status;
 }
