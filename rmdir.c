@@ -14,7 +14,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	int   pflag = 0, ret = 0;
+	int pflag = 0, ret = 0;
 	char *d;
 
 	ARGBEGIN {
@@ -25,22 +25,25 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc < 1)
+	if (!argc)
 		usage();
 
-	for (; argc > 0; argc--, argv++) {
-		if (rmdir(argv[0]) < 0) {
-			weprintf("rmdir %s:", argv[0]);
+	for (; *argv; argc--, argv++) {
+		if (rmdir(*argv) < 0) {
+			weprintf("rmdir %s:", *argv);
 			ret = 1;
-		}
-		if (pflag && !ret) {
-			d = dirname(argv[0]);
+		} else if (pflag) {
+			d = dirname(*argv);
 			for (; strcmp(d, "/") && strcmp(d, ".") ;) {
-				if (rmdir(d) < 0)
-					eprintf("rmdir %s:", d);
+				if (rmdir(d) < 0) {
+					weprintf("rmdir %s:", d);
+					ret = 1;
+					break;
+				}
 				d = dirname(d);
 			}
 		}
 	}
+
 	return ret;
 }
