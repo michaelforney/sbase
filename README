@@ -44,7 +44,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =   ls              no                           (-C), -S, -f, -m, -s, -x
 =*| md5sum          non-posix                    none
 =*  mkdir           yes                          none
-=*  mkfifo          yes                          none
+=*| mkfifo          yes                          none
 =*  mktemp          non-posix                    none
 =*  mv              yes                          none (-i)
 =*| nice            yes                          none

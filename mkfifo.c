@@ -8,16 +8,14 @@
 static void
 usage(void)
 {
-	eprintf("usage: %s [-m mode] name...\n", argv0);
+	eprintf("usage: %s [-m mode] name ...\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
-	mode_t mode = 0;
-	mode_t mask;
-	int mflag = 0;
-	int ret = 0;
+	mode_t mode = 0, mask;
+	int mflag = 0, ret = 0;
 
 	ARGBEGIN {
 	case 'm':
@@ -29,21 +27,21 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc < 1)
+	if (!argc)
 		usage();
 
-	for (; argc > 0; argc--, argv++) {
-		if (mkfifo(argv[0], S_IRUSR | S_IWUSR |
-		    S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH) < 0) {
-			weprintf("mkfifo %s:", argv[0]);
+	for (; *argv; argc--, argv++) {
+		if (mkfifo(*argv, S_IRUSR | S_IWUSR | S_IRGRP |
+		    S_IWGRP | S_IROTH | S_IWOTH) < 0) {
+			weprintf("mkfifo %s:", *argv);
 			ret = 1;
-		}
-		if (mflag) {
-			if (chmod(argv[0], mode) < 0) {
-				weprintf("chmod %s:", argv[0]);
+		} else if (mflag) {
+			if (chmod(*argv, mode) < 0) {
+				weprintf("chmod %s:", *argv);
 				ret = 1;
 			}
 		}
 	}
+
 	return ret;
 }
