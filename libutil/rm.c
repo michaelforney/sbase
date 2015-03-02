@@ -17,6 +17,7 @@ rm(const char *path, int unused)
 	if (remove(path) < 0) {
 		if (!rm_fflag)
 			weprintf("remove %s:", path);
-		rm_status = !(rm_fflag && errno == ENOENT);
+		if (!(rm_fflag && errno == ENOENT))
+			rm_status = 1;
 	}
 }
