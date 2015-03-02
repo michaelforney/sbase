@@ -1,4 +1,4 @@
-.Dd February 17, 2015
+.Dd March 2, 2015
 .Dt CP 1
 .Os sbase
 .Sh NAME
@@ -11,45 +11,61 @@
 .Fl R
 .Op Fl H | L | P
 .Oc
-.Op Ar file ...
-.Op Ar directory
+.Op Ar source ...
+.Op Ar dest
 .Sh DESCRIPTION
 .Nm
-copies a given
-.Ar file ,
-naming it the given
-.Ar name .
-If multiple
-.Ar files
-are listed
-they will be copied into the given
-.Ar directory .
+copies
+.Ar source
+to
+.Ar dest .
+If more than one
+.Ar source
+is given
+.Ar dest
+has to be a directory.
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl a
-Preserve mode, timestamp, links and permissions. Implies
-.Fl d ,
-.Fl p
+Preserve block devices, character devices, sockets and FIFOs. Implies
+.Fl p ,
+.Fl P
 and
-.Fl r .
+.Fl R .
 .It Fl f
-If an existing destination file cannot be opened, remove it and try again.
+If an existing
+.Ar dest
+cannot be opened, remove it and try again.
 .It Fl p
 Preserve mode, timestamp and permissions.
 .It Fl v
-Print names of source and destination per file to stdout. In the format:
-"source \-> destination".
-.It Fl R
-Copies directories recursively. If this flag is not specified, directories
-are not copied.
+Write "'source' -> 'dest'" for each
+.Ar source
+to stdout.
 .It Fl H
-Only dereference symbolic links that are passed as command line arguments when
-recursively traversing directories.
+Dereference
+.Ar source
+if it is a symbolic link.
 .It Fl L
-Always dereference symbolic links while recursively traversing directories
-(default).
+Dereference all symbolic links.
+This is the default.
 .It Fl P
-Don't dereference symbolic links.
+Preserve symbolic links.
+.It Fl R
+Traverse directories recursively. If this flag is not specified, directories
+are not copied.
 .El
 .Sh SEE ALSO
 .Xr mv 1
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification except from the
+.Op Fl i
+flag.
+.Pp
+The flags
+.Op Fl av
+are an extension to that specification.
