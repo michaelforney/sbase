@@ -8,7 +8,7 @@
 static void
 usage(void)
 {
-	eprintf("usage: rmdir [-p] dir ...\n");
+	eprintf("usage: %s [-p] dir ...\n", argv0);
 }
 
 int
