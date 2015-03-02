@@ -15,7 +15,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =*  chgrp           yes                          none
 =*  chmod           yes                          none
 =*  chown           yes                          none
-=*  chroot          non-posix                    none
+=*| chroot          non-posix                    none
 =*  cksum           yes                          none
 =*  cmp             yes                          none
 #*  cols            non-posix                    none

@@ -8,13 +8,13 @@
 static void
 usage(void)
 {
-	eprintf("usage: chroot dir [cmd [arg ...]]\n");
+	eprintf("usage: %s dir [cmd [arg ...]]\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
-	char *shell[] = { "/bin/sh", "-i", NULL }, *aux, *p;
+	char *shell[] = { "/bin/sh", "-i", NULL }, *aux, *cmd;
 	int savederrno;
 
 	ARGBEGIN {
@@ -22,7 +22,7 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc < 1)
+	if (!argc)
 		usage();
 
 	if ((aux = getenv("SHELL")))
@@ -35,16 +35,16 @@ main(int argc, char *argv[])
 		eprintf("chdir:");
 
 	if (argc == 1) {
-		p = *shell;
+		cmd = *shell;
 		execvp(*shell, shell);
 	} else {
-		p = argv[1];
-		execvp(argv[1], argv+1);
+		cmd = argv[1];
+		execvp(argv[1], argv + 1);
 	}
 
 	savederrno = errno;
-	weprintf("execvp %s:", p);
-	_exit(savederrno == ENOENT ? 127 : 126);
-	/* unreachable */
-	return 0;
+	weprintf("execvp %s:", cmd);
+	_exit(126 + (savederrno == ENOENT));
+
+	return 0; /* not reached */
 }
