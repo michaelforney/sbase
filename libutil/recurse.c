@@ -36,8 +36,8 @@ recurse(const char *path, void (*fn)(const char *, int), int depth)
 	while ((d = readdir(dp))) {
 		if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
 			continue;
-		buf = emalloc(len + (*(path + len) != '/') + strlen(d->d_name) + 1);
-		sprintf(buf, "%s%s%s", path, (*(path + len) == '/') ? "" : "/", d->d_name);
+		buf = emalloc(len + (path[len] != '/') + strlen(d->d_name) + 1);
+		sprintf(buf, "%s%s%s", path, (path[len] == '/') ? "" : "/", d->d_name);
 		fn(buf, depth + 1);
 		free(buf);
 	}
