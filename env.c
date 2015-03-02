@@ -12,7 +12,7 @@ extern char **environ;
 static void
 usage(void)
 {
-	eprintf("usage: env [-i] [-u variable] ... [variable=value] ... [cmd [arg ...]]\n");
+	eprintf("usage: %s [-i] [-u var] ... [var=value] ... [cmd [arg ...]]\n", argv0);
 }
 
 int
@@ -30,16 +30,16 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	for (; *argv && strchr(*argv, '='); argv++)
+	for (; *argv && strchr(*argv, '='); argc--, argv++)
 		putenv(*argv);
 
 	if (*argv) {
 		execvp(*argv, argv);
-		enprintf(127 - (errno != EEXIST), "env: '%s':", *argv);
+		enprintf(126 + (errno == EEXIST), "execvp: %s:", *argv);
 	}
 
-	while (environ && *environ)
-		printf("%s\n", *environ++);
+	for (; environ && *environ; environ++)
+		puts(*environ);
 
 	return 0;
 }
