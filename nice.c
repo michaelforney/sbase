@@ -16,8 +16,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	long val = 10;
-	int savederrno;
+	int val = 10, r, savederrno;
 
 	ARGBEGIN {
 	case 'n':
@@ -28,20 +27,22 @@ main(int argc, char *argv[])
 		break;
 	} ARGEND;
 
-	if (argc == 0)
+	if (!argc)
 		usage();
 
 	errno = 0;
-	val += getpriority(PRIO_PROCESS, 0);
-	if (errno != 0)
+	r = getpriority(PRIO_PROCESS, 0);
+	if (errno)
 		weprintf("getpriority:");
-	val = MAX(PRIO_MIN, MIN(val, PRIO_MAX));
-	if (setpriority(PRIO_PROCESS, 0, val) != 0)
+	else
+		val += r;
+	LIMIT(val, PRIO_MIN, PRIO_MAX);
+	if (setpriority(PRIO_PROCESS, 0, val) < 0)
 		weprintf("setpriority:");
 
-	/* POSIX specifies the nice failure still invokes the command */
 	execvp(argv[0], argv);
 	savederrno = errno;
 	weprintf("execvp %s:", argv[0]);
-	return (savederrno == ENOENT)? 127 : 126;
+
+	return 126 + (savederrno == ENOENT);
 }

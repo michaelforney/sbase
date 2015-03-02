@@ -13,6 +13,8 @@
 #define MIN(x,y)  ((x) < (y) ? (x) : (y))
 #undef MAX
 #define MAX(x,y)  ((x) > (y) ? (x) : (y))
+#undef LIMIT
+#define LIMIT(x, a, b)  (x) = (x) < (a) ? (a) : (x) > (b) ? (b) : (x)
 
 #define LEN(x) (sizeof (x) / sizeof *(x))
 
