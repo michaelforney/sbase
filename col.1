@@ -1,0 +1,90 @@
+.TH COL 1  col
+.SH NAME
+col - filter reverse line-feeds
+.SH SYPNOSIS
+.B col
+.RB [ \-p ]
+.RB [ \-b ]
+.RB [ \-f ]
+.RB [ \-x ]
+.RB [ \-l
+.IR num ]
+.SH DESCRIPTION
+.PP
+The
+.B col
+utility filter all the reverse (and half reverse) line feeds,
+as they are produced by nroff with .2C of ms(6) or by tbl(1).
+.B col
+also replaces spaces by tabs when it is possible.
+The control sequences managed by
+.B col
+are:
+.TP
+.B ESC-7
+reverse line-feed
+.TP
+.B ESC-8
+reverse half-line-feed
+.TP
+.B ESC-9
+forward half-line-feed
+.TP
+.B VT
+vertical-tab
+.TP
+.B SP
+Space
+.TP
+.B TAB
+horizontal tab
+.TP
+.B RETURN
+Carriage return
+.TP
+.B NL
+New line
+.PP
+All the other control codes and escape sequences are removed.
+.B Col
+transform all the spaces into tabulators.
+.SH OPTIONS
+.TP
+.B \-p
+Print unknown escape sequences to the output.
+.TP
+.B \-b
+Do not print backspaces in output,
+and Print only the last overstriked character in the output.
+.TP
+.B \-f
+Allow forward half line feeds in the output.
+.TP
+.B \-x
+Do not convert spaces in tabulators.
+.TP
+.BI \-l " num"
+Increment to
+.I num
+the number of lines buffered for
+.B col.
+.SH BUGS
+.PP
+.B Col
+only process text with a maximum of 256 lines with 800 characteres per line,
+although the number of lines can be modified with
+.B \-l
+option.
+When the number of lines is bigger,
+the buffer is flushed to the output,
+so new reverse line feeds can not operate in the flushed  lines.
+This implementation ignores SI and SO selection character sets,
+because it is supposed it will work only with UTF-8 strings,
+although the UTF-8 support is missed.
+.SH SEE ALSO
+.BR nroff (1),
+.BR ms (6),
+.BR tbl(1).
+
+
+
