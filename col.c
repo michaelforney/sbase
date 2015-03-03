@@ -10,17 +10,11 @@
 #define NLINES 256
 #define NCOLS 800
 
-char **buff;
+static char **buff;
 
-int obackspace, onotabs, ohalfline, oescape;
-unsigned nline, ncol, nchar, nspaces, maxline, bs;
-size_t pagsize = NLINES;
-
-static void
-usage(void)
-{
-	enprintf(2, "usage: %s [-p][-l num][-b][-f][-x]\n", argv0);
-}
+static int obackspace, onotabs, ohalfline, oescape;
+static unsigned nline, ncol, nchar, nspaces, maxline, bs;
+static size_t pagsize = NLINES;
 
 static void
 flush(void)
@@ -186,6 +180,12 @@ allocbuf(void)
 	buff = emalloc(sizeof(*buff) * pagsize);
 	for (bp = buff; bp < &buff[pagsize]; ++bp)
 		*bp = emalloc(NCOLS);	
+}
+
+static void
+usage(void)
+{
+	enprintf(2, "usage: %s [-p][-l num][-b][-f][-x]\n", argv0);
 }
 
 int
