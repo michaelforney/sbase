@@ -85,13 +85,14 @@ putoctal(char *dst, unsigned num, int n)
 static int
 archive(const char* path)
 {
-	FILE *f;
+	FILE *f = NULL;
 	mode_t mode;
 	struct group *gr;
 	struct header *h;
 	struct passwd *pw;
 	struct stat st;
-	size_t chksum, l, x;
+	size_t chksum, x;
+	ssize_t l;
 	unsigned char b[BLKSIZ];
 
 	lstat(path, &st);
