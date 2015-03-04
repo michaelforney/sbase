@@ -12,7 +12,6 @@ file
 getconf
 install
 join
-make
 od
 patch
 pathchk
