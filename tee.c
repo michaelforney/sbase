@@ -7,17 +7,16 @@
 static void
 usage(void)
 {
-	eprintf("usage: %s [-ai] [file...]\n", argv0);
+	eprintf("usage: %s [-ai] [file ...]\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
+	FILE **fps = NULL;
+	size_t i, n, nfps;
 	int aflag = 0, iflag = 0;
 	char buf[BUFSIZ];
-	int i, nfps;
-	size_t n;
-	FILE **fps = NULL;
 
 	ARGBEGIN {
 	case 'a':
@@ -33,21 +32,22 @@ main(int argc, char *argv[])
 	if (iflag && signal(SIGINT, SIG_IGN) == SIG_ERR)
 		eprintf("signal:");
 	nfps = argc + 1;
-	fps = ecalloc(nfps, sizeof *fps);
+	fps = ecalloc(nfps, sizeof(*fps));
 
-	for (i = 0; argc > 0; argc--, argv++, i++)
-		if (!(fps[i] = fopen(*argv, aflag ? "a" : "w")))
-			eprintf("fopen %s:", *argv);
+	for (i = 0; i < argc; i++)
+		if (!(fps[i] = fopen(argv[i], aflag ? "a" : "w")))
+			eprintf("fopen %s:", argv[i]);
 	fps[i] = stdout;
 
-	while ((n = fread(buf, 1, sizeof buf, stdin)) > 0) {
+	while ((n = fread(buf, 1, sizeof(buf), stdin))) {
 		for (i = 0; i < nfps; i++) {
-			if (fwrite(buf, 1, n, fps[i]) != n)
-				eprintf("%s: write error:", buf);
+			if (fwrite(buf, 1, n, fps[i]) == n)
+				continue;
+			eprintf("fwrite %s:", (i != argc) ? argv[i] : "<stdout>");
 		}
 	}
 	if (ferror(stdin))
-		eprintf("<stdin>: read error:");
+		eprintf("fread <stdin>:");
 
 	return 0;
 }
