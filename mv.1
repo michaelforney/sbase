@@ -1,4 +1,4 @@
-.Dd February 19, 2015
+.Dd March 4, 2015
 .Dt MV 1
 .Os sbase
 .Sh NAME
@@ -8,17 +8,17 @@
 .Nm
 .Op Fl f
 .Ar source ...
-.Ar destination
+.Ar dest
 .Sh DESCRIPTION
 .Nm
 moves each
 .Ar source
 to
-.Ar destination .
+.Ar dest .
 If only one
 .Ar source
 is given and
-.Ar destination
+.Ar dest
 is not a directory,
 .Nm
 overwrites the latter with the former.
@@ -26,7 +26,7 @@ overwrites the latter with the former.
 .Bl -tag -width Ds
 .It Fl f
 Do not prompt before overwriting.
-.Ar destination .
+.Ar dest .
 Prompting has not been implemented yet.
 .El
 .Sh STANDARDS

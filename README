@@ -47,7 +47,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =*  mkdir           yes                          none
 =*| mkfifo          yes                          none
 =*  mktemp          non-posix                    none
-=*  mv              yes                          none (-i)
+=*| mv              yes                          none (-i)
 =*| nice            yes                          none
 =   nl              no                           -d, -f, -h, -l, -p
 =*| nohup           yes                          none
