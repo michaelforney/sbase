@@ -6,27 +6,25 @@
 #include "util.h"
 
 static void
-head(FILE *fp, const char *str, long n)
+head(FILE *fp, const char *fname, size_t n)
 {
 	char *buf = NULL;
-	size_t size = 0;
+	size_t i = 0, size = 0;
 	ssize_t len;
-	unsigned long i = 0;
 
-	while (i < n && ((len = getline(&buf, &size, fp)) != -1)) {
+	while (i < n && (len = getline(&buf, &size, fp)) >= 0) {
 		fputs(buf, stdout);
-		if (buf[len - 1] == '\n')
-			i++;
+		i += (len && (buf[len - 1] == '\n'));
 	}
 	free(buf);
 	if (ferror(fp))
-		eprintf("%s: read error:", str);
+		eprintf("getline %s:", fname);
 }
 
 static void
 usage(void)
 {
-	eprintf("usage: %s [-n lines] [-N] [file...]\n", argv0);
+	eprintf("usage: %s [-n num] [-N] [file ...]\n", argv0);
 }
 
 int
@@ -34,8 +32,7 @@ main(int argc, char *argv[])
 {
 	size_t n = 10;
 	FILE *fp;
-	int ret = 0;
-	int newline, many;
+	int ret = 0, newline, many;
 
 	ARGBEGIN {
 	case 'n':
@@ -48,23 +45,25 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc == 0) {
+	if (!argc) {
 		head(stdin, "<stdin>", n);
 	} else {
 		many = argc > 1;
-		for (newline = 0; argc > 0; argc--, argv++) {
-			if (!(fp = fopen(argv[0], "r"))) {
-				weprintf("fopen %s:", argv[0]);
+		for (newline = 0; *argv; argc--, argv++) {
+			if (!(fp = fopen(*argv, "r"))) {
+				weprintf("fopen %s:", *argv);
 				ret = 1;
 				continue;
 			}
+			if (newline)
+				putchar('\n');
 			if (many)
-				printf("%s==> %s <==\n",
-				       newline ? "\n" : "", argv[0]);
+				printf("==> %s <==\n", *argv);
 			newline = 1;
-			head(fp, argv[0], n);
+			head(fp, *argv, n);
 			fclose(fp);
 		}
 	}
+
 	return ret;
 }
