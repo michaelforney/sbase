@@ -20,6 +20,20 @@ If stdout is a terminal, it is appended to
 .Em nohup.out
 in the current working directory.
 If stderr is a terminal, it is redirected to stdout.
+.Sh EXIT STATUS
+.Bl -tag -width Ds
+.It 0
+.Ar cmd
+executed successfully.
+.It 1
+Internal error.
+.It 126
+.Ar cmd
+was found but could not be executed.
+.It 127
+.Ar cmd
+could not be found.
+.El
 .Sh SEE ALSO
 .Xr signal 7
 .Sh STANDARDS
