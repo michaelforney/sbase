@@ -143,7 +143,7 @@ col(void)
 				continue;
 			newchar('\x1b');
 			if (c != EOF)
-				newchar(c);			
+				newchar(c);
 			break;
 		case '\v':
 			linefeed(-1, 0);
@@ -179,7 +179,7 @@ allocbuf(void)
 
 	buff = emalloc(sizeof(*buff) * pagsize);
 	for (bp = buff; bp < &buff[pagsize]; ++bp)
-		*bp = emalloc(NCOLS);	
+		*bp = emalloc(NCOLS);
 }
 
 static void
