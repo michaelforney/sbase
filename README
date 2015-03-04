@@ -50,7 +50,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =*  mv              yes                          none (-i)
 =*| nice            yes                          none
 =   nl              no                           -d, -f, -h, -l, -p
-=*  nohup           yes                          none
+=*| nohup           yes                          none
 #*  paste           yes                          none
 =*| printenv        non-posix                    none
 #*  printf          yes                          none
