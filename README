@@ -80,7 +80,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 #*  tr              yes                          none
 =*| true            yes                          none
 =*| tty             yes                          none
-=*  uname           yes                          none
+=*| uname           yes                          none
 #*  unexpand        yes                          none
 =*  uniq            yes                          none
 =*| unlink          yes                          none
