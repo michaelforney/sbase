@@ -11,17 +11,17 @@
 static void
 usage(void)
 {
-	eprintf("usage: %s [-p] utility [argument ...]\n", argv0);
+	eprintf("usage: %s [-p] cmd [arg ...]\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
 	pid_t pid;
-	struct tms tms; /* hold user and sys times */
-	clock_t rbeg, rend; /* real time */
-	long ticks; /* per second */
-	int status;
+	struct tms tms; /* user and sys times */
+	clock_t r0, r1; /* real time */
+	long ticks;     /* per second */
+	int status, savederrno;
 
 	ARGBEGIN {
 	case 'p':
@@ -30,26 +30,33 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (!*argv)
+	if (!argc)
 		usage();
 
 	if ((ticks = sysconf(_SC_CLK_TCK)) <= 0)
-		eprintf("sysconf() failed to retrieve clock ticks per second\n");
+		eprintf("sysconf _SC_CLK_TCK:");
 
-	if ((rbeg = times(&tms)) < 0)
-		eprintf("times() failed to retrieve start times:");
+	if ((r0 = times(&tms)) < 0)
+		eprintf("times:");
 
-	if (!(pid = fork())) { /* child */
-		execvp(*argv, argv);
-		enprintf(errno == ENOENT ? 127 : 126, "failed to exec %s:", *argv);
+	switch ((pid = fork())) {
+	case -1:
+		eprintf("fork:");
+	case 0:
+		execvp(argv[0], argv);
+		savederrno = errno;
+		weprintf("exec %s:", argv[0]);
+		_exit(126 + (savederrno == ENOENT));
+	default:
+		break;
 	}
 	waitpid(pid, &status, 0);
 
-	if ((rend = times(&tms)) < 0)
-		eprintf("times() failed to retrieve end times:");
+	if ((r1 = times(&tms)) < 0)
+		eprintf("times:");
 
 	fprintf(stderr, "real %f\nuser %f\nsys %f\n",
-	        (rend - rbeg)  / (double)ticks,
+	        (r1 - r0)      / (double)ticks,
 	        tms.tms_cutime / (double)ticks,
 	        tms.tms_cstime / (double)ticks);
 
