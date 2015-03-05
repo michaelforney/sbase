@@ -74,7 +74,7 @@ taketail(FILE *fp, const char *str)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-f] [-c num | -n num] [file ...]\n", argv0);
+	eprintf("usage: %s [-f] [-c num | -n num | -num] [file ...]\n", argv0);
 }
 
 int
