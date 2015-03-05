@@ -9,7 +9,7 @@
 static int
 mkdirp(char *path)
 {
-	char *p = path;
+	char *p;
 
 	for (p = path; *p; p++) {
 		if (*p != '/')
