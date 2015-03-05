@@ -3,7 +3,6 @@
 
 #include <errno.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "util.h"
 
@@ -12,33 +11,31 @@ mkdirp(char *path)
 {
 	char *p = path;
 
-	do {
-		if (*p && (p = strchr(&p[1], '/')))
-			*p = '\0';
-		if (mkdir(path, S_IRWXU|S_IRWXG|S_IRWXO) < 0 && errno != EEXIST) {
+	for (p = path; *p; p++) {
+		if (*p != '/')
+			continue;
+		*p = '\0';
+		if (mkdir(path, S_IRWXU | S_IRWXG | S_IRWXO) < 0 && errno != EEXIST) {
 			weprintf("mkdir %s:", path);
 			return -1;
 		}
-		if (p)
-			*p = '/';
-	} while (p);
+		*p = '/';
+	}
+
 	return 0;
 }
 
 static void
 usage(void)
 {
-	eprintf("usage: %s [-p] [-m mode] directory ...\n", argv0);
+	eprintf("usage: %s [-p] [-m mode] name ...\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
-	mode_t mode = 0;
-	mode_t mask;
-	int    pflag = 0;
-	int    mflag = 0;
-	int    ret = 0;
+	mode_t mode = 0, mask;
+	int pflag = 0, mflag = 0, ret = 0;
 
 	ARGBEGIN {
 	case 'p':
@@ -53,23 +50,20 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc < 1)
+	if (!argc)
 		usage();
 
-	for (; argc > 0; argc--, argv++) {
-		if (pflag) {
-			if (mkdirp(argv[0]) < 0)
-				ret = 1;
-		} else if (mkdir(argv[0], S_IRWXU|S_IRWXG|S_IRWXO) < 0) {
-			weprintf("mkdir %s:", argv[0]);
+	for (; *argv; argc--, argv++) {
+		if (pflag && mkdirp(*argv) < 0) {
+			ret = 1;
+		} else if (!pflag && mkdir(*argv, S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
+			weprintf("mkdir %s:", *argv);
+			ret = 1;
+		} else if (mflag && chmod(*argv, mode) < 0) {
+			weprintf("chmod %s:", *argv);
 			ret = 1;
 		}
-		if (mflag) {
-			if (chmod(argv[0], mode) < 0) {
-				weprintf("chmod %s:", argv[0]);
-				ret = 1;
-			}
-		}
 	}
+
 	return ret;
 }
