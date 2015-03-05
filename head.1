@@ -1,4 +1,4 @@
-.Dd January 25, 2015
+.Dd March 5, 2015
 .Dt HEAD 1
 .Os sbase
 .Sh NAME
@@ -6,15 +6,12 @@
 .Nd display initial lines of files
 .Sh SYNOPSIS
 .Nm
-.Op Fl n Ar num
-.Op Fl N
+.Op Fl n Ar num | Fl Ns Ar num
 .Op Ar file ...
 .Sh DESCRIPTION
 .Nm
 writes
 .Ar num
-|
-.Sy N
 lines of each
 .Ar file
 to stdout.
@@ -25,7 +22,7 @@ is given
 reads from stdin.
 .Sh OPTIONS
 .Bl -tag -width Ds
-.It Fl n Ar num | Fl N
+.It Fl n Ar num | Fl Ns Ar num
 Display initial
 .Ar num
 |
@@ -41,6 +38,6 @@ utility is compliant with the
 .St -p1003.1-2008
 specification.
 .Pp
-The
-.Op Fl N
-flag is an extension to that specification.
+The obsolete
+.Op Fl Ns num
+syntax is an extension to that specification.

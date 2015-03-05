@@ -24,7 +24,7 @@ head(FILE *fp, const char *fname, size_t n)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-n num] [-N] [file ...]\n", argv0);
+	eprintf("usage: %s [-num | -n num] [file ...]\n", argv0);
 }
 
 int
