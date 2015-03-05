@@ -65,7 +65,7 @@ fold(FILE *fp, size_t width)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-bs] [-w width] [-N] [FILE...]\n", argv0);
+	eprintf("usage: %s [-bs] [-w width | -width] [FILE...]\n", argv0);
 }
 
 int
