@@ -1,4 +1,4 @@
-.Dd January 26, 2015
+.Dd March 5, 2015
 .Dt LN 1
 .Os sbase
 .Sh NAME
@@ -37,7 +37,9 @@ hardlinks them in the existing
 .It Fl f
 If
 .Ar name
-exists, remove it to allow the link.
+exists and is not a
+.Ar target ,
+remove it to allow the link.
 .It Fl L | Fl P
 If
 .Ar target

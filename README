@@ -39,7 +39,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =*| hostname        non-posix                    none
 =*  kill            yes                          none
 =*| link            yes                          none
-=*  ln              yes                          none
+=*| ln              yes                          none
 =*  logger          yes                          none
 =*  logname         yes                          none
 =   ls              no                           (-C), -S, -f, -m, -s, -x

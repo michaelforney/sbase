@@ -1,6 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 #include <sys/stat.h>
 
+#include <errno.h>
 #include <fcntl.h>
 #include <libgen.h>
 #include <unistd.h>
@@ -11,27 +12,19 @@ static void
 usage(void)
 {
 	eprintf("usage: %s [-f] [-L | -P | -s] target [name]\n"
-	        "       %s [-f] [-L | -P | -s] target ... directory\n",
-		argv0, argv0);
+	        "       %s [-f] [-L | -P | -s] target ... dir\n", argv0, argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
 	char *fname, *to;
-	int sflag = 0;
-	int fflag = 0;
-	int hasto = 0;
-	int dirfd = AT_FDCWD;
-	int flags = AT_SYMLINK_FOLLOW;
-	struct stat st;
+	int sflag = 0, fflag = 0, hasto = 0, dirfd = AT_FDCWD, flags = AT_SYMLINK_FOLLOW;
+	struct stat st, tost;
 
 	ARGBEGIN {
 	case 'f':
 		fflag = 1;
-		break;
-	case 's':
-		sflag = 1;
 		break;
 	case 'L':
 		flags |= AT_SYMLINK_FOLLOW;
@@ -39,36 +32,53 @@ main(int argc, char *argv[])
 	case 'P':
 		flags &= ~AT_SYMLINK_FOLLOW;
 		break;
+	case 's':
+		sflag = 1;
+		break;
 	default:
 		usage();
 	} ARGEND;
 
-	if (argc == 0)
+	if (!argc)
 		usage();
 
 	fname = sflag ? "symlink" : "link";
 
 	if (argc >= 2) {
-		if (stat(argv[argc - 1], &st) == 0 && S_ISDIR(st.st_mode)) {
+		if (!stat(argv[argc - 1], &st) && S_ISDIR(st.st_mode)) {
 			if ((dirfd = open(argv[argc - 1], O_RDONLY)) < 0)
-				eprintf("open:");
+				eprintf("open %s:", argv[argc - 1]);
 		} else if (argc == 2) {
-			to = argv[1];
+			to = argv[argc - 1];
 			hasto = 1;
 		} else {
-			eprintf("destination is not a directory\n");
+			eprintf("%s: not a directory\n", argv[argc - 1]);
 		}
+		argv[argc - 1] = NULL;
 		argc--;
 	}
 
-	for (; argc > 0; argc--, argv++) {
+	for (; *argv; argc--, argv++) {
 		if (!hasto)
-			to = basename(argv[0]);
-		if (fflag)
-			unlinkat(dirfd, to, 0);
-		if ((!sflag ? linkat(AT_FDCWD, argv[0], dirfd, to, flags)
-		            : symlinkat(argv[0], dirfd, to)) < 0) {
-			eprintf("%s %s <- %s:", fname, argv[0], to);
+			to = basename(*argv);
+		if (fflag) {
+			if (stat(*argv, &st) < 0) {
+				weprintf("stat %s:", *argv);
+				continue;
+			} else if (fstatat(dirfd, to, &tost, AT_SYMLINK_NOFOLLOW) < 0) {
+				if (errno != ENOENT)
+					eprintf("stat %s:", to);
+			} else {
+				if (st.st_dev == tost.st_dev && st.st_ino == tost.st_ino) {
+					weprintf("%s and %s are the same file\n", *argv, *argv);
+					continue;
+				}
+				unlinkat(dirfd, to, 0);
+			}
+		}
+		if ((!sflag ? linkat(AT_FDCWD, *argv, dirfd, to, flags)
+		            : symlinkat(*argv, dirfd, to)) < 0) {
+			weprintf("%s %s <- %s:", fname, *argv, to);
 		}
 	}
 
