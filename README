@@ -13,7 +13,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =*  cal             yes                          none
 =*| cat             yes                          none
 =*  chgrp           yes                          none
-=*  chmod           yes                          none
+=*| chmod           yes                          none
 =*  chown           yes                          none
 =*| chroot          non-posix                    none
 =*  cksum           yes                          none

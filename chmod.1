@@ -1,9 +1,9 @@
-.Dd January 17, 2015
+.Dd March 5, 2015
 .Dt CHMOD 1
 .Os sbase
 .Sh NAME
 .Nm chmod
-.Nd change file mode
+.Nd change file modes
 .Sh SYNOPSIS
 .Nm
 .Oo
@@ -14,8 +14,10 @@
 .Ar file ...
 .Sh DESCRIPTION
 .Nm
-changes the file mode of the given
-.Ar files .
+changes the file mode of each
+.Ar file
+to
+.Ar mode .
 .Pp
 If
 .Ar mode
@@ -59,12 +61,13 @@ read | write | execute | setuid and setgid | sticky
 .It Fl R
 Change modes recursively.
 .It Fl H
-Only dereference symbolic links that are passed as command line arguments when
-recursively traversing directories.
+Dereference
+.Ar file
+if it is a symbolic link.
 .It Fl L
-Always dereference symbolic links while recursively traversing directories.
+Dereference all symbolic links.
 .It Fl P
-Don't dereference symbolic links (default).
+Preserve symbolic links. This is the default.
 .El
 .Sh SEE ALSO
 .Xr chgrp 1 ,

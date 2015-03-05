@@ -24,8 +24,7 @@ chmodr(const char *path, int depth)
 	if (chmod(path, m) < 0) {
 		weprintf("chmod %s:", path);
 		ret = 1;
-	}
-	if (Rflag)
+	} else if (Rflag)
 		recurse(path, chmodr, depth);
 }
 
@@ -40,37 +39,48 @@ main(int argc, char *argv[])
 {
 	size_t i;
 
-	argv0 = argv[0];
-	for (i = 1; i < argc && argv[i][0] == '-'; i++) {
-		switch (argv[i][1]) {
-		case 'R':
-			Rflag = 1;
-			break;
-		case 'H':
-		case 'L':
-		case 'P':
-			recurse_follow = argv[i][1];
-			break;
-		case 'r': case 'w': case 'x': case 's': case 't':
-			/*
-			 * -[rwxst] are valid modes so do not interpret
-			 * them as options - in any case we are done if
-			 * we hit this case
-			 */
-			goto done;
-		default:
+	argv0 = *(argv++);
+	argc--;
+	for (; *argv && (*argv)[0] == '-'; argc--, argv++) {
+		if (!(*argv)[1])
 			usage();
+		for (i = 1; (*argv)[i]; i++) {
+			switch ((*argv)[i]) {
+			case 'R':
+				Rflag = 1;
+				break;
+			case 'H':
+			case 'L':
+			case 'P':
+				recurse_follow = (*argv)[i];
+				break;
+			case 'r': case 'w': case 'x': case 's': case 't':
+				/* -[rwxst] are valid modes, so we're done */
+				if (i == 1)
+					goto done;
+				/* fallthrough */
+			case '-':
+				/* -- terminator */
+				if (i == 1 && !(*argv)[i + 1]) {
+					argv++;
+					argc--;
+					goto done;
+				}
+				/* fallthrough */
+			default:
+				usage();
+			}
 		}
 	}
 done:
 	mask = getumask();
-	modestr = argv[i];
+	modestr = *argv;
 
-	if (argc - i - 1 < 1)
+	if (argc < 2)
 		usage();
 
-	for (++i; i < argc; i++)
-		chmodr(argv[i], 0);
+	for (--argc, ++argv; *argv; argc--, argv++)
+		chmodr(*argv, 0);
 
 	return ret;
 }
