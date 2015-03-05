@@ -1,8 +1,7 @@
 /* See LICENSE file for copyright and license details. */
-#include <sys/stat.h>
-
 #include <string.h>
 #include <unistd.h>
+#include <sys/stat.h>
 
 #include "util.h"
 
@@ -29,8 +28,8 @@ static int unary_x(char *s) { return access(s, X_OK); }
 
 static int unary_t(char *s) { int fd = enstrtonum(2, s, 0, INT_MAX); return isatty(fd); }
 
-static int binary_se(char *s1, char *s2) { return strcmp(s1, s2) == 0; }
-static int binary_sn(char *s1, char *s2) { return strcmp(s1, s2) != 0; }
+static int binary_se(char *s1, char *s2) { return !strcmp(s1, s2); }
+static int binary_sn(char *s1, char *s2) { return  strcmp(s1, s2); }
 
 static int binary_eq(char *s1, char *s2) { long long a = STOI(s1), b = STOI(s2); return a == b; }
 static int binary_ne(char *s1, char *s2) { long long a = STOI(s1), b = STOI(s2); return a != b; }
@@ -85,74 +84,78 @@ find_test(Test *tests, char *name)
 {
 	Test *t;
 
-	for (t = tests; t->name; ++t)
-		if (strcmp(t->name, name) == 0)
+	for (t = tests; t->name; t++)
+		if (!strcmp(t->name, name))
 			return t;
 	return NULL;
 }
 
 static int
-noarg(char **argv)
+noarg(char *argv[])
 {
 	return 0;
 }
 
 static int
-onearg(char **argv)
+onearg(char *argv[])
 {
 	return unary_n(argv[0]);
 }
 
 static int
-twoarg(char **argv)
+twoarg(char *argv[])
 {
-	Test *t = find_test(unary, *argv);
+	Test *t;
 
-	if (strcmp(argv[0], "!") == 0)
+	if (!strcmp(argv[0], "!"))
 		return !onearg(argv + 1);
 
-	if (t)
+	if ((t = find_test(unary, *argv)))
 		return t->func(argv[1]);
 
 	enprintf(2, "bad unary test %s\n", argv[0]);
-	return 0; /* NOTREACHED */
+	return 0; /* not reached */
 }
 
 static int
-threearg(char **argv)
+threearg(char *argv[])
 {
 	Test *t = find_test(binary, argv[1]);
 
 	if (t)
 		return t->func(argv[0], argv[2]);
 
-	if (strcmp(argv[0], "!") == 0)
+	if (!strcmp(argv[0], "!"))
 		return !twoarg(argv + 1);
 
 	enprintf(2, "bad binary test %s\n", argv[1]);
-	return 0; /* NOTREACHED */
+	return 0; /* not reached */
 }
 
 static int
-fourarg(char **argv)
+fourarg(char *argv[])
 {
-	if (strcmp(argv[0], "!") == 0)
+	if (!strcmp(argv[0], "!"))
 		return !threearg(argv + 1);
 
 	enprintf(2, "too many arguments\n");
-	return 0; /* NOTREACHED */
+	return 0; /* not reached */
 }
 
 int
-main(int argc, char **argv)
+main(int argc, char *argv[])
 {
-	int (*narg[])(char**) = { noarg, onearg, twoarg, threearg, fourarg };
-	size_t len = strlen(argv[0]);
+	int (*narg[])(char *[]) = { noarg, onearg, twoarg, threearg, fourarg };
+	size_t len;
 
-	if (len && argv[0][len - 1] == '[' && strcmp(argv[--argc], "]") != 0)
+	ARGBEGIN {
+	default:
+		break;
+	} ARGEND;
+
+	len = strlen(argv0);
+	if (len && argv0[--len] == '[' && (!len || argv0[--len] == '/') && strcmp(argv[--argc], "]"))
 		enprintf(2, "no matching ]\n");
-
-	--argc; ++argv;
 
 	if (argc > 4)
 		enprintf(2, "too many arguments\n");
