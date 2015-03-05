@@ -55,10 +55,11 @@ main(int argc, char *argv[])
 				ret = 1;
 				continue;
 			}
-			if (newline)
-				putchar('\n');
-			if (many)
+			if (many) {
+				if (newline)
+					putchar('\n');
 				printf("==> %s <==\n", *argv);
+			}
 			newline = 1;
 			head(fp, *argv, n);
 			fclose(fp);
