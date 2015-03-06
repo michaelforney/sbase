@@ -64,7 +64,8 @@ match(Val vstr, Val vregx)
 {
 	regex_t re;
 	regmatch_t matches[2];
-	char buf1[intlen], buf2[intlen];
+	intmax_t d;
+	char *s, *p, buf1[intlen], buf2[intlen];
 	char *str = valstr(vstr, buf1, sizeof(buf1));
 	char *regx = valstr(vregx, buf2, sizeof(buf2));;
 	char anchreg[strlen(regx) + 2];
@@ -79,9 +80,9 @@ match(Val vstr, Val vregx)
 	}
 
 	if (re.re_nsub) {
-		intmax_t d;
-		char *s = str + matches[1].rm_so, *p = str + matches[1].rm_eo;
 		regfree(&re);
+		s = str + matches[1].rm_so;
+		p = str + matches[1].rm_eo;
 
 		*p = '\0';
 		d = strtoimax(s, &p, 10);
@@ -193,11 +194,11 @@ lex(char *s, Val *v)
  * ops  is the operator stack, opp  points to one past last op    on the stack
  */
 static int
-parse(char **expr, int exprlen)
+parse(char *expr[], int exprlen)
 {
-	Val vals[exprlen], *valp = vals;
+	Val vals[exprlen], *valp = vals, v;
 	int ops[exprlen], *opp = ops;
-	int i, lasttype = 0;
+	int i, type, lasttype = 0;
 	char prec[] = { /* precedence of operators */
 		['|'] = 1,
 		['&'] = 2,
@@ -208,10 +209,7 @@ parse(char **expr, int exprlen)
 	};
 
 	for (i = 0; i < exprlen; i++) {
-		Val v;
-		int type = lex(expr[i], &v);
-
-		switch (type) {
+		switch ((type = lex(expr[i], &v))) {
 		case VAL:
 			*valp++ = v;
 			break;
