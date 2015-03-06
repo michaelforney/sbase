@@ -11,11 +11,10 @@
 void
 enmasse(int argc, char *argv[], int (*fn)(const char *, const char *, int))
 {
+	struct stat st;
 	char *buf, *dir;
 	int i, len;
-	long size;
-	struct stat st;
-	size_t dlen;
+	size_t size, dlen;
 
 	if (argc == 2 && !(stat(argv[1], &st) == 0 && S_ISDIR(st.st_mode))) {
 		fnck(argv[0], argv[1], fn, 0);

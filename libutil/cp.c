@@ -28,7 +28,7 @@ cp(const char *s1, const char *s2, int depth)
 {
 	FILE *f1, *f2;
 	char *ns1, *ns2;
-	long size1, size2;
+	size_t size1, size2;
 	struct dirent *d;
 	struct stat st;
 	struct utimbuf ut;

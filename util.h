@@ -21,7 +21,7 @@
 extern char *argv0;
 
 char *agetcwd(void);
-void apathmax(char **, long *);
+void apathmax(char **, size_t *);
 
 void *ecalloc(size_t, size_t);
 void *emalloc(size_t);

@@ -7,7 +7,7 @@ char *
 agetcwd(void)
 {
 	char *buf;
-	long size;
+	size_t size;
 
 	apathmax(&buf, &size);
 	if (!getcwd(buf, size))
