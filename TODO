@@ -8,7 +8,6 @@ awk
 bc
 diff
 ed
-file
 getconf
 install
 join
