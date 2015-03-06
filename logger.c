@@ -18,8 +18,8 @@ decodetable(CODE *table, char *name)
 		if (!strcasecmp(name, c->c_name))
 			return c->c_val;
 	eprintf("invalid priority name: %s\n", name);
-	/* NOTREACHED */
-	return -1;
+
+	return -1; /* not reached */
 }
 
 static int
@@ -32,6 +32,7 @@ decodepri(char *pri)
 	*lev++ = '\0';
 	if (!*lev)
 		eprintf("invalid priority name: %s\n", pri);
+
 	return (decodetable(facilitynames, fac) & LOG_FACMASK) |
 	       (decodetable(prioritynames, lev) & LOG_PRIMASK);
 }
@@ -45,10 +46,9 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
+	size_t sz;
+	int logflags = 0, priority = LOG_NOTICE, i;
 	char *buf = NULL, *tag = NULL;
-	size_t sz = 0;
-	int logflags = 0, priority = LOG_NOTICE;
-	int i;
 
 	ARGBEGIN {
 	case 'i':
@@ -69,13 +69,13 @@ main(int argc, char *argv[])
 
 	openlog(tag ? tag : getlogin(), logflags, 0);
 
-	if (argc == 0) {
-		while (getline(&buf, &sz, stdin) != -1)
+	if (!argc) {
+		while (getline(&buf, &sz, stdin) >= 0)
 			syslog(priority, "%s", buf);
 		if (ferror(stdin))
-			eprintf("%s: read error:", "<stdin>");
+			eprintf("getline %s:", "<stdin>");
 	} else {
-		for (i = 0; i < argc; i++)
+		for (i = 0, sz = 0; i < argc; i++)
 			sz += strlen(argv[i]);
 		sz += argc;
 		buf = ecalloc(1, sz);
@@ -86,6 +86,8 @@ main(int argc, char *argv[])
 		}
 		syslog(priority, "%s", buf);
 	}
+
 	closelog();
+
 	return 0;
 }

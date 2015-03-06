@@ -1,4 +1,4 @@
-.Dd December 4, 2014
+.Dd March 7, 2015
 .Dt LOGGER 1
 .Os sbase
 .Sh NAME
@@ -14,24 +14,31 @@
 .Nm
 provides a shell command interface to the
 .Xr syslog 3
-system log module.
+system log module and writes each
+.Ar message
+to the log.
+If no
+.Ar message
+is given,
+.Nm
+logs stdin.
 .Sh OPTIONS
 .Bl -tag -width xxxxxxxxxxxx
 .It Fl i
-Log the process ID of the logger process with each line.
+Add the logger process ID to each line in the log.
 .It Fl p Ar priority
-Enter the message with the specified priority. They priority has to be
-specified symbolically as
+Set the message
+.Ar priority
+given symbolically as a
 .Dq facility.level
 pair. The default is
 .Dq user.notice .
 .It Fl s
-Log the message to standard error, as well as the system log.
+Also log to stderr.
 .It Fl t Ar tag
-Mark every line in the log with the specified
-.Ar tag .
-.It Ar message
-Write the message to the log; if not specified, standard input is logged.
+Add
+.Ar tag
+to each line in the log.
 .El
 .Sh SEE ALSO
 .Xr syslogd 1 ,
@@ -43,6 +50,6 @@ utility is compliant with the
 .St -p1003.1-2008
 specification.
 .Pp
-The flags
+The
 .Op Fl ipst
-are extensions to that specification.
+flags are an extensions to that specification.
