@@ -134,20 +134,20 @@ static int pri_newer  (Arg *arg);
 static int pri_depth  (Arg *arg);
 
 /* Getargs */
-static char **get_name_arg (char **argv, Extra *extra);
-static char **get_path_arg (char **argv, Extra *extra);
-static char **get_xdev_arg (char **argv, Extra *extra);
-static char **get_perm_arg (char **argv, Extra *extra);
-static char **get_type_arg (char **argv, Extra *extra);
-static char **get_n_arg    (char **argv, Extra *extra);
-static char **get_user_arg (char **argv, Extra *extra);
-static char **get_group_arg(char **argv, Extra *extra);
-static char **get_size_arg (char **argv, Extra *extra);
-static char **get_exec_arg (char **argv, Extra *extra);
-static char **get_ok_arg   (char **argv, Extra *extra);
-static char **get_print_arg(char **argv, Extra *extra);
-static char **get_newer_arg(char **argv, Extra *extra);
-static char **get_depth_arg(char **argv, Extra *extra);
+static char **get_name_arg (char *argv[], Extra *extra);
+static char **get_path_arg (char *argv[], Extra *extra);
+static char **get_xdev_arg (char *argv[], Extra *extra);
+static char **get_perm_arg (char *argv[], Extra *extra);
+static char **get_type_arg (char *argv[], Extra *extra);
+static char **get_n_arg    (char *argv[], Extra *extra);
+static char **get_user_arg (char *argv[], Extra *extra);
+static char **get_group_arg(char *argv[], Extra *extra);
+static char **get_size_arg (char *argv[], Extra *extra);
+static char **get_exec_arg (char *argv[], Extra *extra);
+static char **get_ok_arg   (char *argv[], Extra *extra);
+static char **get_print_arg(char *argv[], Extra *extra);
+static char **get_newer_arg(char *argv[], Extra *extra);
+static char **get_depth_arg(char *argv[], Extra *extra);
 
 /* Freeargs */
 static void free_extra   (Extra extra);
@@ -348,27 +348,31 @@ static int
 pri_exec(Arg *arg)
 {
 	int status;
+	size_t len;
 	pid_t pid;
+	char **sp, ***brace;
 	Execarg *e = arg->extra.p;
 
 	if (e->isplus) {
-		size_t len = strlen(arg->path) + 1;
+		len = strlen(arg->path) + 1;
 
 		/* if we reached ARG_MAX, fork, exec, wait, free file names, reset list */
 		if (len + e->u.p.arglen + e->u.p.filelen + envlen > argmax) {
-			char **arg;
-
 			e->argv[e->u.p.next] = NULL;
 
-			if (!(pid = fork())) { /* child */
+			switch((pid = fork())) {
+			case -1:
+				eprintf("fork:");
+			case 0:
 				execvp(*e->argv, e->argv);
-				eprintf("exec %s failed:", *e->argv);
+				weprintf("exec %s failed:", *e->argv);
+				_exit(1);
 			}
 			waitpid(pid, &status, 0);
-			gflags.ret |= status;
+			gflags.ret = gflags.ret || status;
 
-			for (arg = e->argv + e->u.p.first; *arg; arg++)
-				free(*arg);
+			for (sp = e->argv + e->u.p.first; *sp; sp++)
+				free(*sp);
 
 			e->u.p.next = e->u.p.first;
 			e->u.p.filelen = 0;
@@ -378,22 +382,22 @@ pri_exec(Arg *arg)
 		if (e->u.p.next + 1 == e->u.p.cap)
 			e->argv = erealloc(e->argv, (e->u.p.cap *= 2) * sizeof(*e->argv));
 
-		/* FIXME: we can do better than strdup and free for every single file
-		 *        name. do we care? use strlacat/strlacpy from sed? */
 		e->argv[e->u.p.next++] = estrdup(arg->path);
 		e->u.p.filelen += len + sizeof(arg->path);
 
 		return 1;
 	} else {
-		char ***brace;
-
 		/* insert path everywhere user gave us {} */
 		for (brace = e->u.s.braces; *brace; brace++)
 			**brace = arg->path;
 
-		if (!(pid = fork())) { /* child */
+		switch((pid = fork())) {
+		case -1:
+			eprintf("fork:");
+		case 0:
 			execvp(*e->argv, e->argv);
-			eprintf("exec %s failed:", *e->argv);
+			weprintf("exec %s failed:", *e->argv);
+			_exit(1);
 		}
 		/* FIXME: propper course of action for all waitpid() on EINTR? */
 		waitpid(pid, &status, 0);
@@ -405,8 +409,8 @@ static int
 pri_ok(Arg *arg)
 {
 	int status;
-	char ***brace, reply, buf[256];
 	pid_t pid;
+	char ***brace, reply, buf[256];
 	Okarg *o = arg->extra.p;
 
 	fprintf(stderr, "%s: %s ?", *o->argv, arg->path);
@@ -428,9 +432,13 @@ pri_ok(Arg *arg)
 	for (brace = o->braces; *brace; brace++)
 		**brace = arg->path;
 
-	if (!(pid = fork())) { /* child */
+	switch((pid = fork())) {
+	case -1:
+		eprintf("fork:");
+	case 0:
 		execvp(*o->argv, o->argv);
-		eprintf("exec %s failed:", *o->argv);
+		weprintf("exec %s failed:", *o->argv);
+		_exit(1);
 	}
 	waitpid(pid, &status, 0);
 	return !!status;
@@ -463,28 +471,28 @@ pri_depth(Arg *arg)
  * return pointer to last argument, the pointer will be incremented in parse()
  */
 static char **
-get_name_arg(char **argv, Extra *extra)
+get_name_arg(char *argv[], Extra *extra)
 {
 	extra->p = *argv;
 	return argv;
 }
 
 static char **
-get_path_arg(char **argv, Extra *extra)
+get_path_arg(char *argv[], Extra *extra)
 {
 	extra->p = *argv;
 	return argv;
 }
 
 static char **
-get_xdev_arg(char **argv, Extra *extra)
+get_xdev_arg(char *argv[], Extra *extra)
 {
 	gflags.xdev = 1;
 	return argv;
 }
 
 static char **
-get_perm_arg(char **argv, Extra *extra)
+get_perm_arg(char *argv[], Extra *extra)
 {
 	Permarg *p = extra->p = emalloc(sizeof(*p));
 
@@ -499,7 +507,7 @@ get_perm_arg(char **argv, Extra *extra)
 }
 
 static char **
-get_type_arg(char **argv, Extra *extra)
+get_type_arg(char *argv[], Extra *extra)
 {
 	if (!strchr("bcdlpfs", **argv))
 		eprintf("invalid type %c for -type primary\n", **argv);
@@ -509,7 +517,7 @@ get_type_arg(char **argv, Extra *extra)
 }
 
 static char **
-get_n_arg(char **argv, Extra *extra)
+get_n_arg(char *argv[], Extra *extra)
 {
 	Narg *n = extra->p = emalloc(sizeof(*n));
 	fill_narg(*argv, n);
@@ -517,7 +525,7 @@ get_n_arg(char **argv, Extra *extra)
 }
 
 static char **
-get_user_arg(char **argv, Extra *extra)
+get_user_arg(char *argv[], Extra *extra)
 {
 	char *end;
 	struct passwd *p = getpwnam(*argv);
@@ -533,7 +541,7 @@ get_user_arg(char **argv, Extra *extra)
 }
 
 static char **
-get_group_arg(char **argv, Extra *extra)
+get_group_arg(char *argv[], Extra *extra)
 {
 	char *end;
 	struct group *g = getgrnam(*argv);
@@ -549,7 +557,7 @@ get_group_arg(char **argv, Extra *extra)
 }
 
 static char **
-get_size_arg(char **argv, Extra *extra)
+get_size_arg(char *argv[], Extra *extra)
 {
 	char *p = *argv + strlen(*argv);
 	Sizearg *s = extra->p = emalloc(sizeof(*s));
@@ -562,9 +570,9 @@ get_size_arg(char **argv, Extra *extra)
 }
 
 static char **
-get_exec_arg(char **argv, Extra *extra)
+get_exec_arg(char *argv[], Extra *extra)
 {
-	char **arg;
+	char **arg, **new, ***braces;
 	int nbraces = 0;
 	Execarg *e = extra->p = emalloc(sizeof(*e));
 
@@ -583,8 +591,6 @@ get_exec_arg(char **argv, Extra *extra)
 	*arg = NULL;
 
 	if (e->isplus) {
-		char **new;
-
 		*(arg - 1) = NULL; /* don't need the {} in there now */
 		e->u.p.arglen = e->u.p.filelen = 0;
 		e->u.p.first = e->u.p.next = arg - argv - 1;
@@ -597,8 +603,6 @@ get_exec_arg(char **argv, Extra *extra)
 		}
 		arg++; /* due to our extra NULL */
 	} else {
-		char ***braces;
-
 		e->argv = argv;
 		e->u.s.braces = emalloc(++nbraces * sizeof(*e->u.s.braces)); /* ++ for NULL */
 
@@ -611,7 +615,7 @@ get_exec_arg(char **argv, Extra *extra)
 }
 
 static char **
-get_ok_arg(char **argv, Extra *extra)
+get_ok_arg(char *argv[], Extra *extra)
 {
 	char **arg, ***braces;
 	int nbraces = 0;
@@ -639,7 +643,7 @@ get_ok_arg(char **argv, Extra *extra)
 }
 
 static char **
-get_print_arg(char **argv, Extra *extra)
+get_print_arg(char *argv[], Extra *extra)
 {
 	gflags.print = 0;
 	return argv;
@@ -647,7 +651,7 @@ get_print_arg(char **argv, Extra *extra)
 
 /* FIXME: ignoring nanoseconds */
 static char **
-get_newer_arg(char **argv, Extra *extra)
+get_newer_arg(char *argv[], Extra *extra)
 {
 	struct stat st;
 
@@ -659,7 +663,7 @@ get_newer_arg(char **argv, Extra *extra)
 }
 
 static char **
-get_depth_arg(char **argv, Extra *extra)
+get_depth_arg(char *argv[], Extra *extra)
 {
 	gflags.depth = 1;
 	return argv;
@@ -677,26 +681,28 @@ free_extra(Extra extra)
 static void
 free_exec_arg(Extra extra)
 {
+	int status;
+	pid_t pid;
+	char **arg;
 	Execarg *e = extra.p;
 
 	if (!e->isplus) {
 		free(e->u.s.braces);
 	} else {
-		char **arg;
-
 		e->argv[e->u.p.next] = NULL;
 
 		/* if we have files, do the last exec */
 		if (e->u.p.first != e->u.p.next) {
-			int status;
-			pid_t pid = fork();
-
-			if (!pid) { /* child */
+			switch((pid = fork())) {
+			case -1:
+				eprintf("fork:");
+			case 0:
 				execvp(*e->argv, e->argv);
-				eprintf("exec %s failed:", *e->argv);
+				weprintf("exec %s failed:", *e->argv);
+				_exit(1);
 			}
 			waitpid(pid, &status, 0);
-			gflags.ret |= status;
+			gflags.ret = gflags.ret || status;
 		}
 		for (arg = e->argv + e->u.p.first; *arg; arg++)
 			free(*arg);
@@ -766,9 +772,11 @@ find_op(char *name)
 static void
 parse(int argc, char **argv)
 {
-	int lasttype = -1;
 	Tok infix[2 * argc + 1], *stack[argc], *tok, *rpn, *out, **top;
+	Op_info *op;
+	Pri_info *pri;
 	char **arg;
+	int lasttype = -1;
 	size_t ntok = 0;
 	Tok and = { .u.oinfo = find_op("-a"), .type = AND };
 
@@ -776,8 +784,7 @@ parse(int argc, char **argv)
 
 	/* convert argv to infix expression of Tok, inserting in *tok */
 	for (arg = argv, tok = infix; *arg; arg++, tok++) {
-		Op_info *op;
-		Pri_info *pri = find_primary(*arg);
+		pri = find_primary(*arg);
 
 		if (pri) { /* token is a primary, fill out Tok and get arguments */
 			if (lasttype == PRIM || lasttype == RPAR) {
