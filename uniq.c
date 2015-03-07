@@ -52,6 +52,9 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
+	if (argc > 2)
+		usage();
+
 	if (argc == 0) {
 		uniq(stdin, stdout);
 	} else if (argc >= 1) {
@@ -61,8 +64,7 @@ main(int argc, char *argv[])
 			if (strcmp(argv[1], "-") &&
 			    !(ofp = fopen(argv[1], "w")))
 				eprintf("fopen %s:", argv[1]);
-		} else
-			eprintf("extra argument: %s\n", argv[2]);
+		}
 		uniq(fp, ofp);
 		if (fp != stdin)
 			fclose(fp);
