@@ -5,9 +5,69 @@
 
 #include "util.h"
 
-static int digitsleft(const char *);
-static int digitsright(const char *);
-static int validfmt(const char *);
+static int
+digitsleft(const char *d)
+{
+	char *exp;
+	int shift;
+
+	if (*d == '+')
+		d++;
+	exp = strpbrk(d, "eE");
+	shift = exp ? estrtonum(&exp[1], INT_MIN, INT_MAX) : 0;
+
+	return MAX(0, strspn(d, "-0123456789") + shift);
+}
+
+static int
+digitsright(const char *d)
+{
+	char *exp;
+	int shift, after;
+
+	exp = strpbrk(d, "eE");
+	shift = exp ? estrtonum(&exp[1], INT_MIN, INT_MAX) : 0;
+	after = (d = strchr(d, '.')) ? strspn(&d[1], "0123456789") : 0;
+
+	return MAX(0, after - shift);
+}
+
+static int
+validfmt(const char *fmt)
+{
+	int occur = 0;
+
+literal:
+	while (*fmt)
+		if (*fmt++ == '%')
+			goto format;
+	return occur == 1;
+
+format:
+	if (*fmt == '%') {
+		fmt++;
+		goto literal;
+	}
+	fmt += strspn(fmt, "-+#0 '");
+	fmt += strspn(fmt, "0123456789");
+	if (*fmt == '.') {
+		fmt++;
+		fmt += strspn(fmt, "0123456789");
+	}
+	if (*fmt == 'L')
+		fmt++;
+
+	switch (*fmt) {
+	case 'f': case 'F':
+	case 'g': case 'G':
+	case 'e': case 'E':
+	case 'a': case 'A':
+		occur++;
+		goto literal;
+	default:
+		return 0;
+	}
+}
 
 static void
 usage(void)
@@ -85,68 +145,4 @@ main(int argc, char *argv[])
 	printf("\n");
 
 	return 0;
-}
-
-static int
-digitsleft(const char *d)
-{
-	char *exp;
-	int shift;
-
-	if (*d == '+')
-		d++;
-	exp = strpbrk(d, "eE");
-	shift = exp ? estrtonum(&exp[1], INT_MIN, INT_MAX) : 0;
-
-	return MAX(0, strspn(d, "-0123456789") + shift);
-}
-
-static int
-digitsright(const char *d)
-{
-	char *exp;
-	int shift, after;
-
-	exp = strpbrk(d, "eE");
-	shift = exp ? estrtonum(&exp[1], INT_MIN, INT_MAX) : 0;
-	after = (d = strchr(d, '.')) ? strspn(&d[1], "0123456789") : 0;
-
-	return MAX(0, after - shift);
-}
-
-static int
-validfmt(const char *fmt)
-{
-	int occur = 0;
-
-literal:
-	while (*fmt)
-		if (*fmt++ == '%')
-			goto format;
-	return occur == 1;
-
-format:
-	if (*fmt == '%') {
-		fmt++;
-		goto literal;
-	}
-	fmt += strspn(fmt, "-+#0 '");
-	fmt += strspn(fmt, "0123456789");
-	if (*fmt == '.') {
-		fmt++;
-		fmt += strspn(fmt, "0123456789");
-	}
-	if (*fmt == 'L')
-		fmt++;
-
-	switch (*fmt) {
-	case 'f': case 'F':
-	case 'g': case 'G':
-	case 'e': case 'E':
-	case 'a': case 'A':
-		occur++;
-		goto literal;
-	default:
-		return 0;
-	}
 }

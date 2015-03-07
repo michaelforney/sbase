@@ -32,86 +32,6 @@ static int nerrors = 0;
 static char *eofstr;
 static int rflag = 0, nflag = 0;
 
-static void
-usage(void)
-{
-	eprintf("usage: %s [-n maxargs] [-r] [-E eofstr] [cmd [arg...]]\n", argv0);
-}
-
-int
-main(int argc, char *argv[])
-{
-	int leftover = 0;
-	long argsz, argmaxsz;
-	char *arg = "";
-	int i, a;
-
-	ARGBEGIN {
-	case 'n':
-		nflag = 1;
-		if ((maxargs = strtol(EARGF(usage()), NULL, 10)) <= 0)
-			eprintf("%s: value for -n option should be >= 1\n", argv0);
-		break;
-	case 'r':
-		rflag = 1;
-		break;
-	case 'E':
-		eofstr = EARGF(usage());
-		break;
-	default:
-		usage();
-	} ARGEND;
-
-	argmaxsz = sysconf(_SC_ARG_MAX);
-	if (argmaxsz < 0)
-		eprintf("sysconf:");
-	/* Leave some room for environment variables */
-	argmaxsz -= 4 * 1024;
-
-	do {
-		argsz = 0; i = 0; a = 0;
-		if (argc > 0) {
-			for (; i < argc; i++) {
-				cmd[i] = estrdup(argv[i]);
-				argsz += strlen(cmd[i]) + 1;
-			}
-		} else {
-			cmd[i] = estrdup("/bin/echo");
-			argsz += strlen(cmd[i]) + 1;
-			i++;
-		}
-		while (leftover == 1 || (arg = poparg())) {
-			if (argsz + strlen(arg) + 1 > argmaxsz ||
-			    i >= NARGS - 1) {
-				if (strlen(arg) + 1 > argmaxsz)
-					eprintf("insufficient argument space\n");
-				leftover = 1;
-				break;
-			}
-			cmd[i] = estrdup(arg);
-			argsz += strlen(cmd[i]) + 1;
-			i++;
-			a++;
-			leftover = 0;
-			if (nflag == 1 && a >= maxargs)
-				break;
-		}
-		cmd[i] = NULL;
-		if (a >= maxargs && nflag == 1)
-			spawn();
-		else if (!a || (i == 1 && rflag == 1))
-			;
-		else
-			spawn();
-		for (; i >= 0; i--)
-			free(cmd[i]);
-	} while (arg);
-
-	free(argb);
-
-	return nerrors > 0 ? 123 : 0;
-}
-
 static int
 inputc(void)
 {
@@ -257,4 +177,84 @@ spawn(void)
 		_exit(savederrno == ENOENT ? 127 : 126);
 	}
 	waitchld();
+}
+
+static void
+usage(void)
+{
+	eprintf("usage: %s [-n maxargs] [-r] [-E eofstr] [cmd [arg...]]\n", argv0);
+}
+
+int
+main(int argc, char *argv[])
+{
+	int leftover = 0;
+	long argsz, argmaxsz;
+	char *arg = "";
+	int i, a;
+
+	ARGBEGIN {
+	case 'n':
+		nflag = 1;
+		if ((maxargs = strtol(EARGF(usage()), NULL, 10)) <= 0)
+			eprintf("%s: value for -n option should be >= 1\n", argv0);
+		break;
+	case 'r':
+		rflag = 1;
+		break;
+	case 'E':
+		eofstr = EARGF(usage());
+		break;
+	default:
+		usage();
+	} ARGEND;
+
+	argmaxsz = sysconf(_SC_ARG_MAX);
+	if (argmaxsz < 0)
+		eprintf("sysconf:");
+	/* Leave some room for environment variables */
+	argmaxsz -= 4 * 1024;
+
+	do {
+		argsz = 0; i = 0; a = 0;
+		if (argc > 0) {
+			for (; i < argc; i++) {
+				cmd[i] = estrdup(argv[i]);
+				argsz += strlen(cmd[i]) + 1;
+			}
+		} else {
+			cmd[i] = estrdup("/bin/echo");
+			argsz += strlen(cmd[i]) + 1;
+			i++;
+		}
+		while (leftover == 1 || (arg = poparg())) {
+			if (argsz + strlen(arg) + 1 > argmaxsz ||
+			    i >= NARGS - 1) {
+				if (strlen(arg) + 1 > argmaxsz)
+					eprintf("insufficient argument space\n");
+				leftover = 1;
+				break;
+			}
+			cmd[i] = estrdup(arg);
+			argsz += strlen(cmd[i]) + 1;
+			i++;
+			a++;
+			leftover = 0;
+			if (nflag == 1 && a >= maxargs)
+				break;
+		}
+		cmd[i] = NULL;
+		if (a >= maxargs && nflag == 1)
+			spawn();
+		else if (!a || (i == 1 && rflag == 1))
+			;
+		else
+			spawn();
+		for (; i >= 0; i--)
+			free(cmd[i]);
+	} while (arg);
+
+	free(argb);
+
+	return nerrors > 0 ? 123 : 0;
 }
