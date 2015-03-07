@@ -49,7 +49,8 @@ uniqline(FILE *ofp, char *l)
 	if (prevline) {
 		if ((prevlinecount == 1 && !dflag) ||
 		    (prevlinecount != 1 && !uflag)) {
-			fprintf(ofp, countfmt, prevlinecount);
+			if (*countfmt)
+				fprintf(ofp, countfmt, prevlinecount);
 			fputs(prevline, ofp);
 		}
 		free(prevline);
