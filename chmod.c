@@ -8,7 +8,7 @@ static char  *modestr = "";
 static mode_t mask    = 0;
 static int    ret     = 0;
 
-void
+static void
 chmodr(const char *path, int depth)
 {
 	struct stat st;

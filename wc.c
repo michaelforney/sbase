@@ -7,7 +7,7 @@ static int    wflag = 0;
 static char   cmode = 0;
 static size_t tc = 0, tl = 0, tw = 0;
 
-void
+static void
 output(const char *str, size_t nc, size_t nl, size_t nw)
 {
 	int noflags = !cmode && !lflag && !wflag;
@@ -24,7 +24,7 @@ output(const char *str, size_t nc, size_t nl, size_t nw)
 	putchar('\n');
 }
 
-void
+static void
 wc(FILE *fp, const char *str)
 {
 	int word = 0, rlen;

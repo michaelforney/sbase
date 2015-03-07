@@ -20,7 +20,7 @@ static size_t      startnum = 1;
 static size_t      incr = 1;
 static regex_t     preg;
 
-void
+static void
 nl(const char *name, FILE *fp)
 {
 	char *buf = NULL;

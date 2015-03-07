@@ -9,7 +9,7 @@
 
 static int base = 26, start = 'a';
 
-int
+static int
 itostr(char *str, int x, int n)
 {
 	str[n] = '\0';
@@ -22,7 +22,7 @@ itostr(char *str, int x, int n)
 	return 0;
 }
 
-FILE *
+static FILE *
 nextfile(FILE *f, char *buf, int plen, int slen)
 {
 	static int filecount = 0;

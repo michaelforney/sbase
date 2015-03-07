@@ -44,7 +44,7 @@ touch(const char *file)
 	touch(file);
 }
 
-time_t
+static time_t
 parsetime(char *str, time_t current)
 {
 	struct tm *cur, t;
