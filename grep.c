@@ -37,116 +37,6 @@ struct pattern {
 static SLIST_HEAD(phead, pattern) phead;
 
 static void
-usage(void)
-{
-	enprintf(Error, "usage: %s [-EFHchilnqsvwx] [-e pattern] [-f file] [pattern] [file ...]\n", argv0);
-}
-
-int
-main(int argc, char *argv[])
-{
-	struct pattern *pnode;
-	int i, m, flags = REG_NOSUB, match = NoMatch;
-	FILE *fp;
-	char *arg;
-
-	SLIST_INIT(&phead);
-
-	ARGBEGIN {
-	case 'E':
-		Eflag = 1;
-		flags |= REG_EXTENDED;
-		break;
-	case 'F':
-		Fflag = 1;
-		break;
-	case 'H':
-		Hflag = 1;
-		hflag = 0;
-		break;
-	case 'e':
-		arg = EARGF(usage());
-		fp = fmemopen(arg, strlen(arg) + 1, "r");
-		addpatternfile(fp);
-		fclose(fp);
-		eflag = 1;
-		break;
-	case 'f':
-		arg = EARGF(usage());
-		fp = fopen(arg, "r");
-		if (!fp)
-			enprintf(Error, "fopen %s:", arg);
-		addpatternfile(fp);
-		fclose(fp);
-		fflag = 1;
-		break;
-	case 'h':
-		hflag = 1;
-		Hflag = 0;
-		break;
-	case 'c':
-	case 'l':
-	case 'n':
-	case 'q':
-		mode = ARGC();
-		break;
-	case 'i':
-		flags |= REG_ICASE;
-		iflag = 1;
-		break;
-	case 's':
-		sflag = 1;
-		break;
-	case 'v':
-		vflag = 1;
-		break;
-	case 'w':
-		wflag = 1;
-		break;
-	case 'x':
-		xflag = 1;
-		break;
-	default:
-		usage();
-	} ARGEND;
-
-	if (argc == 0 && !eflag && !fflag)
-		usage(); /* no pattern */
-
-	/* just add literal pattern to list */
-	if (!eflag && !fflag) {
-		fp = fmemopen(argv[0], strlen(argv[0]) + 1, "r");
-		addpatternfile(fp);
-		fclose(fp);
-		argc--;
-		argv++;
-	}
-
-	if (!Fflag)
-		/* Compile regex for all search patterns */
-		SLIST_FOREACH(pnode, &phead, entry)
-			enregcomp(Error, &pnode->preg, pnode->pattern, flags);
-	many = (argc > 1);
-	if (argc == 0) {
-		match = grep(stdin, "<stdin>");
-	} else {
-		for (i = 0; i < argc; i++) {
-			if (!(fp = fopen(argv[i], "r"))) {
-				if (!sflag)
-					weprintf("fopen %s:", argv[i]);
-				match = Error;
-				continue;
-			}
-			m = grep(fp, argv[i]);
-			if (m == Error || (match != Error && m == Match))
-				match = m;
-			fclose(fp);
-		}
-	}
-	return match;
-}
-
-static void
 addpattern(const char *pattern)
 {
 	struct pattern *pnode;
@@ -266,6 +156,116 @@ end:
 	if (ferror(fp)) {
 		weprintf("%s: read error:", str);
 		match = Error;
+	}
+	return match;
+}
+
+static void
+usage(void)
+{
+	enprintf(Error, "usage: %s [-EFHchilnqsvwx] [-e pattern] [-f file] [pattern] [file ...]\n", argv0);
+}
+
+int
+main(int argc, char *argv[])
+{
+	struct pattern *pnode;
+	int i, m, flags = REG_NOSUB, match = NoMatch;
+	FILE *fp;
+	char *arg;
+
+	SLIST_INIT(&phead);
+
+	ARGBEGIN {
+	case 'E':
+		Eflag = 1;
+		flags |= REG_EXTENDED;
+		break;
+	case 'F':
+		Fflag = 1;
+		break;
+	case 'H':
+		Hflag = 1;
+		hflag = 0;
+		break;
+	case 'e':
+		arg = EARGF(usage());
+		fp = fmemopen(arg, strlen(arg) + 1, "r");
+		addpatternfile(fp);
+		fclose(fp);
+		eflag = 1;
+		break;
+	case 'f':
+		arg = EARGF(usage());
+		fp = fopen(arg, "r");
+		if (!fp)
+			enprintf(Error, "fopen %s:", arg);
+		addpatternfile(fp);
+		fclose(fp);
+		fflag = 1;
+		break;
+	case 'h':
+		hflag = 1;
+		Hflag = 0;
+		break;
+	case 'c':
+	case 'l':
+	case 'n':
+	case 'q':
+		mode = ARGC();
+		break;
+	case 'i':
+		flags |= REG_ICASE;
+		iflag = 1;
+		break;
+	case 's':
+		sflag = 1;
+		break;
+	case 'v':
+		vflag = 1;
+		break;
+	case 'w':
+		wflag = 1;
+		break;
+	case 'x':
+		xflag = 1;
+		break;
+	default:
+		usage();
+	} ARGEND;
+
+	if (argc == 0 && !eflag && !fflag)
+		usage(); /* no pattern */
+
+	/* just add literal pattern to list */
+	if (!eflag && !fflag) {
+		fp = fmemopen(argv[0], strlen(argv[0]) + 1, "r");
+		addpatternfile(fp);
+		fclose(fp);
+		argc--;
+		argv++;
+	}
+
+	if (!Fflag)
+		/* Compile regex for all search patterns */
+		SLIST_FOREACH(pnode, &phead, entry)
+			enregcomp(Error, &pnode->preg, pnode->pattern, flags);
+	many = (argc > 1);
+	if (argc == 0) {
+		match = grep(stdin, "<stdin>");
+	} else {
+		for (i = 0; i < argc; i++) {
+			if (!(fp = fopen(argv[i], "r"))) {
+				if (!sflag)
+					weprintf("fopen %s:", argv[i]);
+				match = Error;
+				continue;
+			}
+			m = grep(fp, argv[i]);
+			if (m == Error || (match != Error && m == Match))
+				match = m;
+			fclose(fp);
+		}
 	}
 	return match;
 }

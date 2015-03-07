@@ -10,6 +10,45 @@
 static int strtop(const char *);
 static int renice(int, int, long);
 
+static int
+strtop(const char *s)
+{
+	char *end;
+	long n;
+
+	errno = 0;
+	n = strtol(s, &end, 10);
+	if (*end != '\0') {
+		weprintf("%s: not an integer\n", s);
+		return -1;
+	}
+	if (errno != 0 || n <= 0 || n > INT_MAX) {
+		weprintf("%s: invalid value\n", s);
+		return -1;
+	}
+
+	return (int)n;
+}
+
+static int
+renice(int which, int who, long adj)
+{
+	errno = 0;
+	adj += getpriority(which, who);
+	if (errno != 0) {
+		weprintf("getpriority %d:", who);
+		return 0;
+	}
+
+	adj = MAX(PRIO_MIN, MIN(adj, PRIO_MAX));
+	if (setpriority(which, who, (int)adj) < 0) {
+		weprintf("setpriority %d:", who);
+		return 0;
+	}
+
+	return 1;
+}
+
 static void
 usage(void)
 {
@@ -70,43 +109,4 @@ main(int argc, char *argv[])
 	}
 
 	return status;
-}
-
-static int
-strtop(const char *s)
-{
-	char *end;
-	long n;
-
-	errno = 0;
-	n = strtol(s, &end, 10);
-	if (*end != '\0') {
-		weprintf("%s: not an integer\n", s);
-		return -1;
-	}
-	if (errno != 0 || n <= 0 || n > INT_MAX) {
-		weprintf("%s: invalid value\n", s);
-		return -1;
-	}
-
-	return (int)n;
-}
-
-static int
-renice(int which, int who, long adj)
-{
-	errno = 0;
-	adj += getpriority(which, who);
-	if (errno != 0) {
-		weprintf("getpriority %d:", who);
-		return 0;
-	}
-
-	adj = MAX(PRIO_MIN, MIN(adj, PRIO_MAX));
-	if (setpriority(which, who, (int)adj) < 0) {
-		weprintf("setpriority %d:", who);
-		return 0;
-	}
-
-	return 1;
 }

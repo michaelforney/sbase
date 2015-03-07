@@ -43,89 +43,6 @@ static int Cflag = 0, cflag = 0, uflag = 0;
 static char *fieldsep = NULL;
 
 static void
-usage(void)
-{
-	enprintf(2, "usage: %s [-Cbcnru] [-t delim] [-k def]... [file...]\n", argv0);
-}
-
-int
-main(int argc, char *argv[])
-{
-	size_t i;
-	FILE *fp;
-	struct linebuf linebuf = EMPTY_LINEBUF;
-	int global_flags = 0;
-
-	ARGBEGIN {
-	case 'C':
-		Cflag = 1;
-		break;
-	case 'b':
-		global_flags |= MOD_STARTB | MOD_ENDB;
-		break;
-	case 'c':
-		cflag = 1;
-		break;
-	case 'k':
-		addkeydef(EARGF(usage()), global_flags);
-		break;
-	case 'n':
-		global_flags |= MOD_N;
-		break;
-	case 'r':
-		global_flags |= MOD_R;
-		break;
-	case 't':
-		fieldsep = EARGF(usage());
-		if (strlen(fieldsep) != 1)
-			usage();
-		break;
-	case 'u':
-		uflag = 1;
-		break;
-	default:
-		usage();
-	} ARGEND;
-
-	if (!head && global_flags)
-		addkeydef("1", global_flags);
-	addkeydef("1", global_flags & MOD_R);
-
-	if (argc == 0) {
-		if (Cflag || cflag) {
-			check(stdin);
-		} else {
-			getlines(stdin, &linebuf);
-		}
-	} else for (; argc > 0; argc--, argv++) {
-		if (!(fp = fopen(argv[0], "r"))) {
-			enprintf(2, "fopen %s:", argv[0]);
-			continue;
-		}
-		if (Cflag || cflag) {
-			check(fp);
-		} else {
-			getlines(fp, &linebuf);
-		}
-		fclose(fp);
-	}
-
-	if (!Cflag && !cflag) {
-		qsort(linebuf.lines, linebuf.nlines, sizeof *linebuf.lines,
-				(int (*)(const void *, const void *))linecmp);
-
-		for (i = 0; i < linebuf.nlines; i++) {
-			if (!uflag || i == 0 || linecmp((const char **)&linebuf.lines[i],
-						(const char **)&linebuf.lines[i-1])) {
-				fputs(linebuf.lines[i], stdout);
-			}
-		}
-	}
-
-	return 0;
-}
-
-static void
 addkeydef(char *def, int flags)
 {
 	struct kdlist *node;
@@ -302,4 +219,87 @@ columns(char *line, const struct keydef *kd)
 	}
 
 	return enstrndup(2, start, end - start);
+}
+
+static void
+usage(void)
+{
+	enprintf(2, "usage: %s [-Cbcnru] [-t delim] [-k def]... [file...]\n", argv0);
+}
+
+int
+main(int argc, char *argv[])
+{
+	size_t i;
+	FILE *fp;
+	struct linebuf linebuf = EMPTY_LINEBUF;
+	int global_flags = 0;
+
+	ARGBEGIN {
+	case 'C':
+		Cflag = 1;
+		break;
+	case 'b':
+		global_flags |= MOD_STARTB | MOD_ENDB;
+		break;
+	case 'c':
+		cflag = 1;
+		break;
+	case 'k':
+		addkeydef(EARGF(usage()), global_flags);
+		break;
+	case 'n':
+		global_flags |= MOD_N;
+		break;
+	case 'r':
+		global_flags |= MOD_R;
+		break;
+	case 't':
+		fieldsep = EARGF(usage());
+		if (strlen(fieldsep) != 1)
+			usage();
+		break;
+	case 'u':
+		uflag = 1;
+		break;
+	default:
+		usage();
+	} ARGEND;
+
+	if (!head && global_flags)
+		addkeydef("1", global_flags);
+	addkeydef("1", global_flags & MOD_R);
+
+	if (argc == 0) {
+		if (Cflag || cflag) {
+			check(stdin);
+		} else {
+			getlines(stdin, &linebuf);
+		}
+	} else for (; argc > 0; argc--, argv++) {
+		if (!(fp = fopen(argv[0], "r"))) {
+			enprintf(2, "fopen %s:", argv[0]);
+			continue;
+		}
+		if (Cflag || cflag) {
+			check(fp);
+		} else {
+			getlines(fp, &linebuf);
+		}
+		fclose(fp);
+	}
+
+	if (!Cflag && !cflag) {
+		qsort(linebuf.lines, linebuf.nlines, sizeof *linebuf.lines,
+				(int (*)(const void *, const void *))linecmp);
+
+		for (i = 0; i < linebuf.nlines; i++) {
+			if (!uflag || i == 0 || linecmp((const char **)&linebuf.lines[i],
+						(const char **)&linebuf.lines[i-1])) {
+				fputs(linebuf.lines[i], stdout);
+			}
+		}
+	}
+
+	return 0;
 }

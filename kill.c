@@ -26,6 +26,32 @@ struct {
 const char *sig2name(int);
 int name2sig(const char *);
 
+const char *
+sig2name(int sig)
+{
+	size_t i;
+
+	for (i = 0; i < LEN(sigs); i++)
+		if (sigs[i].sig == sig)
+			return sigs[i].name;
+	eprintf("%d: bad signal number\n", sig);
+	/* unreachable */
+	return NULL;
+}
+
+int
+name2sig(const char *name)
+{
+	size_t i;
+
+	for (i = 0; i < LEN(sigs); i++)
+		if (strcasecmp(sigs[i].name, name) == 0)
+			return sigs[i].sig;
+	eprintf("%s: bad signal name\n", name);
+	/* unreachable */
+	return -1;
+}
+
 static void
 usage(void)
 {
@@ -109,30 +135,4 @@ main(int argc, char *argv[])
 	}
 
 	exit(ret);
-}
-
-const char *
-sig2name(int sig)
-{
-	size_t i;
-
-	for (i = 0; i < LEN(sigs); i++)
-		if (sigs[i].sig == sig)
-			return sigs[i].name;
-	eprintf("%d: bad signal number\n", sig);
-	/* unreachable */
-	return NULL;
-}
-
-int
-name2sig(const char *name)
-{
-	size_t i;
-
-	for (i = 0; i < LEN(sigs); i++)
-		if (strcasecmp(sigs[i].name, name) == 0)
-			return sigs[i].sig;
-	eprintf("%s: bad signal name\n", name);
-	/* unreachable */
-	return -1;
 }
