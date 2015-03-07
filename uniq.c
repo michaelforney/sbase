@@ -6,10 +6,6 @@
 
 #include "util.h"
 
-static void uniqline(FILE *, char *);
-static void uniq(FILE *, FILE *);
-static void uniqfinish(FILE *);
-
 static const char *countfmt = "";
 static int dflag = 0;
 static int uflag = 0;
@@ -19,63 +15,6 @@ static int sskip = 0;
 static char *prevline = NULL;
 static char *prevoffset = NULL;
 static long prevlinecount = 0;
-
-static void
-usage(void)
-{
-	eprintf("usage: %s [-c] [-d | -u] [-f fields] [-s chars]"
-	        " [input [output]]\n", argv0);
-}
-
-int
-main(int argc, char *argv[])
-{
-	FILE *fp = stdin, *ofp = stdout;
-
-	ARGBEGIN {
-	case 'c':
-		countfmt = "%7ld ";
-		break;
-	case 'd':
-		dflag = 1;
-		break;
-	case 'u':
-		uflag = 1;
-		break;
-	case 'f':
-		fskip = estrtonum(EARGF(usage()), 0, INT_MAX);
-		break;
-	case 's':
-		sskip = estrtonum(EARGF(usage()), 0, INT_MAX);
-		break;
-	default:
-		usage();
-	} ARGEND;
-
-	if (argc > 2)
-		usage();
-
-	if (argc == 0) {
-		uniq(stdin, stdout);
-	} else if (argc >= 1) {
-		if (strcmp(argv[0], "-") && !(fp = fopen(argv[0], "r")))
-			eprintf("fopen %s:", argv[0]);
-		if (argc == 2) {
-			if (strcmp(argv[1], "-") &&
-			    !(ofp = fopen(argv[1], "w")))
-				eprintf("fopen %s:", argv[1]);
-		}
-		uniq(fp, ofp);
-		if (fp != stdin)
-			fclose(fp);
-	} else
-		usage();
-	uniqfinish(ofp);
-	if (ofp != stdout)
-		fclose(ofp);
-
-	return 0;
-}
 
 static char *
 uniqskip(char *l)
@@ -138,4 +77,61 @@ static void
 uniqfinish(FILE *ofp)
 {
 	uniqline(ofp, NULL);
+}
+
+static void
+usage(void)
+{
+	eprintf("usage: %s [-c] [-d | -u] [-f fields] [-s chars]"
+	        " [input [output]]\n", argv0);
+}
+
+int
+main(int argc, char *argv[])
+{
+	FILE *fp = stdin, *ofp = stdout;
+
+	ARGBEGIN {
+	case 'c':
+		countfmt = "%7ld ";
+		break;
+	case 'd':
+		dflag = 1;
+		break;
+	case 'u':
+		uflag = 1;
+		break;
+	case 'f':
+		fskip = estrtonum(EARGF(usage()), 0, INT_MAX);
+		break;
+	case 's':
+		sskip = estrtonum(EARGF(usage()), 0, INT_MAX);
+		break;
+	default:
+		usage();
+	} ARGEND;
+
+	if (argc > 2)
+		usage();
+
+	if (argc == 0) {
+		uniq(stdin, stdout);
+	} else if (argc >= 1) {
+		if (strcmp(argv[0], "-") && !(fp = fopen(argv[0], "r")))
+			eprintf("fopen %s:", argv[0]);
+		if (argc == 2) {
+			if (strcmp(argv[1], "-") &&
+			    !(ofp = fopen(argv[1], "w")))
+				eprintf("fopen %s:", argv[1]);
+		}
+		uniq(fp, ofp);
+		if (fp != stdin)
+			fclose(fp);
+	} else
+		usage();
+	uniqfinish(ofp);
+	if (ofp != stdout)
+		fclose(ofp);
+
+	return 0;
 }
