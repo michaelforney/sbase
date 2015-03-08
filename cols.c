@@ -12,82 +12,74 @@
 #include "utf.h"
 #include "util.h"
 
-static size_t chars = 65;
-static int    cflag;
-static struct linebuf b = EMPTY_LINEBUF;
-
-static size_t n_columns;
-static size_t n_rows;
-
 static void
 usage(void)
 {
-	eprintf("usage: %s [-c chars] [file ...]\n", argv0);
+	eprintf("usage: %s [-c num] [file ...]\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
-	size_t i, l, col, len, bytes, maxlen = 0;
-	struct winsize w;
 	FILE *fp;
+	struct winsize w;
+	struct linebuf b = EMPTY_LINEBUF;
+	size_t chars = 65, maxlen = 0, i, j, k, len, bytes, cols, rows;
+	int cflag = 0;
 	char *p;
 
 	ARGBEGIN {
 	case 'c':
 		cflag = 1;
-		chars = estrtonum(EARGF(usage()), 3, MIN(LLONG_MAX, SIZE_MAX));
+		chars = estrtonum(EARGF(usage()), 1, MIN(LLONG_MAX, SIZE_MAX));
 		break;
 	default:
 		usage();
 	} ARGEND;
 
-	if (cflag == 0) {
+	if (!cflag) {
 		if ((p = getenv("COLUMNS")))
 			chars = estrtonum(p, 1, MIN(LLONG_MAX, SIZE_MAX));
 		else if (!ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) && w.ws_col > 0)
 			chars = w.ws_col;
 	}
 
-	if (argc == 0) {
+	if (!argc) {
 		getlines(stdin, &b);
-	} else for (; argc > 0; argc--, argv++) {
-		if (!(fp = fopen(argv[0], "r")))
-			eprintf("fopen %s:", argv[0]);
-		getlines(fp, &b);
-		fclose(fp);
+	} else {
+		for (; *argv; argc--, argv++) {
+			if (!(fp = fopen(*argv, "r"))) {
+				weprintf("fopen %s:", *argv);
+				continue;
+			}
+			getlines(fp, &b);
+			fclose(fp);
+		}
 	}
 
-	for (l = 0; l < b.nlines; ++l) {
-		len = utflen(b.lines[l]);
-		bytes = strlen(b.lines[l]);
-		if (len > 0 && b.lines[l][bytes - 1] == '\n') {
-			b.lines[l][bytes - 1] = '\0';
-			--len;
+	for (i = 0; i < b.nlines; i++) {
+		len = utflen(b.lines[i]);
+		bytes = strlen(b.lines[i]);
+		if (len && bytes && b.lines[i][bytes - 1] == '\n') {
+			b.lines[i][bytes - 1] = '\0';
+			len--;
 		}
 		if (len > maxlen)
 			maxlen = len;
-		if (maxlen > (chars - 1) / 2)
-			break;
 	}
 
-	n_columns = (chars + 1) / (maxlen + 1);
-	if (n_columns <= 1) {
-		for (l = 0; l < b.nlines; ++l) {
-			fputs(b.lines[l], stdout);
-		}
-		return 0;
-	}
+	for (cols = 1; (cols + 1) * maxlen + cols <= chars; cols++);
+	rows = b.nlines / cols + (b.nlines % cols > 0);
 
-	n_rows = (b.nlines + (n_columns - 1)) / n_columns;
-	for (i = 0; i < n_rows; ++i) {
-		for (l = i, col = 1; l < b.nlines; l += n_rows, ++col) {
-			len = utflen(b.lines[l]);
-			fputs(b.lines[l], stdout);
-			if (col < n_columns)
-				printf("%*s", (int)(maxlen + 1 - len), "");
+	for (i = 0; i < rows; i++) {
+		for (j = 0; j < cols && i + j * rows < b.nlines; j++) {
+			len = utflen(b.lines[i + j * rows]);
+			fputs(b.lines[i + j * rows], stdout);
+			if (j < cols - 1)
+				for (k = len; k < maxlen + 1; k++)
+					putchar(' ');
 		}
-		fputs("\n", stdout);
+		putchar('\n');
 	}
 
 	return 0;
