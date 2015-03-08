@@ -21,7 +21,7 @@ main(int argc, char *argv[])
 	struct tms tms; /* user and sys times */
 	clock_t r0, r1; /* real time */
 	long ticks;     /* per second */
-	int status, savederrno;
+	int status, savederrno, ret = 0;
 
 	ARGBEGIN {
 	case 'p':
@@ -55,10 +55,19 @@ main(int argc, char *argv[])
 	if ((r1 = times(&tms)) < 0)
 		eprintf("times:");
 
+	if (WIFSIGNALED(status)) {
+		fprintf(stderr, "Command terminated by signal %d\n",
+		        WTERMSIG(status));
+		ret = 128 + WTERMSIG(status);
+	}
+
 	fprintf(stderr, "real %f\nuser %f\nsys %f\n",
 	        (r1 - r0)      / (double)ticks,
 	        tms.tms_cutime / (double)ticks,
 	        tms.tms_cstime / (double)ticks);
 
-	return WIFEXITED(status) ? WEXITSTATUS(status) : 0;
+	if (WIFEXITED(status))
+		ret = WEXITSTATUS(status);
+
+	return ret;
 }
