@@ -8,21 +8,31 @@
 #include "util.h"
 
 static int gid;
-static int status;
-static int Rflag;
+static int ret = 0;
+static int hflag = 0;
+static int Rflag = 0;
 static struct stat st;
-static char *chownf_name = "chown";
-static int (*chownf)(const char *, uid_t, gid_t) = chown;
 
 static void
 chgrp(const char *path, int depth)
 {
+	char *chownf_name;
+	int (*chownf)(const char *, uid_t, gid_t);
+
+	if (recurse_follow == 'P' || (recurse_follow == 'H' && depth) || (hflag && !depth)) {
+		chownf_name = "lchown";
+		chownf = lchown;
+	} else {
+		chownf_name = "chown";
+		chownf = chown;
+	}
+
 	if (chownf(path, st.st_uid, gid) < 0) {
 		weprintf("%s %s:", chownf_name, path);
-		status = 1;
-	}
-	if (Rflag)
+		ret = 1;
+	} else if (Rflag) {
 		recurse(path, chgrp, depth);
+	}
 }
 
 static void
@@ -38,8 +48,7 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	case 'h':
-		chownf_name = "lchown";
-		chownf = lchown;
+		hflag = 1;
 		break;
 	case 'R':
 		Rflag = 1;
@@ -55,14 +64,9 @@ main(int argc, char *argv[])
 
 	if (argc < 2)
 		usage();
-	if (recurse_follow == 'P') {
-		chownf_name = "lchown";
-		chownf = lchown;
-	}
 
 	errno = 0;
-	gr = getgrnam(argv[0]);
-	if (!gr) {
+	if (!(gr = getgrnam(argv[0]))) {
 		if (errno)
 			eprintf("getgrnam %s:", argv[0]);
 		else
@@ -70,13 +74,14 @@ main(int argc, char *argv[])
 	}
 	gid = gr->gr_gid;
 
-	while (*++argv) {
+	for (; *argv; argc--, argv++) {
 		if (stat(*argv, &st) < 0) {
 			weprintf("stat %s:", *argv);
-			status = 1;
+			ret = 1;
 			continue;
 		}
 		chgrp(*argv, 0);
 	}
-	return status;
+
+	return ret;
 }

@@ -1,9 +1,9 @@
-.Dd February 9, 2015
+.Dd March 8, 2015
 .Dt CHGRP 1
 .Os sbase
 .Sh NAME
 .Nm chgrp
-.Nd change the file group ownership
+.Nd change file group ownership
 .Sh SYNOPSIS
 .Nm
 .Op Fl h
@@ -12,29 +12,29 @@
 .Op Fl H | L | P
 .Oc
 .Ar group
-.Ar file...
+.Ar file ...
 .Sh DESCRIPTION
 .Nm
-sets the group id of the files specified by
+sets the group id of each
 .Ar file
-to the gid of the group named
+to the gid of
 .Ar group .
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl h
-Change the group ID of the symlink itself.  This flag cannot be used
-with
-.Op Fl R .
+Preserve
+.Ar file
+if it is a symbolic link.
 .It Fl R
-Change file group ownership recursively.
+Change file group ownerships recursively.
 .It Fl H
-Only dereference symbolic links that are passed as command line arguments when
-recursively traversing directories.
+Dereference
+.Ar file
+if it is a symbolic link.
 .It Fl L
-Always dereference symbolic links while recursively traversing directories.
+Dereference all symbolic links.
 .It Fl P
-Don't dereference symbolic links (default).
-.Ar file .
+Preserve symbolic links. This is the default.
 .El
 .Sh SEE ALSO
 .Xr chmod 1 ,
