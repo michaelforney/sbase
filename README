@@ -10,7 +10,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
     UTILITY         POSIX 2008 COMPLIANT         MISSING OPTIONS
     -------         --------------------         ---------------
 =*| basename        yes                          none
-=*  cal             yes                          none
+=*| cal             yes                          none
 =*| cat             yes                          none
 =*  chgrp           yes                          none
 =*| chmod           yes                          none

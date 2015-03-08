@@ -1,4 +1,4 @@
-.Dd January 18, 2015
+.Dd March 8, 2015
 .Dt CAL 1
 .Os sbase
 .Sh NAME
@@ -6,53 +6,55 @@
 .Nd show calendar
 .Sh SYNOPSIS
 .Nm
-.Op Fl 1 | Fl 3 | Fl y | Fl n Ar nmonths
-.Op Fl s | Fl m | Fl f Ar firstday
-.Op Fl c Ar columns
+.Op Fl 1 | Fl 3 | Fl y | Fl n Ar num
+.Op Fl s | Fl m | Fl f Ar num
+.Op Fl c Ar num
 .Oo Oo Ar month Oc Ar year Oc
 .Sh DESCRIPTION
-Print
-.Ar nmonths
-calendars side by side beginning with
+.Nm
+writes a calendar of
 .Ar month
 and
-.Ar year .
-Each row of calendars contains at most
-.Ar columns
-calendars. The date formatting is obtained using
-.Xr localtime 3 .
-.Pp
+.Ar year
+or the current month to stdout.
 If
 .Ar year
 is given without
 .Ar month ,
-print the whole year, unless overridden by other options.
+.Nm
+writes a 3-column calendar of the whole
+year to stdout.
+The date formatting is according to
+.Xr localtime 3 .
 .Pp
 The Julian calendar is used until Sep 2, 1752. The Gregorian calendar is used
 starting the next day on Sep 14, 1752.
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl 1
-Output current month. This is the default.
+Print current month. This is the default.
 .It Fl 3
-Output previous, current and next month.
-.It Fl c Ar columns
-Set number of calendars in a row. The default is 3.
-.It Fl f Ar firstday
-Output
-.Ar firstday
+Print previous, current and next month.
+.It Fl c Ar num
+Print
+.Ar num
+calendars in a row. The default is 3.
+.It Fl f Ar num
+Set
+.Ar num
 (0 is Sunday, 6 is Saturday) as first day of week.
 .It Fl m
-Output Monday as first day of week.
-.It Fl n Ar nmonths
-Output in total
-.Ar nmonths
-starting from the current month.
+Set Monday as first day of week.
+.It Fl n Ar num
+Output
+.Ar num
+months starting from and including the current month.
 .It Fl s
-Output Sunday as first day of week.
-.It Fl y Ar year
-Output an entire
-.Ar year .
+Set Sunday as first day of week.
+.It Fl y
+Print the entire
+.Ar year
+or current year.
 .El
 .Sh SEE ALSO
 .Xr localtime 3
@@ -64,5 +66,5 @@ utility is compliant with the
 specification.
 .Pp
 The flags
-.Op Fl 13ynsmfc
+.Op Fl 13cfmnsy
 are an extension to that specification.

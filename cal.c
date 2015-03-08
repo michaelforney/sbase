@@ -1,5 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 #include <limits.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -11,7 +12,7 @@ enum caltype { JULIAN, GREGORIAN };
 enum { TRANS_YEAR = 1752, TRANS_MONTH = SEP, TRANS_DAY = 2 };
 
 static int
-isleap(int year, enum caltype cal)
+isleap(size_t year, enum caltype cal)
 {
 	if (cal == GREGORIAN) {
 		if (year % 400 == 0)
@@ -26,23 +27,23 @@ isleap(int year, enum caltype cal)
 }
 
 static int
-monthlength(int year, int month, enum caltype cal)
+monthlength(size_t year, int month, enum caltype cal)
 {
 	int mdays[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
-	return (month == FEB && isleap(year,cal)) ? 29 : mdays[month];
+	return (month == FEB && isleap(year, cal)) ? 29 : mdays[month];
 }
 
 /* From http://www.tondering.dk/claus/cal/chrweek.php#calcdow */
 static int
-dayofweek(int year, int month, int dom, enum caltype cal)
+dayofweek(size_t year, int month, int dom, enum caltype cal)
 {
-	int m, y, a;
+	size_t y;
+	int m, a;
 
-	month += 1;  /*  in this formula, 1 <= month <= 12  */
-	a = (14 - month) / 12;
+	a = (13 - month) / 12;
 	y = year - a;
-	m = month + 12 * a - 2;
+	m = month + 12 * a - 1;
 
 	if (cal == GREGORIAN)
 		return (dom + y + y / 4 - y / 100 + y / 400 + (31 * m) / 12) % 7;
@@ -51,22 +52,19 @@ dayofweek(int year, int month, int dom, enum caltype cal)
 }
 
 static void
-printgrid(int year, int month, int fday, int line)
+printgrid(size_t year, int month, int fday, int line)
 {
 	enum caltype cal;
-	int trans; /* are we in the transition from Julian to Gregorian? */
-	int offset, dom, d = 0;
+	int offset, dom, d = 0, trans; /* are we in the transition from Julian to Gregorian? */
 
-	if (year < TRANS_YEAR || (year == TRANS_YEAR && month <= TRANS_MONTH))
-		cal = JULIAN;
-	else
-		cal = GREGORIAN;
+	cal = (year < TRANS_YEAR || (year == TRANS_YEAR && month <= TRANS_MONTH)) ? JULIAN : GREGORIAN;
 	trans = (year == TRANS_YEAR && month == TRANS_MONTH);
 	offset = dayofweek(year, month, 1, cal) - fday;
+
 	if (offset < 0)
 		offset += 7;
 	if (line == 1) {
-		for ( ; d < offset; ++d)
+		for (; d < offset; ++d)
 			printf("   ");
 		dom = 1;
 	} else {
@@ -74,23 +72,24 @@ printgrid(int year, int month, int fday, int line)
 		if (trans && !(line == 2 && fday == 3))
 			dom += 11;
 	}
-	for ( ; d < 7 && dom <= monthlength(year, month, cal); ++d, ++dom) {
+	for (; d < 7 && dom <= monthlength(year, month, cal); ++d, ++dom) {
 		printf("%2d ", dom);
-		if (trans && dom==TRANS_DAY)
+		if (trans && dom == TRANS_DAY)
 			dom += 11;
 	}
-	for ( ; d < 7; ++d)
+	for (; d < 7; ++d)
 		printf("   ");
 }
 
 static void
-drawcal(int year, int month, int ncols, int nmons, int fday)
+drawcal(size_t year, int month, size_t ncols, size_t nmons, int fday)
 {
 	char *smon[] = {"  January", " February", "    March", "    April",
 	                "      May", "     June", "     July", "   August",
 	                "September", "  October", " November", " December" };
 	char *days[] = { "Su", "Mo", "Tu", "We", "Th", "Fr", "Sa", };
-	int m, n, col, cur_year, cur_month, line, dow;
+	size_t m, n, col, cur_year, cur_month, dow;
+	int line;
 
 	for (m = 0; m < nmons; ) {
 		n = m;
@@ -101,16 +100,16 @@ drawcal(int year, int month, int ncols, int nmons, int fday)
 				cur_month -= 12;
 				cur_year += 1;
 			}
-			printf("   %s %d    ", smon[cur_month], cur_year);
+			printf("   %s %zu    ", smon[cur_month], cur_year);
 			printf("  ");
 		}
-		printf("\n");
+		putchar('\n');
 		for (col = 0, m = n; m < nmons && col < ncols; ++col, ++m) {
 			for (dow = fday; dow < (fday + 7); ++dow)
 				printf("%s ", days[dow % 7]);
 			printf("  ");
 		}
-		printf("\n");
+		putchar('\n');
 		for (line = 1; line <= 6; ++line) {
 			for (col = 0, m = n; m < nmons && col < ncols; ++col, ++m) {
 				cur_year = year + m / 12;
@@ -122,7 +121,7 @@ drawcal(int year, int month, int ncols, int nmons, int fday)
 				printgrid(cur_year, cur_month, fday, line);
 				printf("  ");
 			}
-			printf("\n");
+			putchar('\n');
 		}
 	}
 }
@@ -130,16 +129,17 @@ drawcal(int year, int month, int ncols, int nmons, int fday)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-1 | -3 | -y | -n nmonths] "
-	        "[-s | -m | -f firstday] [-c columns] [[month] year]\n", argv0);
+	eprintf("usage: %s [-1 | -3 | -y | -n num] "
+	        "[-s | -m | -f num] [-c num] [[month] year]\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
 	struct tm *ltime;
-	int year, ncols, nmons, month, fday;
 	time_t now;
+	size_t year, ncols, nmons;
+	int fday, month;
 
 	now   = time(NULL);
 	ltime = localtime(&now);
@@ -156,14 +156,13 @@ main(int argc, char *argv[])
 		break;
 	case '3':
 		nmons = 3;
-		month -= 1;
-		if (month == 0) {
+		if (--month == 0) {
 			month = 12;
 			year--;
 		}
 		break;
 	case 'c':
-		ncols = estrtonum(EARGF(usage()), 0, INT_MAX);
+		ncols = estrtonum(EARGF(usage()), 0, MIN(SIZE_MAX, LLONG_MAX));
 		break;
 	case 'f':
 		fday = estrtonum(EARGF(usage()), 0, 6);
