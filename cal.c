@@ -171,7 +171,7 @@ main(int argc, char *argv[])
 		fday = 1;
 		break;
 	case 'n':
-		nmons = estrtonum(EARGF(usage()), 1, INT_MAX);
+		nmons = estrtonum(EARGF(usage()), 1, MIN(SIZE_MAX, LLONG_MAX));
 		break;
 	case 's': /* Sunday */
 		fday = 0;
