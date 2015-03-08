@@ -39,5 +39,5 @@ main(int argc, char *argv[])
 	savederrno = errno;
 	weprintf("execvp %s:", argv[0]);
 
-	return (savederrno == ENOENT) ? 127 : 126;
+	return 126 + (savederrno == ENOENT);
 }
