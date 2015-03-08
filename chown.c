@@ -1,6 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 #include <errno.h>
 #include <grp.h>
+#include <limits.h>
 #include <pwd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,45 +9,54 @@
 
 #include "util.h"
 
-static int    rflag = 0;
-static uid_t  uid = -1;
-static gid_t  gid = -1;
-static int    ret = 0;
-static char *chownf_name = "chown";
-static int (*chownf)(const char *, uid_t, gid_t) = chown;
+static int   hflag = 0;
+static int   Rflag = 0;
+static uid_t uid = -1;
+static gid_t gid = -1;
+static int   ret = 0;
 
 static void
 chownpwgr(const char *path, int depth)
 {
+	char *chownf_name;
+	int (*chownf)(const char *, uid_t, gid_t);
+
+	if (recurse_follow == 'P' || (recurse_follow == 'H' && depth) || (hflag && !depth)) {
+		chownf_name = "lchown";
+		chownf = lchown;
+	} else {
+		chownf_name = "chown";
+		chownf = chown;
+	}
+
 	if (chownf(path, uid, gid) < 0) {
 		weprintf("%s %s:", chownf_name, path);
 		ret = 1;
-	}
-	if (rflag)
+	} else if (Rflag) {
 		recurse(path, chownpwgr, depth);
+	}
 }
 
 static void
 usage(void)
 {
-	eprintf("usage: %s [-h] [-R [-H | -L | -P]] [owner][:[group]] file...\n", argv0);
+	eprintf("usage: %s [-h] [-R [-H | -L | -P]] [owner][:[group]] file ...\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
-	char *owner, *group, *end;
 	struct passwd *pw;
 	struct group *gr;
+	char *owner, *group;
 
 	ARGBEGIN {
 	case 'h':
-		chownf_name = "lchown";
-		chownf = lchown;
+		hflag = 1;
 		break;
 	case 'r':
 	case 'R':
-		rflag = 1;
+		Rflag = 1;
 		break;
 	case 'H':
 	case 'L':
@@ -57,16 +67,10 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc == 0)
+	if (argc < 2)
 		usage();
-	if (recurse_follow == 'P') {
-		chownf_name = "lchown";
-		chownf = lchown;
-	}
 
 	owner = argv[0];
-	argv++;
-	argc--;
 	if ((group = strchr(owner, ':')))
 		*group++ = '\0';
 
@@ -76,11 +80,9 @@ main(int argc, char *argv[])
 		if (pw) {
 			uid = pw->pw_uid;
 		} else {
-			if (errno != 0)
+			if (errno)
 				eprintf("getpwnam %s:", owner);
-			uid = strtoul(owner, &end, 10);
-			if (*end != '\0')
-				eprintf("getpwnam %s: no such user\n", owner);
+			uid = estrtonum(owner, 0, UINT_MAX);
 		}
 	}
 	if (group && *group) {
@@ -89,15 +91,13 @@ main(int argc, char *argv[])
 		if (gr) {
 			gid = gr->gr_gid;
 		} else {
-			if (errno != 0)
+			if (errno)
 				eprintf("getgrnam %s:", group);
-			gid = strtoul(group, &end, 10);
-			if (*end != '\0')
-				eprintf("getgrnam %s: no such group\n", group);
+			gid = estrtonum(group, 0, UINT_MAX);
 		}
 	}
-	for (; argc > 0; argc--, argv++)
-		chownpwgr(argv[0], 0);
+	for (argc--, argv++; *argv; argc--, argv++)
+		chownpwgr(*argv, 0);
 
 	return ret;
 }
