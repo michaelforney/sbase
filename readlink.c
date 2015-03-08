@@ -83,7 +83,7 @@ mdone:
 	case 'e':
 		if (stat(argv[0], &st) < 0)
 			eprintf("stat %s:", argv[0]);
-	case 'f':
+	case 'f': /* fallthrough */
 		if (!realpath(argv[0], b))
 			eprintf("realpath %s:", argv[0]);
 		break;

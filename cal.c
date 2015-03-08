@@ -197,7 +197,7 @@ main(int argc, char *argv[])
 	case 2:
 		month = estrtonum(argv[0], 1, 12);
 		argv++;
-	case 1:
+	case 1: /* fallthrough */
 		year = estrtonum(argv[0], 0, INT_MAX);
 		break;
 	case 0:
