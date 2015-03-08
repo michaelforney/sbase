@@ -7,11 +7,11 @@
 
 #include "util.h"
 
-static int gid;
-static int ret = 0;
-static int hflag = 0;
-static int Rflag = 0;
 static struct stat st;
+static int   hflag = 0;
+static int   Rflag = 0;
+static gid_t gid = -1;
+static int   ret = 0;
 
 static void
 chgrp(const char *path, int depth)
