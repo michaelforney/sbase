@@ -42,8 +42,7 @@ main(int argc, char *argv[])
 
 	execvp(argv[0], argv);
 	savederrno = errno;
-	weprintf("exec %s:", argv[0]);
-	_exit(126 + (savederrno == ENOENT));
+	weprintf("execvp %s:", argv[0]);
 
-	return 0; /* not reached */
+	_exit(126 + (savederrno == ENOENT));
 }

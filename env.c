@@ -18,6 +18,8 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
+	int savederrno;
+
 	ARGBEGIN {
 	case 'i':
 		if (environ)
@@ -35,7 +37,9 @@ main(int argc, char *argv[])
 
 	if (*argv) {
 		execvp(*argv, argv);
-		enprintf(126 + (errno == EEXIST), "execvp: %s:", *argv);
+		savederrno = errno;
+		weprintf("execvp %s:", *argv);
+		_exit(126 + (savederrno == EEXIST));
 	}
 
 	for (; environ && *environ; environ++)

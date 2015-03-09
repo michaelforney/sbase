@@ -55,7 +55,8 @@ decomp(FILE *fp)
 
 	pid = fork();
 	if (pid < 0) {
-		eprintf("fork:");
+		weprintf("fork:");
+		_exit(1);
 	} else if (!pid) {
 		dup2(fileno(fp), 0);
 		dup2(fds[1], 1);
@@ -64,12 +65,13 @@ decomp(FILE *fp)
 
 		switch (filtermode) {
 		case 'j':
-			execlp("bzip2", "bzip2", "-cd", (char *)0);
-			eprintf("execlp bzip2:");
+			execlp("bzip2", "bzip2", "-cd", NULL);
+			weprintf("execlp bzip2:");
+			_exit(1);
 		case 'z':
-			execlp("gzip", "gzip", "-cd", (char *)0);
-			eprintf("execlp gzip:");
-			break;
+			execlp("gzip", "gzip", "-cd", NULL);
+			weprintf("execlp gzip:");
+			_exit(1);
 		}
 	}
 	close(fds[1]);

@@ -168,13 +168,15 @@ spawn(void)
 	int savederrno;
 
 	pid = fork();
-	if (pid < 0)
-		eprintf("fork:");
+	if (pid < 0) {
+		weprintf("fork:");
+		_exit(1);
+	}
 	if (pid == 0) {
 		execvp(*cmd, cmd);
 		savederrno = errno;
 		weprintf("execvp %s:", *cmd);
-		_exit(savederrno == ENOENT ? 127 : 126);
+		_exit(126 + (savederrno == ENOENT));
 	}
 	waitchld();
 }

@@ -41,11 +41,12 @@ main(int argc, char *argv[])
 
 	switch ((pid = fork())) {
 	case -1:
-		eprintf("fork:");
+		weprintf("fork:");
+		_exit(1);
 	case 0:
 		execvp(argv[0], argv);
 		savederrno = errno;
-		weprintf("exec %s:", argv[0]);
+		weprintf("execvp %s:", argv[0]);
 		_exit(126 + (savederrno == ENOENT));
 	default:
 		break;

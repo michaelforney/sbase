@@ -36,15 +36,14 @@ main(int argc, char *argv[])
 
 	if (argc == 1) {
 		cmd = *shell;
-		execvp(*shell, shell);
+		execvp(cmd, shell);
 	} else {
 		cmd = argv[1];
-		execvp(argv[1], argv + 1);
+		execvp(cmd, argv + 1);
 	}
 
 	savederrno = errno;
 	weprintf("execvp %s:", cmd);
-	_exit(126 + (savederrno == ENOENT));
 
-	return 0; /* not reached */
+	_exit(126 + (savederrno == ENOENT));
 }
