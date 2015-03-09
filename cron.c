@@ -102,20 +102,20 @@ runjob(char *cmd)
 		}
 	}
 
-	pid = fork();
-	if (pid < 0) {
+	switch ((pid = fork())) {
+	case -1:
 		logerr("error: failed to fork job: %s time: %s",
 		       cmd, ctime(&t));
 		return;
-	} else if (pid == 0) {
+	case 0:
 		setsid();
 		loginfo("run: %s pid: %d at %s",
 			cmd, getpid(), ctime(&t));
 		execl("/bin/sh", "/bin/sh", "-c", cmd, (char *)NULL);
-		logerr("error: failed to execute job: %s time: %s",
+		logwarn("error: failed to execute job: %s time: %s",
 		       cmd, ctime(&t));
 		_exit(1);
-	} else {
+	default:
 		je = emalloc(sizeof(*je));
 		je->cmd = estrdup(cmd);
 		je->pid = pid;

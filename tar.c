@@ -47,17 +47,16 @@ static char filtermode;
 static FILE *
 decomp(FILE *fp)
 {
-	pid_t pid;
 	int   fds[2];
 
 	if (pipe(fds) < 0)
 		eprintf("pipe:");
 
-	pid = fork();
-	if (pid < 0) {
+	switch (fork()) {
+	case -1:
 		weprintf("fork:");
 		_exit(1);
-	} else if (!pid) {
+	case 0:
 		dup2(fileno(fp), 0);
 		dup2(fds[1], 1);
 		close(fds[0]);

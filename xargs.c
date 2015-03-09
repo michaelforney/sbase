@@ -164,15 +164,13 @@ waitchld(void)
 static void
 spawn(void)
 {
-	pid_t pid;
 	int savederrno;
 
-	pid = fork();
-	if (pid < 0) {
+	switch (fork()) {
+	case -1:
 		weprintf("fork:");
 		_exit(1);
-	}
-	if (pid == 0) {
+	case 0:
 		execvp(*cmd, cmd);
 		savederrno = errno;
 		weprintf("execvp %s:", *cmd);
