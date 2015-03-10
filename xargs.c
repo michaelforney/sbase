@@ -168,8 +168,7 @@ spawn(void)
 
 	switch (fork()) {
 	case -1:
-		weprintf("fork:");
-		_exit(1);
+		eprintf("fork:");
 	case 0:
 		execvp(*cmd, cmd);
 		savederrno = errno;

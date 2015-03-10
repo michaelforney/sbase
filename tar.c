@@ -54,8 +54,7 @@ decomp(FILE *fp)
 
 	switch (fork()) {
 	case -1:
-		weprintf("fork:");
-		_exit(1);
+		eprintf("fork:");
 	case 0:
 		dup2(fileno(fp), 0);
 		dup2(fds[1], 1);
