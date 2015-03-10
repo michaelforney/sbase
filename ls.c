@@ -269,7 +269,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	struct entry *ents = NULL;
+	struct entry *ents;
 	size_t i;
 
 	ARGBEGIN {
@@ -341,7 +341,7 @@ main(int argc, char *argv[])
 	if (argc == 0)
 		*--argv = ".", argc++;
 
-	ents = ereallocarray(ents, argc, sizeof(*ents));
+	ents = emallocarray(argc, sizeof(*ents));
 
 	for (i = 0; i < argc; i++)
 		mkent(&ents[i], argv[i], 1, Hflag || Lflag);

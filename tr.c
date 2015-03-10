@@ -71,16 +71,16 @@ rstrmatch(Rune *r, char *s, size_t n)
 static size_t
 makeset(char *str, struct range **set, int (**check)(Rune))
 {
-	Rune  *rstr = NULL;
+	Rune  *rstr;
 	size_t len, i, j, m, n;
 	size_t q, setranges = 0;
 	int    factor, base;
 
 	/* rstr defines at most len ranges */
 	unescape(str);
-	rstr = ereallocarray(rstr, utflen(str) + 1, sizeof(*rstr));
+	rstr = emallocarray(utflen(str) + 1, sizeof(*rstr));
 	len = utftorunestr(str, rstr);
-	*set = ereallocarray(*set, len, sizeof(**set));
+	*set = emallocarray(len, sizeof(**set));
 
 	for (i = 0; i < len; i++) {
 		if (rstr[i] == '[') {

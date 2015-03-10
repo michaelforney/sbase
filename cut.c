@@ -56,7 +56,7 @@ parselist(char *str)
 		if (*s == ',')
 			n++;
 	}
-	r = ereallocarray(r, n, sizeof(*r));
+	r = emallocarray(n, sizeof(*r));
 	for (s = str; n; n--, s++) {
 		r->min = (*s == '-') ? 1 : strtoul(s, &s, 10);
 		r->max = (*s == '-') ? strtoul(s + 1, &s, 10) : r->min;

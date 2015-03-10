@@ -596,10 +596,9 @@ chompr(char *s, Rune rune)
 Rune *
 strtorunes(char *s, size_t nrunes)
 {
-	Rune *rs = NULL, *rp;
+	Rune *rs, *rp;
 
-	rs = ereallocarray(rs, nrunes + 1, sizeof(*rs));
-	rp = rs;
+	rp = rs = emallocarray(nrunes + 1, sizeof(*rs));
 
 	while (nrunes--)
 		s += chartorune(rp++, s);

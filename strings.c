@@ -11,11 +11,11 @@ static char *format = "";
 static void
 strings(FILE *fp, const char *fname, size_t len)
 {
-	Rune r, *rbuf = NULL;
+	Rune r, *rbuf;
 	size_t i, bread;
 	off_t off;
 
-	rbuf = ereallocarray(rbuf, len, sizeof(*rbuf));
+	rbuf = emallocarray(len, sizeof(*rbuf));
 
 	for (off = 0, i = 0; (bread = efgetrune(&r, fp, fname)); ) {
 		off += bread;

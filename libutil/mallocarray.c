@@ -28,23 +28,23 @@
 #define MUL_NO_OVERFLOW	(1UL << (sizeof(size_t) * 4))
 
 void *
-reallocarray(void *optr, size_t nmemb, size_t size)
+mallocarray(size_t nmemb, size_t size)
 {
 	if ((nmemb >= MUL_NO_OVERFLOW || size >= MUL_NO_OVERFLOW) &&
 	    nmemb > 0 && SIZE_MAX / nmemb < size) {
 		errno = ENOMEM;
 		return NULL;
 	}
-	return realloc(optr, size * nmemb);
+	return malloc(nmemb * size);
 }
 
 void *
-ereallocarray(void *optr, size_t nmemb, size_t size)
+emallocarray(size_t nmemb, size_t size)
 {
 	void *p;
 
-	if (!(p = reallocarray(optr, nmemb, size)))
-		eprintf("reallocarray: out of memory\n");
+	if (!(p = mallocarray(nmemb, size)))
+		eprintf("mallocarray: out of memory\n");
 
 	return p;
 }

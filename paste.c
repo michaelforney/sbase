@@ -85,8 +85,8 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	struct fdescr *dsc = NULL;
-	Rune  *delim = NULL;
+	struct fdescr *dsc;
+	Rune  *delim;
 	size_t i, len;
 	int    seq = 0;
 	char  *adelim = "\t";
@@ -107,11 +107,11 @@ main(int argc, char *argv[])
 
 	/* populate delimiters */
 	unescape(adelim);
-	delim = ereallocarray(delim, utflen(adelim) + 1, sizeof(*delim));
+	delim = emallocarray(utflen(adelim) + 1, sizeof(*delim));
 	len = utftorunestr(adelim, delim);
 
 	/* populate file list */
-	dsc = ereallocarray(dsc, argc, sizeof(*dsc));
+	dsc = emallocarray(argc, sizeof(*dsc));
 
 	for (i = 0; i < argc; i++) {
 		if (strcmp(argv[i], "-") == 0)
