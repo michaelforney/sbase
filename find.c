@@ -380,7 +380,7 @@ pri_exec(Arg *arg)
 
 		/* if we have too many files, realloc (with space for NULL termination) */
 		if (e->u.p.next + 1 == e->u.p.cap)
-			e->argv = erealloc(e->argv, (e->u.p.cap *= 2) * sizeof(*e->argv));
+			e->argv = ereallocarray(e->argv, e->u.p.cap *= 2, sizeof(*e->argv));
 
 		e->argv[e->u.p.next++] = estrdup(arg->path);
 		e->u.p.filelen += len + sizeof(arg->path);
@@ -595,7 +595,7 @@ get_exec_arg(char *argv[], Extra *extra)
 		e->u.p.arglen = e->u.p.filelen = 0;
 		e->u.p.first = e->u.p.next = arg - argv - 1;
 		e->u.p.cap = (arg - argv) * 2;
-		e->argv = emalloc(e->u.p.cap * sizeof(*e->argv));
+		e->argv = ereallocarray(e->argv, e->u.p.cap, sizeof(*e->argv));
 
 		for (arg = argv, new = e->argv; *arg; arg++, new++) {
 			*new = *arg;
@@ -604,7 +604,7 @@ get_exec_arg(char *argv[], Extra *extra)
 		arg++; /* due to our extra NULL */
 	} else {
 		e->argv = argv;
-		e->u.s.braces = emalloc(++nbraces * sizeof(*e->u.s.braces)); /* ++ for NULL */
+		e->u.s.braces = ereallocarray(e->u.s.braces, ++nbraces, sizeof(*e->u.s.braces)); /* ++ for NULL */
 
 		for (arg = argv, braces = e->u.s.braces; *arg; arg++)
 			if (!strcmp(*arg, "{}"))
@@ -632,7 +632,7 @@ get_ok_arg(char *argv[], Extra *extra)
 	*arg = NULL;
 
 	o->argv = argv;
-	o->braces = emalloc(++nbraces * sizeof(*o->braces));
+	o->braces = ereallocarray(o->braces, ++nbraces, sizeof(*o->braces));
 
 	for (arg = argv, braces = o->braces; *arg; arg++)
 		if (!strcmp(*arg, "{}"))
@@ -824,7 +824,7 @@ parse(int argc, char **argv)
 	 * https://en.wikipedia.org/wiki/Shunting-yard_algorithm
 	 * read from infix, resulting rpn ends up in rpn, next position in rpn is out
 	 * push operators onto stack, next position in stack is top */
-	rpn = emalloc((ntok + gflags.print) * sizeof(*rpn));
+	rpn = ereallocarray(rpn, ntok + gflags.print, sizeof(*rpn));
 	for (tok = infix, out = rpn, top = stack; tok->type != END; tok++) {
 		switch (tok->type) {
 		case PRIM: *out++ = *tok; break;

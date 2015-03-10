@@ -275,7 +275,7 @@ resize(void **ptr, size_t *nmemb, size_t size, size_t new_nmemb, void **next)
 	void *n, *tmp;
 
 	if (new_nmemb) {
-		tmp = erealloc(*ptr, new_nmemb * size);
+		tmp = ereallocarray(*ptr, new_nmemb, size);
 	} else { /* turns out realloc(*ptr, 0) != free(*ptr) */
 		free(*ptr);
 		tmp = NULL;
@@ -596,7 +596,10 @@ chompr(char *s, Rune rune)
 Rune *
 strtorunes(char *s, size_t nrunes)
 {
-	Rune *rs = emalloc(sizeof(*rs) * nrunes + 1), *rp = rs;
+	Rune *rs = NULL, *rp;
+
+	rs = ereallocarray(rs, nrunes + 1, sizeof(*rs));
+	rp = rs;
 
 	while (nrunes--)
 		s += chartorune(rp++, s);

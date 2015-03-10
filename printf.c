@@ -111,7 +111,7 @@ main(int argc, char *argv[])
 			break;
 		case 'c':
 			unescape(arg);
-			rarg = emalloc((utflen(arg) + 1) * sizeof(*rarg));
+			rarg = ereallocarray(rarg, utflen(arg) + 1, sizeof(*rarg));
 			utftorunestr(arg, rarg);
 			efputrune(rarg, stdout, "<stdout>");
 			free(rarg);
@@ -125,7 +125,7 @@ main(int argc, char *argv[])
 			if (arg[j] == '\'' || arg[j] == '\"') {
 				arg += j + 1;
 				unescape(arg);
-				rarg = emalloc((utflen(arg) + 1) * sizeof(*rarg));
+				rarg = ereallocarray(rarg, utflen(arg) + 1, sizeof(*rarg));
 				utftorunestr(arg, rarg);
 				num = rarg[0];
 			} else

@@ -217,7 +217,7 @@ lsdir(const char *path)
 			mkent(&ent, d->d_name, Fflag || lflag || pflag || iflag || Rflag, Lflag);
 			ls(&ent, Rflag);
 		} else {
-			ents = erealloc(ents, ++n * sizeof(*ents));
+			ents = ereallocarray(ents, ++n, sizeof(*ents));
 			name = p = estrdup(d->d_name);
 			if (qflag) {
 				q = d->d_name;
@@ -269,7 +269,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	struct entry *ents;
+	struct entry *ents = NULL;
 	size_t i;
 
 	ARGBEGIN {
@@ -341,7 +341,7 @@ main(int argc, char *argv[])
 	if (argc == 0)
 		*--argv = ".", argc++;
 
-	ents = emalloc(argc * sizeof(*ents));
+	ents = ereallocarray(ents, argc, sizeof(*ents));
 
 	for (i = 0; i < argc; i++)
 		mkent(&ents[i], argv[i], 1, Hflag || Lflag);

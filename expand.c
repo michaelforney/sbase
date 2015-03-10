@@ -19,12 +19,12 @@ parselist(const char *s)
 	for (i = 0; (p = strsep(&tmp, " ,")); i++) {
 		if (*p == '\0')
 			eprintf("empty field in tablist\n");
-		tablist = erealloc(tablist, (i + 1) * sizeof(*tablist));
+		tablist = ereallocarray(tablist, i + 1, sizeof(*tablist));
 		tablist[i] = estrtonum(p, 1, MIN(LLONG_MAX, SIZE_MAX));
 		if (i > 0 && tablist[i - 1] >= tablist[i])
 			eprintf("tablist must be ascending\n");
 	}
-	tablist = erealloc(tablist, (i + 1) * sizeof(*tablist));
+	tablist = ereallocarray(tablist, i + 1, sizeof(*tablist));
 	/* tab length = 1 for the overflowing case later in the matcher */
 	tablist[i] = 1;
 	return i;

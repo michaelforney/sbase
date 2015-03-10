@@ -57,6 +57,7 @@ LIBUTILSRC =\
 	libutil/md5.c\
 	libutil/mode.c\
 	libutil/putword.c\
+	libutil/reallocarray.c\
 	libutil/recurse.c\
 	libutil/rm.c\
 	libutil/sha1.c\

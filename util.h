@@ -26,6 +26,8 @@ void apathmax(char **, size_t *);
 void *ecalloc(size_t, size_t);
 void *emalloc(size_t);
 void *erealloc(void *, size_t);
+void *reallocarray(void *, size_t, size_t);
+void *ereallocarray(void *, size_t, size_t);
 char *estrdup(const char *);
 char *estrndup(const char *, size_t);
 void *encalloc(int, size_t, size_t);
