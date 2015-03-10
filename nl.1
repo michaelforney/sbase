@@ -8,6 +8,7 @@
 .Nm
 .Op Fl b Ar type
 .Op Fl i Ar incr
+.Op Fl l Ar num
 .Op Fl n Ar format
 .Op Fl s Ar sep
 .Op Fl v Ar startnum
@@ -41,6 +42,8 @@ a regular expression as defined in
 .El
 .It Fl i Ar incr
 Defines the increment between numbered lines.
+.It Fl l Ar num
+Specify the number of adjacent blank lines to be considered as one. Default is 1.
 .It Fl n Ar format
 Specify the line number output format.
 The

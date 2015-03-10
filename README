@@ -49,7 +49,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =*  mktemp          non-posix                    none
 =*| mv              yes                          none (-i)
 =*| nice            yes                          none
-=   nl              no                           -d, -f, -h, -l, -p
+=   nl              no                           -d, -f, -h, -p
 =*| nohup           yes                          none
 #*  paste           yes                          none
 =*| printenv        non-posix                    none

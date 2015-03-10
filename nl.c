@@ -8,11 +8,13 @@
 #include "text.h"
 #include "util.h"
 
-#define FORMAT_LN "%-*ld%s%s"
-#define FORMAT_RN "%*ld%s%s"
-#define FORMAT_RZ "%0*ld%s%s"
+/* formats here specify line number and separator (not line content) */
+#define FORMAT_LN "%-*ld%s"
+#define FORMAT_RN "%*ld%s"
+#define FORMAT_RZ "%0*ld%s"
 
 static char        mode = 't';
+static int         blines = 1;
 static const char *format = FORMAT_RN;
 static const char *sep = "\t";
 static int         width = 6;
@@ -24,17 +26,31 @@ static void
 nl(const char *name, FILE *fp)
 {
 	char *buf = NULL;
+	int donumber, bl = 1;
 	size_t size = 0;
 
 	while (getline(&buf, &size, fp) != -1) {
-		if ((mode == 'a')
-		    || (mode == 'p' && !regexec(&preg, buf, 0, NULL, 0))
-		    || (mode == 't' && buf[0] != '\n')) {
-			printf(format, width, startnum, sep, buf);
+		donumber = 0;
+
+		if ((mode == 't' && buf[0] != '\n')
+		    || (mode == 'p' && !regexec(&preg, buf, 0, NULL, 0))) {
+			donumber = 1;
+		} else if (mode == 'a') {
+			if (buf[0] == '\n' && bl < blines) {
+				++bl;
+			} else {
+				donumber = 1;
+				bl = 1;
+			}
+		}
+
+		if (donumber) {
+			printf(format, width, startnum, sep);
 			startnum += incr;
 		} else {
-			printf("       %s", buf);
+			printf("%*s", width, "");
 		}
+		printf("%s", buf);
 	}
 	free(buf);
 	if (ferror(fp))
@@ -44,7 +60,7 @@ nl(const char *name, FILE *fp)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-b type] [-i incr] [-n format] [-s sep] [-v startnum] [-w width] [file]\n", argv0);
+	eprintf("usage: %s [-b type] [-i incr] [-l num] [-n format] [-s sep] [-v startnum] [-w width] [file]\n", argv0);
 }
 
 int
@@ -64,6 +80,9 @@ main(int argc, char *argv[])
 		break;
 	case 'i':
 		incr = estrtonum(EARGF(usage()), 0, MIN(LLONG_MAX, SIZE_MAX));
+		break;
+	case 'l':
+		blines = estrtonum(EARGF(usage()), 0, UINT_MAX);
 		break;
 	case 'n':
 		format = EARGF(usage());
