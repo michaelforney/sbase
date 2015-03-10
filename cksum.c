@@ -61,32 +61,33 @@ static const unsigned long crctab[] = {         0x00000000,
 static void
 cksum(FILE *fp, const char *s)
 {
-	unsigned char buf[BUFSIZ];
+	size_t len = 0, i, n;
 	uint32_t ck = 0;
-	size_t len = 0;
-	size_t i, n;
+	unsigned char buf[BUFSIZ];
 
-	while ((n = fread(buf, 1, sizeof(buf), fp)) > 0) {
+	while ((n = fread(buf, 1, sizeof(buf), fp))) {
 		for (i = 0; i < n; i++)
 			ck = (ck << 8) ^ crctab[(ck >> 24) ^ buf[i]];
 		len += n;
 	}
 	if (ferror(fp))
-		eprintf("%s: read error:", s ? s : "<stdin>");
+		eprintf("fread %s:", s ? s : "<stdin>");
 
-	for (i = len; i > 0; i >>= 8)
+	for (i = len; i; i >>= 8)
 		ck = (ck << 8) ^ crctab[(ck >> 24) ^ (i & 0xFF)];
 
-	printf("%"PRIu32" %lu", ~ck, (unsigned long)len);
-	if (s)
-		printf(" %s", s);
+	printf("%"PRIu32" %zu", ~ck, len);
+	if (s) {
+		putchar(' ');
+		fputs(s, stdout);
+	}
 	putchar('\n');
 }
 
 static void
 usage(void)
 {
-	eprintf("usage: %s [files ...]\n", argv0);
+	eprintf("usage: %s [file ...]\n", argv0);
 }
 
 int
@@ -99,17 +100,18 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc == 0)
+	if (!argc) {
 		cksum(stdin, NULL);
-	else {
-		for (; argc > 0; argc--, argv++) {
-			if (!(fp = fopen(argv[0], "r"))) {
-				weprintf("fopen %s:", argv[0]);
+	} else {
+		for (; *argv; argc--, argv++) {
+			if (!(fp = fopen(*argv, "r"))) {
+				weprintf("fopen %s:", *argv);
 				continue;
 			}
-			cksum(fp, argv[0]);
+			cksum(fp, *argv);
 			fclose(fp);
 		}
 	}
+
 	return 0;
 }
