@@ -107,11 +107,11 @@ main(int argc, char *argv[])
 
 	/* populate delimiters */
 	unescape(adelim);
-	delim = emallocarray(utflen(adelim) + 1, sizeof(*delim));
+	delim = ereallocarray(NULL, utflen(adelim) + 1, sizeof(*delim));
 	len = utftorunestr(adelim, delim);
 
 	/* populate file list */
-	dsc = emallocarray(argc, sizeof(*dsc));
+	dsc = ereallocarray(NULL, argc, sizeof(*dsc));
 
 	for (i = 0; i < argc; i++) {
 		if (strcmp(argv[i], "-") == 0)

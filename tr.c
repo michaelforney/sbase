@@ -78,9 +78,9 @@ makeset(char *str, struct range **set, int (**check)(Rune))
 
 	/* rstr defines at most len ranges */
 	unescape(str);
-	rstr = emallocarray(utflen(str) + 1, sizeof(*rstr));
+	rstr = ereallocarray(NULL, utflen(str) + 1, sizeof(*rstr));
 	len = utftorunestr(str, rstr);
-	*set = emallocarray(len, sizeof(**set));
+	*set = ereallocarray(NULL, len, sizeof(**set));
 
 	for (i = 0; i < len; i++) {
 		if (rstr[i] == '[') {

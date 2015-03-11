@@ -341,7 +341,7 @@ main(int argc, char *argv[])
 	if (argc == 0)
 		*--argv = ".", argc++;
 
-	ents = emallocarray(argc, sizeof(*ents));
+	ents = ereallocarray(NULL, argc, sizeof(*ents));
 
 	for (i = 0; i < argc; i++)
 		mkent(&ents[i], argv[i], 1, Hflag || Lflag);

@@ -595,7 +595,7 @@ get_exec_arg(char *argv[], Extra *extra)
 		e->u.p.arglen = e->u.p.filelen = 0;
 		e->u.p.first = e->u.p.next = arg - argv - 1;
 		e->u.p.cap = (arg - argv) * 2;
-		e->argv = emallocarray(e->u.p.cap, sizeof(*e->argv));
+		e->argv = ereallocarray(NULL, e->u.p.cap, sizeof(*e->argv));
 
 		for (arg = argv, new = e->argv; *arg; arg++, new++) {
 			*new = *arg;
@@ -604,7 +604,7 @@ get_exec_arg(char *argv[], Extra *extra)
 		arg++; /* due to our extra NULL */
 	} else {
 		e->argv = argv;
-		e->u.s.braces = emallocarray(++nbraces, sizeof(*e->u.s.braces)); /* ++ for NULL */
+		e->u.s.braces = ereallocarray(NULL, ++nbraces, sizeof(*e->u.s.braces)); /* ++ for NULL */
 
 		for (arg = argv, braces = e->u.s.braces; *arg; arg++)
 			if (!strcmp(*arg, "{}"))
@@ -632,7 +632,7 @@ get_ok_arg(char *argv[], Extra *extra)
 	*arg = NULL;
 
 	o->argv = argv;
-	o->braces = emallocarray(++nbraces, sizeof(*o->braces));
+	o->braces = ereallocarray(NULL, ++nbraces, sizeof(*o->braces));
 
 	for (arg = argv, braces = o->braces; *arg; arg++)
 		if (!strcmp(*arg, "{}"))
@@ -824,7 +824,7 @@ parse(int argc, char **argv)
 	 * https://en.wikipedia.org/wiki/Shunting-yard_algorithm
 	 * read from infix, resulting rpn ends up in rpn, next position in rpn is out
 	 * push operators onto stack, next position in stack is top */
-	rpn = emallocarray(ntok + gflags.print, sizeof(*rpn));
+	rpn = ereallocarray(NULL, ntok + gflags.print, sizeof(*rpn));
 	for (tok = infix, out = rpn, top = stack; tok->type != END; tok++) {
 		switch (tok->type) {
 		case PRIM: *out++ = *tok; break;

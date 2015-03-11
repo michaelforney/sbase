@@ -598,7 +598,7 @@ strtorunes(char *s, size_t nrunes)
 {
 	Rune *rs, *rp;
 
-	rp = rs = emallocarray(nrunes + 1, sizeof(*rs));
+	rp = rs = ereallocarray(NULL, nrunes + 1, sizeof(*rs));
 
 	while (nrunes--)
 		s += chartorune(rp++, s);

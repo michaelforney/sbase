@@ -15,7 +15,7 @@ strings(FILE *fp, const char *fname, size_t len)
 	size_t i, bread;
 	off_t off;
 
-	rbuf = emallocarray(len, sizeof(*rbuf));
+	rbuf = ereallocarray(NULL, len, sizeof(*rbuf));
 
 	for (off = 0, i = 0; (bread = efgetrune(&r, fp, fname)); ) {
 		off += bread;

@@ -177,7 +177,7 @@ allocbuf(void)
 {
 	char **bp;
 
-	buff = emallocarray(pagsize, sizeof(*buff));
+	buff = ereallocarray(NULL, pagsize, sizeof(*buff));
 	for (bp = buff; bp < &buff[pagsize]; ++bp)
 		*bp = emalloc(NCOLS);
 }
