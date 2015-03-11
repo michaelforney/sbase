@@ -66,7 +66,8 @@ char *humansize(double);
 mode_t parsemode(const char *, mode_t, mode_t);
 void putword(const char *);
 extern int recurse_follow;
-void recurse(const char *, void (*)(const char *, int), int);
+extern int recurse_samedev;
+void recurse(const char *, void (*)(const char *, int, void *), int, void *);
 #undef strtonum
 long long strtonum(const char *, long long, long long, const char **);
 long long enstrtonum(int, const char *, long long, long long);

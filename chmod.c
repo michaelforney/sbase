@@ -9,7 +9,7 @@ static mode_t mask    = 0;
 static int    ret     = 0;
 
 static void
-chmodr(const char *path, int depth)
+chmodr(const char *path, int depth, void *data)
 {
 	struct stat st;
 	mode_t m;
@@ -25,7 +25,7 @@ chmodr(const char *path, int depth)
 		weprintf("chmod %s:", path);
 		ret = 1;
 	} else if (Rflag)
-		recurse(path, chmodr, depth);
+		recurse(path, chmodr, depth, NULL);
 }
 
 static void
@@ -80,7 +80,7 @@ done:
 		usage();
 
 	for (--argc, ++argv; *argv; argc--, argv++)
-		chmodr(*argv, 0);
+		chmodr(*argv, 0, NULL);
 
 	return ret;
 }

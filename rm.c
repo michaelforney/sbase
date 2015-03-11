@@ -31,7 +31,7 @@ main(int argc, char *argv[])
 	}
 
 	for (; *argv; argc--, argv++)
-		rm(*argv, 0);
+		rm(*argv, 0, NULL);
 
 	return rm_status;
 }

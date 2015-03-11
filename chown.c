@@ -16,7 +16,7 @@ static gid_t gid = -1;
 static int   ret = 0;
 
 static void
-chownpwgr(const char *path, int depth)
+chownpwgr(const char *path, int depth, void *data)
 {
 	char *chownf_name;
 	int (*chownf)(const char *, uid_t, gid_t);
@@ -33,7 +33,7 @@ chownpwgr(const char *path, int depth)
 		weprintf("%s %s:", chownf_name, path);
 		ret = 1;
 	} else if (Rflag) {
-		recurse(path, chownpwgr, depth);
+		recurse(path, chownpwgr, depth, NULL);
 	}
 }
 
@@ -97,7 +97,7 @@ main(int argc, char *argv[])
 		}
 	}
 	for (argc--, argv++; *argv; argc--, argv++)
-		chownpwgr(*argv, 0);
+		chownpwgr(*argv, 0, NULL);
 
 	return ret;
 }

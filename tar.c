@@ -234,10 +234,10 @@ print(char * fname, int l, char b[BLKSIZ])
 }
 
 static void
-c(const char *path, int depth)
+c(const char *path, int depth, void *data)
 {
 	archive(path);
-	recurse(path, c, depth);
+	recurse(path, c, depth, NULL);
 }
 
 static void
@@ -316,7 +316,7 @@ main(int argc, char *argv[])
 			tarfile = stdout;
 		}
 		chdir(dir);
-		c(argv[0], 0);
+		c(argv[0], 0, NULL);
 		break;
 	case 't':
 	case 'x':

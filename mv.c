@@ -19,7 +19,7 @@ mv(const char *s1, const char *s2, int depth)
 		cp_HLPflag = 'P';
 		rm_rflag = 1;
 		cp(s1, s2, depth);
-		rm(s1, 0);
+		rm(s1, 0, NULL);
 		return (mv_status = cp_status || rm_status);
 	}
 	mv_status = 1;
