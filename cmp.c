@@ -4,12 +4,10 @@
 
 #include "util.h"
 
-enum { Same = 0, Diff = 1, Error = 2 };
-
 static void
 usage(void)
 {
-	enprintf(Error, "usage: %s [-l | -s] file1 file2\n", argv0);
+	enprintf(2, "usage: %s [-l | -s] file1 file2\n", argv0);
 }
 
 int
@@ -30,7 +28,7 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc != 2 || (lflag && sflag))
+	if (argc != 2)
 		usage();
 
 	for (n = 0; n < 2; n++) {
@@ -38,11 +36,10 @@ main(int argc, char *argv[])
 			argv[n] = "<stdin>";
 			fp[n] = stdin;
 		} else {
-			fp[n] = fopen(argv[n], "r");
-			if (!fp[n]) {
+			if (!(fp[n] = fopen(argv[n], "r"))) {
 				if (!sflag)
 					weprintf("fopen %s:", argv[n]);
-				exit(Error);
+				return 2;
 			}
 		}
 	}
@@ -57,25 +54,22 @@ main(int argc, char *argv[])
 			else if (b[0] == '\n')
 				line++;
 			continue;
-		}
-		if (b[0] == EOF || b[1] == EOF) {
+		} else if (b[0] == EOF || b[1] == EOF) {
 			if (!sflag)
-				fprintf(stderr, "cmp: EOF on %s\n",
-				        argv[(b[0] == EOF) ? 0 : 1]);
-			exit(Diff);
-		}
-		if (!lflag) {
+				weprintf("cmp: EOF on %s\n", argv[(b[0] != EOF)]);
+			same = 0;
+			break;
+		} else if (!lflag) {
 			if (!sflag)
-				printf("%s %s differ: byte %ld, line %ld\n",
+				printf("%s %s differ: byte %zu, line %zu\n",
 				       argv[0], argv[1], n, line);
-			exit(Diff);
+			same = 0;
+			break;
 		} else {
-			printf("%ld %o %o\n", n, b[0], b[1]);
+			printf("%zu %o %o\n", n, b[0], b[1]);
 			same = 0;
 		}
 	}
-	fclose(fp[0]);
-	fclose(fp[1]);
 
-	return same ? Same : Diff;
+	return !same;
 }
