@@ -50,6 +50,8 @@ parselist(char *str)
 	size_t n = 1;
 	Range *r;
 
+	if (!*str)
+		eprintf("empty list\n");
 	for (s = str; *s; s++) {
 		if (*s == ' ')
 			*s = ',';
@@ -62,7 +64,7 @@ parselist(char *str)
 		r->max = (*s == '-') ? strtoul(s + 1, &s, 10) : r->min;
 		r->next = NULL;
 		if (!r->min || (r->max && r->max < r->min) || (*s && *s != ','))
-			eprintf("cut: bad list value\n");
+			eprintf("bad list value\n");
 		insert(r++);
 	}
 }
@@ -103,7 +105,7 @@ seek(const char *s, size_t pos, size_t *prev, size_t count)
 }
 
 static void
-cut(FILE *fp)
+cut(FILE *fp, char *fname)
 {
 	static char *buf = NULL;
 	static size_t size = 0;
@@ -112,7 +114,7 @@ cut(FILE *fp)
 	ssize_t len;
 	Range *r;
 
-	while ((len = getline(&buf, &size, fp)) != -1) {
+	while ((len = getline(&buf, &size, fp)) >= 0) {
 		if (len && buf[len - 1] == '\n')
 			buf[len - 1] = '\0';
 		if (mode == 'f' && !utfutf(buf, delim)) {
@@ -132,24 +134,28 @@ cut(FILE *fp)
 			n = seek(s, r->max + 1, &p, i);
 			i += (mode == 'f') ? delimlen : 1;
 			if (fwrite(s, 1, n, stdout) != n)
-				eprintf("write error:");
+				eprintf("fwrite <stdout>:");
 		}
 		putchar('\n');
 	}
+	if (ferror(fp))
+		eprintf("getline %s:", fname);
 }
 
 static void
 usage(void)
 {
-	eprintf("usage: cut -b list [-n] [file ...]\n"
-	        "       cut -c list [file ...]\n"
-	        "       cut -f list [-d delim] [-s] [file ...]\n");
+	eprintf("usage: %s -b list [-n] [file ...]\n"
+	        "       %s -c list [file ...]\n"
+	        "       %s -f list [-d delim] [-s] [file ...]\n",
+		argv0, argv0, argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
 	FILE *fp;
+	int ret = 0;
 
 	ARGBEGIN {
 	case 'b':
@@ -161,7 +167,7 @@ main(int argc, char *argv[])
 	case 'd':
 		delim = EARGF(usage());
 		if (!*delim)
-			eprintf("cut: empty delimiter\n");
+			eprintf("empty delimiter\n");
 		delimlen = unescape(delim);
 		break;
 	case 'n':
@@ -176,19 +182,24 @@ main(int argc, char *argv[])
 
 	if (!mode)
 		usage();
+
 	if (!argc)
-		cut(stdin);
-	else for (; argc--; argv++) {
-		if (!strcmp(*argv, "-"))
-			cut(stdin);
-		else {
-			if (!(fp = fopen(*argv, "r"))) {
-				weprintf("fopen %s:", *argv);
-				continue;
+		cut(stdin, "<stdin>");
+	else {
+		for (; *argv; argc--, argv++) {
+			if (*argv[0] == '-' && !*argv[1]) {
+				cut(stdin, "<stdin>");
+			} else {
+				if (!(fp = fopen(*argv, "r"))) {
+					weprintf("fopen %s:", *argv);
+					ret = 1;
+					continue;
+				}
+				cut(fp, *argv);
+				fclose(fp);
 			}
-			cut(fp);
-			fclose(fp);
 		}
 	}
-	return 0;
+
+	return ret;
 }
