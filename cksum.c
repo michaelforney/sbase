@@ -94,6 +94,7 @@ int
 main(int argc, char *argv[])
 {
 	FILE *fp;
+	int ret = 0;
 
 	ARGBEGIN {
 	default:
@@ -106,6 +107,7 @@ main(int argc, char *argv[])
 		for (; *argv; argc--, argv++) {
 			if (!(fp = fopen(*argv, "r"))) {
 				weprintf("fopen %s:", *argv);
+				ret = 1;
 				continue;
 			}
 			cksum(fp, *argv);
@@ -113,5 +115,5 @@ main(int argc, char *argv[])
 		}
 	}
 
-	return 0;
+	return ret;
 }
