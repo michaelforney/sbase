@@ -28,7 +28,7 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc != 2)
+	if (argc != 2 || (lflag && sflag))
 		usage();
 
 	for (n = 0; n < 2; n++) {
