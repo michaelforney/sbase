@@ -11,6 +11,8 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
+	struct recursor r = { .fn = rm, .hist = NULL, .depth = 0, .follow = 'P', .flags = 0};
+
 	ARGBEGIN {
 	case 'f':
 		rm_fflag = 1;
@@ -31,7 +33,7 @@ main(int argc, char *argv[])
 	}
 
 	for (; *argv; argc--, argv++)
-		rm(*argv, 0, NULL);
+		rm(*argv, NULL, &r);
 
-	return rm_status;
+	return rm_status || recurse_status;
 }

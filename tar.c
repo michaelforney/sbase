@@ -9,6 +9,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "fs.h"
 #include "util.h"
 
 struct header {
@@ -234,10 +235,10 @@ print(char * fname, int l, char b[BLKSIZ])
 }
 
 static void
-c(const char *path, int depth, void *data)
+c(const char *path, void *data, struct recursor *r)
 {
 	archive(path);
-	recurse(path, c, depth, NULL);
+	recurse(path, NULL, r);
 }
 
 static void
@@ -266,6 +267,7 @@ int
 main(int argc, char *argv[])
 {
 	FILE *fp;
+	struct recursor r = { .fn = c, .hist = NULL, .depth = 0, .follow = 'P', .flags = 0};
 	struct stat st;
 	char *file = NULL, *dir = ".", mode = '\0';
 
@@ -293,7 +295,7 @@ main(int argc, char *argv[])
 		filtermode = ARGC();
 		break;
 	case 'h':
-		recurse_follow = 'L';
+		r.follow = 'L';
 		break;
 	default:
 		usage();
@@ -316,7 +318,7 @@ main(int argc, char *argv[])
 			tarfile = stdout;
 		}
 		chdir(dir);
-		c(argv[0], 0, NULL);
+		c(argv[0], NULL, &r);
 		break;
 	case 't':
 	case 'x':
@@ -342,5 +344,5 @@ main(int argc, char *argv[])
 		break;
 	}
 
-	return 0;
+	return recurse_status;
 }

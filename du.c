@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "fs.h"
 #include "util.h"
 
 static size_t maxdepth = SIZE_MAX;
@@ -34,24 +35,24 @@ nblks(blkcnt_t blocks)
 }
 
 void
-du(const char *path, int depth, void *total)
+du(const char *path, void *total, struct recursor *r)
 {
 	struct stat st;
 	size_t subtotal = 0;
 
 	if (lstat(path, &st) < 0) {
-		if (!depth || errno != ENOENT)
+		if (!(r->depth) || errno != ENOENT)
 			weprintf("stat %s:", path);
-		if (!depth)
+		if (!(r->depth))
 			ret = 1;
 		return;
 	}
 
 	if (S_ISDIR(st.st_mode))
-		recurse(path, du, depth, &subtotal);
+		recurse(path, &subtotal, r);
 	*((size_t *)total) += subtotal + nblks(st.st_blocks);
 
-	if (!sflag && depth <= maxdepth && (S_ISDIR(st.st_mode) || aflag))
+	if (!sflag && r->depth <= maxdepth && (S_ISDIR(st.st_mode) || aflag))
 		printpath(subtotal + nblks(st.st_blocks), path);
 }
 
@@ -64,8 +65,9 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	int kflag = 0, dflag = 0;
+	struct recursor r = { .fn = du, .hist = NULL, .depth = 0, .follow = 'P', .flags = 0};
 	size_t n = 0;
+	int kflag = 0, dflag = 0;
 	char *bsize;
 
 	ARGBEGIN {
@@ -86,12 +88,12 @@ main(int argc, char *argv[])
 		sflag = 1;
 		break;
 	case 'x':
-		recurse_samedev = 1;
+		r.flags |= SAMEDEV;
 		break;
 	case 'H':
 	case 'L':
 	case 'P':
-		recurse_follow = ARGC();
+		r.follow = ARGC();
 		break;
 	default:
 		usage();
@@ -107,16 +109,16 @@ main(int argc, char *argv[])
 		blksize = 1024;
 
 	if (!argc) {
-		du(".", 0, &n);
+		du(".", &n, &r);
 		if (sflag && !ret)
 			printpath(nblks(n), ".");
 	} else {
 		for (; *argv; argc--, argv++) {
-			du(argv[0], 0, &n);
+			du(argv[0], &n, &r);
 			if (sflag && !ret)
 				printpath(n, argv[0]);
 		}
 	}
 
-	return ret;
+	return ret || recurse_status;
 }

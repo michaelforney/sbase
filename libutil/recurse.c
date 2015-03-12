@@ -9,37 +9,61 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "../fs.h"
 #include "../util.h"
 
-int recurse_follow  = 'P';
-int recurse_samedev = 0;
+int recurse_status = 0;
 
 void
-recurse(const char *path, void (*fn)(const char *, int, void *), int depth, void *data)
+recurse(const char *path, void *data, struct recursor *r)
 {
 	struct dirent *d;
-	struct stat lst, st, dst;
+	struct history *new, *h;
+	struct stat st, dst;
 	DIR *dp;
-	char subpath[PATH_MAX];
+	int (*statf)(const char *, struct stat *);
+	char subpath[PATH_MAX], *statf_name;
 
-	if (lstat(path, &lst) < 0) {
-		if (errno != ENOENT)
-			weprintf("lstat %s:", path);
+	if (r->follow == 'P' || (r->follow == 'H' && r->depth)) {
+		statf_name = "lstat";
+		statf = lstat;
+	} else {
+		statf_name = "stat";
+		statf = stat;
+	}
+
+	if (statf(path, &st) < 0) {
+		if (errno != ENOENT) {
+			weprintf("%s %s:", statf_name, path);
+			recurse_status = 1;
+		}
 		return;
 	}
-	if (stat(path, &st) < 0) {
-		if (errno != ENOENT)
-			weprintf("stat %s:", path);
-		return;
-	}
-	if (!S_ISDIR(lst.st_mode) && !(S_ISLNK(lst.st_mode) && S_ISDIR(st.st_mode) &&
-	    !(recurse_follow == 'P' || (recurse_follow == 'H' && depth > 0))))
+	if (!S_ISDIR(st.st_mode))
 		return;
 
-	if (!(dp = opendir(path)))
-		eprintf("opendir %s:", path);
+	new = emalloc(sizeof(struct history));
+
+	new->prev  = r->hist;
+	r->hist    = new;
+	new->dev   = st.st_dev;
+	new->ino   = st.st_ino;
+
+	for (h = new->prev; h; h = h->prev)
+		if (h->dev == st.st_dev && h->ino == st.st_ino)
+			return;
+
+	if (!(dp = opendir(path))) {
+		weprintf("opendir %s:", path);
+		recurse_status = 1;
+		return;
+	}
 
 	while ((d = readdir(dp))) {
+		if (r->follow == 'H') {
+			statf_name = "lstat";
+			statf = lstat;
+		}
 		if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
 			continue;
 		if (strlcpy(subpath, path, PATH_MAX) >= PATH_MAX)
@@ -48,11 +72,16 @@ recurse(const char *path, void (*fn)(const char *, int, void *), int depth, void
 			eprintf("strlcat: path too long\n");
 		if (strlcat(subpath, d->d_name, PATH_MAX) >= PATH_MAX)
 			eprintf("strlcat: path too long\n");
-		if (recurse_samedev && lstat(subpath, &dst) < 0) {
-			if (errno != ENOENT)
-				weprintf("stat %s:", subpath);
-		} else if (!(recurse_samedev && dst.st_dev != lst.st_dev))
-			fn(subpath, depth + 1, data);
+		if ((r->flags & SAMEDEV) && statf(subpath, &dst) < 0) {
+			if (errno != ENOENT) {
+				weprintf("%s %s:", statf_name, subpath);
+				recurse_status = 1;
+			}
+		} else if (!((r->flags & SAMEDEV) && dst.st_dev != st.st_dev)) {
+			r->depth++;
+			(r->fn)(subpath, data, r);
+			r->depth--;
+		}
 	}
 
 	closedir(dp);

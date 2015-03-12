@@ -1,6 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 #include <sys/stat.h>
 
+#include "fs.h"
 #include "util.h"
 
 static int    Rflag   = 0;
@@ -9,7 +10,7 @@ static mode_t mask    = 0;
 static int    ret     = 0;
 
 static void
-chmodr(const char *path, int depth, void *data)
+chmodr(const char *path, void *data, struct recursor *r)
 {
 	struct stat st;
 	mode_t m;
@@ -25,7 +26,7 @@ chmodr(const char *path, int depth, void *data)
 		weprintf("chmod %s:", path);
 		ret = 1;
 	} else if (Rflag)
-		recurse(path, chmodr, depth, NULL);
+		recurse(path, NULL, r);
 }
 
 static void
@@ -37,6 +38,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
+	struct recursor r = { .fn = chmodr, .hist = NULL, .depth = 0, .follow = 'P', .flags = 0};
 	size_t i;
 
 	argv0 = *(argv++);
@@ -52,7 +54,7 @@ main(int argc, char *argv[])
 			case 'H':
 			case 'L':
 			case 'P':
-				recurse_follow = (*argv)[i];
+				r.follow = (*argv)[i];
 				break;
 			case 'r': case 'w': case 'x': case 's': case 't':
 				/* -[rwxst] are valid modes, so we're done */
@@ -80,7 +82,7 @@ done:
 		usage();
 
 	for (--argc, ++argv; *argv; argc--, argv++)
-		chmodr(*argv, 0, NULL);
+		chmodr(*argv, NULL, &r);
 
-	return ret;
+	return ret || recurse_status;
 }

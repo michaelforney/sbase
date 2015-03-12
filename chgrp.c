@@ -5,6 +5,7 @@
 #include <grp.h>
 #include <unistd.h>
 
+#include "fs.h"
 #include "util.h"
 
 static struct stat st;
@@ -14,12 +15,12 @@ static gid_t gid = -1;
 static int   ret = 0;
 
 static void
-chgrp(const char *path, int depth, void *data)
+chgrp(const char *path, void *data, struct recursor *r)
 {
 	char *chownf_name;
 	int (*chownf)(const char *, uid_t, gid_t);
 
-	if (recurse_follow == 'P' || (recurse_follow == 'H' && depth) || (hflag && !depth)) {
+	if (r->follow == 'P' || (r->follow == 'H' && r->depth) || (hflag && !(r->depth))) {
 		chownf_name = "lchown";
 		chownf = lchown;
 	} else {
@@ -31,7 +32,7 @@ chgrp(const char *path, int depth, void *data)
 		weprintf("%s %s:", chownf_name, path);
 		ret = 1;
 	} else if (Rflag) {
-		recurse(path, chgrp, depth, NULL);
+		recurse(path, NULL, r);
 	}
 }
 
@@ -45,6 +46,7 @@ int
 main(int argc, char *argv[])
 {
 	struct group *gr;
+	struct recursor r = { .fn = chgrp, .hist = NULL, .depth = 0, .follow = 'P', .flags = 0 };
 
 	ARGBEGIN {
 	case 'h':
@@ -56,7 +58,7 @@ main(int argc, char *argv[])
 	case 'H':
 	case 'L':
 	case 'P':
-		recurse_follow = ARGC();
+		r.follow = ARGC();
 		break;
 	default:
 		usage();
@@ -74,14 +76,14 @@ main(int argc, char *argv[])
 	}
 	gid = gr->gr_gid;
 
-	for (; *argv; argc--, argv++) {
+	for (argc--, argv++; *argv; argc--, argv++) {
 		if (stat(*argv, &st) < 0) {
 			weprintf("stat %s:", *argv);
 			ret = 1;
 			continue;
 		}
-		chgrp(*argv, 0, NULL);
+		chgrp(*argv, NULL, &r);
 	}
 
-	return ret;
+	return ret || recurse_status;
 }

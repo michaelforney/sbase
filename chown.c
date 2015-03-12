@@ -7,6 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "fs.h"
 #include "util.h"
 
 static int   hflag = 0;
@@ -16,12 +17,12 @@ static gid_t gid = -1;
 static int   ret = 0;
 
 static void
-chownpwgr(const char *path, int depth, void *data)
+chownpwgr(const char *path, void *data, struct recursor *r)
 {
 	char *chownf_name;
 	int (*chownf)(const char *, uid_t, gid_t);
 
-	if (recurse_follow == 'P' || (recurse_follow == 'H' && depth) || (hflag && !depth)) {
+	if (r->follow == 'P' || (r->follow == 'H' && r->depth) || (hflag && !(r->depth))) {
 		chownf_name = "lchown";
 		chownf = lchown;
 	} else {
@@ -33,7 +34,7 @@ chownpwgr(const char *path, int depth, void *data)
 		weprintf("%s %s:", chownf_name, path);
 		ret = 1;
 	} else if (Rflag) {
-		recurse(path, chownpwgr, depth, NULL);
+		recurse(path, NULL, r);
 	}
 }
 
@@ -46,9 +47,11 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	struct passwd *pw;
 	struct group *gr;
+	struct passwd *pw;
+	struct recursor r = { .fn = chownpwgr, .hist = NULL, .depth = 0, .follow = 'P', .flags = 0};
 	char *owner, *group;
+
 
 	ARGBEGIN {
 	case 'h':
@@ -61,7 +64,7 @@ main(int argc, char *argv[])
 	case 'H':
 	case 'L':
 	case 'P':
-		recurse_follow = ARGC();
+		r.follow = ARGC();
 		break;
 	default:
 		usage();
@@ -97,7 +100,7 @@ main(int argc, char *argv[])
 		}
 	}
 	for (argc--, argv++; *argv; argc--, argv++)
-		chownpwgr(*argv, 0, NULL);
+		chownpwgr(*argv, NULL, &r);
 
-	return ret;
+	return ret || recurse_status;
 }
