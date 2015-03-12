@@ -20,8 +20,7 @@ recurse(const char *path, void (*fn)(const char *, int, void *), int depth, void
 	struct dirent *d;
 	struct stat lst, st, dst;
 	DIR *dp;
-	size_t len;
-	char *buf;
+	char subpath[PATH_MAX];
 
 	if (lstat(path, &lst) < 0) {
 		if (errno != ENOENT)
@@ -40,18 +39,20 @@ recurse(const char *path, void (*fn)(const char *, int, void *), int depth, void
 	if (!(dp = opendir(path)))
 		eprintf("opendir %s:", path);
 
-	len = strlen(path);
 	while ((d = readdir(dp))) {
 		if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
 			continue;
-		buf = emalloc(len + (path[len - 1] != '/') + strlen(d->d_name) + 1);
-		sprintf(buf, "%s%s%s", path, (path[len - 1] == '/') ? "" : "/", d->d_name);
-		if (recurse_samedev && lstat(buf, &dst) < 0) {
+		if (strlcpy(subpath, path, PATH_MAX) >= PATH_MAX)
+			eprintf("strlcpy: path too long\n");
+		if (path[strlen(path) - 1] != '/' && strlcat(subpath, "/", PATH_MAX) >= PATH_MAX)
+			eprintf("strlcat: path too long\n");
+		if (strlcat(subpath, d->d_name, PATH_MAX) >= PATH_MAX)
+			eprintf("strlcat: path too long\n");
+		if (recurse_samedev && lstat(subpath, &dst) < 0) {
 			if (errno != ENOENT)
-				weprintf("stat %s:", buf);
+				weprintf("stat %s:", subpath);
 		} else if (!(recurse_samedev && dst.st_dev != lst.st_dev))
-			fn(buf, depth + 1, data);
-		free(buf);
+			fn(subpath, depth + 1, data);
 	}
 
 	closedir(dp);
