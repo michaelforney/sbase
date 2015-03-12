@@ -47,7 +47,8 @@ du(const char *path, int depth, void *total)
 		return;
 	}
 
-	recurse(path, du, depth, &subtotal);
+	if (S_ISDIR(st.st_mode))
+		recurse(path, du, depth, &subtotal);
 	*((size_t *)total) += subtotal + nblks(st.st_blocks);
 
 	if (!sflag && depth <= maxdepth && (S_ISDIR(st.st_mode) || aflag))
