@@ -860,7 +860,7 @@ get_s_arg(Cmd *c, char *s)
 			/* FIXME: different eregcomp that calls fatal */
 			eregcomp(c->u.s.re, s, 0);
 		}
-		s = p + 1;
+		s = p + runelen(delim);
 	}
 
 	/* Replace */
@@ -894,7 +894,7 @@ get_s_arg(Cmd *c, char *s)
 	if (gflags.s_cont)
 		return p;
 
-	s = p + 1;
+	s = p + runelen(delim);
 
 	/* Flags */
 	p = semicolon_arg(s = chomp(s));
