@@ -27,6 +27,7 @@ parselist(const char *s)
 	tablist = ereallocarray(tablist, i + 1, sizeof(*tablist));
 	/* tab length = 1 for the overflowing case later in the matcher */
 	tablist[i] = 1;
+
 	return i;
 }
 
@@ -87,8 +88,8 @@ int
 main(int argc, char *argv[])
 {
 	FILE *fp;
+	int ret = 0;
 	char *tl = "8";
-	int   ret = 0;
 
 	ARGBEGIN {
 	case 'i':
@@ -105,18 +106,19 @@ main(int argc, char *argv[])
 
 	tablistlen = parselist(tl);
 
-	if (argc == 0) {
+	if (!argc) {
 		expand("<stdin>", stdin);
 	} else {
-		for (; argc > 0; argc--, argv++) {
-			if (!(fp = fopen(argv[0], "r"))) {
-				weprintf("fopen %s:", argv[0]);
+		for (; *argv; argc--, argv++) {
+			if (!(fp = fopen(*argv, "r"))) {
+				weprintf("fopen %s:", *argv);
 				ret = 1;
 				continue;
 			}
-			expand(argv[0], fp);
+			expand(*argv, fp);
 			fclose(fp);
 		}
 	}
+
 	return ret;
 }
