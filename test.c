@@ -148,10 +148,7 @@ main(int argc, char *argv[])
 	int (*narg[])(char *[]) = { noarg, onearg, twoarg, threearg, fourarg };
 	size_t len;
 
-	ARGBEGIN {
-	default:
-		break;
-	} ARGEND;
+	argv0 = argv[0], argc--, argv++;
 
 	len = strlen(argv0);
 	if (len && argv0[--len] == '[' && (!len || argv0[--len] == '/') && strcmp(argv[--argc], "]"))

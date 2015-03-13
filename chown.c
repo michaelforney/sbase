@@ -52,7 +52,6 @@ main(int argc, char *argv[])
 	struct recursor r = { .fn = chownpwgr, .hist = NULL, .depth = 0, .follow = 'P', .flags = 0};
 	char *owner, *group;
 
-
 	ARGBEGIN {
 	case 'h':
 		hflag = 1;

@@ -41,8 +41,8 @@ main(int argc, char *argv[])
 	struct recursor r = { .fn = chmodr, .hist = NULL, .depth = 0, .follow = 'P', .flags = 0};
 	size_t i;
 
-	argv0 = *(argv++);
-	argc--;
+	argv0 = argv[0], argc--, argv++;
+
 	for (; *argv && (*argv)[0] == '-'; argc--, argv++) {
 		if (!(*argv)[1])
 			usage();
