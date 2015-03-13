@@ -33,7 +33,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 #*  expr            yes                          none
 =*| false           yes                          none
 =   find            yes                          none
-#*  fold            yes                          none
+#*| fold            yes                          none
 =*  grep            yes                          none
 =*| head            yes                          none
 =*| hostname        non-posix                    none

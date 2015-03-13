@@ -6,14 +6,15 @@
 
 #include "util.h"
 
-static int bflag = 0;
-static int sflag = 0;
+static int    bflag = 0;
+static int    sflag = 0;
+static size_t width = 80;
 
 static void
-foldline(const char *str, size_t width)
+foldline(const char *str)
 {
-	int space;
 	size_t i = 0, n = 0, col, j;
+	int space;
 	char c;
 
 	do {
@@ -25,11 +26,11 @@ foldline(const char *str, size_t width)
 			if (sflag && isspace(c)) {
 				space = 1;
 				n = j + 1;
-			}
-			else if (!space)
+			} else if (!space) {
 				n = j;
+			}
 
-			if (!bflag && iscntrl(c))
+			if (!bflag && iscntrl(c)) {
 				switch(c) {
 				case '\b':
 					col--;
@@ -41,24 +42,27 @@ foldline(const char *str, size_t width)
 					col += (col + 1) % 8;
 					break;
 				}
-			else
+			} else {
 				col++;
+			}
 		}
-		if (fwrite(&str[i], 1, n - i, stdout) != n - i)
-			eprintf("<stdout>: write error:");
+		if (fwrite(str + i, 1, n - i, stdout) != n - i)
+			eprintf("fwrite <stdout>:");
 		if (str[n])
 			putchar('\n');
 	} while (str[i = n] && str[i] != '\n');
 }
 
 static void
-fold(FILE *fp, size_t width)
+fold(FILE *fp, const char *fname)
 {
 	char *buf = NULL;
 	size_t size = 0;
 
-	while (getline(&buf, &size, fp) != -1)
-		foldline(buf, width);
+	while (getline(&buf, &size, fp) >= 0)
+		foldline(buf);
+	if (ferror(fp))
+		eprintf("getline %s:", fname);
 	free(buf);
 }
 
@@ -71,9 +75,8 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	size_t width = 80;
 	FILE *fp;
-	int r = 0;
+	int ret = 0;
 
 	ARGBEGIN {
 	case 'b':
@@ -92,19 +95,19 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc == 0) {
-		fold(stdin, width);
+	if (!argc) {
+		fold(stdin, "<stdin>");
 	} else {
-		for (; argc > 0; argc--, argv++) {
-			if (!(fp = fopen(argv[0], "r"))) {
-				weprintf("fopen %s:", argv[0]);
-				r = 1;
+		for (; *argv; argc--, argv++) {
+			if (!(fp = fopen(*argv, "r"))) {
+				weprintf("fopen %s:", *argv);
+				ret = 1;
 				continue;
 			}
-			fold(fp, width);
+			fold(fp, *argv);
 			fclose(fp);
 		}
 	}
 
-	return r;
+	return ret;
 }
