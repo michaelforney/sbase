@@ -11,7 +11,7 @@ mkdirp(char *path)
 {
 	char *p;
 
-	for (p = path; *p; p++) {
+	for (p = path + (*path == '/'); *p; p++) {
 		if (*p != '/')
 			continue;
 		*p = '\0';
@@ -56,9 +56,11 @@ main(int argc, char *argv[])
 	for (; *argv; argc--, argv++) {
 		if (pflag && mkdirp(*argv) < 0) {
 			ret = 1;
-		} else if (!pflag && mkdir(*argv, S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
-			weprintf("mkdir %s:", *argv);
-			ret = 1;
+		} else if (mkdir(*argv, S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
+			if (!(pflag && errno == EEXIST)) {
+				weprintf("mkdir %s:", *argv);
+				ret = 1;
+			}
 		} else if (mflag && chmod(*argv, mode) < 0) {
 			weprintf("chmod %s:", *argv);
 			ret = 1;
