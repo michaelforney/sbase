@@ -4,17 +4,26 @@
 
 #include "util.h"
 
+static void
+usage(void)
+{
+	eprintf("usage: %s\n", argv0);
+}
+
 int
 main(int argc, char *argv[])
 {
 	char *login;
 
-	argv0 = argv[0];
-	if (argc != 1)
-		eprintf("usage: %s\n", argv0);
+	argv0 = argv[0], argc--, argv++;
+
+	if (argc)
+		usage();
+
 	if ((login = getlogin()))
 		puts(login);
 	else
-		eprintf("%s: no login name\n", argv0);
+		eprintf("no login name\n");
+
 	return 0;
 }
