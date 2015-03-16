@@ -1,4 +1,4 @@
-.Dd November 23, 2014
+.Dd March 16, 2015
 .Dt KILL 1
 .Os sbase
 .Sh NAME
@@ -6,34 +6,25 @@
 .Nd signal processes
 .Sh SYNOPSIS
 .Nm
-.Op Fl s Ar signal_name
+.Op Fl s Ar signame | Fl num | Fl signame
 .Ar pid ...
 .Nm
-.Fl l Op Ar exit_status
-.Nm
-.Fl Ar signal_name
-.Ar pid ...
-.Nm
-.Fl Ar signal_number
-.Ar pid ...
+.Fl l Op Ar num
 .Sh DESCRIPTION
 .Nm
-by default sends a TERM signal to the given processes.
+signals TERM to each process or process group specified by
+.Ar pid .
 .Sh OPTIONS
 .Bl -tag -width Ds
-.It Fl l Op Ar exit_status
-Lists available signals. If an
-.Ar exit_status
-is given, only the corresponding signal name will be printed.
-.It Fl s Ar signal_name
-A symbolic signal name specifying the signal to be sent instead of the
-default SIGTERM. Sends the named signal.
-.It Fl signal_name
-A symbolic signal name specifying the signal to be sent instead
-of the default SIGTERM.
-.It Fl signal_number
-A non-negative decimal integer specifying the signal to be sent instead of
-the default SIGTERM.
+.It Fl l Op Ar num
+List all available signals or the signal name of
+.Ar num .
+.It Fl s Ar signame | Fl num | Fl signame
+Send signal corresponding to
+.Ar signame
+|
+.Ar num .
+The default is TERM.
 .El
 .Sh SEE ALSO
 .Xr kill 2 ,
@@ -46,9 +37,9 @@ utility is compliant with the
 specification.
 .Pp
 The
-.Fl Ar signal_name
+.Fl Ar signame
 and
-.Fl Ar signal_number
+.Fl Ar num
 syntax is marked by
 .St -p1003.1-2008
 as being an

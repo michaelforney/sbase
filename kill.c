@@ -2,18 +2,16 @@
 #include <sys/wait.h>
 
 #include <ctype.h>
-#include <errno.h>
+#include <limits.h>
 #include <signal.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <strings.h>
 
 #include "util.h"
 
 struct {
 	const char *name;
-	int sig;
+	const int   sig;
 } sigs[] = {
 	{ "0", 0 },
 #define SIG(n) { #n, SIG##n }
@@ -23,11 +21,8 @@ struct {
 #undef SIG
 };
 
-const char *sig2name(int);
-int name2sig(const char *);
-
 const char *
-sig2name(int sig)
+sig2name(const int sig)
 {
 	size_t i;
 
@@ -35,104 +30,101 @@ sig2name(int sig)
 		if (sigs[i].sig == sig)
 			return sigs[i].name;
 	eprintf("%d: bad signal number\n", sig);
-	/* unreachable */
-	return NULL;
+
+	return NULL; /* not reached */
 }
 
-int
+const int
 name2sig(const char *name)
 {
 	size_t i;
 
 	for (i = 0; i < LEN(sigs); i++)
-		if (strcasecmp(sigs[i].name, name) == 0)
+		if (!strcasecmp(sigs[i].name, name))
 			return sigs[i].sig;
 	eprintf("%s: bad signal name\n", name);
-	/* unreachable */
-	return -1;
+
+	return -1; /* not reached */
 }
 
 static void
 usage(void)
 {
-	weprintf("usage: %s [-s signame | -signum | -signame] pid ...\n", argv0);
-	weprintf("       %s -l [exit_status]\n", argv0);
-	exit(1);
+	eprintf("usage: %s [-s signame | -num | -signame] pid ...\n"
+	        "       %s -l [num]\n", argv0, argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
-	char *end;
-	int ret = 0;
-	int sig = SIGTERM;
 	pid_t pid;
 	size_t i;
+	int ret = 0, sig = SIGTERM;
 
-	argv0 = argv[0];
-	if (argc < 2)
+	argv0 = argv[0], argc--, argv++;
+	if (!argc)
 		usage();
 
-	argc--, argv++;
-	if (strcmp(argv[0], "-l") == 0) {
-		argc--, argv++;
-		if (argc == 0) {
-			for (i = 0; i < LEN(sigs); i++)
-				puts(sigs[i].name);
-			exit(0);
-		} else if (argc > 1)
-			usage();
-		errno = 0;
-		sig = strtol(argv[0], &end, 10);
-		if (*end != '\0' || errno != 0)
-			eprintf("%s: bad signal number\n", argv[0]);
-		if (sig > 128)
-			sig = WTERMSIG(sig);
-		puts(sig2name(sig));
-		exit(0);
-	}
-
-	if (strcmp(argv[0], "-s") == 0) {
-		argc--, argv++;
-		if (argc == 0)
-			usage();
-		sig = name2sig(argv[0]);
-		argc--, argv++;
-	} else if (argv[0][0] == '-') {
-		if (isdigit(argv[0][1])) {
-			/* handle XSI extension -signum */
-			errno = 0;
-			sig = strtol(&argv[0][1], &end, 10);
-			if (*end != '\0' || errno != 0)
-				eprintf("%s: bad signal number\n", &argv[0][1]);
-			sig2name(sig);
+	if ((*argv)[0] == '-') {
+		switch ((*argv)[1]) {
+		case 'l':
+			if ((*argv)[2])
+				goto longopt;
 			argc--, argv++;
-		} else if (argv[0][1] != '-') {
-			/* handle XSI extension -signame */
-			sig = name2sig(&argv[0][1]);
+			if (!argc) {
+				for (i = 0; i < LEN(sigs); i++)
+					puts(sigs[i].name);
+				return 0;
+			} else if (argc == 1) {
+				sig = estrtonum(*argv, 0, INT_MAX);
+				if (sig > 128)
+					sig = WTERMSIG(sig);
+				puts(sig2name(sig));
+				return 0;
+			} else {
+				usage();
+			}
+			break;
+		case 's':
+			if ((*argv)[2])
+				goto longopt;
+			argc--, argv++;
+			if (!argc)
+				usage();
+			sig = name2sig(*argv);
+			argc--, argv++;
+			break;
+		case '-':
+			if ((*argv)[2])
+				goto longopt;
+			argc--, argv++;
+			break;
+		default:
+		longopt:
+			/* XSI-extensions -argnum and -argname*/
+			if (isdigit((*argv)[1])) {
+				sig = estrtonum((*argv) + 1, 0, INT_MAX);
+				sig2name(sig);
+			} else {
+				sig = name2sig((*argv) + 1);
+			}
 			argc--, argv++;
 		}
 	}
 
-	if (argc > 0 && strcmp(argv[0], "--") == 0)
+	if (argc && !strcmp(*argv, "--"))
 		argc--, argv++;
 
-	if (argc == 0)
+	if (!argc)
 		usage();
 
-	for (; argc; argc--, argv++) {
-		errno = 0;
-		pid = strtol(argv[0], &end, 10);
-		if (*end == '\0' && errno == 0) {
-			if (kill(pid, sig) < 0) {
-				weprintf("kill %d:", pid);
-				ret = 1;
-			}
-		} else {
-			weprintf("%s: bad pid\n", argv[0]);
+	for (; *argv; argc--, argv++) {
+		pid = estrtonum(*argv, INT_MIN, INT_MAX);
+		if (kill(pid, sig) < 0) {
+			weprintf("kill %d:", pid);
 			ret = 1;
 		}
 	}
 
-	exit(ret);
+	return ret;
 }
