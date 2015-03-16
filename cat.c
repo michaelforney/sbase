@@ -25,7 +25,7 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc == 0) {
+	if (!argc) {
 		concat(stdin, "<stdin>", stdout, "<stdout>");
 	} else {
 		for (; *argv; argc--, argv++) {
