@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "util.h"
 
@@ -11,46 +12,41 @@ static int    sflag = 0;
 static size_t width = 80;
 
 static void
-foldline(const char *str)
-{
-	size_t i = 0, n = 0, col, j;
-	int space;
-	char c;
+foldline(const char *str) {
+	const char *p, *spacesect = NULL;
+	size_t col, off;
 
-	do {
-		space = 0;
-		for (j = i, col = 0; str[j] && col <= width; j++) {
-			c = str[j];
-			if (!UTF8_POINT(c) && !bflag)
-				continue;
-			if (sflag && isspace(c)) {
-				space = 1;
-				n = j + 1;
-			} else if (!space) {
-				n = j;
-			}
-
-			if (!bflag && iscntrl(c)) {
-				switch(c) {
-				case '\b':
-					col--;
-					break;
-				case '\r':
-					col = 0;
-					break;
-				case '\t':
-					col += (col + 1) % 8;
-					break;
-				}
-			} else {
-				col++;
-			}
-		}
-		if (fwrite(str + i, 1, n - i, stdout) != n - i)
-			eprintf("fwrite <stdout>:");
-		if (str[n])
+	for (p = str, col = 0; *p && *p != '\n'; p++) {
+		if (!UTF8_POINT(*p) && !bflag)
+			continue;
+		if (col >= width) {
+			off = (sflag && spacesect) ? spacesect - str : p - str;
+			if (fwrite(str, 1, off, stdout) != off)
+				eprintf("fwrite <stdout>:");
 			putchar('\n');
-	} while (str[i = n] && str[i] != '\n');
+			spacesect = NULL;
+			col = 0;
+			p = str += off;
+		}
+		if (sflag && isspace(*p))
+			spacesect = p + 1;
+		if (!bflag && iscntrl(*p)) {
+			switch(*p) {
+			case '\b':
+				col -= (col > 0);
+				break;
+			case '\r':
+				col = 0;
+				break;
+			case '\t':
+				col += (col + 1) % 8;
+				break;
+			}
+		} else {
+			col++;
+		}
+	}
+	fputs(str, stdout);
 }
 
 static void
@@ -69,7 +65,7 @@ fold(FILE *fp, const char *fname)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-bs] [-w width | -width] [FILE...]\n", argv0);
+	eprintf("usage: %s [-bs] [-w num | -num] [FILE ...]\n", argv0);
 }
 
 int
@@ -102,10 +98,10 @@ main(int argc, char *argv[])
 			if (!(fp = fopen(*argv, "r"))) {
 				weprintf("fopen %s:", *argv);
 				ret = 1;
-				continue;
+			} else {
+				fold(fp, *argv);
+				fclose(fp);
 			}
-			fold(fp, *argv);
-			fclose(fp);
 		}
 	}
 
