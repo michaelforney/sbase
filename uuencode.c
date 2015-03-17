@@ -18,6 +18,7 @@ b64e(unsigned char b[2])
 	o = (o << 8) | b64et[p & 0x3f]; p >>= 6;
 	o = (o << 8) | b64et[p & 0x3f]; p >>= 6;
 	o = (o << 8) | b64et[p & 0x3f];
+
 	return o;
 }
 
@@ -110,7 +111,7 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc == 0 || argc > 2)
+	if (!argc || argc > 2)
 		usage();
 
 	if (argc == 1) {
@@ -127,5 +128,6 @@ main(int argc, char *argv[])
 			uuencode(fp, argv[1], argv[0]);
 		fclose(fp);
 	}
+
 	return 0;
 }

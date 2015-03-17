@@ -1,4 +1,4 @@
-.Dd February 13, 2015
+.Dd March 18, 2015
 .Dt UUENCODE 1
 .Os sbase
 .Sh NAME
@@ -13,11 +13,16 @@
 .Nm
 reads
 .Ar file
-(or by default, the standard input) and writes an encoded version
-to the standard output. The encoding uses only printing ASCII characters and
+and writes an encoded version to stdout.
+The encoding uses only printing ASCII characters and
 includes the mode of the file and the operand
 .Ar name
 for use by uudecode.
+If no
+.Ar name
+is given,
+.Nm
+reads from stdin.
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl m
