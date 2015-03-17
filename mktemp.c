@@ -12,16 +12,13 @@ usage(void)
 	eprintf("usage: %s [-dq] [template]\n", argv0);
 }
 
-static int dflag = 0;
-static int qflag = 0;
-
 int
 main(int argc, char *argv[])
 {
-	char *template = "tmp.XXXXXXXXXX";
-	char *tmpdir = "/tmp", *p;
-	char path[PATH_MAX], tmp[PATH_MAX];
-	int fd;
+	int dflag = 0, qflag = 0, fd;
+	char *template = "tmp.XXXXXXXXXX",
+	     *tmpdir = "/tmp", *p,
+	      path[PATH_MAX], tmp[PATH_MAX];
 
 	ARGBEGIN {
 	case 'd':
@@ -61,16 +58,17 @@ main(int argc, char *argv[])
 		if (!mkdtemp(path)) {
 			if (!qflag)
 				eprintf("mkdtemp %s:", path);
-			exit(1);
+			return 1;
 		}
 	} else {
 		if ((fd = mkstemp(path)) < 0) {
 			if (!qflag)
 				eprintf("mkstemp %s:", path);
-			exit(1);
+			return 1;
 		}
 		close(fd);
 	}
 	puts(path);
+
 	return 0;
 }
