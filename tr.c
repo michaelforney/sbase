@@ -192,7 +192,7 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc < 1 || argc > 2 || (argc == 1 && dflag == sflag))
+	if (!argc || argc > 2 || (argc == 1 && dflag == sflag))
 		usage();
 	set1ranges = makeset(argv[0], &set1, &set1check);
 	if (argc == 2)
