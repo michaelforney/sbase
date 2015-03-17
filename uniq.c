@@ -12,8 +12,8 @@ static int uflag = 0;
 static int fskip = 0;
 static int sskip = 0;
 
-static char *prevline = NULL;
-static char *prevoffset = NULL;
+static char *prevline     = NULL;
+static char *prevoffset   = NULL;
 static long prevlinecount = 0;
 static size_t prevlinesiz = 0;
 
@@ -30,6 +30,7 @@ uniqskip(const char *l)
 			lo++;
 	}
 	for (; s && *lo && *lo != '\n'; --s, ++lo);
+
 	return lo;
 }
 
@@ -75,7 +76,7 @@ uniq(FILE *fp, FILE *ofp)
 	size_t size = 0;
 	ssize_t len;
 
-	while ((len = getline(&buf, &size, fp)) != -1)
+	while ((len = getline(&buf, &size, fp)) >= 0)
 		uniqline(ofp, buf, (size_t)len);
 }
 
@@ -120,24 +121,20 @@ main(int argc, char *argv[])
 	if (argc > 2)
 		usage();
 
-	if (argc == 0) {
+	if (!argc) {
 		uniq(stdin, stdout);
-	} else if (argc >= 1) {
+	} else {
 		if (strcmp(argv[0], "-") && !(fp = fopen(argv[0], "r")))
 			eprintf("fopen %s:", argv[0]);
 		if (argc == 2) {
-			if (strcmp(argv[1], "-") &&
-			    !(ofp = fopen(argv[1], "w")))
+			if (strcmp(argv[1], "-") && !(ofp = fopen(argv[1], "w")))
 				eprintf("fopen %s:", argv[1]);
 		}
 		uniq(fp, ofp);
-		if (fp != stdin)
-			fclose(fp);
-	} else
-		usage();
+		fclose(fp);
+	}
 	uniqfinish(ofp);
-	if (ofp != stdout)
-		fclose(ofp);
+	fclose(ofp);
 
 	return 0;
 }
