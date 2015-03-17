@@ -38,12 +38,12 @@ static int binary_ge(char *s1, char *s2) { long long a = STOI(s1), b = STOI(s2);
 static int binary_lt(char *s1, char *s2) { long long a = STOI(s1), b = STOI(s2); return a <  b; }
 static int binary_le(char *s1, char *s2) { long long a = STOI(s1), b = STOI(s2); return a <= b; }
 
-typedef struct {
+struct test {
 	char *name;
 	int (*func)();
-} Test;
+};
 
-static Test unary[] = {
+static struct test unary[] = {
 	{ "-b", unary_b },
 	{ "-c", unary_c },
 	{ "-d", unary_d },
@@ -66,7 +66,7 @@ static Test unary[] = {
 	{ NULL, NULL },
 };
 
-static Test binary[] = {
+static struct test binary[] = {
 	{ "="  , binary_se },
 	{ "!=" , binary_sn },
 	{ "-eq", binary_eq },
@@ -79,10 +79,10 @@ static Test binary[] = {
 	{ NULL, NULL },
 };
 
-static Test *
-find_test(Test *tests, char *name)
+static struct test *
+find_test(struct test *tests, char *name)
 {
-	Test *t;
+	struct test *t;
 
 	for (t = tests; t->name; t++)
 		if (!strcmp(t->name, name))
@@ -105,7 +105,7 @@ onearg(char *argv[])
 static int
 twoarg(char *argv[])
 {
-	Test *t;
+	struct test *t;
 
 	if (!strcmp(argv[0], "!"))
 		return !onearg(argv + 1);
@@ -120,7 +120,7 @@ twoarg(char *argv[])
 static int
 threearg(char *argv[])
 {
-	Test *t = find_test(binary, argv[1]);
+	struct test *t = find_test(binary, argv[1]);
 
 	if (t)
 		return t->func(argv[0], argv[2]);

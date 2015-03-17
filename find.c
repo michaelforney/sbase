@@ -17,75 +17,74 @@
 #include "util.h"
 
 /* because putting integers in pointers is undefined by the standard */
-typedef union {
+union extra {
 	void    *p;
 	intptr_t i;
-} Extra;
+};
 
 /* Argument passed into a primary's function */
-typedef struct {
+struct arg {
 	char        *path;
 	struct stat *st;
-	Extra        extra;
-} Arg;
+	union extra  extra;
+};
 
 /* Information about each primary, for lookup table */
-typedef struct {
+struct pri_info {
 	char  *name;
-	int    (*func)(Arg *arg);
-	char **(*getarg)(char **argv, Extra *extra);
-	void   (*freearg)(Extra extra);
+	int    (*func)(struct arg *arg);
+	char **(*getarg)(char **argv, union extra *extra);
+	void   (*freearg)(union extra extra);
 	char   narg; /* -xdev, -depth, -print don't take args but have getarg() */
-} Pri_info;
+};
 
 /* Information about operators, for lookup table */
-typedef struct {
+struct op_info {
 	char *name;   /* string representation of op           */
-	char  type;   /* from Tok.type                         */
+	char  type;   /* from tok.type                         */
 	char  prec;   /* precedence                            */
 	char  nargs;  /* number of arguments (unary or binary) */
 	char  lassoc; /* left associative                      */
-} Op_info;
+};
 
 /* Token when lexing/parsing
  * (although also used for the expression tree) */
-typedef struct Tok Tok;
-struct Tok {
-	Tok  *left, *right; /* if (type == NOT) left = NULL */
-	Extra extra;
+struct tok {
+	struct tok *left, *right; /* if (type == NOT) left = NULL */
+	union extra extra;
 	union {
-		Pri_info *pinfo; /* if (type == PRIM) */
-		Op_info  *oinfo;
+		struct pri_info *pinfo; /* if (type == PRIM) */
+		struct op_info  *oinfo;
 	} u;
 	enum {
 		PRIM = 0, LPAR, RPAR, NOT, AND, OR, END
 	} type;
 };
 
-/* structures used for Arg.extra.p and Tok.extra.p */
-typedef struct {
+/* structures used for arg.extra.p and tok.extra.p */
+struct permarg {
 	mode_t mode;
 	char   exact;
-} Permarg;
+};
 
-typedef struct {
+struct okarg {
 	char ***braces;
 	char **argv;
-} Okarg;
+};
 
 /* for all arguments that take a number
  * +n, n, -n mean > n, == n, < n respectively */
-typedef struct {
+struct narg {
 	int (*cmp)(int a, int b);
 	int n;
-} Narg;
+};
 
-typedef struct {
-	Narg n;
+struct sizearg {
+	struct narg n;
 	char bytes; /* size is in bytes, not 512 byte sectors */
-} Sizearg;
+};
 
-typedef struct {
+struct execarg {
 	union {
 		struct {
 			char ***braces; /* NULL terminated list of pointers into argv where {} were */
@@ -100,76 +99,75 @@ typedef struct {
 	} u;
 	char **argv; /* NULL terminated list of arguments (allocated if isplus) */
 	char   isplus; /* -exec + instead of -exec ; */
-} Execarg;
+};
 
 /* used to find loops while recursing through directory structure */
-typedef struct Findhist Findhist;
-struct Findhist {
-	Findhist *next;
-	char     *path;
-	dev_t     dev;
-	ino_t     ino;
+struct findhist {
+	struct findhist *next;
+	char *path;
+	dev_t dev;
+	ino_t ino;
 };
 
 /* Primaries */
-static int pri_name   (Arg *arg);
-static int pri_path   (Arg *arg);
-static int pri_nouser (Arg *arg);
-static int pri_nogroup(Arg *arg);
-static int pri_xdev   (Arg *arg);
-static int pri_prune  (Arg *arg);
-static int pri_perm   (Arg *arg);
-static int pri_type   (Arg *arg);
-static int pri_links  (Arg *arg);
-static int pri_user   (Arg *arg);
-static int pri_group  (Arg *arg);
-static int pri_size   (Arg *arg);
-static int pri_atime  (Arg *arg);
-static int pri_ctime  (Arg *arg);
-static int pri_mtime  (Arg *arg);
-static int pri_exec   (Arg *arg);
-static int pri_ok     (Arg *arg);
-static int pri_print  (Arg *arg);
-static int pri_newer  (Arg *arg);
-static int pri_depth  (Arg *arg);
+static int pri_name   (struct arg *arg);
+static int pri_path   (struct arg *arg);
+static int pri_nouser (struct arg *arg);
+static int pri_nogroup(struct arg *arg);
+static int pri_xdev   (struct arg *arg);
+static int pri_prune  (struct arg *arg);
+static int pri_perm   (struct arg *arg);
+static int pri_type   (struct arg *arg);
+static int pri_links  (struct arg *arg);
+static int pri_user   (struct arg *arg);
+static int pri_group  (struct arg *arg);
+static int pri_size   (struct arg *arg);
+static int pri_atime  (struct arg *arg);
+static int pri_ctime  (struct arg *arg);
+static int pri_mtime  (struct arg *arg);
+static int pri_exec   (struct arg *arg);
+static int pri_ok     (struct arg *arg);
+static int pri_print  (struct arg *arg);
+static int pri_newer  (struct arg *arg);
+static int pri_depth  (struct arg *arg);
 
 /* Getargs */
-static char **get_name_arg (char *argv[], Extra *extra);
-static char **get_path_arg (char *argv[], Extra *extra);
-static char **get_xdev_arg (char *argv[], Extra *extra);
-static char **get_perm_arg (char *argv[], Extra *extra);
-static char **get_type_arg (char *argv[], Extra *extra);
-static char **get_n_arg    (char *argv[], Extra *extra);
-static char **get_user_arg (char *argv[], Extra *extra);
-static char **get_group_arg(char *argv[], Extra *extra);
-static char **get_size_arg (char *argv[], Extra *extra);
-static char **get_exec_arg (char *argv[], Extra *extra);
-static char **get_ok_arg   (char *argv[], Extra *extra);
-static char **get_print_arg(char *argv[], Extra *extra);
-static char **get_newer_arg(char *argv[], Extra *extra);
-static char **get_depth_arg(char *argv[], Extra *extra);
+static char **get_name_arg (char *argv[], union extra *extra);
+static char **get_path_arg (char *argv[], union extra *extra);
+static char **get_xdev_arg (char *argv[], union extra *extra);
+static char **get_perm_arg (char *argv[], union extra *extra);
+static char **get_type_arg (char *argv[], union extra *extra);
+static char **get_n_arg    (char *argv[], union extra *extra);
+static char **get_user_arg (char *argv[], union extra *extra);
+static char **get_group_arg(char *argv[], union extra *extra);
+static char **get_size_arg (char *argv[], union extra *extra);
+static char **get_exec_arg (char *argv[], union extra *extra);
+static char **get_ok_arg   (char *argv[], union extra *extra);
+static char **get_print_arg(char *argv[], union extra *extra);
+static char **get_newer_arg(char *argv[], union extra *extra);
+static char **get_depth_arg(char *argv[], union extra *extra);
 
 /* Freeargs */
-static void free_extra   (Extra extra);
-static void free_exec_arg(Extra extra);
-static void free_ok_arg  (Extra extra);
+static void free_extra   (union extra extra);
+static void free_exec_arg(union extra extra);
+static void free_ok_arg  (union extra extra);
 
 /* Parsing/Building/Running */
-static void fill_narg(char *s, Narg *n);
-static Pri_info *find_primary(char *name);
-static Op_info *find_op(char *name);
+static void fill_narg(char *s, struct narg *n);
+static struct pri_info *find_primary(char *name);
+static struct op_info *find_op(char *name);
 static void parse(int argc, char **argv);
-static int eval(Tok *tok, Arg *arg);
-static void find(char *path, Findhist *hist);
+static int eval(struct tok *tok, struct arg *arg);
+static void find(char *path, struct findhist *hist);
 static void usage(void);
 
-/* for comparisons with Narg */
+/* for comparisons with narg */
 static int cmp_gt(int a, int b) { return a >  b; }
 static int cmp_eq(int a, int b) { return a == b; }
 static int cmp_lt(int a, int b) { return a <  b; }
 
 /* order from find(1p), may want to alphabetize */
-static Pri_info primaries[] = {
+static struct pri_info primaries[] = {
 	{ "-name"   , pri_name   , get_name_arg , NULL         , 1 },
 	{ "-path"   , pri_path   , get_path_arg , NULL         , 1 },
 	{ "-nouser" , pri_nouser , NULL         , NULL         , 1 },
@@ -194,7 +192,7 @@ static Pri_info primaries[] = {
 	{ NULL, NULL, NULL, NULL, 0 }
 };
 
-static Op_info ops[] = {
+static struct op_info ops[] = {
 	{ "(" , LPAR, 0, 0, 0 }, /* parens are handled specially */
 	{ ")" , RPAR, 0, 0, 0 },
 	{ "!" , NOT , 3, 1, 0 },
@@ -206,8 +204,8 @@ static Op_info ops[] = {
 
 extern char **environ;
 
-static Tok *toks; /* holds allocated array of all Toks created while parsing */
-static Tok *root; /* points to root of expression tree, inside toks array */
+static struct tok *toks; /* holds allocated array of all toks created while parsing */
+static struct tok *root; /* points to root of expression tree, inside toks array */
 
 static struct timespec start; /* time find was started, used for -[acm]time */
 
@@ -228,13 +226,13 @@ static struct {
  * Primaries
  */
 static int
-pri_name(Arg *arg)
+pri_name(struct arg *arg)
 {
 	return !fnmatch((char *)arg->extra.p, basename(arg->path), 0);
 }
 
 static int
-pri_path(Arg *arg)
+pri_path(struct arg *arg)
 {
 	return !fnmatch((char *)arg->extra.p, arg->path, 0);
 }
@@ -242,39 +240,39 @@ pri_path(Arg *arg)
 /* FIXME: what about errors? find(1p) literally just says
  * "for which the getpwuid() function ... returns NULL" */
 static int
-pri_nouser(Arg *arg)
+pri_nouser(struct arg *arg)
 {
 	return !getpwuid(arg->st->st_uid);
 }
 
 static int
-pri_nogroup(Arg *arg)
+pri_nogroup(struct arg *arg)
 {
 	return !getgrgid(arg->st->st_gid);
 }
 
 static int
-pri_xdev(Arg *arg)
+pri_xdev(struct arg *arg)
 {
 	return 1;
 }
 
 static int
-pri_prune(Arg *arg)
+pri_prune(struct arg *arg)
 {
 	return gflags.prune = 1;
 }
 
 static int
-pri_perm(Arg *arg)
+pri_perm(struct arg *arg)
 {
-	Permarg *p = (Permarg *)arg->extra.p;
+	struct permarg *p = (struct permarg *)arg->extra.p;
 
 	return (arg->st->st_mode & 07777 & (p->exact ? -1U : p->mode)) == p->mode;
 }
 
 static int
-pri_type(Arg *arg)
+pri_type(struct arg *arg)
 {
 	switch ((char)arg->extra.i) {
 	default : return 0; /* impossible, but placate warnings */
@@ -289,28 +287,28 @@ pri_type(Arg *arg)
 }
 
 static int
-pri_links(Arg *arg)
+pri_links(struct arg *arg)
 {
-	Narg *n = arg->extra.p;
+	struct narg *n = arg->extra.p;
 	return n->cmp(arg->st->st_nlink, n->n);
 }
 
 static int
-pri_user(Arg *arg)
+pri_user(struct arg *arg)
 {
 	return arg->st->st_uid == (uid_t)arg->extra.i;
 }
 
 static int
-pri_group(Arg *arg)
+pri_group(struct arg *arg)
 {
 	return arg->st->st_gid == (gid_t)arg->extra.i;
 }
 
 static int
-pri_size(Arg *arg)
+pri_size(struct arg *arg)
 {
-	Sizearg *s = arg->extra.p;
+	struct sizearg *s = arg->extra.p;
 	off_t size = arg->st->st_size;
 
 	if (!s->bytes)
@@ -321,37 +319,37 @@ pri_size(Arg *arg)
 
 /* FIXME: ignoring nanoseconds in atime, ctime, mtime */
 static int
-pri_atime(Arg *arg)
+pri_atime(struct arg *arg)
 {
-	Narg *n = arg->extra.p;
+	struct narg *n = arg->extra.p;
 	time_t time = (n->n - start.tv_sec) / 86400;
 	return n->cmp(time, n->n);
 }
 
 static int
-pri_ctime(Arg *arg)
+pri_ctime(struct arg *arg)
 {
-	Narg *n = arg->extra.p;
+	struct narg *n = arg->extra.p;
 	time_t time = (n->n - start.tv_sec) / 86400;
 	return n->cmp(time, n->n);
 }
 
 static int
-pri_mtime(Arg *arg)
+pri_mtime(struct arg *arg)
 {
-	Narg *n = arg->extra.p;
+	struct narg *n = arg->extra.p;
 	time_t time = (n->n - start.tv_sec) / 86400;
 	return n->cmp(time, n->n);
 }
 
 static int
-pri_exec(Arg *arg)
+pri_exec(struct arg *arg)
 {
 	int status;
 	size_t len;
 	pid_t pid;
 	char **sp, ***brace;
-	Execarg *e = arg->extra.p;
+	struct execarg *e = arg->extra.p;
 
 	if (e->isplus) {
 		len = strlen(arg->path) + 1;
@@ -406,12 +404,12 @@ pri_exec(Arg *arg)
 }
 
 static int
-pri_ok(Arg *arg)
+pri_ok(struct arg *arg)
 {
 	int status;
 	pid_t pid;
 	char ***brace, reply, buf[256];
-	Okarg *o = arg->extra.p;
+	struct okarg *o = arg->extra.p;
 
 	fprintf(stderr, "%s: %s ?", *o->argv, arg->path);
 	reply = fgetc(stdin);
@@ -445,7 +443,7 @@ pri_ok(Arg *arg)
 }
 
 static int
-pri_print(Arg *arg)
+pri_print(struct arg *arg)
 {
 	if (puts(arg->path) == EOF)
 		eprintf("puts failed:");
@@ -454,13 +452,13 @@ pri_print(Arg *arg)
 
 /* FIXME: ignoring nanoseconds */
 static int
-pri_newer(Arg *arg)
+pri_newer(struct arg *arg)
 {
 	return arg->st->st_mtime > (time_t)arg->extra.i;
 }
 
 static int
-pri_depth(Arg *arg)
+pri_depth(struct arg *arg)
 {
 	return 1;
 }
@@ -471,30 +469,30 @@ pri_depth(Arg *arg)
  * return pointer to last argument, the pointer will be incremented in parse()
  */
 static char **
-get_name_arg(char *argv[], Extra *extra)
+get_name_arg(char *argv[], union extra *extra)
 {
 	extra->p = *argv;
 	return argv;
 }
 
 static char **
-get_path_arg(char *argv[], Extra *extra)
+get_path_arg(char *argv[], union extra *extra)
 {
 	extra->p = *argv;
 	return argv;
 }
 
 static char **
-get_xdev_arg(char *argv[], Extra *extra)
+get_xdev_arg(char *argv[], union extra *extra)
 {
 	gflags.xdev = 1;
 	return argv;
 }
 
 static char **
-get_perm_arg(char *argv[], Extra *extra)
+get_perm_arg(char *argv[], union extra *extra)
 {
-	Permarg *p = extra->p = emalloc(sizeof(*p));
+	struct permarg *p = extra->p = emalloc(sizeof(*p));
 
 	if (**argv == '-')
 		(*argv)++;
@@ -507,7 +505,7 @@ get_perm_arg(char *argv[], Extra *extra)
 }
 
 static char **
-get_type_arg(char *argv[], Extra *extra)
+get_type_arg(char *argv[], union extra *extra)
 {
 	if (!strchr("bcdlpfs", **argv))
 		eprintf("invalid type %c for -type primary\n", **argv);
@@ -517,15 +515,15 @@ get_type_arg(char *argv[], Extra *extra)
 }
 
 static char **
-get_n_arg(char *argv[], Extra *extra)
+get_n_arg(char *argv[], union extra *extra)
 {
-	Narg *n = extra->p = emalloc(sizeof(*n));
+	struct narg *n = extra->p = emalloc(sizeof(*n));
 	fill_narg(*argv, n);
 	return argv;
 }
 
 static char **
-get_user_arg(char *argv[], Extra *extra)
+get_user_arg(char *argv[], union extra *extra)
 {
 	char *end;
 	struct passwd *p = getpwnam(*argv);
@@ -541,7 +539,7 @@ get_user_arg(char *argv[], Extra *extra)
 }
 
 static char **
-get_group_arg(char *argv[], Extra *extra)
+get_group_arg(char *argv[], union extra *extra)
 {
 	char *end;
 	struct group *g = getgrnam(*argv);
@@ -557,10 +555,10 @@ get_group_arg(char *argv[], Extra *extra)
 }
 
 static char **
-get_size_arg(char *argv[], Extra *extra)
+get_size_arg(char *argv[], union extra *extra)
 {
 	char *p = *argv + strlen(*argv);
-	Sizearg *s = extra->p = emalloc(sizeof(*s));
+	struct sizearg *s = extra->p = emalloc(sizeof(*s));
 	/* if the number is followed by 'c', the size will by in bytes */
 	if ((s->bytes = (p > *argv && *--p == 'c')))
 		*p = '\0';
@@ -570,11 +568,11 @@ get_size_arg(char *argv[], Extra *extra)
 }
 
 static char **
-get_exec_arg(char *argv[], Extra *extra)
+get_exec_arg(char *argv[], union extra *extra)
 {
 	char **arg, **new, ***braces;
 	int nbraces = 0;
-	Execarg *e = extra->p = emalloc(sizeof(*e));
+	struct execarg *e = extra->p = emalloc(sizeof(*e));
 
 	for (arg = argv; *arg; arg++)
 		if (!strcmp(*arg, ";"))
@@ -615,11 +613,11 @@ get_exec_arg(char *argv[], Extra *extra)
 }
 
 static char **
-get_ok_arg(char *argv[], Extra *extra)
+get_ok_arg(char *argv[], union extra *extra)
 {
 	char **arg, ***braces;
 	int nbraces = 0;
-	Okarg *o = extra->p = emalloc(sizeof(*o));
+	struct okarg *o = extra->p = emalloc(sizeof(*o));
 
 	for (arg = argv; *arg; arg++)
 		if (!strcmp(*arg, ";"))
@@ -643,7 +641,7 @@ get_ok_arg(char *argv[], Extra *extra)
 }
 
 static char **
-get_print_arg(char *argv[], Extra *extra)
+get_print_arg(char *argv[], union extra *extra)
 {
 	gflags.print = 0;
 	return argv;
@@ -651,7 +649,7 @@ get_print_arg(char *argv[], Extra *extra)
 
 /* FIXME: ignoring nanoseconds */
 static char **
-get_newer_arg(char *argv[], Extra *extra)
+get_newer_arg(char *argv[], union extra *extra)
 {
 	struct stat st;
 
@@ -663,7 +661,7 @@ get_newer_arg(char *argv[], Extra *extra)
 }
 
 static char **
-get_depth_arg(char *argv[], Extra *extra)
+get_depth_arg(char *argv[], union extra *extra)
 {
 	gflags.depth = 1;
 	return argv;
@@ -673,18 +671,18 @@ get_depth_arg(char *argv[], Extra *extra)
  * Freeargs
  */
 static void
-free_extra(Extra extra)
+free_extra(union extra extra)
 {
 	free(extra.p);
 }
 
 static void
-free_exec_arg(Extra extra)
+free_exec_arg(union extra extra)
 {
 	int status;
 	pid_t pid;
 	char **arg;
-	Execarg *e = extra.p;
+	struct execarg *e = extra.p;
 
 	if (!e->isplus) {
 		free(e->u.s.braces);
@@ -712,9 +710,9 @@ free_exec_arg(Extra extra)
 }
 
 static void
-free_ok_arg(Extra extra)
+free_ok_arg(union extra extra)
 {
-	Okarg *o = extra.p;
+	struct okarg *o = extra.p;
 
 	free(o->braces);
 	free(o);
@@ -724,7 +722,7 @@ free_ok_arg(Extra extra)
  * Parsing/Building/Running
  */
 static void
-fill_narg(char *s, Narg *n)
+fill_narg(char *s, struct narg *n)
 {
 	char *end;
 
@@ -738,10 +736,10 @@ fill_narg(char *s, Narg *n)
 		eprintf("bad number '%s'\n", s);
 }
 
-static Pri_info *
+static struct pri_info *
 find_primary(char *name)
 {
-	Pri_info *p;
+	struct pri_info *p;
 
 	for (p = primaries; p->name; p++)
 		if (!strcmp(name, p->name))
@@ -749,10 +747,10 @@ find_primary(char *name)
 	return NULL;
 }
 
-static Op_info *
+static struct op_info *
 find_op(char *name)
 {
-	Op_info *o;
+	struct op_info *o;
 
 	for (o = ops; o->name; o++)
 		if (!strcmp(name, o->name))
@@ -761,32 +759,32 @@ find_op(char *name)
 }
 
 /* given the expression from the command line
- * 1) convert arguments from strings to Tok and place in an array duplicating
+ * 1) convert arguments from strings to tok and place in an array duplicating
  *    the infix expression given, inserting "-a" where it was omitted
- * 2) allocate an array to hold the correct number of Tok, and convert from
+ * 2) allocate an array to hold the correct number of tok, and convert from
  *    infix to rpn (using shunting-yard), add -a and -print if necessary
  * 3) evaluate the rpn filling in left and right pointers to create an
- *    expression tree (Tok are still all contained in the rpn array, just
+ *    expression tree (tok are still all contained in the rpn array, just
  *    pointing at eachother)
  */
 static void
 parse(int argc, char **argv)
 {
-	Tok infix[2 * argc + 1], *stack[argc], *tok, *rpn, *out, **top;
-	Op_info *op;
-	Pri_info *pri;
+	struct tok infix[2 * argc + 1], *stack[argc], *tok, *rpn, *out, **top;
+	struct op_info *op;
+	struct pri_info *pri;
 	char **arg;
 	int lasttype = -1;
 	size_t ntok = 0;
-	Tok and = { .u.oinfo = find_op("-a"), .type = AND };
+	struct tok and = { .u.oinfo = find_op("-a"), .type = AND };
 
 	gflags.print = 1;
 
-	/* convert argv to infix expression of Tok, inserting in *tok */
+	/* convert argv to infix expression of tok, inserting in *tok */
 	for (arg = argv, tok = infix; *arg; arg++, tok++) {
 		pri = find_primary(*arg);
 
-		if (pri) { /* token is a primary, fill out Tok and get arguments */
+		if (pri) { /* token is a primary, fill out tok and get arguments */
 			if (lasttype == PRIM || lasttype == RPAR) {
 				*tok++ = and;
 				ntok++;
@@ -862,7 +860,7 @@ parse(int argc, char **argv)
 	 * if there was an expression but no -print, -exec, or -ok, add -a -print
 	 * in rpn, not infix */
 	if (gflags.print)
-		*out++ = (Tok){ .u.pinfo = find_primary("-print"), .type = PRIM };
+		*out++ = (struct tok){ .u.pinfo = find_primary("-print"), .type = PRIM };
 	if (gflags.print == 2)
 		*out++ = and;
 
@@ -897,7 +895,7 @@ parse(int argc, char **argv)
  * NOTE: operator NOT has NULL left side, expression on right side
  */
 static int
-eval(Tok *tok, Arg *arg)
+eval(struct tok *tok, struct arg *arg)
 {
 	int ret;
 
@@ -921,14 +919,14 @@ eval(Tok *tok, Arg *arg)
  * recurse
  */
 static void
-find(char *path, Findhist *hist)
+find(char *path, struct findhist *hist)
 {
 	struct stat st;
 	DIR *dir;
 	struct dirent *de;
-	Findhist *f, cur;
+	struct findhist *f, cur;
 	size_t len = strlen(path) + 2; /* null and '/' */
-	Arg arg = { path, &st, { NULL } };
+	struct arg arg = { path, &st, { NULL } };
 
 	if ((gflags.l || (gflags.h && !hist) ? stat(path, &st) : lstat(path, &st)) < 0) {
 		weprintf("failed to stat %s:", path);
@@ -1000,7 +998,7 @@ main(int argc, char **argv)
 {
 	char **paths;
 	int npaths;
-	Tok *t;
+	struct tok *t;
 
 	ARGBEGIN {
 	case 'H': gflags.l = !(gflags.h = 1); break;

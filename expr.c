@@ -12,15 +12,15 @@ enum {
 	VAL = CHAR_MAX + 1, GE, LE, NE
 };
 
-typedef struct {
-	char *s; /* iff s is NULL, Val is an integer */
+struct val {
+	char *s; /* iff s is NULL, val is an integer */
 	intmax_t n;
-} Val;
+};
 
 static size_t intlen;
 
 static void
-enan(Val v)
+enan(struct val v)
 {
 	if (v.s)
 		enprintf(2, "syntax error: expected integer got `%s'\n", v.s);
@@ -34,7 +34,7 @@ ezero(intmax_t n)
 }
 
 static char *
-valstr(Val val, char *buf, size_t bufsiz)
+valstr(struct val val, char *buf, size_t bufsiz)
 {
 	if (val.s)
 		return val.s;
@@ -43,7 +43,7 @@ valstr(Val val, char *buf, size_t bufsiz)
 }
 
 static int
-valcmp(Val a, Val b)
+valcmp(struct val a, struct val b)
 {
 	char buf1[intlen], buf2[intlen];
 	char *astr = valstr(a, buf1, sizeof(buf1));
@@ -59,8 +59,8 @@ valcmp(Val a, Val b)
  * then return the text matched by it \1 (empty string for no match)
  * else return number of characters matched (0 for no match)
  */
-static Val
-match(Val vstr, Val vregx)
+static struct val
+match(struct val vstr, struct val vregx)
 {
 	regex_t re;
 	regmatch_t matches[2];
@@ -76,7 +76,7 @@ match(Val vstr, Val vregx)
 
 	if (regexec(&re, str, 2, matches, 0)) {
 		regfree(&re);
-		return (Val){ (re.re_nsub ? "" : NULL), 0 };
+		return (struct val){ (re.re_nsub ? "" : NULL), 0 };
 	}
 
 	if (re.re_nsub) {
@@ -87,15 +87,15 @@ match(Val vstr, Val vregx)
 		*p = '\0';
 		d = strtoimax(s, &p, 10);
 		if (*s && !*p) /* string matched by subexpression is an integer */
-			return (Val){ NULL, d };
+			return (struct val){ NULL, d };
 
 		/* FIXME? string is never free()d, worth fixing?
 		 * need to allocate as it could be in buf1 instead of vstr.s */
-		return (Val){ enstrdup(3, s), 0 };
+		return (struct val){ enstrdup(3, s), 0 };
 	}
 	regfree(&re);
     str += matches[0].rm_so;
-	return (Val){ NULL, utfnlen(str, matches[0].rm_eo - matches[0].rm_so) };
+	return (struct val){ NULL, utfnlen(str, matches[0].rm_eo - matches[0].rm_so) };
 }
 
 /* ops  points to a stack of operators, opp  points to one past the last op
@@ -105,9 +105,9 @@ match(Val vstr, Val vregx)
  * pop operator, pop two values, apply operator, push result
  */
 static void
-doop(int *ops, int **opp, Val *vals, Val **valp)
+doop(int *ops, int **opp, struct val *vals, struct val **valp)
 {
-	Val ret, a, b;
+	struct val ret, a, b;
 	int op;
 
 	/* For an operation, we need a valid operator
@@ -123,30 +123,30 @@ doop(int *ops, int **opp, Val *vals, Val **valp)
 
 	switch (op) {
 	case '|':
-		if      ( a.s && *a.s) ret = (Val){ a.s ,   0 };
-		else if (!a.s &&  a.n) ret = (Val){ NULL, a.n };
-		else if ( b.s && *b.s) ret = (Val){ b.s ,   0 };
-		else                   ret = (Val){ NULL, b.n };
+		if      ( a.s && *a.s) ret = (struct val){ a.s ,   0 };
+		else if (!a.s &&  a.n) ret = (struct val){ NULL, a.n };
+		else if ( b.s && *b.s) ret = (struct val){ b.s ,   0 };
+		else                   ret = (struct val){ NULL, b.n };
 		break;
 	case '&':
 		if (((a.s && *a.s) || a.n) && ((b.s && *b.s) || b.n))
 			ret = a;
 		else
-			ret = (Val){ NULL, 0 };
+			ret = (struct val){ NULL, 0 };
 		break;
 
-	case '=': ret = (Val){ NULL, valcmp(a, b) == 0 }; break;
-	case '>': ret = (Val){ NULL, valcmp(a, b) >  0 }; break;
-	case GE : ret = (Val){ NULL, valcmp(a, b) >= 0 }; break;
-	case '<': ret = (Val){ NULL, valcmp(a, b) <  0 }; break;
-	case LE : ret = (Val){ NULL, valcmp(a, b) <= 0 }; break;
-	case NE : ret = (Val){ NULL, valcmp(a, b) != 0 }; break;
+	case '=': ret = (struct val){ NULL, valcmp(a, b) == 0 }; break;
+	case '>': ret = (struct val){ NULL, valcmp(a, b) >  0 }; break;
+	case GE : ret = (struct val){ NULL, valcmp(a, b) >= 0 }; break;
+	case '<': ret = (struct val){ NULL, valcmp(a, b) <  0 }; break;
+	case LE : ret = (struct val){ NULL, valcmp(a, b) <= 0 }; break;
+	case NE : ret = (struct val){ NULL, valcmp(a, b) != 0 }; break;
 
-	case '+': enan(a); enan(b);             ret = (Val){ NULL, a.n + b.n }; break;
-	case '-': enan(a); enan(b);             ret = (Val){ NULL, a.n - b.n }; break;
-	case '*': enan(a); enan(b);             ret = (Val){ NULL, a.n * b.n }; break;
-	case '/': enan(a); enan(b); ezero(b.n); ret = (Val){ NULL, a.n / b.n }; break;
-	case '%': enan(a); enan(b); ezero(b.n); ret = (Val){ NULL, a.n % b.n }; break;
+	case '+': enan(a); enan(b);             ret = (struct val){ NULL, a.n + b.n }; break;
+	case '-': enan(a); enan(b);             ret = (struct val){ NULL, a.n - b.n }; break;
+	case '*': enan(a); enan(b);             ret = (struct val){ NULL, a.n * b.n }; break;
+	case '/': enan(a); enan(b); ezero(b.n); ret = (struct val){ NULL, a.n / b.n }; break;
+	case '%': enan(a); enan(b); ezero(b.n); ret = (struct val){ NULL, a.n % b.n }; break;
 
 	case ':': ret = match(a, b); break;
 	}
@@ -160,7 +160,7 @@ doop(int *ops, int **opp, Val *vals, Val **valp)
  * if it is a value, place the value in v for use by parser
  */
 static int
-lex(char *s, Val *v)
+lex(char *s, struct val *v)
 {
 	intmax_t d;
 	char *p, *ops = "|&=><+-*/%():";
@@ -168,7 +168,7 @@ lex(char *s, Val *v)
 	/* clean integer */
 	d = strtoimax(s, &p, 10);
 	if (*s && !*p) {
-		*v = (Val){ NULL, d };
+		*v = (struct val){ NULL, d };
 		return VAL;
 	}
 
@@ -182,7 +182,7 @@ lex(char *s, Val *v)
 	if (!strcmp(s, "!=")) return NE;
 
 	/* nothing matched, treat as string */
-	*v = (Val){ s, 0 };
+	*v = (struct val){ s, 0 };
 	return VAL;
 }
 
@@ -196,7 +196,7 @@ lex(char *s, Val *v)
 static int
 parse(char *expr[], int exprlen)
 {
-	Val vals[exprlen], *valp = vals, v;
+	struct val vals[exprlen], *valp = vals, v;
 	int ops[exprlen], *opp = ops;
 	int i, type, lasttype = 0;
 	char prec[] = { /* precedence of operators */
