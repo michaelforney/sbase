@@ -75,18 +75,19 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc == 0) {
+	if (!argc) {
 		strings(stdin, "<stdin>", len);
 	} else {
-		for (; argc > 0; argc--, argv++) {
-			if (!(fp = fopen(argv[0], "r"))) {
-				weprintf("fopen %s:", argv[0]);
+		for (; *argv; argc--, argv++) {
+			if (!(fp = fopen(*argv, "r"))) {
+				weprintf("fopen %s:", *argv);
 				ret = 1;
 				continue;
 			}
-			strings(fp, argv[0], len);
+			strings(fp, *argv, len);
 			fclose(fp);
 		}
 	}
+
 	return ret;
 }
