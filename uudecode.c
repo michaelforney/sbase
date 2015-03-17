@@ -17,7 +17,7 @@ parsefile(const char *fname)
 	struct stat st;
 	int ret;
 
-	if (strcmp(fname, "/dev/stdout") == 0 || strcmp(fname, "-") == 0)
+	if (!strcmp(fname, "/dev/stdout") || !strcmp(fname, "-"))
 		return stdout;
 	ret = lstat(fname, &st);
 	/* if it is a new file, try to open it */
@@ -32,12 +32,11 @@ parsefile(const char *fname)
 		return NULL;
 	}
 tropen:
-	return fopen(fname,"w");
+	return fopen(fname, "w");
 }
 
 static void
-parseheader(FILE *fp, const char *s, char **header, mode_t *mode,
-	    char **fname)
+parseheader(FILE *fp, const char *s, char **header, mode_t *mode, char **fname)
 {
 	char bufs[PATH_MAX + 18]; /* len header + mode + maxname */
 	char *p, *q;
@@ -74,8 +73,8 @@ parseheader(FILE *fp, const char *s, char **header, mode_t *mode,
 static const char b64dt[] = {
 	-1,-1,-1,-1,-1,-1,-1,-1,-1,-2,-2,-2,-2,-2,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 	-1,-1,-1,-1,-1,-1,-1,-1,-2,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,62,-1,-1,-1,63,
-	52,53,54,55,56,57,58,59,60,61,-1,-1,-1,0,-1,-1,-1,0,1,2,3,4,5,6,
-	7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,-1,-1,-1,-1,-1,
+	52,53,54,55,56,57,58,59,60,61,-1,-1,-1, 0,-1,-1,-1, 0, 1, 2, 3, 4, 5, 6,
+	 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,-1,-1,-1,-1,-1,
 	-1,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,
 	49,50,51,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 	-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
@@ -212,7 +211,7 @@ uudecode(FILE *fp, FILE *outfp)
 	}
 	/* check for end or fail */
 	len = getline(&bufb, &n, fp);
-	if (len < 3 || strncmp(bufb, "end", 3) != 0 || bufb[3] != '\n')
+	if (len < 3 || strncmp(bufb, "end", 3) || bufb[3] != '\n')
 		eprintf("invalid uudecode footer \"end\" not found\n");
 	free(bufb);
 }
@@ -227,11 +226,9 @@ int
 main(int argc, char *argv[])
 {
 	FILE *fp = NULL, *nfp = NULL;
-	char *fname, *header;
-	const char *ifname;
 	mode_t mode = 0;
+	char *fname, *header, *ifname, *ofname = NULL;
 	void (*d) (FILE *, FILE *) = NULL;
-	char *ofname = NULL;
 
 	ARGBEGIN {
 	case 'm':
@@ -248,7 +245,7 @@ main(int argc, char *argv[])
 	if (argc > 1)
 		usage();
 
-	if (argc == 0) {
+	if (!argc) {
 		fp = stdin;
 		ifname = "<stdin>";
 	} else {

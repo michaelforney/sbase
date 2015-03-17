@@ -1,4 +1,4 @@
-.Dd February 13, 2015
+.Dd March 18, 2015
 .Dt UUDECODE 1
 .Os sbase
 .Sh NAME
@@ -13,23 +13,27 @@
 .Nm
 reads
 .Ar file
-(or by default, the standard input) and writes a decoded
-version to the file specified in the uuencoded header. In case that
-the file already exists, it is truncated. Otherwise a new file is
-created. After the operation the permissions of the created/accessed
-are changed to reflect the mode in the header.
+and writes a decoded version to the file specified in the uuencoded header.
+In case the file already exists, it is truncated. Otherwise a new file is
+created. The permissions of the created/accessed file are changed to
+reflect the mode in the header.
+If no
+.Ar file
+is given
+.Nm
+reads from stdin.
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl m
 Use Base64 for decoding.
 .It Fl o Ar output
-Use the file specified by
+Write to
 .Ar output
-instead of standard output.
+rather than the file specified in the header.
 .El
 .Sh IMPLEMENTATION NOTES
-For safety currently uudecode operates only on regular files and
-stdout. Trying to uudecode to a link, directory, or special file
+For safety uudecode operates on regular files and stdout only.
+Trying to uudecode to a link, directory, or special file
 yields an error.
 .Sh SEE ALSO
 .Xr uuencode 1
