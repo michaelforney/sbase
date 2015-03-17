@@ -76,7 +76,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =*| tee             yes                          none
 =*| test            yes                          none
 =*| time            yes                          none
-=*  touch           yes                          none
+=*| touch           yes                          none
 #*  tr              yes                          none
 =*| true            yes                          none
 =*| tty             yes                          none

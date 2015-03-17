@@ -29,7 +29,7 @@ touch(const char *file)
 			eprintf("stat %s:", file);
 		if (cflag)
 			return;
-	} else if (r == 0) {
+	} else if (!r) {
 		ut.actime = aflag ? t : st.st_atime;
 		ut.modtime = mflag ? t : st.st_mtime;
 		if (utime(file, &ut) < 0)
@@ -149,13 +149,13 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc < 1)
+	if (!argc)
 		usage();
 	if (!aflag && !mflag)
 		aflag = mflag = 1;
 
-	for (; argc > 0; argc--, argv++)
-		touch(argv[0]);
+	for (; *argv; argc--, argv++)
+		touch(*argv);
 
 	return 0;
 }
