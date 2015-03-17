@@ -81,7 +81,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =*| true            yes                          none
 =*| tty             yes                          none
 =*| uname           yes                          none
-#*  unexpand        yes                          none
+#*| unexpand        yes                          none
 =*  uniq            yes                          none
 =*| unlink          yes                          none
 =*  uudecode        yes                          none

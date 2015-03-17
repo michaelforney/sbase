@@ -25,6 +25,7 @@ parselist(const char *s)
 			eprintf("tablist must be ascending\n");
 	}
 	tablist = ereallocarray(tablist, i + 1, sizeof(*tablist));
+
 	return i;
 }
 
@@ -148,18 +149,19 @@ main(int argc, char *argv[])
 
 	tablistlen = parselist(tl);
 
-	if (argc == 0) {
+	if (!argc) {
 		unexpand("<stdin>", stdin);
 	} else {
-		for (; argc > 0; argc--, argv++) {
-			if (!(fp = fopen(argv[0], "r"))) {
-				weprintf("fopen %s:", argv[0]);
+		for (; *argv; argc--, argv++) {
+			if (!(fp = fopen(*argv, "r"))) {
+				weprintf("fopen %s:", *argv);
 				ret = 1;
 				continue;
 			}
-			unexpand(argv[0], fp);
+			unexpand(*argv, fp);
 			fclose(fp);
 		}
 	}
+
 	return ret;
 }
