@@ -1,4 +1,4 @@
-.Dd January 30, 2015
+.Dd March 17, 2015
 .Dt SPLIT 1
 .Os sbase
 .Sh NAME
@@ -6,43 +6,45 @@
 .Nd split up a file
 .Sh SYNOPSIS
 .Nm
-.Op Fl a Ar len
-.Op Fl b Ar bytes[k|m|g]
+.Op Fl a Ar num
+.Op Fl b Ar num[k|m|g] | Fl l Ar num
 .Op Fl d
-.Op Fl l Ar lines
-.Op Ar input Op Ar prefix
+.Op Ar file Op Ar prefix
 .Sh DESCRIPTION
 .Nm
-reads a file, splitting it into smaller files, every
-.Ar bytes
-bytes
-or
-.Ar lines
-lines. If
+splits
+.Ar file
+into files with 1000 lines each, named with
+.Ar prefix
+"x" followed by 2-digit alphabetical count suffixes.
+If
 .Nm
-runs out of filenames before all the data can be written, it stops at the
-last valid filename, leaving all the written data on the disk.
-The
-.Fl b
-and
-.Fl l
-flags are mutually exclusive. Only the last one specified will be obeyed.
+runs out of suffixes, it stops after the last valid filename.
 .Sh OPTIONS
 .Bl -tag -width Ds
-.It Fl a Ar len
-Set the suffix length to
-.Ar len
-characters long.
-.It Fl b Ar bytes[k|m|g]
+.It Fl a Ar num
+Set suffix length to
+.Ar num
+characters.
+The default is 2.
+.It Fl b Ar num[k|m|g] | Fl l Ar num
 Start a new file every
-.Ar bytes
-bytes. The units k, m, and g are case insensitive, and powers of 2, not 10.
+.Ar num
+bytes | lines.
+The units k, m, and g are case insensitive and powers of 2, not 10.
+The default is 1000 lines.
 .It Fl d
-Use decimal suffixes rather than alphabetical.
-.It Fl l Ar lines
-Start a new file every
-.Ar lines
-lines.
+Use decimal rather than alphabetical suffixes.
 .El
 .Sh SEE ALSO
 .Xr cat 1
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.
+.Pp
+The
+.Op Fl d
+flag and g unit are an extension to that specification.

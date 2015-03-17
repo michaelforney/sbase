@@ -17,9 +17,8 @@ itostr(char *str, int x, int n)
 		str[n] = start + (x % base);
 		x /= base;
 	}
-	if (x)
-		return -1;
-	return 0;
+
+	return x ? -1 : 0;
 }
 
 static FILE *
@@ -34,27 +33,25 @@ nextfile(FILE *f, char *buf, int plen, int slen)
 
 	if (!(f = fopen(buf, "w")))
 		eprintf("'%s':", buf);
+
 	return f;
 }
 
 static void
 usage(void)
 {
-	eprintf("usage: %s [-a len] [-b bytes[k|m|g]] [-d] [-l lines] "
-	        "[input [prefix]]\n", argv0);
+	eprintf("usage: %s [-a num] [-b num[k|m|g] | -l num] [-d] "
+	        "[file [prefix]]\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
 	FILE *in = stdin, *out = NULL;
-	char name[NAME_MAX + 1];
-	char *prefix = "x";
-	char *file = NULL;
-	char *tmp, *end;
 	size_t size = 1000, scale = 1, n;
-	int ch, plen, slen = 2, always = 0;
 	long l;
+	int ch, plen, slen = 2, always = 0;
+	char name[NAME_MAX + 1], *prefix = "x", *file = NULL, *tmp, *end;
 
 	ARGBEGIN {
 	case 'a':
@@ -111,9 +108,9 @@ main(int argc, char *argv[])
 		eprintf("names cannot exceed %d bytes\n", NAME_MAX);
 	estrlcpy(name, prefix, sizeof(name));
 
-	if (file && strcmp(file, "-") != 0) {
+	if (file && strcmp(file, "-")) {
 		if (!(in = fopen(file, "r")))
-			eprintf("'%s':", file);
+			eprintf("fopen %s:", file);
 	}
 
 	n = 0;
@@ -126,9 +123,10 @@ main(int argc, char *argv[])
 		n += (always || ch == '\n');
 		putc(ch, out);
 	}
-	if (in != stdin)
-		fclose(in);
+
+	fclose(in);
 	if (out)
 		fclose(out);
+
 	return 0;
 }
