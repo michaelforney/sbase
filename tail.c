@@ -24,7 +24,7 @@ dropinit(FILE *fp, const char *str)
 	ssize_t len;
 
 	if (mode == 'n') {
-		while (i < num && (len = getline(&buf, &size, fp)) != -1)
+		while (i < num && (len = getline(&buf, &size, fp)) >= 0)
 			if (len > 0 && buf[len - 1] == '\n')
 				i++;
 	} else {
@@ -106,52 +106,51 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc == 0)
+	if (!argc)
 		tail(stdin, "<stdin>");
 	else {
 		if ((many = argc > 1) && fflag)
 			usage();
-		for (newline = 0; argc > 0; argc--, argv++) {
-			if (!(fp = fopen(argv[0], "r"))) {
-				weprintf("fopen %s:", argv[0]);
+		for (newline = 0; *argv; argc--, argv++) {
+			if (!(fp = fopen(*argv, "r"))) {
+				weprintf("fopen %s:", *argv);
 				ret = 1;
 				continue;
 			}
 			if (many)
-				printf("%s==> %s <==\n",
-				       newline ? "\n" : "", argv[0]);
-			if (stat(argv[0], &st1) < 0)
-				eprintf("stat %s:", argv[0]);
+				printf("%s==> %s <==\n", newline ? "\n" : "", *argv);
+			if (stat(*argv, &st1) < 0)
+				eprintf("stat %s:", *argv);
 			if (!(S_ISFIFO(st1.st_mode) || S_ISREG(st1.st_mode)))
 				fflag = 0;
 			newline = 1;
-			tail(fp, argv[0]);
+			tail(fp, *argv);
 
-			if (fflag && argc == 1) {
-				tmp = NULL;
-				tmpsize = 0;
-				for (;;) {
-					while (getline(&tmp, &tmpsize, fp) != -1) {
-						fputs(tmp, stdout);
-						fflush(stdout);
-					}
-					if (ferror(fp))
-						eprintf("readline %s:", argv[0]);
-					clearerr(fp);
-					/* ignore error in case file was removed, we continue
-					 * tracking the existing open file descriptor */
-					if (!stat(argv[0], &st2)) {
-						if (st2.st_size < st1.st_size) {
-							fprintf(stderr, "%s: file truncated\n", argv[0]);
-							rewind(fp);
-						}
-						st1 = st2;
-					}
-					sleep(1);
-				}
+			if (!fflag) {
+				fclose(fp);
+				continue;
 			}
-			fclose(fp);
+			for (tmp = NULL, tmpsize = 0;;) {
+				while (getline(&tmp, &tmpsize, fp) >= 0) {
+					fputs(tmp, stdout);
+					fflush(stdout);
+				}
+				if (ferror(fp))
+					eprintf("readline %s:", *argv);
+				clearerr(fp);
+				/* ignore error in case file was removed, we continue
+				 * tracking the existing open file descriptor */
+				if (!stat(*argv, &st2)) {
+					if (st2.st_size < st1.st_size) {
+						fprintf(stderr, "%s: file truncated\n", *argv);
+						rewind(fp);
+					}
+					st1 = st2;
+				}
+				sleep(1);
+			}
 		}
 	}
+
 	return ret;
 }

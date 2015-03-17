@@ -71,7 +71,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =*| sponge          non-posix                    none
 #*| strings         yes                          none
 =*| sync            non-posix                    none
-=*  tail            yes                          none
+=*| tail            yes                          none
 =*  tar             non-posix                    none
 =*| tee             yes                          none
 =*  test            yes                          none
