@@ -102,7 +102,7 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc == 0)
+	if (!argc)
 		usage();
 
 	/* populate delimiters */
@@ -114,7 +114,7 @@ main(int argc, char *argv[])
 	dsc = ereallocarray(NULL, argc, sizeof(*dsc));
 
 	for (i = 0; i < argc; i++) {
-		if (strcmp(argv[i], "-") == 0)
+		if (!strcmp(argv[i], "-"))
 			dsc[i].fp = stdin;
 		else
 			dsc[i].fp = fopen(argv[i], "r");
