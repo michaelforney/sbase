@@ -148,5 +148,6 @@ main(int argc, char *argv[])
 		if (argi >= argc)
 			cooldown = 1;
 	}
+
 	return 0;
 }

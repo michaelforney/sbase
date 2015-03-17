@@ -53,7 +53,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =*| nohup           yes                          none
 #*| paste           yes                          none
 =*| printenv        non-posix                    none
-#*  printf          yes                          none
+#*| printf          yes                          none
 =*| pwd             yes                          none
 =   readlink        non-posix                    none
 =*  renice          yes                          none
