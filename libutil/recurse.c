@@ -66,12 +66,10 @@ recurse(const char *path, void *data, struct recursor *r)
 		}
 		if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
 			continue;
-		if (strlcpy(subpath, path, PATH_MAX) >= PATH_MAX)
-			eprintf("strlcpy: path too long\n");
-		if (path[strlen(path) - 1] != '/' && strlcat(subpath, "/", PATH_MAX) >= PATH_MAX)
-			eprintf("strlcat: path too long\n");
-		if (strlcat(subpath, d->d_name, PATH_MAX) >= PATH_MAX)
-			eprintf("strlcat: path too long\n");
+		estrlcpy(subpath, path, sizeof(subpath));
+		if (path[strlen(path) - 1] != '/')
+			estrlcat(subpath, "/", sizeof(subpath));
+		estrlcat(subpath, d->d_name, sizeof(subpath));
 		if ((r->flags & SAMEDEV) && statf(subpath, &dst) < 0) {
 			if (errno != ENOENT) {
 				weprintf("%s %s:", statf_name, subpath);

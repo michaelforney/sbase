@@ -48,8 +48,10 @@ char *strcasestr(const char *, const char *);
 
 #undef strlcat
 size_t strlcat(char *, const char *, size_t);
+size_t estrlcat(char *, const char *, size_t);
 #undef strlcpy
 size_t strlcpy(char *, const char *, size_t);
+size_t estrlcpy(char *, const char *, size_t);
 
 #undef strsep
 char *strsep(char **, const char *);

@@ -39,19 +39,14 @@ main(int argc, char *argv[])
 	if ((p = getenv("TMPDIR")))
 		tmpdir = p;
 
-	if (strlcpy(tmp, template, sizeof(tmp)) >= sizeof(tmp))
-		eprintf("path too long\n");
+	estrlcpy(tmp, template, sizeof(tmp));
 	p = dirname(tmp);
 	if (p[0] != '.') {
-		if (strlcpy(path, template, sizeof(path)) >= sizeof(path))
-			eprintf("path too long\n");
+		estrlcpy(path, template, sizeof(path));
 	} else {
-		if (strlcpy(path, tmpdir, sizeof(path)) >= sizeof(path))
-			eprintf("path too long\n");
-		if (strlcat(path, "/", sizeof(path)) >= sizeof(path))
-			eprintf("path too long\n");
-		if (strlcat(path, template, sizeof(path)) >= sizeof(path))
-			eprintf("path too long\n");
+		estrlcpy(path, tmpdir, sizeof(path));
+		estrlcat(path, "/", sizeof(path));
+		estrlcat(path, template, sizeof(path));
 	}
 
 	if (dflag) {

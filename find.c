@@ -977,10 +977,10 @@ find(char *path, Findhist *hist)
 		if (!strcmp(de->d_name, ".") || !strcmp(de->d_name, ".."))
 			continue;
 
-		p = pathbuf + strlcpy(pathbuf, path, pathcap);
+		p = pathbuf + estrlcpy(pathbuf, path, pathcap);
 		if (*--p != '/')
-			strlcat(pathbuf, "/", pathcap);
-		strlcat(pathbuf, de->d_name, pathcap);
+			estrlcat(pathbuf, "/", pathcap);
+		estrlcat(pathbuf, de->d_name, pathcap);
 		find(pathbuf, &cur);
 	}
 	closedir(dir); /* check return value? */

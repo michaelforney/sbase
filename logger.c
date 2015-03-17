@@ -80,9 +80,9 @@ main(int argc, char *argv[])
 		sz += argc;
 		buf = ecalloc(1, sz);
 		for (i = 0; i < argc; i++) {
-			strlcat(buf, argv[i], sz);
+			estrlcat(buf, argv[i], sz);
 			if (i + 1 < argc)
-				strlcat(buf, " ", sz);
+				estrlcat(buf, " ", sz);
 		}
 		syslog(priority, "%s", buf);
 	}

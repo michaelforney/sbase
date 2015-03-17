@@ -109,7 +109,7 @@ main(int argc, char *argv[])
 	plen = strlen(prefix);
 	if (plen + slen > NAME_MAX)
 		eprintf("names cannot exceed %d bytes\n", NAME_MAX);
-	strlcpy(name, prefix, sizeof(name));
+	estrlcpy(name, prefix, sizeof(name));
 
 	if (file && strcmp(file, "-") != 0) {
 		if (!(in = fopen(file, "r")))

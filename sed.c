@@ -329,7 +329,7 @@ strnacat(String *dst, char *src, size_t n)
 		resize((void **)&dst->str, &dst->cap, 1, len * 2, NULL);
 	if (new)
 		*dst->str = '\0';
-	strlcat(dst->str, src, len);
+	estrlcat(dst->str, src, len);
 }
 
 void
@@ -352,7 +352,7 @@ strnacpy(String *dst, char *src, size_t n)
 	len = strlen(dst->str) + MIN(n, len) + 1;
 	if (dst->cap < len)
 		resize((void **)&dst->str, &dst->cap, 1, len * 2, NULL);
-	strlcpy(dst->str, src, len);
+	estrlcpy(dst->str, src, len);
 }
 
 void
