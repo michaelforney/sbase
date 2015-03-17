@@ -87,6 +87,7 @@ find_test(struct test *tests, char *name)
 	for (t = tests; t->name; t++)
 		if (!strcmp(t->name, name))
 			return t;
+
 	return NULL;
 }
 
@@ -114,6 +115,7 @@ twoarg(char *argv[])
 		return t->func(argv[1]);
 
 	enprintf(2, "bad unary test %s\n", argv[0]);
+
 	return 0; /* not reached */
 }
 
@@ -129,6 +131,7 @@ threearg(char *argv[])
 		return !twoarg(argv + 1);
 
 	enprintf(2, "bad binary test %s\n", argv[1]);
+
 	return 0; /* not reached */
 }
 
@@ -139,6 +142,7 @@ fourarg(char *argv[])
 		return !threearg(argv + 1);
 
 	enprintf(2, "too many arguments\n");
+
 	return 0; /* not reached */
 }
 
