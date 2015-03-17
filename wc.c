@@ -61,7 +61,7 @@ int
 main(int argc, char *argv[])
 {
 	FILE *fp;
-	int i;
+	int many;
 	int ret = 0;
 
 	ARGBEGIN {
@@ -81,20 +81,21 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc == 0) {
+	if (!argc) {
 		wc(stdin, NULL);
 	} else {
-		for (i = 0; i < argc; i++) {
-			if (!(fp = fopen(argv[i], "r"))) {
-				weprintf("fopen %s:", argv[i]);
+		for (many = (argc > 1); *argv; argc--, argv++) {
+			if (!(fp = fopen(*argv, "r"))) {
+				weprintf("fopen %s:", *argv);
 				ret = 1;
 				continue;
 			}
-			wc(fp, argv[i]);
+			wc(fp, *argv);
 			fclose(fp);
 		}
-		if (argc > 1)
+		if (many)
 			output("total", tc, tl, tw);
 	}
+
 	return ret;
 }
