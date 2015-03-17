@@ -7,35 +7,12 @@
 
 #include "util.h"
 
-static int strtop(const char *);
-static int renice(int, int, long);
-
-static int
-strtop(const char *s)
-{
-	char *end;
-	long n;
-
-	errno = 0;
-	n = strtol(s, &end, 10);
-	if (*end != '\0') {
-		weprintf("%s: not an integer\n", s);
-		return -1;
-	}
-	if (errno != 0 || n <= 0 || n > INT_MAX) {
-		weprintf("%s: invalid value\n", s);
-		return -1;
-	}
-
-	return (int)n;
-}
-
 static int
 renice(int which, int who, long adj)
 {
 	errno = 0;
 	adj += getpriority(which, who);
-	if (errno != 0) {
+	if (errno) {
 		weprintf("getpriority %d:", who);
 		return 0;
 	}
@@ -52,7 +29,7 @@ renice(int which, int who, long adj)
 static void
 usage(void)
 {
-	eprintf("renice -n inc [-g | -p | -u] ID ...\n");
+	eprintf("renice -n num [-g | -p | -u] id ...\n");
 }
 
 int
@@ -60,7 +37,7 @@ main(int argc, char *argv[])
 {
 	const char *adj = NULL;
 	long val;
-	int i, which = PRIO_PROCESS, status = 0;
+	int which = PRIO_PROCESS, ret = 0;
 	struct passwd *pw;
 	int who;
 
@@ -79,34 +56,30 @@ main(int argc, char *argv[])
 		break;
 	default:
 		usage();
-		break;
 	} ARGEND;
 
-	if (argc == 0 || !adj)
+	if (!argc || !adj)
 		usage();
 
 	val = estrtonum(adj, PRIO_MIN, PRIO_MAX);
-	for (i = 0; i < argc; i++) {
-		who = -1;
+	for (; *argv; argc--, argv++) {
 		if (which == PRIO_USER) {
 			errno = 0;
-			pw = getpwnam(argv[i]);
-			if (!pw) {
-				if (errno != 0)
-					weprintf("getpwnam %s:", argv[i]);
+			if (!(pw = getpwnam(*argv))) {
+				if (errno)
+					weprintf("getpwnam %s:", *argv);
 				else
-					weprintf("getpwnam %s: no user found\n", argv[i]);
-				status = 1;
+					weprintf("getpwnam %s: no user found\n", *argv);
+				ret = 1;
 				continue;
 			}
 			who = pw->pw_uid;
+		} else {
+			who = estrtonum(*argv, 1, INT_MAX);
 		}
-		if (who < 0)
-			who = strtop(argv[i]);
-
-		if (who < 0 || !renice(which, who, val))
-			status = 1;
+		if (!renice(which, who, val))
+			ret = 1;
 	}
 
-	return status;
+	return ret;
 }

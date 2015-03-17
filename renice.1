@@ -1,4 +1,4 @@
-.Dd January 29, 2015
+.Dd March 17, 2015
 .Dt RENICE 1
 .Os sbase
 .Sh NAME
@@ -6,7 +6,7 @@
 .Nd change niceness of processes
 .Sh SYNOPSIS
 .Nm
-.Fl n Ar inc
+.Fl n Ar num
 .Op Fl g | Fl p | Fl u
 .Ar id ...
 .Sh DESCRIPTION
@@ -21,14 +21,14 @@ Interpret each
 .Ar id
 as a process group ID | process ID | user name or ID.
 The middle option is default.
-.It Fl n Ar inc
+.It Fl n Ar num
 Change niceness by
-.Ar inc ,
+.Ar num ,
 with niceness ranging from
 .Sy -20
 (highest priority)
 to
-.Sy +19
+.Sy +20
 (lowest priority).
 .El
 .Sh SEE ALSO
