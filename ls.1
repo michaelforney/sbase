@@ -1,4 +1,4 @@
-.Dd February 21, 2015
+.Dd March 18, 2015
 .Dt LS 1
 .Os sbase
 .Sh NAME
@@ -6,7 +6,7 @@
 .Nd list directory contents
 .Sh SYNOPSIS
 .Nm
-.Op Fl 1AacdFHhiLlnqrtUu
+.Op Fl 1AacdFfHhiLlnqrStUu
 .Op Ar file ...
 .Sh DESCRIPTION
 .Nm
@@ -25,6 +25,16 @@ modification time for sorting or printing.
 List directories themselves, not their contents.
 .It Fl F
 Append a file type indicator to all special files.
+.It Fl f
+Like
+.Fl U
+but turns on
+.Fl a
+and disables
+.Fl r ,
+.Fl S
+and
+.Fl t .
 .It Fl H
 List information about the targets of symbolic links specified on the command
 line instead of the links themselves.
@@ -52,6 +62,8 @@ List directory content recursively.  The
 flag is set implicitly.
 .It Fl r
 Reverse the sort order.
+.It Fl S
+Sort files by size (in decreasing order).
 .It Fl t
 Sort files by last file status/modification time instead of by name.
 .It Fl U

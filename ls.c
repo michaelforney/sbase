@@ -29,6 +29,7 @@ static int aflag = 0;
 static int cflag = 0;
 static int dflag = 0;
 static int Fflag = 0;
+static int fflag = 0;
 static int Hflag = 0;
 static int hflag = 0;
 static int iflag = 0;
@@ -38,6 +39,7 @@ static int nflag = 0;
 static int pflag = 0;
 static int qflag = 0;
 static int Rflag = 0;
+static int Sflag = 0;
 static int rflag = 0;
 static int tflag = 0;
 static int Uflag = 0;
@@ -176,12 +178,15 @@ output(const struct entry *ent)
 static int
 entcmp(const void *va, const void *vb)
 {
+	int cmp = 0;
 	const struct entry *a = va, *b = vb;
 
-	if (tflag)
-		return b->t - a->t;
-	else
-		return strcmp(a->name, b->name);
+	if (Sflag)
+		cmp = b->size - a->size;
+	else if (tflag)
+		cmp = b->t - a->t;
+
+	return cmp ? cmp : strcmp(a->name, b->name);
 }
 
 static void
@@ -289,6 +294,11 @@ main(int argc, char *argv[])
 	case 'd':
 		dflag = 1;
 		break;
+	case 'f':
+		aflag = 1;
+		fflag = 1;
+		Uflag = 1;
+		break;
 	case 'F':
 		Fflag = 1;
 		break;
@@ -321,9 +331,15 @@ main(int argc, char *argv[])
 		Rflag = 1;
 		break;
 	case 'r':
-		rflag = 1;
+		if (!fflag)
+			rflag = 1;
+		break;
+	case 'S':
+		Sflag = 1;
+		tflag = 0;
 		break;
 	case 't':
+		Sflag = 0;
 		tflag = 1;
 		break;
 	case 'U':
