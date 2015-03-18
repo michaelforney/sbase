@@ -10,23 +10,17 @@ static mode_t mask    = 0;
 static int    ret     = 0;
 
 static void
-chmodr(const char *path, void *data, struct recursor *r)
+chmodr(const char *path, struct stat *st, void *data, struct recursor *r)
 {
-	struct stat st;
 	mode_t m;
 
-	if (stat(path, &st) < 0) {
-		weprintf("stat %s:", path);
-		ret = 1;
-		return;
-	}
-
-	m = parsemode(modestr, st.st_mode, mask);
+	m = parsemode(modestr, st ? st->st_mode : 0, mask);
 	if (chmod(path, m) < 0) {
 		weprintf("chmod %s:", path);
 		ret = 1;
-	} else if (Rflag)
+	} else if (Rflag && st && S_ISDIR(st->st_mode)) {
 		recurse(path, NULL, r);
+	}
 }
 
 static void
@@ -82,7 +76,7 @@ done:
 		usage();
 
 	for (--argc, ++argv; *argv; argc--, argv++)
-		chmodr(*argv, NULL, &r);
+		recurse(*argv, NULL, &r);
 
 	return ret || recurse_status;
 }

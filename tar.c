@@ -235,10 +235,12 @@ print(char * fname, int l, char b[BLKSIZ])
 }
 
 static void
-c(const char *path, void *data, struct recursor *r)
+c(const char *path, struct stat *st, void *data, struct recursor *r)
 {
 	archive(path);
-	recurse(path, NULL, r);
+
+	if (st && S_ISDIR(st->st_mode))
+		recurse(path, NULL, r);
 }
 
 static void
@@ -318,7 +320,7 @@ main(int argc, char *argv[])
 			tarfile = stdout;
 		}
 		chdir(dir);
-		c(argv[0], NULL, &r);
+		recurse(argv[0], NULL, &r);
 		break;
 	case 't':
 	case 'x':

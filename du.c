@@ -17,7 +17,6 @@ static size_t blksize  = 512;
 static int aflag = 0;
 static int sflag = 0;
 static int hflag = 0;
-static int ret   = 0;
 
 static void
 printpath(size_t n, const char *path)
@@ -35,25 +34,16 @@ nblks(blkcnt_t blocks)
 }
 
 void
-du(const char *path, void *total, struct recursor *r)
+du(const char *path, struct stat *st, void *total, struct recursor *r)
 {
-	struct stat st;
 	size_t subtotal = 0;
 
-	if (lstat(path, &st) < 0) {
-		if (!(r->depth) || errno != ENOENT)
-			weprintf("stat %s:", path);
-		if (!(r->depth))
-			ret = 1;
-		return;
-	}
-
-	if (S_ISDIR(st.st_mode))
+	if (st && S_ISDIR(st->st_mode))
 		recurse(path, &subtotal, r);
-	*((size_t *)total) += subtotal + nblks(st.st_blocks);
+	*((size_t *)total) += subtotal + nblks(st ? st->st_blocks : 0);
 
-	if (!sflag && r->depth <= maxdepth && (S_ISDIR(st.st_mode) || aflag))
-		printpath(subtotal + nblks(st.st_blocks), path);
+	if (!sflag && r->depth <= maxdepth && r->depth && st && (S_ISDIR(st->st_mode) || aflag))
+		printpath(subtotal + nblks(st->st_blocks), path);
 }
 
 static void
@@ -109,16 +99,14 @@ main(int argc, char *argv[])
 		blksize = 1024;
 
 	if (!argc) {
-		du(".", &n, &r);
-		if (sflag && !ret)
-			printpath(nblks(n), ".");
+		recurse(".", &n, &r);
+		printpath(nblks(n), ".");
 	} else {
 		for (; *argv; argc--, argv++) {
-			du(argv[0], &n, &r);
-			if (sflag && !ret)
-				printpath(n, argv[0]);
+			recurse(*argv, &n, &r);
+			printpath(n, *argv);
 		}
 	}
 
-	return ret || recurse_status;
+	return recurse_status;
 }

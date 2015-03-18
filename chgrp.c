@@ -8,14 +8,13 @@
 #include "fs.h"
 #include "util.h"
 
-static struct stat st;
 static int   hflag = 0;
 static int   Rflag = 0;
 static gid_t gid = -1;
 static int   ret = 0;
 
 static void
-chgrp(const char *path, void *data, struct recursor *r)
+chgrp(const char *path, struct stat *st, void *data, struct recursor *r)
 {
 	char *chownf_name;
 	int (*chownf)(const char *, uid_t, gid_t);
@@ -28,10 +27,10 @@ chgrp(const char *path, void *data, struct recursor *r)
 		chownf = chown;
 	}
 
-	if (chownf(path, st.st_uid, gid) < 0) {
+	if (st && chownf(path, st->st_uid, gid) < 0) {
 		weprintf("%s %s:", chownf_name, path);
 		ret = 1;
-	} else if (Rflag) {
+	} else if (Rflag && st && S_ISDIR(st->st_mode)) {
 		recurse(path, NULL, r);
 	}
 }
@@ -76,14 +75,8 @@ main(int argc, char *argv[])
 	}
 	gid = gr->gr_gid;
 
-	for (argc--, argv++; *argv; argc--, argv++) {
-		if (stat(*argv, &st) < 0) {
-			weprintf("stat %s:", *argv);
-			ret = 1;
-			continue;
-		}
-		chgrp(*argv, NULL, &r);
-	}
+	for (argc--, argv++; *argv; argc--, argv++)
+		recurse(*argv, NULL, &r);
 
 	return ret || recurse_status;
 }

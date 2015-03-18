@@ -1,4 +1,6 @@
 /* See LICENSE file for copyright and license details. */
+#include <sys/stat.h>
+
 #include <errno.h>
 #include <stdio.h>
 
@@ -10,9 +12,9 @@ int rm_rflag = 0;
 int rm_status = 0;
 
 void
-rm(const char *path, void *data, struct recursor *r)
+rm(const char *path, struct stat *st, void *data, struct recursor *r)
 {
-	if (rm_rflag)
+	if (rm_rflag && st && S_ISDIR(st->st_mode))
 		recurse(path, NULL, r);
 	if (remove(path) < 0) {
 		if (!rm_fflag)

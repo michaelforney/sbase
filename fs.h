@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <sys/stat.h>
 #include <sys/types.h>
 
 struct history {
@@ -8,7 +9,7 @@ struct history {
 };
 
 struct recursor {
-        void (*fn)(const char *, void *, struct recursor *);
+        void (*fn)(const char *, struct stat *st, void *, struct recursor *);
         struct history *hist;
         int depth;
         int follow;
@@ -36,4 +37,4 @@ extern int recurse_status;
 void recurse(const char *, void *, struct recursor *);
 
 int cp(const char *, const char *, int);
-void rm(const char *, void *, struct recursor *);
+void rm(const char *, struct stat *st, void *, struct recursor *);

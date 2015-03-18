@@ -33,24 +33,23 @@ recurse(const char *path, void *data, struct recursor *r)
 	}
 
 	if (statf(path, &st) < 0) {
-		if (errno != ENOENT) {
-			weprintf("%s %s:", statf_name, path);
-			recurse_status = 1;
-		}
+		weprintf("%s %s:", statf_name, path);
+		recurse_status = 1;
 		return;
 	}
-	if (!S_ISDIR(st.st_mode))
+	if (!S_ISDIR(st.st_mode)) {
+		(r->fn)(path, &st, data, r);
 		return;
+	}
 
 	new = emalloc(sizeof(struct history));
-
 	new->prev  = r->hist;
 	r->hist    = new;
 	new->dev   = st.st_dev;
 	new->ino   = st.st_ino;
 
 	for (h = new->prev; h; h = h->prev)
-		if (h->dev == st.st_dev && h->ino == st.st_ino)
+		if (h->ino == st.st_ino && h->dev == st.st_dev)
 			return;
 
 	if (!(dp = opendir(path))) {
@@ -70,15 +69,25 @@ recurse(const char *path, void *data, struct recursor *r)
 		if (path[strlen(path) - 1] != '/')
 			estrlcat(subpath, "/", sizeof(subpath));
 		estrlcat(subpath, d->d_name, sizeof(subpath));
-		if ((r->flags & SAMEDEV) && statf(subpath, &dst) < 0) {
-			if (errno != ENOENT) {
-				weprintf("%s %s:", statf_name, subpath);
-				recurse_status = 1;
-			}
-		} else if (!((r->flags & SAMEDEV) && dst.st_dev != st.st_dev)) {
+		if (statf(subpath, &dst) < 0) {
+			weprintf("%s %s:", statf_name, subpath);
+			recurse_status = 1;
+		} else if ((r->flags & SAMEDEV) && dst.st_dev != st.st_dev) {
+			continue;
+		} else {
 			r->depth++;
-			(r->fn)(subpath, data, r);
+			(r->fn)(subpath, &dst, data, r);
 			r->depth--;
+		}
+	}
+
+	if (!r->depth) {
+		(r->fn)(path, &st, data, r);
+
+		for (; r->hist; ) {
+			h = r->hist;
+			r->hist = r->hist->prev;
+			free(h);
 		}
 	}
 

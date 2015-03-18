@@ -33,7 +33,7 @@ main(int argc, char *argv[])
 	}
 
 	for (; *argv; argc--, argv++)
-		rm(*argv, NULL, &r);
+		recurse(*argv, NULL, &r);
 
 	return rm_status || recurse_status;
 }
