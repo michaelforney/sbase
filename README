@@ -5,7 +5,7 @@ sbase  is a  collection of  unix  tools that  are inherently  portable
 across UNIX and UNIX-like systems.
 
 The following tools are implemented ('*' == finished, '#' == UTF-8 support,
-'=' == implicit UTF-8 support, '|' == audited):
+'=' == implicit UTF-8 support, '|' == audited, () == petty flag):
 
     UTILITY         POSIX 2008 COMPLIANT         MISSING OPTIONS
     -------         --------------------         ---------------
