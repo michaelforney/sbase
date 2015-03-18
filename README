@@ -42,7 +42,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =*| ln              yes                          none
 =*| logger          yes                          none
 =*| logname         yes                          none
-=   ls              no                           (-C), -S, -f, -m, -s, -x
+=   ls              no                           (-C), -S, -f, (-m), (-s), (-x)
 =*| md5sum          non-posix                    none
 =*| mkdir           yes                          none
 =*| mkfifo          yes                          none
