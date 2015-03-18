@@ -192,9 +192,10 @@ lsdir(const char *path)
 	struct entry ent, *ents = NULL;
 	struct dirent *d;
 	size_t i, n = 0, len;
-	char *cwd, *p, *q, *name;
+	char cwd[PATH_MAX], *p, *q, *name;
 
-	cwd = agetcwd();
+	if (!getcwd(cwd, sizeof(cwd)))
+		eprintf("getcwd:");
 	if (!(dp = opendir(path)))
 		eprintf("opendir %s:", path);
 	if (chdir(path) < 0)
@@ -247,7 +248,6 @@ lsdir(const char *path)
 	if (chdir(cwd) < 0)
 		eprintf("chdir %s:", cwd);
 	free(ents);
-	free(cwd);
 }
 
 static void

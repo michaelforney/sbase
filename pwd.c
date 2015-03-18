@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "util.h"
 
@@ -29,7 +30,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	char *cwd;
+	char cwd[PATH_MAX];
 	char mode = 'L';
 
 	ARGBEGIN {
@@ -41,7 +42,8 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	cwd = agetcwd();
+	if (!getcwd(cwd, sizeof(cwd)))
+		eprintf("getcwd:");
 	puts((mode == 'L') ? getpwd(cwd) : cwd);
 
 	return 0;

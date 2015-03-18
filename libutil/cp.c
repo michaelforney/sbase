@@ -27,8 +27,7 @@ int
 cp(const char *s1, const char *s2, int depth)
 {
 	FILE *f1, *f2;
-	char *ns1, *ns2;
-	size_t size1, size2;
+	char ns1[PATH_MAX], ns2[PATH_MAX];
 	struct dirent *d;
 	struct stat st;
 	struct utimbuf ut;
@@ -71,17 +70,15 @@ cp(const char *s1, const char *s2, int depth)
 		if (mkdir(s2, st.st_mode) < 0 && errno != EEXIST)
 			eprintf("mkdir %s:", s2);
 
-		apathmax(&ns1, &size1);
-		apathmax(&ns2, &size2);
 		while ((d = readdir(dp))) {
 			if (strcmp(d->d_name, ".") && strcmp(d->d_name, "..")) {
-				r = snprintf(ns1, size1, "%s/%s", s1, d->d_name);
-				if (r >= size1 || r < 0) {
+				r = snprintf(ns1, sizeof(ns1), "%s/%s", s1, d->d_name);
+				if (r >= sizeof(ns1) || r < 0) {
 					eprintf("%s/%s: filename too long\n",
 						s1, d->d_name);
 				}
-				r = snprintf(ns2, size2, "%s/%s", s2, d->d_name);
-				if (r >= size2 || r < 0) {
+				r = snprintf(ns2, sizeof(ns2), "%s/%s", s2, d->d_name);
+				if (r >= sizeof(ns2) || r < 0) {
 					eprintf("%s/%s: filename too long\n",
 						s2, d->d_name);
 				}
@@ -89,8 +86,6 @@ cp(const char *s1, const char *s2, int depth)
 			}
 		}
 		closedir(dp);
-		free(ns1);
-		free(ns2);
 		goto preserve;
 	}
 
