@@ -1,4 +1,4 @@
-.Dd February 20, 2015
+.Dd March 18, 2015
 .Dt NL 1
 .Os sbase
 .Sh NAME
@@ -6,7 +6,11 @@
 .Nd line numbering filter
 .Sh SYNOPSIS
 .Nm
+.Op Fl p
 .Op Fl b Ar type
+.Op Fl d Ar delim
+.Op Fl f Ar type
+.Op Fl h Ar type
 .Op Fl i Ar incr
 .Op Fl l Ar num
 .Op Fl n Ar format
@@ -25,8 +29,10 @@ is given
 reads from stdin.
 .Sh OPTIONS
 .Bl -tag -width Ds
+.It Fl p
+Do not reset number for logical pages
 .It Fl b Ar type
-Defines which lines will be numbered:
+Defines which lines will be numbered for body sections:
 .Bl -tag -width pstringXX
 .It a
 All lines.
@@ -40,6 +46,16 @@ Only lines which match
 a regular expression as defined in
 .Xr regex 7 .
 .El
+.It Fl d Ar delim
+Specify the two characters delimiter (default is "\\:"). If only one character is specified, the second remains ':'.
+.It Fl f Ar type
+Same as
+.Fl b
+except for footer sections.
+.It Fl h Ar type
+Same as
+.Fl b
+except for header sections.
 .It Fl i Ar incr
 Defines the increment between numbered lines.
 .It Fl l Ar num
@@ -76,3 +92,9 @@ The default is 6.
 .El
 .Sh SEE ALSO
 .Xr pr 1
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification.

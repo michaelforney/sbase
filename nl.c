@@ -13,29 +13,64 @@
 #define FORMAT_RN "%*ld%s"
 #define FORMAT_RZ "%0*ld%s"
 
-static char        mode = 't';
-static int         blines = 1;
+static char        type[] = { 'n', 't', 'n' }; /* footer, body, header */
+static char        delim[] = { '\\', ':' };
 static const char *format = FORMAT_RN;
 static const char *sep = "\t";
 static int         width = 6;
+static int         pflag = 0;
 static size_t      startnum = 1;
 static size_t      incr = 1;
-static regex_t     preg;
+static size_t      blines = 1;
+static regex_t     preg[3];
+
+static int
+getsection(char *buf, int *section)
+{
+	int sectionchanged = 0;
+	int newsection = *section;
+
+	while (!strncmp(buf, delim, 2)) {
+		if (!sectionchanged) {
+			sectionchanged = 1;
+			newsection = 0;
+		} else {
+			++newsection;
+			newsection %= 3;
+		}
+		buf += 2;
+	}
+
+	if (buf && buf[0] == '\n')
+		*section = newsection;
+	else
+		sectionchanged = 0;
+
+	return sectionchanged;
+}
 
 static void
 nl(const char *name, FILE *fp)
 {
 	char *buf = NULL;
-	int donumber, bl = 1;
-	size_t size = 0;
+	int donumber, oldsection, section = 1, bl = 1;
+	size_t number = startnum, size = 0;
 
 	while (getline(&buf, &size, fp) != -1) {
 		donumber = 0;
+		oldsection = section;
 
-		if ((mode == 't' && buf[0] != '\n')
-		    || (mode == 'p' && !regexec(&preg, buf, 0, NULL, 0))) {
+		if (getsection(buf, &section)) {
+			if ((section >= oldsection) && !pflag)
+				number = startnum;
+			continue;
+		}
+
+		if ((type[section] == 't' && buf[0] != '\n')
+		    || (type[section] == 'p' &&
+		        !regexec(&preg[section], buf, 0, NULL, 0))) {
 			donumber = 1;
-		} else if (mode == 'a') {
+		} else if (type[section] == 'a') {
 			if (buf[0] == '\n' && bl < blines) {
 				++bl;
 			} else {
@@ -45,8 +80,8 @@ nl(const char *name, FILE *fp)
 		}
 
 		if (donumber) {
-			printf(format, width, startnum, sep);
-			startnum += incr;
+			printf(format, width, number, sep);
+			number += incr;
 		} else {
 			printf("%*s", width, "");
 		}
@@ -60,23 +95,46 @@ nl(const char *name, FILE *fp)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-b type] [-i incr] [-l num] [-n format] [-s sep] [-v startnum] [-w width] [file]\n", argv0);
+	eprintf("usage: %s [-p] [-b type] [-d delim] [-f type] "
+	    "[-h type] [-i incr] [-l num]\n[-n format] [-s sep] "
+	    "[-v startnum] [-w width] [file]\n", argv0);
+}
+static char
+getlinetype(char *type, regex_t *preg)
+{
+	if (type[0] == 'p')
+		eregcomp(preg, &type[1], REG_NOSUB);
+	else if (!strchr("ant", type[0]))
+		usage();
+
+	return type[0];
 }
 
 int
 main(int argc, char *argv[])
 {
 	FILE *fp;
-	char *r;
+	char *d;
 
 	ARGBEGIN {
 	case 'b':
-		r = EARGF(usage());
-		mode = r[0];
-		if (r[0] == 'p')
-			eregcomp(&preg, &r[1], REG_NOSUB);
-		else if (!strchr("ant", mode))
+		type[1] = getlinetype(EARGF(usage()), &preg[1]);
+		break;
+	case 'd':
+		d = EARGF(usage());
+		if (strlen(d) > 2) {
 			usage();
+		} else if (d[0] != '\0') {
+			delim[0] = d[0];
+			if (d[1])
+				delim[1] = d[1];
+		}
+		break;
+	case 'f':
+		type[0] = getlinetype(EARGF(usage()), &preg[0]);
+		break;
+	case 'h':
+		type[2] = getlinetype(EARGF(usage()), &preg[2]);
 		break;
 	case 'i':
 		incr = estrtonum(EARGF(usage()), 0, MIN(LLONG_MAX, SIZE_MAX));
@@ -94,6 +152,9 @@ main(int argc, char *argv[])
 			format = FORMAT_RZ;
 		else
 			eprintf("%s: bad format\n", format);
+		break;
+	case 'p':
+		pflag = 1;
 		break;
 	case 's':
 		sep = EARGF(usage());
