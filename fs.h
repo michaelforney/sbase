@@ -25,7 +25,7 @@ extern int cp_fflag;
 extern int cp_pflag;
 extern int cp_rflag;
 extern int cp_vflag;
-extern int cp_HLPflag;
+extern int cp_follow;
 extern int cp_status;
 
 extern int rm_fflag;

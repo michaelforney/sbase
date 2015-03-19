@@ -18,7 +18,7 @@ mv(const char *s1, const char *s2, int depth)
 		return (mv_status = 0);
 	if (errno == EXDEV) {
 		cp_aflag = cp_rflag = cp_pflag = 1;
-		cp_HLPflag = 'P';
+		cp_follow = 'P';
 		rm_rflag = 1;
 		cp(s1, s2, depth);
 		rm(s1, NULL, NULL, &r);

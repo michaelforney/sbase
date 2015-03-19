@@ -17,7 +17,7 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	case 'a':
-		cp_HLPflag = 'P';
+		cp_follow = 'P';
 		cp_aflag = cp_pflag = cp_rflag = 1;
 		break;
 	case 'f':
@@ -36,7 +36,7 @@ main(int argc, char *argv[])
 	case 'H':
 	case 'L':
 	case 'P':
-		cp_HLPflag = ARGC();
+		cp_follow = ARGC();
 		break;
 	default:
 		usage();
