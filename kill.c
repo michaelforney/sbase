@@ -34,7 +34,7 @@ sig2name(const int sig)
 	return NULL; /* not reached */
 }
 
-const int
+int
 name2sig(const char *name)
 {
 	size_t i;
