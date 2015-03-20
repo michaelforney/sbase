@@ -8,8 +8,8 @@
 static int
 digitsleft(const char *d)
 {
-	char *exp;
 	int shift;
+	char *exp;
 
 	if (*d == '+')
 		d++;
@@ -22,8 +22,8 @@ digitsleft(const char *d)
 static int
 digitsright(const char *d)
 {
-	char *exp;
 	int shift, after;
+	char *exp;
 
 	exp = strpbrk(d, "eE");
 	shift = exp ? estrtonum(&exp[1], INT_MIN, INT_MAX) : 0;
@@ -79,11 +79,10 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	const char *starts = "1", *steps = "1", *ends = "1", *sep = "\n";
-	int wflag = 0;
-	char *tmp, ftmp[BUFSIZ], *fmt = ftmp;
 	double start, step, end, out, dir;
-	int left, right;
+	int wflag = 0, left, right;
+	char *tmp, ftmp[BUFSIZ], *fmt = ftmp;
+	const char *starts = "1", *steps = "1", *ends = "1", *sep = "\n";
 
 	ARGBEGIN {
 	case 'f':
