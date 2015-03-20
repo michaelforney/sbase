@@ -42,7 +42,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =*| ln              yes                          none
 =*| logger          yes                          none
 =*| logname         yes                          none
-#*  ls              no                           (-C), (-m), (-s), (-x)
+#*  ls              no                           none (-C, -m, -s, -x)
 =*| md5sum          non-posix                    none
 =*| mkdir           yes                          none
 =*| mkfifo          yes                          none
@@ -59,8 +59,8 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =*| renice          yes                          none
 =*| rm              yes                          none (-i)
 =*| rmdir           yes                          none
-#   sed
-    seq             non-posix                    none
+#   sed             yes                          none
+=   seq             non-posix                    none
 =*| setsid          non-posix                    none
 =*| sha1sum         non-posix                    none
 =*| sha256sum       non-posix                    none
