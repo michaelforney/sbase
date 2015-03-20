@@ -1,11 +1,12 @@
 /* See LICENSE file for copyright and license details. */
 #include <limits.h>
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "text.h"
+#include "utf.h"
 #include "util.h"
 
 /* formats here specify line number and separator (not line content) */
@@ -14,7 +15,7 @@
 #define FORMAT_RZ "%0*ld%s"
 
 static char        type[] = { 'n', 't', 'n' }; /* footer, body, header */
-static char        delim[] = { '\\', ':' };
+static char       *delim = "\\:";
 static const char *format = FORMAT_RN;
 static const char *sep = "\t";
 static int         width = 6;
@@ -22,6 +23,7 @@ static int         pflag = 0;
 static size_t      startnum = 1;
 static size_t      incr = 1;
 static size_t      blines = 1;
+static size_t      delimlen = 2;
 static regex_t     preg[3];
 
 static int
@@ -30,7 +32,7 @@ getsection(char *buf, int *section)
 	int sectionchanged = 0;
 	int newsection = *section;
 
-	while (!strncmp(buf, delim, 2)) {
+	for (; !strncmp(buf, delim, delimlen); buf += delimlen) {
 		if (!sectionchanged) {
 			sectionchanged = 1;
 			newsection = 0;
@@ -38,7 +40,6 @@ getsection(char *buf, int *section)
 			++newsection;
 			newsection %= 3;
 		}
-		buf += 2;
 	}
 
 	if (buf && buf[0] == '\n')
@@ -115,6 +116,7 @@ main(int argc, char *argv[])
 {
 	FILE *fp;
 	char *d;
+	size_t l, s;
 
 	ARGBEGIN {
 	case 'b':
@@ -122,12 +124,22 @@ main(int argc, char *argv[])
 		break;
 	case 'd':
 		d = EARGF(usage());
-		if (strlen(d) > 2) {
-			usage();
-		} else if (d[0] != '\0') {
-			delim[0] = d[0];
-			if (d[1])
-				delim[1] = d[1];
+		l = utflen(d);
+
+		switch (l) {
+		case 0:
+			break;
+		case 1:
+			s = strlen(d);
+			delim = emalloc(s + 2);
+			estrlcpy(delim, d, s + 2);
+			estrlcat(delim, ":", s + 2);
+			delimlen = s + 1;
+			break;
+		default:
+			delim = d;
+			delimlen = strlen(delim);
+			break;
 		}
 		break;
 	case 'f':
