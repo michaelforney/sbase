@@ -55,7 +55,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =*| printenv        non-posix                    none
 #*| printf          yes                          none
 =*| pwd             yes                          none
-=   readlink        non-posix                    none
+=*| readlink        non-posix                    none
 =*| renice          yes                          none
 =*| rm              yes                          none (-i)
 =*| rmdir           yes                          none
