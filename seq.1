@@ -1,4 +1,4 @@
-.Dd January 30, 2015
+.Dd March 20, 2015
 .Dt SEQ 1
 .Os sbase
 .Sh NAME
@@ -8,29 +8,32 @@
 .Nm
 .Op Fl w
 .Op Fl f Ar fmt
-.Op Fl s Ar separator
-.Op Ar start Op Ar step
-.Ar end
+.Op Fl s Ar sep
+.Op Ar startnum Op Ar step
+.Ar endnum
 .Sh DESCRIPTION
 .Nm
-will print a sequence of numbers from
-.Ar start
+writes a sequence of numbers from
+.Ar startnum
 (default: 1) to
-.Ar end ,
+.Ar endnum
 in
 .Ar step
-intervals (default: 1).
+intervals (default: 1)
+to stdout.
 .Sh OPTIONS
 .Bl -tag -width Ds
-.It Fl f Ar format
-Specifies the format used for output lines, as per
+.It Fl f Ar fmt
+Use
+.Ar fmt
+as the output line format according to
 .Xr printf 3 .
-.It Fl s Ar separator
-Specifies the separator to print between output lines.
+.It Fl s Ar sep
+Print
+.Ar sep
+between output lines. The default is "\en".
 .It Fl w
-Tells
-.Nm
-to print out lines in equal width.
+Print out lines in equal width.
 .El
 .Sh SEE ALSO
 .Xr printf 3

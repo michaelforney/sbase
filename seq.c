@@ -14,7 +14,7 @@ digitsleft(const char *d)
 	if (*d == '+')
 		d++;
 	exp = strpbrk(d, "eE");
-	shift = exp ? estrtonum(&exp[1], INT_MIN, INT_MAX) : 0;
+	shift = exp ? estrtonum(exp + 1, INT_MIN, INT_MAX) : 0;
 
 	return MAX(0, strspn(d, "-0123456789") + shift);
 }
@@ -72,8 +72,8 @@ format:
 static void
 usage(void)
 {
-	eprintf("usage: %s [-f fmt] [-s separator] [-w width] [start"
-		       " [step]] end\n", argv0);
+	eprintf("usage: %s [-f fmt] [-s sep] [-w] [startnum"
+		       " [step]] endnum\n", argv0);
 }
 
 int
@@ -142,7 +142,7 @@ main(int argc, char *argv[])
 			fputs(sep, stdout);
 		printf(fmt, out);
 	}
-	printf("\n");
+	putchar('\n');
 
 	return 0;
 }
