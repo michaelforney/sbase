@@ -1,4 +1,4 @@
-.Dd February 8, 2015
+.Dd March 21, 2015
 .Dt TAR 1
 .Os sbase
 .Sh NAME
@@ -13,15 +13,8 @@
 .Nm
 .Op Fl C Ar dir
 .Op Fl h
-.Op Fl j | Fl z
 .Fl c Ar dir
 .Op Fl f Ar file
-.Nm
-.Op Fl C Ar dir
-.Op Fl h
-.Op Fl j | Fl z
-.Fl cf
-.Ar file Ar dir
 .Sh DESCRIPTION
 .Nm
 is the standard file archiver.
@@ -47,7 +40,7 @@ Extract archive.
 .It Fl h
 Always dereference symbolic links while recursively traversing directories.
 .It Fl j | Fl z
-Use bzip2 | gzip compression. The
+Use bzip2 | gzip decompression. The
 .Xr bzip2 1 |
 .Xr gzip 1
 utilities must be installed separately.

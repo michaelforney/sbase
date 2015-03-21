@@ -72,7 +72,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 #*| strings         yes                          none
 =*| sync            non-posix                    none
 =*| tail            yes                          none
-=*  tar             non-posix                    none
+=*| tar             non-posix                    none
 =*| tee             yes                          none
 =*| test            yes                          none
 =*| time            yes                          none

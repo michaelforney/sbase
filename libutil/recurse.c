@@ -58,6 +58,9 @@ recurse(const char *path, void *data, struct recursor *r)
 		return;
 	}
 
+	if (!r->depth && (r->flags & DIRFIRST))
+		(r->fn)(path, &st, data, r);
+
 	while ((d = readdir(dp))) {
 		if (r->follow == 'H') {
 			statf_name = "lstat";
@@ -82,7 +85,8 @@ recurse(const char *path, void *data, struct recursor *r)
 	}
 
 	if (!r->depth) {
-		(r->fn)(path, &st, data, r);
+		if (!(r->flags & DIRFIRST))
+			(r->fn)(path, &st, data, r);
 
 		for (; r->hist; ) {
 			h = r->hist;

@@ -17,7 +17,8 @@ struct recursor {
 };
 
 enum {
-        SAMEDEV = 1 << 0,
+	SAMEDEV  = 1 << 0,
+	DIRFIRST = 1 << 1,
 };
 
 extern int cp_aflag;
