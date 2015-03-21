@@ -52,7 +52,7 @@ static ino_t tarinode;
 static dev_t tardev;
 
 static int  mflag;
-static char filtermode;
+static char filtermode = '\0';
 
 static FILE *
 decomp(FILE *fp)
@@ -347,6 +347,8 @@ main(int argc, char *argv[])
 	} ARGEND;
 
 	if (!mode || argc != (mode == 'c'))
+		usage();
+	if (mode == 'c' && filtermode)
 		usage();
 
 	switch (mode) {
