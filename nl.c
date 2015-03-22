@@ -66,7 +66,7 @@ nl(const char *fname, FILE *fp)
 				donumber = 1;
 			break;
 		case 'p':
-		     	if (!regexec(preg + section, buf, 0, NULL, 0))
+			if (!regexec(preg + section, buf, 0, NULL, 0))
 				donumber = 1;
 			break;
 		case 'a':
