@@ -1,4 +1,4 @@
-.Dd March 6, 2014
+.Dd March 22, 2014
 .Dt COL 1
 .Os sbase
 .Sh NAME
@@ -9,20 +9,15 @@
 .Op Fl bfpx
 .Op Fl l Ar num
 .Sh DESCRIPTION
-The
 .Nm
-utility filters all the reverse (and half reverse) line feeds,
-as they are produced by
+filters all reverse (and half reverse) line feeds,
+as produced by
 .Xr nroff 1
-with .2C of
+with .2C,
 .Xr ms 6
-or by
+or
 .Xr tbl 1 .
-.Nm
-also replaces spaces by tabs when it is possible.
-The control sequences managed by
-.Nm
-are:
+The recognized control sequences are:
 .Bl -tag -width Ds
 .It ESC-7
 Reverse line-feed
@@ -42,25 +37,24 @@ Carriage return
 New line
 .El
 .Pp
-All the other control codes and escape sequences are removed.
+All other control codes and escape sequences are removed.
 .Nm
-transforms all the spaces into tabulators.
+converts all spaces to tabs.
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl p
-Print unknown escape sequences to the output.
+Print unknown escape sequences.
 .It Fl b
-Do not print backspaces in output,
-and print only the last overstriked character in the output.
+Do not print backspaces and instead only print the last
+character written to each column position.
 .It Fl f
 Allow forward half line feeds in the output.
 .It Fl x
-Do not convert spaces in tabulators.
+Do not convert spaces to tabs.
 .It Fl l Ar num
-Increment to
+Buffer
 .Ar num
-the number of lines buffered for
-.Nm
+lines in memory.
 .El
 .Sh SEE ALSO
 .Xr nroff 1 ,
@@ -68,13 +62,9 @@ the number of lines buffered for
 .Xr ms 6
 .Sh BUGS
 .Nm
-only process text with a maximum of 256 lines with 800 bytes per line,
-although the number of lines can be modified with the
-.Fl l
-option.
-When the number of lines is bigger,
-the buffer is flushed to the output,
-so new reverse line feeds can not operate in the flushed  lines.
-This implementation ignores SI and SO selection character sets,
-because it is supposed to work only with UTF-8 strings,
-although the UTF-8 support is missed.
+only buffers up to 256 lines with up to 800 bytes per line
+if the line-number hasn't been set differently with the
+.Op Fl l
+flag.
+When the number of lines is bigger, the buffer is flushed and
+reverse line feeds can not operate on the flushed lines.

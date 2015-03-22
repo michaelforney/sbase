@@ -1,47 +1,47 @@
 /* See LICENSE file for copyright and license details. */
+#include <limits.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
+#include "utf.h"
 #include "util.h"
 
 #define NLINES 256
 #define NCOLS 800
 
-static char **buff;
+static Rune **buf;
 
-static int obackspace, onotabs, ohalfline, oescape;
-static unsigned nline, ncol, nchar, nspaces, maxline, bs;
-static size_t pagsize = NLINES;
+static int    backspace, notabs, halfline, escape;
+static size_t nline, ncol, nchar, nspaces, maxline, bs, pagesize = NLINES;
 
 static void
 flush(void)
 {
-	int c;
-	unsigned i, j;
+	Rune c;
+	size_t i, j;
 
 	for (i = 0; i < maxline; ++i) {
-		for (j = 0; j < NCOLS && (c = buff[i][j]) != '\0'; ++j)
-			putchar(c);
+		for (j = 0; j < NCOLS && (c = buf[i][j]); ++j)
+			efputrune(&c, stdout, "<stdout>");
 		putchar('\n');
 	}
 	bs = nchar = nline = ncol = 0;
 }
 
 static void
-forward(unsigned n)
+forward(size_t n)
 {
-	unsigned lim;
+	size_t lim;
 
-	for (lim = ncol + n; ncol != lim && nchar < NCOLS-1; ++nchar) {
-		switch (buff[nline][nchar]) {
+	for (lim = ncol + n; ncol != lim && nchar < NCOLS - 1; ++nchar) {
+		switch (buf[nline][nchar]) {
 		case '\b':
 			--ncol;
 			break;
 		case '\0':
-			buff[nline][nchar] = ' ';
+			buf[nline][nchar] = ' ';
 			/* FALLTHROUGH */
 		default:
 			++ncol;
@@ -53,31 +53,30 @@ forward(unsigned n)
 static void
 linefeed(int up, int rcarriage)
 {
-	unsigned oncol = ncol;
+	size_t oncol = ncol;
 
 	nspaces = 0;
 	if (up > 0) {
-		if (nline == pagsize-1) {
+		if (nline == pagesize - 1) {
 			flush();
 		}  else {
 			if (++nline > maxline)
 				maxline = nline;
 		}
-	} else {
-		if (nline > 0)
-			--nline;
+	} else if (nline > 0) {
+		--nline;
 	}
 	bs = 0;
 	if (rcarriage) {
 		forward(oncol);
-		 nchar = ncol = 0;
+		nchar = ncol = 0;
 	}
 }
 
 static void
-newchar(int c)
+newchar(Rune c)
 {
-	char *cp;
+	Rune *cp;
 
 	forward(nspaces);
 	nspaces = 0;
@@ -90,7 +89,7 @@ newchar(int c)
 		nchar = ncol = 0;
 		break;
 	case '\t':
-		forward(8 - ncol%8);
+		forward(8 - ncol % 8);
 		break;
 	case '\b':
 		if (ncol > 0)
@@ -100,20 +99,18 @@ newchar(int c)
 		bs = 1;
 		break;
 	default:
-		cp = &buff[nline][nchar];
-		if (*cp != '\0' && *cp != ' ' && bs && !obackspace) {
-			if (nchar != NCOLS-3) {
-				memmove(cp + 3, cp + 1, NCOLS - nchar - 2);
-				cp[1] = '\b';
-				nchar += 2;
-			}
+		cp = &buf[nline][nchar];
+		if (*cp && *cp != ' ' && bs && !backspace && nchar != NCOLS - 3) {
+			memmove(cp + 3, cp + 1, (NCOLS - nchar - 2) * sizeof(*cp));
+			cp[1] = '\b';
+			nchar += 2;
 		}
-		if (nchar != NCOLS-1) {
-			for (cp = buff[nline]; cp < &buff[nline][nchar]; ++cp) {
+		if (nchar != NCOLS - 1) {
+			for (cp = buf[nline]; cp < &buf[nline][nchar]; ++cp) {
 				if (*cp == '\0')
 					*cp = ' ';
 			}
-			buff[nline][nchar++] = c;
+			buf[nline][nchar++] = c;
 			++ncol;
 		}
 		bs = 0;
@@ -123,50 +120,52 @@ newchar(int c)
 static void
 col(void)
 {
-	int c;
+	Rune r;
+	int ret;
 
-	while ((c = getchar()) != EOF) {
-		switch (c) {
+	while (efgetrune(&r, stdin, "<stdin>")) {
+		switch (r) {
 		case '\x1b':
-			switch (c = getchar()) {
+			ret = efgetrune(&r, stdin, "<stdin>");
+			switch (r) {
 			case '8': /* reverse half-line-feed */
 			case '7': /* reverse line-feed */
 				linefeed(-1, 0);
 				continue;
 			case '9':  /* forward half-line-feed */
-				if (ohalfline)
+				if (halfline)
 					break;
 				linefeed(1, 0);
 				continue;
 			}
-			if (!oescape)
+			if (!escape)
 				continue;
 			newchar('\x1b');
-			if (c != EOF)
-				newchar(c);
+			if (ret)
+				newchar(r);
 			break;
 		case '\v':
 			linefeed(-1, 0);
 			break;
 		case ' ':
-			if (!onotabs) {
+			if (!notabs) {
 				if (++nspaces != 8)
 					continue;
-				c = '\t';
+				r = '\t';
 				nspaces = 0;
 			}
 			/* FALLTHROUGH */
 		case '\r':
 		case '\b':
 		case '\t':
-			newchar(c);
+			newchar(r);
 			break;
 		case '\n':
 			linefeed(1, 1);
 			break;
 		default:
-			if (!iscntrl(c))
-				newchar(c);
+			if (!iscntrlrune(r))
+				newchar(r);
 			break;
 		}
 	}
@@ -175,17 +174,17 @@ col(void)
 static void
 allocbuf(void)
 {
-	char **bp;
+	Rune **bp;
 
-	buff = ereallocarray(NULL, pagsize, sizeof(*buff));
-	for (bp = buff; bp < &buff[pagsize]; ++bp)
-		*bp = emalloc(NCOLS);
+	buf = ereallocarray(NULL, pagesize, sizeof(*buf));
+	for (bp = buf; bp < buf + pagesize; ++bp)
+		*bp = ereallocarray(NULL, NCOLS, sizeof(**buf));
 }
 
 static void
 usage(void)
 {
-	enprintf(2, "usage: %s [-p][-l num][-b][-f][-x]\n", argv0);
+	enprintf(2, "usage: %s [-pbfx] [-l num]\n", argv0);
 }
 
 int
@@ -193,35 +192,30 @@ main(int argc, char *argv[])
 {
 	ARGBEGIN {
 	case 'b':
-		obackspace = 1;
+		backspace = 1;
 		break;
 	case 'f':
-		ohalfline = 1;
+		halfline = 1;
 		break;
 	case 'l':
-		pagsize = estrtonum(EARGF(usage()), 0, SIZE_MAX);
+		pagesize = estrtonum(EARGF(usage()), 0, MIN(SIZE_MAX, LLONG_MAX));
 		break;
 	case 'p':
-		oescape = 1;
+		escape = 1;
 		break;
 	case 'x':
-		onotabs = 1;
+		notabs = 1;
 		break;
 	default:
 		usage();
 	} ARGEND;
 
-	if (argc > 0)
+	if (argc)
 		usage();
 
 	allocbuf();
 	col();
 	flush();
-
-	if (ferror(stdin))
-		enprintf(1, "error reading input");
-	if (ferror(stdout))
-		enprintf(2, "error writing output");
 
 	return 0;
 }
