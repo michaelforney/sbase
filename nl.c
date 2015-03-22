@@ -46,7 +46,7 @@ getsection(char *buf, int *section)
 static void
 nl(const char *fname, FILE *fp)
 {
-	size_t i, number = startnum, size = 0;
+	size_t number = startnum, size = 0;
 	int donumber, oldsection, section = 1, bl = 1;
 	char *buf = NULL;
 
@@ -81,9 +81,6 @@ nl(const char *fname, FILE *fp)
 		if (donumber) {
 			printf(format, width, number, sep);
 			number += incr;
-		} else {
-			for (i = 0; i < width; i++)
-				putchar(' ');
 		}
 		fputs(buf, stdout);
 	}
