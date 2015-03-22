@@ -107,6 +107,7 @@ linecmp(const char **a, const char **b)
 		free(s1);
 		free(s2);
 	}
+
 	return res;
 }
 
@@ -127,6 +128,8 @@ parse_flags(char **s, int *flags, int bflag)
 		default:
 			return -1;
 		}
+	}
+
 	return 0;
 }
 
@@ -163,9 +166,8 @@ parse_keydef(struct keydef *kd, char *s, int flags)
 		if (parse_flags(&rest, &kd->flags, MOD_ENDB) < 0)
 			return -1;
 	}
-	if (*rest != '\0')
-		return -1;
-	return 0;
+
+	return -(*rest);
 }
 
 static char *
@@ -173,6 +175,7 @@ skipblank(char *s)
 {
 	while (*s && isblank(*s))
 		s++;
+
 	return s;
 }
 
@@ -224,16 +227,17 @@ columns(char *line, const struct keydef *kd)
 static void
 usage(void)
 {
-	enprintf(2, "usage: %s [-Cbcnru] [-t delim] [-k def]... [file...]\n", argv0);
+	enprintf(2, "usage: %s [-Cbcmnru] [-o outfile] [-t delim] [-k def]... [file ...]\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
-	size_t i;
-	FILE *fp;
+	FILE *fp, *ofp = stdout;
 	struct linebuf linebuf = EMPTY_LINEBUF;
+	size_t i;
 	int global_flags = 0;
+	char *outfile = NULL;
 
 	ARGBEGIN {
 	case 'C':
@@ -248,8 +252,18 @@ main(int argc, char *argv[])
 	case 'k':
 		addkeydef(EARGF(usage()), global_flags);
 		break;
+	case 'm':
+		/* more or less for free, but for perfomance-reasons,
+		 * we should keep this flag in mind and maybe some later
+		 * day implement it properly so we don't run out of memory
+		 * while merging large sorted files.
+		 */
+		break;
 	case 'n':
 		global_flags |= MOD_N;
+		break;
+	case 'o':
+		outfile = EARGF(usage());
 		break;
 	case 'r':
 		global_flags |= MOD_R;
@@ -270,15 +284,15 @@ main(int argc, char *argv[])
 		addkeydef("1", global_flags);
 	addkeydef("1", global_flags & MOD_R);
 
-	if (argc == 0) {
+	if (!argc) {
 		if (Cflag || cflag) {
 			check(stdin);
 		} else {
 			getlines(stdin, &linebuf);
 		}
-	} else for (; argc > 0; argc--, argv++) {
-		if (!(fp = fopen(argv[0], "r"))) {
-			enprintf(2, "fopen %s:", argv[0]);
+	} else for (; *argv; argc--, argv++) {
+		if (!(fp = fopen(*argv, "r"))) {
+			enprintf(2, "fopen %s:", *argv);
 			continue;
 		}
 		if (Cflag || cflag) {
@@ -290,13 +304,16 @@ main(int argc, char *argv[])
 	}
 
 	if (!Cflag && !cflag) {
+		if (outfile && !(ofp = fopen(outfile, "w")))
+			eprintf("fopen %s:", outfile);
+
 		qsort(linebuf.lines, linebuf.nlines, sizeof *linebuf.lines,
 				(int (*)(const void *, const void *))linecmp);
 
 		for (i = 0; i < linebuf.nlines; i++) {
 			if (!uflag || i == 0 || linecmp((const char **)&linebuf.lines[i],
 						(const char **)&linebuf.lines[i-1])) {
-				fputs(linebuf.lines[i], stdout);
+				fputs(linebuf.lines[i], ofp);
 			}
 		}
 	}

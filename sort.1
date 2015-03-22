@@ -1,4 +1,4 @@
-.Dd January 30, 2015
+.Dd March 22, 2015
 .Dt SORT 1
 .Os sbase
 .Sh NAME
@@ -6,17 +6,19 @@
 .Nd sort lines
 .Sh SYNOPSIS
 .Nm
-.Op Fl bnru
+.Op Fl Cbcmnru
+.Op Fl o Ar outfile
 .Op Fl t Ar delim
 .Op Fl k Ar key ...
 .Op Ar file ...
 .Sh DESCRIPTION
 .Nm
-writes the sorted concatenation of the given
-.Ar files
-to stdout. If no
+writes the sorted concatenation of each
 .Ar file
-is given,
+to stdout.
+If no
+.Ar file
+is given
 .Nm
 reads from stdin.
 .Sh OPTIONS
@@ -31,10 +33,10 @@ Skip leading whitespace of columns when sorting.
 .It Fl c
 The same as
 .Fl C
-except that when disorder is detected, a message is printed to stderr
+except that when disorder is detected, a message is written to stderr
 indicating the location of the disorder.
 .It Fl k Ar key
-Specifies a key definition of the form
+Specify a key definition of the form
 .Sm off
 .Sy S
 .No [.
@@ -67,12 +69,20 @@ can be used to specify options
 that only apply to this key definition.
 .Sy b
 is special in that it only applies to the column that it was specified after.
+.It Fl m
+Assume sorted input, merge only.
 .It Fl n
 Perform a numeric sort.
+.It Fl o Ar outfile
+Write output to
+.Ar outfile
+rather than stdout.
 .It Fl r
 Reverses the sort.
 .It Fl t Ar delim
-Specifies the field delimiter.
+Set
+.Ar delim
+as the field delimiter.
 .It Fl u
-Prints equal lines only once.
+Print equal lines only once.
 .El
