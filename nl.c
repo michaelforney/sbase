@@ -57,7 +57,6 @@ nl(const char *fname, FILE *fp)
 		if (getsection(buf, &section)) {
 			if ((section >= oldsection) && !pflag)
 				number = startnum;
-			putchar('\n');
 			continue;
 		}
 
