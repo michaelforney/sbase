@@ -2,6 +2,8 @@
 #include <sys/wait.h>
 
 #include <errno.h>
+#include <limits.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,12 +11,9 @@
 
 #include "util.h"
 
-enum {
-	NARGS = 10000
-};
+#define NARGS 10000
 
 static int inputc(void);
-static void deinputc(int);
 static void fillargbuf(int);
 static int eatspace(void);
 static int parsequote(int);
@@ -23,14 +22,14 @@ static char *poparg(void);
 static void waitchld(void);
 static void spawn(void);
 
-static char *cmd[NARGS];
-static char *argb;
 static size_t argbsz;
 static size_t argbpos;
-static long maxargs = 0;
-static int nerrors = 0;
-static char *eofstr;
-static int rflag = 0, nflag = 0;
+static size_t maxargs = 0;
+static int    nerrors = 0;
+static int    rflag = 0, nflag = 0, tflag = 0, xflag = 0;
+static char  *argb;
+static char  *cmd[NARGS];
+static char  *eofstr;
 
 static int
 inputc(void)
@@ -39,14 +38,9 @@ inputc(void)
 
 	ch = getc(stdin);
 	if (ch == EOF && ferror(stdin))
-		eprintf("stdin: read error:");
-	return ch;
-}
+		eprintf("getc <stdin>:");
 
-static void
-deinputc(int ch)
-{
-	ungetc(ch, stdin);
+	return ch;
 }
 
 static void
@@ -69,7 +63,7 @@ eatspace(void)
 		case ' ': case '\t': case '\n':
 			break;
 		default:
-			deinputc(ch);
+			ungetc(ch, stdin);
 			return ch;
 		}
 	}
@@ -89,6 +83,7 @@ parsequote(int q)
 			argbpos++;
 		}
 	}
+
 	return -1;
 }
 
@@ -102,6 +97,7 @@ parseescape(void)
 		argbpos++;
 		return ch;
 	}
+
 	return -1;
 }
 
@@ -137,9 +133,8 @@ poparg(void)
 	}
 out:
 	fillargbuf('\0');
-	if (eofstr && strcmp(argb, eofstr) == 0)
-		return NULL;
-	return argb;
+
+	return (eofstr && !strcmp(argb, eofstr)) ? NULL : argb;
 }
 
 static void
@@ -154,7 +149,7 @@ waitchld(void)
 		if (WEXITSTATUS(status) == 127 ||
 		    WEXITSTATUS(status) == 126)
 			exit(WEXITSTATUS(status));
-		if (status != 0)
+		if (status)
 			nerrors++;
 	}
 	if (WIFSIGNALED(status))
@@ -165,6 +160,15 @@ static void
 spawn(void)
 {
 	int savederrno;
+	char **p;
+
+	if (tflag) {
+		for (p = cmd; *p; p++) {
+			fputs(*p, stderr);
+			fputc(' ', stderr);
+		}
+		fputc('\n', stderr);
+	}
 
 	switch (fork()) {
 	case -1:
@@ -181,25 +185,39 @@ spawn(void)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-n maxargs] [-r] [-E eofstr] [cmd [arg...]]\n", argv0);
+	eprintf("usage: %s [-rtx] [-E eofstr] [-n num] [-s num] [cmd [arg ...]]\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
 	int leftover = 0;
-	long argsz, argmaxsz;
+	size_t argsz, argmaxsz;
 	char *arg = "";
 	int i, a;
+
+	argmaxsz = sysconf(_SC_ARG_MAX);
+	if (argmaxsz < 0)
+		eprintf("sysconf:");
+	/* Leave some room for environment variables */
+	argmaxsz -= 4 * 1024;
 
 	ARGBEGIN {
 	case 'n':
 		nflag = 1;
-		if ((maxargs = strtol(EARGF(usage()), NULL, 10)) <= 0)
-			eprintf("%s: value for -n option should be >= 1\n", argv0);
+		maxargs = estrtonum(EARGF(usage()), 1, MIN(SIZE_MAX, LLONG_MAX));
 		break;
 	case 'r':
 		rflag = 1;
+		break;
+	case 's':
+		argmaxsz = estrtonum(EARGF(usage()), 1, MIN(SIZE_MAX, LLONG_MAX));
+		break;
+	case 't':
+		tflag = 1;
+		break;
+	case 'x':
+		xflag = 1;
 		break;
 	case 'E':
 		eofstr = EARGF(usage());
@@ -208,15 +226,9 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	argmaxsz = sysconf(_SC_ARG_MAX);
-	if (argmaxsz < 0)
-		eprintf("sysconf:");
-	/* Leave some room for environment variables */
-	argmaxsz -= 4 * 1024;
-
 	do {
 		argsz = 0; i = 0; a = 0;
-		if (argc > 0) {
+		if (argc) {
 			for (; i < argc; i++) {
 				cmd[i] = estrdup(argv[i]);
 				argsz += strlen(cmd[i]) + 1;
@@ -226,11 +238,13 @@ main(int argc, char *argv[])
 			argsz += strlen(cmd[i]) + 1;
 			i++;
 		}
-		while (leftover == 1 || (arg = poparg())) {
-			if (argsz + strlen(arg) + 1 > argmaxsz ||
-			    i >= NARGS - 1) {
-				if (strlen(arg) + 1 > argmaxsz)
-					eprintf("insufficient argument space\n");
+		while (leftover || (arg = poparg())) {
+			if (argsz + strlen(arg) + 1 > argmaxsz || i >= NARGS - 1) {
+				if (strlen(arg) + 1 > argmaxsz) {
+					weprintf("insufficient argument space\n");
+					if (xflag)
+						exit(1);
+				}
 				leftover = 1;
 				break;
 			}
@@ -239,13 +253,13 @@ main(int argc, char *argv[])
 			i++;
 			a++;
 			leftover = 0;
-			if (nflag == 1 && a >= maxargs)
+			if (nflag && a >= maxargs)
 				break;
 		}
 		cmd[i] = NULL;
-		if (a >= maxargs && nflag == 1)
+		if (a >= maxargs && nflag)
 			spawn();
-		else if (!a || (i == 1 && rflag == 1))
+		else if (!a || (i == 1 && rflag))
 			;
 		else
 			spawn();
@@ -255,5 +269,5 @@ main(int argc, char *argv[])
 
 	free(argb);
 
-	return nerrors > 0 ? 123 : 0;
+	return nerrors ? 123 : 0;
 }

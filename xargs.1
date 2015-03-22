@@ -1,15 +1,16 @@
-.Dd January 30, 2015
+.Dd March 22, 2015
 .Dt XARGS 1
 .Os sbase
 .Sh NAME
 .Nm xargs
-.Nd construct argument list(s) and execute command
+.Nd construct argument lists and execute command
 .Sh SYNOPSIS
 .Nm
-.Op Fl n Ar maxargs
-.Op Fl r
+.Op Fl rtx
 .Op Fl E Ar eofstr
-.Op Ar cmd Op Ar arg...
+.Op Fl n Ar num
+.Op Fl s Ar num
+.Op Ar cmd Op Ar arg ...
 .Sh DESCRIPTION
 .Nm
 reads space, tab, newline and EOF delimited strings from stdin
@@ -31,9 +32,9 @@ newlines, up to the matching double quote. Any single character, including
 newlines, may be escaped by a backslash.
 .Sh OPTIONS
 .Bl -tag -width Ds
-.It Fl n Ar maxargs
+.It Fl n Ar num
 Use at most
-.Ar maxargs
+.Ar num
 arguments per command line.
 .It Fl r
 Do not run the command if there are no arguments. Normally the command is
@@ -42,22 +43,54 @@ executed at least once even if there are no arguments.
 Use
 .Ar eofstr
 as a logical EOF marker.
+.It Fl s Ar num
+Use at most
+.Ar num
+bytes per command line.
+.It Fl t
+Write the command line to stderr before executing it.
+.It Fl x
+Terminate if the command line exceeds the system limit or the number of bytes
+given with the
+.Op Fl s
+flag.
 .El
 .Sh EXIT STATUS
-xargs exits with one of the following values:
+.Nm
+exits with one of the following values:
 .Bl -tag -width Ds
 .It 0
-All invocations of command returned a zero exit status.
+All invocations of
+.Ar cmd
+returned a zero exit status.
 .It 123
-One or more invocations of command returned a nonzero exit status.
+One or more invocations of
+.Ar cmd
+returned a nonzero exit status.
 .It 124
-The command exited with a 255 exit status.
+.Ar cmd
+exited with a 255 exit status.
 .It 125
-The command was killed or stopped by a signal.
+.Ar cmd
+was killed or stopped by a signal.
 .It 126
-The command was found but could not be executed.
+.Ar cmd
+was found but could not be executed.
 .It 127
-The command could not be found.
+.Ar cmd
+could not be found.
 .It 1
 Some other error occurred.
 .El
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2008
+specification except from prompting with the
+.Op Fl p
+flag.
+.Pp
+The
+.Op Fl r
+flag is an extension to that specification.

@@ -87,7 +87,7 @@ The following tools are implemented ('*' == finished, '#' == UTF-8 support,
 =*| uudecode        yes                          none
 =*| uuencode        yes                          none
 #*| wc              yes                          none
-=   xargs           no                           -I, -L, -p, -s, -t, -x
+=*| xargs           no                           none (-p)
 =*| yes             non-posix                    none
 
 The  complement of  sbase  is  ubase[1] which  is  Linux-specific  and
