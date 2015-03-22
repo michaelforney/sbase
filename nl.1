@@ -1,4 +1,4 @@
-.Dd March 18, 2015
+.Dd March 22, 2015
 .Dt NL 1
 .Os sbase
 .Sh NAME
@@ -11,18 +11,19 @@
 .Op Fl d Ar delim
 .Op Fl f Ar type
 .Op Fl h Ar type
-.Op Fl i Ar incr
+.Op Fl i Ar num
 .Op Fl l Ar num
 .Op Fl n Ar format
 .Op Fl s Ar sep
-.Op Fl v Ar startnum
-.Op Fl w Ar width
+.Op Fl v Ar num
+.Op Fl w Ar num
 .Op Ar file
 .Sh DESCRIPTION
 .Nm
-reads lines from the named
+reads lines from
 .Ar file
-and writes them to stdout with non-empty lines numbered. If no
+and writes them to stdout, numbering non-empty lines.
+If no
 .Ar file
 is given
 .Nm
@@ -30,64 +31,61 @@ reads from stdin.
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl p
-Do not reset number for logical pages
-.It Fl b Ar type
-Defines which lines will be numbered for body sections:
+Do not reset line number for logical pages.
+.It Fl h Ar type | Fl b Ar type | Fl f Ar type
+Define which lines to number in the head | body | footer section:
 .Bl -tag -width pstringXX
 .It a
 All lines.
 .It n
 No lines.
 .It t
-Only non-empty lines (default).
+Only non-empty lines. This is the default.
 .It p Ns Ar expr
-Only lines which match
-.Ar expr ,
-a regular expression as defined in
+Only lines matching
+.Ar expr
+according to
 .Xr regex 7 .
 .El
 .It Fl d Ar delim
-Specify the delimiter (default is "\\:"). If only one character is specified, the second remains ':'.
-.It Fl f Ar type
-Same as
-.Fl b
-except for footer sections.
-.It Fl h Ar type
-Same as
-.Fl b
-except for header sections.
-.It Fl i Ar incr
-Defines the increment between numbered lines.
+Set
+.Ar delim
+as the delimiter for logical pages. If
+.Ar delim
+is only on character,
+.Nm
+appends ":" to it. The default is "\e:".
+.It Fl i Ar num
+Set the increment between numbered lines to
+.Ar num .
 .It Fl l Ar num
-Specify the number of adjacent blank lines to be considered as one. Default is 1.
+Set the number of adjacent blank lines to be considered as one to
+.Ar num .
+The default is 1.
 .It Fl n Ar format
-Specify the line number output format.
-The
+Set the line number output
 .Ar format
-can be any of the following:
+to one of:
 .Bl -tag -width pstringXX
 .It ln
 Left justified.
 .It rn
-Right justified.
+Right justified. This is the default.
 .It rz
 Right justified with leading zeroes.
 .El
 .Pp
-The default
-.Ar format
-is rn.
 .It Fl s Ar sep
-Defines the string used to separate line numbers and lines. By default this is
-a tab.
-.It Fl v Ar startnum
-Start counting from
-.Ar startnum
-instead of the default 1.
-.It Fl w Ar width
-The number of characters to be occupied by the line number
-will be set to
-.Ar width .
+Use
+.Ar sep
+to separate line numbers and lines. The default is "\et".
+.It Fl v Ar num
+Start counting lines from
+.Ar num .
+The default is 1.
+.It Fl w Ar num
+Set the width of the line number to
+.Ar num .
 The default is 6.
 .El
 .Sh SEE ALSO
