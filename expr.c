@@ -1,205 +1,203 @@
 /* See LICENSE file for copyright and license details. */
-#include <inttypes.h>
+#include <limits.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "utf.h"
 #include "util.h"
 
-/* token types for lexing/parsing
- * single character operators represent themselves */
+/* tokens, one-character operators represent themselves */
 enum {
 	VAL = CHAR_MAX + 1, GE, LE, NE
 };
 
 struct val {
-	char *s; /* iff s is NULL, val is an integer */
-	intmax_t n;
+	char *str;
+	long long num;
 };
 
-static size_t intlen;
+static size_t maxdigits;
 
 static void
-enan(struct val v)
+enan(struct val *v)
 {
-	if (v.s)
-		enprintf(2, "syntax error: expected integer got `%s'\n", v.s);
+	if (!v->str)
+		return;
+	enprintf(2, "syntax error: expected integer, got %s\n", v->str);
 }
 
 static void
-ezero(intmax_t n)
+ezero(struct val *v)
 {
-	if (n == 0)
-		enprintf(2, "division by zero\n");
-}
-
-static char *
-valstr(struct val val, char *buf, size_t bufsiz)
-{
-	if (val.s)
-		return val.s;
-	snprintf(buf, bufsiz, "%"PRIdMAX, val.n);
-	return buf;
+	if (v->num != 0)
+		return;
+	enprintf(2, "division by zero\n");
 }
 
 static int
-valcmp(struct val a, struct val b)
+valcmp(struct val *a, struct val *b)
 {
-	char buf1[intlen], buf2[intlen];
-	char *astr = valstr(a, buf1, sizeof(buf1));
-	char *bstr = valstr(b, buf2, sizeof(buf2));
+	int ret;
+	char buf[maxdigits];
 
-	if (!a.s && !b.s)
-		return (a.n > b.n) - (a.n < b.n);
-	return strcmp(astr, bstr);
+	if (!a->str && !b->str) {
+		ret = (a->num > b->num) - (a->num < b->num);
+	} else if (a->str && !b->str) {
+		snprintf(buf, sizeof(buf), "%lld", b->num);
+		ret = strcmp(a->str, buf);
+	} else if (!a->str && b->str) {
+		snprintf(buf, sizeof(buf), "%lld", a->num);
+		ret = strcmp(buf, b->str);
+	} else {
+		ret = strcmp(a->str, b->str);
+	}
+
+	return ret;
 }
 
-/* match vstr against BRE vregx (treat both values as strings)
- * if there is at least one subexpression \(...\)
- * then return the text matched by it \1 (empty string for no match)
- * else return number of characters matched (0 for no match)
- */
-static struct val
-match(struct val vstr, struct val vregx)
+static void
+match(struct val *vstr, struct val *vregx, struct val *ret)
 {
 	regex_t re;
 	regmatch_t matches[2];
-	intmax_t d;
-	char *s, *p, buf1[intlen], buf2[intlen];
-	char *str = valstr(vstr, buf1, sizeof(buf1));
-	char *regx = valstr(vregx, buf2, sizeof(buf2));;
-	char anchreg[strlen(regx) + 2];
+	long long d;
+	char strbuf[maxdigits + 1], regxbuf[maxdigits + 1],
+	     *s, *p, *anchreg, *str, *regx;
+	const char *errstr;
 
-	/* expr(1p) "all patterns are anchored to the beginning of the string" */
-	snprintf(anchreg, sizeof(anchreg), "^%s", regx);
+	if (!vstr->str) {
+		snprintf(strbuf, sizeof(strbuf), "%lld", vstr->num);
+		str = strbuf;
+	} else {
+		str = vstr->str;
+	}
+
+	if (!vregx->str) {
+		snprintf(regxbuf, sizeof(regxbuf), "%lld", vregx->num);
+		regx = regxbuf;
+	} else {
+		regx = vregx->str;
+	}
+
+	/* anchored regex */
+	anchreg = emalloc(strlen(regx) + 2);
+	estrlcpy(anchreg, "^", sizeof(anchreg));
+	estrlcat(anchreg, regx, sizeof(anchreg));
 	enregcomp(3, &re, anchreg, 0);
+	free(anchreg);
 
 	if (regexec(&re, str, 2, matches, 0)) {
 		regfree(&re);
-		return (struct val){ (re.re_nsub ? "" : NULL), 0 };
-	}
-
-	if (re.re_nsub) {
+		ret->str = re.re_nsub ? "" : NULL;
+		return;
+	} else if (re.re_nsub) {
 		regfree(&re);
+
 		s = str + matches[1].rm_so;
 		p = str + matches[1].rm_eo;
-
 		*p = '\0';
-		d = strtoimax(s, &p, 10);
-		if (*s && !*p) /* string matched by subexpression is an integer */
-			return (struct val){ NULL, d };
 
-		/* FIXME? string is never free()d, worth fixing?
-		 * need to allocate as it could be in buf1 instead of vstr.s */
-		return (struct val){ enstrdup(3, s), 0 };
+		d = strtonum(s, LLONG_MIN, LLONG_MAX, &errstr);
+		if (!errstr) {
+			ret->num = d;
+			return;
+		} else {
+			ret->str = enstrdup(3, s);
+			return;
+		}
+	} else {
+		regfree(&re);
+		str += matches[0].rm_so;
+		ret->num = utfnlen(str, matches[0].rm_eo - matches[0].rm_so);
+		return;
 	}
-	regfree(&re);
-    str += matches[0].rm_so;
-	return (struct val){ NULL, utfnlen(str, matches[0].rm_eo - matches[0].rm_so) };
 }
 
-/* ops  points to a stack of operators, opp  points to one past the last op
- * vals points to a stack of values   , valp points to one past the last val
- * guaranteed that opp != ops
- * ops is unused here, but still included for parity with vals
- * pop operator, pop two values, apply operator, push result
- */
 static void
-doop(int *ops, int **opp, struct val *vals, struct val **valp)
+doop(int *ophead, int *opp, struct val *valhead, struct val *valp)
 {
-	struct val ret, a, b;
+	struct val ret = { .str = NULL, .num = 0 }, *a, *b;
 	int op;
 
-	/* For an operation, we need a valid operator
-	 * and two values on the stack */
-	if ((*opp)[-1] == '(')
+	/* an operation "a op b" needs an operator and two values */
+	if (opp[-1] == '(')
 		enprintf(2, "syntax error: extra (\n");
-	if (*valp - vals < 2)
+	if (valp - valhead < 2)
 		enprintf(2, "syntax error: missing expression or extra operator\n");
 
-	a = (*valp)[-2];
-	b = (*valp)[-1];
-	op = (*opp)[-1];
+	a = valp - 2;
+	b = valp - 1;
+	op = opp[-1];
 
 	switch (op) {
 	case '|':
-		if      ( a.s && *a.s) ret = (struct val){ a.s ,   0 };
-		else if (!a.s &&  a.n) ret = (struct val){ NULL, a.n };
-		else if ( b.s && *b.s) ret = (struct val){ b.s ,   0 };
-		else                   ret = (struct val){ NULL, b.n };
+		if      ( a->str && *a->str) ret.str = a->str;
+		else if (!a->str &&  a->num) ret.num = a->num;
+		else if ( b->str && *b->str) ret.str = b->str;
+		else                         ret.num = b->num;
 		break;
 	case '&':
-		if (((a.s && *a.s) || a.n) && ((b.s && *b.s) || b.n))
-			ret = a;
-		else
-			ret = (struct val){ NULL, 0 };
+		if (((a->str && *a->str) || a->num) &&
+		    ((b->str && *b->str) || b->num)) {
+			ret.str = a->str;
+			ret.num = a->num;
+		}
 		break;
 
-	case '=': ret = (struct val){ NULL, valcmp(a, b) == 0 }; break;
-	case '>': ret = (struct val){ NULL, valcmp(a, b) >  0 }; break;
-	case GE : ret = (struct val){ NULL, valcmp(a, b) >= 0 }; break;
-	case '<': ret = (struct val){ NULL, valcmp(a, b) <  0 }; break;
-	case LE : ret = (struct val){ NULL, valcmp(a, b) <= 0 }; break;
-	case NE : ret = (struct val){ NULL, valcmp(a, b) != 0 }; break;
+	case '=': ret.num = (valcmp(a, b) == 0); break;
+	case '>': ret.num = (valcmp(a, b) >  0); break;
+	case GE : ret.num = (valcmp(a, b) >= 0); break;
+	case '<': ret.num = (valcmp(a, b) <  0); break;
+	case LE : ret.num = (valcmp(a, b) <= 0); break;
+	case NE : ret.num = (valcmp(a, b) != 0); break;
 
-	case '+': enan(a); enan(b);             ret = (struct val){ NULL, a.n + b.n }; break;
-	case '-': enan(a); enan(b);             ret = (struct val){ NULL, a.n - b.n }; break;
-	case '*': enan(a); enan(b);             ret = (struct val){ NULL, a.n * b.n }; break;
-	case '/': enan(a); enan(b); ezero(b.n); ret = (struct val){ NULL, a.n / b.n }; break;
-	case '%': enan(a); enan(b); ezero(b.n); ret = (struct val){ NULL, a.n % b.n }; break;
+	case '+': enan(a); enan(b);           ret.num = a->num + b->num; break;
+	case '-': enan(a); enan(b);           ret.num = a->num - b->num; break;
+	case '*': enan(a); enan(b);           ret.num = a->num * b->num; break;
+	case '/': enan(a); enan(b); ezero(b); ret.num = a->num / b->num; break;
+	case '%': enan(a); enan(b); ezero(b); ret.num = a->num % b->num; break;
 
-	case ':': ret = match(a, b); break;
+	case ':': match(a, b, &ret); break;
 	}
 
-	(*valp)[-2] = ret;
-	(*opp)--;
-	(*valp)--;
+	valp[-2] = ret;
 }
 
-/* retrn the type of the next token, s
- * if it is a value, place the value in v for use by parser
- */
 static int
 lex(char *s, struct val *v)
 {
-	intmax_t d;
-	char *p, *ops = "|&=><+-*/%():";
+	long long d;
+	int type = VAL;
+	char *ops = "|&=><+-*/%():";
+	const char *errstr;
 
-	/* clean integer */
-	d = strtoimax(s, &p, 10);
-	if (*s && !*p) {
-		*v = (struct val){ NULL, d };
-		return VAL;
+	d = strtonum(s, LLONG_MIN, LLONG_MAX, &errstr);
+
+	if (!errstr) {
+		/* integer */
+		v->num = d;
+	} else if (s[0] && strchr(ops, s[0]) && !s[1]) {
+		/* one-char operand */
+		type = s[0];
+	} else if (s[0] && strchr("><!", s[0]) && s[1] == '=' && !s[2]) {
+		/* two-char operand */
+		type = (s[0] == '>') ? GE : (s[0] == '<') ? LE : NE;
+	} else {
+		/* string */
+		v->str = s;
 	}
 
-	/* one-char operand */
-	if (*s && !s[1] && strchr(ops, *s))
-		return *s;
-
-	/* two-char operand */
-	if (!strcmp(s, ">=")) return GE;
-	if (!strcmp(s, "<=")) return LE;
-	if (!strcmp(s, "!=")) return NE;
-
-	/* nothing matched, treat as string */
-	*v = (struct val){ s, 0 };
-	return VAL;
+	return type;
 }
 
-/* using shunting-yard to convert from infix to rpn
- * https://en.wikipedia.org/wiki/Shunting-yard_algorithm
- * instead of creating rpn output to evaluate later, evaluate it immediately as
- * it is created
- * vals is the value    stack, valp points to one past last value on the stack
- * ops  is the operator stack, opp  points to one past last op    on the stack
- */
 static int
-parse(char *expr[], int exprlen)
+parse(char *expr[], int numexpr)
 {
-	struct val vals[exprlen], *valp = vals, v;
-	int ops[exprlen], *opp = ops;
-	int i, type, lasttype = 0;
-	char prec[] = { /* precedence of operators */
+	struct val valhead[numexpr], *valp = valhead, v = { .str = NULL, .num = 0 };
+	int ophead[numexpr], *opp = ophead, type, lasttype = 0;
+	char prec[] = {
+		[ 0 ] = 0, [VAL] = 0, ['('] = 0, [')'] = 0,
 		['|'] = 1,
 		['&'] = 2,
 		['='] = 3, ['>'] = 3, [GE] = 3, ['<'] = 3, [LE] = 3, [NE] = 3,
@@ -208,70 +206,65 @@ parse(char *expr[], int exprlen)
 		[':'] = 6,
 	};
 
-	for (i = 0; i < exprlen; i++) {
-		switch ((type = lex(expr[i], &v))) {
+	for (; *expr; expr++) {
+		switch ((type = lex(*expr, &v))) {
 		case VAL:
-			*valp++ = v;
+			(*valp).str = v.str;
+			(*valp).num = v.num;
+			valp++;
 			break;
 		case '(':
-			*opp++ = '(';
+			*opp++ = type;
 			break;
 		case ')':
 			if (lasttype == '(')
 				enprintf(2, "syntax error: empty ( )\n");
-			while (opp > ops && opp[-1] != '(')
-				doop(ops, &opp, vals, &valp);
-			if (opp == ops)
+			while (opp > ophead && opp[-1] != '(')
+				doop(ophead, opp--, valhead, valp--);
+			if (opp == ophead)
 				enprintf(2, "syntax error: extra )\n");
 			opp--;
 			break;
 		default: /* operator */
 			if (prec[lasttype])
 				enprintf(2, "syntax error: extra operator\n");
-			while (opp > ops && prec[opp[-1]] >= prec[type])
-				doop(ops, &opp, vals, &valp);
+			while (opp > ophead && prec[opp[-1]] >= prec[type])
+				doop(ophead, opp--, valhead, valp--);
 			*opp++ = type;
 			break;
 		}
 		lasttype = type;
+		v.str = NULL;
+		v.num = 0;
 	}
-	while (opp > ops)
-		doop(ops, &opp, vals, &valp);
-
-	if (valp == vals)
+	while (opp > ophead)
+		doop(ophead, opp--, valhead, valp--);
+	if (valp == valhead)
 		enprintf(2, "syntax error: missing expression\n");
-	if (--valp != vals)
+	if (--valp > valhead)
 		enprintf(2, "syntax error: extra expression\n");
 
-	if (valp->s)
-		printf("%s\n", valp->s);
+	if (valp->str)
+		puts(valp->str);
 	else
-		printf("%"PRIdMAX"\n", valp->n);
+		printf("%lld\n", valp->num);
 
-	return (valp->s && *valp->s) || valp->n;
+	return (valp->str && *valp->str) || valp->num;
 }
 
-/* the only way to get usage() is if the user didn't supply -- and expression
- * begins with a -
- * expr(1p): "... the conforming application must employ the -- construct ...
- * if there is any chance the first operand might be a negative integer (or any
- * string with a leading minus"
- */
 static void
 usage(void)
 {
-	enprintf(3, "usage: %s [--] expression\n"
-	            "note : the -- is mandatory if expression begins with a -\n", argv0);
+	enprintf(3, "usage: %s expression\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
-	intmax_t n = INTMAX_MIN;
+	long long n = LLONG_MIN;
 
-	/* Get the maximum number of digits (+ sign) */
-	for (intlen = (n < 0); n; n /= 10, ++intlen)
-		;
+	/* maximum number of digits + sign */
+	for (maxdigits = (n < 0); n; n /= 10, ++maxdigits);
 
 	ARGBEGIN {
 	default:
