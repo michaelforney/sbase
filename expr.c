@@ -211,8 +211,8 @@ parse(char *expr[], int numexpr)
 	for (; *expr; expr++) {
 		switch ((type = lex(*expr, &v))) {
 		case VAL:
-			(*valp).str = v.str;
-			(*valp).num = v.num;
+			valp->str = v.str;
+			valp->num = v.num;
 			valp++;
 			break;
 		case '(':
