@@ -62,6 +62,7 @@ match(struct val *vstr, struct val *vregx, struct val *ret)
 	regex_t re;
 	regmatch_t matches[2];
 	long long d;
+	size_t anchlen;
 	char strbuf[maxdigits + 1], regxbuf[maxdigits + 1],
 	     *s, *p, *anchreg, *str, *regx;
 	const char *errstr;
@@ -81,9 +82,10 @@ match(struct val *vstr, struct val *vregx, struct val *ret)
 	}
 
 	/* anchored regex */
-	anchreg = emalloc(strlen(regx) + 2);
-	estrlcpy(anchreg, "^", sizeof(anchreg));
-	estrlcat(anchreg, regx, sizeof(anchreg));
+	anchlen = strlen(regx) + 1 + 1;
+	anchreg = emalloc(anchlen);
+	estrlcpy(anchreg, "^", anchlen);
+	estrlcat(anchreg, regx, anchlen);
 	enregcomp(3, &re, anchreg, 0);
 	free(anchreg);
 
