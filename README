@@ -4,91 +4,94 @@ sbase - suckless unix tools
 sbase  is a  collection of  unix  tools that  are inherently  portable
 across UNIX and UNIX-like systems.
 
-The following tools are implemented ('*' == finished, '#' == UTF-8 support,
-'=' == implicit UTF-8 support, '|' == audited, () == petty flag):
+The following tools are implemented:
 
-    UTILITY         POSIX 2008 COMPLIANT         MISSING OPTIONS
-    -------         --------------------         ---------------
-=*| basename        yes                          none
-=*| cal             yes                          none
-=*| cat             yes                          none
-=*| chgrp           yes                          none
-=*| chmod           yes                          none
-=*| chown           yes                          none
-=*| chroot          non-posix                    none
-=*| cksum           yes                          none
-=*| cmp             yes                          none
-#*| cols            non-posix                    none
-#*| col             non-posix                    none
-=*| comm            yes                          none
-=*| cp              yes                          none (-i)
-=*| cron            non-posix                    none
-#*| cut             yes                          none
-=*| date            yes                          none
-=*| dirname         yes                          none
-=*| du              yes                          none
-=*| echo            yes                          none
-=*| env             yes                          none
-#*| expand          yes                          none
-#*| expr            yes                          none
-=*| false           yes                          none
-=   find            yes                          none
-#*| fold            yes                          none
-=*  grep            yes                          none
-=*| head            yes                          none
-=*| hostname        non-posix                    none
-=*| kill            yes                          none
-=*| link            yes                          none
-=*| ln              yes                          none
-=*| logger          yes                          none
-=*| logname         yes                          none
-#*  ls              no                           none (-C, -m, -s, -x)
-=*| md5sum          non-posix                    none
-=*| mkdir           yes                          none
-=*| mkfifo          yes                          none
-=*| mktemp          non-posix                    none
-=*| mv              yes                          none (-i)
-=*| nice            yes                          none
-#*| nl              yes                          none
-=*| nohup           yes                          none
-#*| paste           yes                          none
-=*| printenv        non-posix                    none
-#*| printf          yes                          none
-=*| pwd             yes                          none
-=*| readlink        non-posix                    none
-=*| renice          yes                          none
-=*| rm              yes                          none (-i)
-=*| rmdir           yes                          none
-#   sed             yes                          none
-=*| seq             non-posix                    none
-=*| setsid          non-posix                    none
-=*| sha1sum         non-posix                    none
-=*| sha256sum       non-posix                    none
-=*| sha512sum       non-posix                    none
-=*| sleep           yes                          none
-    sort            no                           -d, -f, -i
-=*| split           yes                          none
-=*| sponge          non-posix                    none
-#*| strings         yes                          none
-=*| sync            non-posix                    none
-=*| tail            yes                          none
-=*| tar             non-posix                    none
-=*| tee             yes                          none
-=*| test            yes                          none
-=*| time            yes                          none
-=*| touch           yes                          none
-#*| tr              yes                          none
-=*| true            yes                          none
-=*| tty             yes                          none
-=*| uname           yes                          none
-#*| unexpand        yes                          none
-=*| uniq            yes                          none
-=*| unlink          yes                          none
-=*| uudecode        yes                          none
-=*| uuencode        yes                          none
-#*| wc              yes                          none
-=*| xargs           no                           none (-p)
-=*| yes             non-posix                    none
+'#'  -> UTF-8 support, '=' -> Implicit UTF-8 support, '*' -> Finished,
+'|'  -> Audited,       'o' -> POSIX 2013 compliant,   'x' -> Non-POSIX,
+'()' -> Petty flag
+
+     UTILITY     MISSING FLAGS
+     -------     -------------
+=*|  basename    .
+=*|  cal         .
+=*|  cat         .
+=*|  chgrp       .
+=*|  chmod       .
+=*|  chown       .
+=*|x chroot      .
+=*|  cksum       .
+=*|  cmp         .
+#*|x cols        .
+#*|x col         .
+=*|  comm        .
+=*|  cp          (-i)
+=*|x cron        .
+#*|  cut         .
+=*|  date        .
+=*|  dirname     .
+=*|  du          .
+=*|  echo        .
+=*|  env         .
+#*|  expand      .
+#*|  expr        .
+=*|  false       .
+=    find        .
+#*|  fold        .
+=*   grep        .
+=*|  head        .
+=*|x hostname    .
+=*|  kill        .
+=*|  link        .
+=*|  ln          .
+=*|  logger      .
+=*|  logname     .
+#*   ls          (-C, -m, -s, -x)
+=*|x md5sum      .
+=*|  mkdir       .
+=*|  mkfifo      .
+=*|x mktemp      .
+=*|  mv          (-i)
+=*|  nice        .
+#*|  nl          .
+=*|  nohup       .
+#*|  paste       .
+=*|x printenv    .
+#*|  printf      .
+=*|  pwd         .
+=*|x readlink    .
+=*|  renice      .
+=*|  rm          (-i)
+=*|  rmdir       .
+#    sed         .
+=*|x seq         .
+=*|x setsid      .
+=*|x sha1sum     .
+=*|x sha256sum   .
+=*|x sha512sum   .
+=*|  sleep       .
+     sort        -d, -f, -i
+=*|  split       .
+=*|x sponge      .
+#*|  strings     .
+=*|x sync        .
+=*|  tail        .
+=*|x tar         .
+=*|  tee         .
+=*|  test        .
+=*|  time        .
+=*|  touch       .
+#*|  tr          .
+=*|  true        .
+=*|  tty         .
+=*|  uname       .
+#*|  unexpand    .
+=*|  uniq        .
+=*|  unlink      .
+=*|  uudecode    .
+=*|  uuencode    .
+#*|  wc          .
+=*|  xargs       (-p)
+=*|x yes         .
 
 The  complement of  sbase  is  ubase[1] which  is  Linux-specific  and
 provides all  the non-portable tools.   Together they are  intended to
