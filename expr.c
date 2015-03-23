@@ -17,8 +17,6 @@ struct val {
 	long long num;
 };
 
-static size_t maxdigits;
-
 static void
 enan(struct val *v)
 {
@@ -39,7 +37,7 @@ static int
 valcmp(struct val *a, struct val *b)
 {
 	int ret;
-	char buf[maxdigits];
+	char buf[BUFSIZ];
 
 	if (!a->str && !b->str) {
 		ret = (a->num > b->num) - (a->num < b->num);
@@ -63,7 +61,7 @@ match(struct val *vstr, struct val *vregx, struct val *ret)
 	regmatch_t matches[2];
 	long long d;
 	size_t anchlen;
-	char strbuf[maxdigits + 1], regxbuf[maxdigits + 1],
+	char strbuf[BUFSIZ], regxbuf[BUFSIZ],
 	     *s, *p, *anchreg, *str, *regx;
 	const char *errstr;
 
@@ -263,11 +261,6 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	long long n = LLONG_MIN;
-
-	/* maximum number of digits + sign */
-	for (maxdigits = (n < 0); n; n /= 10, ++maxdigits);
-
 	ARGBEGIN {
 	default:
 		usage();
