@@ -329,7 +329,7 @@ strnacat(String *dst, char *src, size_t n)
 		resize((void **)&dst->str, &dst->cap, 1, len * 2, NULL);
 	if (new)
 		*dst->str = '\0';
-	estrlcat(dst->str, src, len);
+	strlcat(dst->str, src, len);
 }
 
 void
