@@ -49,7 +49,7 @@ main(int argc, char *argv[])
 		}
 
 		/* field width */
-		width = 0;
+		width = -1;
 		for (i++; strchr("#-+ 0", format[i]); i++);
 		if (format[i] == '*') {
 			if (argi < argc)
@@ -65,17 +65,20 @@ main(int argc, char *argv[])
 				tmp[i - j] = 0;
 				width = estrtonum(tmp, 0, INT_MAX);
 				free(tmp);
+			} else {
+				width = 0;
 			}
 		}
 
 		/* field precision */
-		precision = 6;
+		precision = -1;
 		if (format[i] == '.') {
 			if (format[++i] == '*') {
 				if (argi < argc)
 					precision = estrtonum(argv[argi++], 0, INT_MAX);
 				else
 					cooldown = 1;
+				i++;
 			} else {
 				j = i;
 				for (; strchr("+-0123456789", format[i]); i++);
@@ -84,6 +87,8 @@ main(int argc, char *argv[])
 					tmp[i - j] = 0;
 					precision = estrtonum(tmp, 0, INT_MAX);
 					free(tmp);
+				} else {
+					precision = 0;
 				}
 			}
 		}
@@ -117,7 +122,7 @@ main(int argc, char *argv[])
 			free(rarg);
 			break;
 		case 's':
-			fputs(arg, stdout);
+			printf("%*.*s", width, precision, arg);
 			break;
 		case 'd': case 'i': case 'o': case 'u': case 'x': case 'X':
 			arglen = strlen(arg);
