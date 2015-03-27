@@ -451,7 +451,7 @@ read_line(FILE *f, String *s)
 
 	if ((len = getline(&s->str, &s->cap, f)) < 0) {
 		if (ferror(f))
-			eprintf("getline failed\n");
+			eprintf("getline:");
 		return EOF;
 	}
 	if (s->str[--len] == '\n')

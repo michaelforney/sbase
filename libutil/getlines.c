@@ -13,7 +13,7 @@ getlines(FILE *fp, struct linebuf *b)
 	size_t size = 0, linelen;
 	ssize_t len;
 
-	while ((len = getline(&line, &size, fp)) != -1) {
+	while ((len = getline(&line, &size, fp)) > 0) {
 		if (++b->nlines > b->capacity) {
 			b->capacity += 512;
 			nline = erealloc(b->lines, b->capacity * sizeof(*b->lines));

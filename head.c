@@ -12,7 +12,7 @@ head(FILE *fp, const char *fname, size_t n)
 	size_t i = 0, size = 0;
 	ssize_t len;
 
-	while (i < n && (len = getline(&buf, &size, fp)) >= 0) {
+	while (i < n && (len = getline(&buf, &size, fp)) > 0) {
 		fputs(buf, stdout);
 		i += (len && (buf[len - 1] == '\n'));
 	}

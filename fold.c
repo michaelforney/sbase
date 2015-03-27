@@ -55,7 +55,7 @@ fold(FILE *fp, const char *fname)
 	char *buf = NULL;
 	size_t size = 0;
 
-	while (getline(&buf, &size, fp) >= 0)
+	while (getline(&buf, &size, fp) > 0)
 		foldline(buf);
 	if (ferror(fp))
 		eprintf("getline %s:", fname);

@@ -45,7 +45,7 @@ mdchecklist(FILE *listfp, struct crypt_ops *ops, uint8_t *md, size_t sz,
 	int r;
 	char *line = NULL, *file, *p;
 
-	while (getline(&line, &bufsiz, listfp) != -1) {
+	while (getline(&line, &bufsiz, listfp) > 0) {
 		if (!(file = strstr(line, "  "))) {
 			(*formatsucks)++;
 			continue;

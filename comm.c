@@ -62,7 +62,7 @@ main(int argc, char *argv[])
 		for (i = 0; i < 2; i++) {
 			if (diff && i == (diff < 0))
 				continue;
-			if (getline(&line[i], &linelen[i], fp[i]) >= 0)
+			if (getline(&line[i], &linelen[i], fp[i]) > 0)
 				continue;
 			if (ferror(fp[i]))
 				eprintf("getline %s:", argv[i]);

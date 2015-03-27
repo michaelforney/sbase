@@ -76,7 +76,7 @@ uniq(FILE *fp, FILE *ofp)
 	size_t size = 0;
 	ssize_t len;
 
-	while ((len = getline(&buf, &size, fp)) >= 0)
+	while ((len = getline(&buf, &size, fp)) > 0)
 		uniqline(ofp, buf, (size_t)len);
 }
 

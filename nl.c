@@ -50,7 +50,7 @@ nl(const char *fname, FILE *fp)
 	int donumber, oldsection, section = 1, bl = 1;
 	char *buf = NULL;
 
-	while (getline(&buf, &size, fp) >= 0) {
+	while (getline(&buf, &size, fp) > 0) {
 		donumber = 0;
 		oldsection = section;
 

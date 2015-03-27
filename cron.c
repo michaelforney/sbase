@@ -304,7 +304,7 @@ loadentries(void)
 		return -1;
 	}
 
-	for (y = 0; (len = getline(&line, &size, fp)) != -1; y++) {
+	for (y = 0; (len = getline(&line, &size, fp)) > 0; y++) {
 		p = line;
 		if (line[0] == '#' || line[0] == '\n' || line[0] == '\0')
 			continue;

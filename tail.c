@@ -24,7 +24,7 @@ dropinit(FILE *fp, const char *str)
 	ssize_t len;
 
 	if (mode == 'n') {
-		while (i < num && (len = getline(&buf, &size, fp)) >= 0)
+		while (i < num && (len = getline(&buf, &size, fp)) > 0)
 			if (len > 0 && buf[len - 1] == '\n')
 				i++;
 	} else {
@@ -46,7 +46,7 @@ taketail(FILE *fp, const char *str)
 		ring = ecalloc(num, sizeof *ring);
 		size = ecalloc(num, sizeof *size);
 
-		for (i = j = 0; getline(&ring[i], &size[i], fp) != -1; )
+		for (i = j = 0; getline(&ring[i], &size[i], fp) > 0; )
 			i = j = (i + 1) % num;
 	} else {
 		r = ecalloc(num, sizeof *r);
@@ -131,7 +131,7 @@ main(int argc, char *argv[])
 				continue;
 			}
 			for (tmp = NULL, tmpsize = 0;;) {
-				while (getline(&tmp, &tmpsize, fp) >= 0) {
+				while (getline(&tmp, &tmpsize, fp) > 0) {
 					fputs(tmp, stdout);
 					fflush(stdout);
 				}

@@ -63,9 +63,9 @@ check(FILE *fp)
 {
 	static struct { char *buf; size_t size; } prev, cur, tmp;
 
-	if (!prev.buf)
-		getline(&prev.buf, &prev.size, fp);
-	while (getline(&cur.buf, &cur.size, fp) != -1) {
+	if (!prev.buf && getline(&prev.buf, &prev.size, fp) < 0)
+		eprintf("getline:");
+	while (getline(&cur.buf, &cur.size, fp) > 0) {
 		if (uflag > linecmp((const char **) &cur.buf, (const char **) &prev.buf)) {
 			if (!Cflag)
 				weprintf("disorder: %s", cur.buf);

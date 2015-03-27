@@ -70,7 +70,7 @@ main(int argc, char *argv[])
 	openlog(tag ? tag : getlogin(), logflags, 0);
 
 	if (!argc) {
-		while (getline(&buf, &sz, stdin) >= 0)
+		while (getline(&buf, &sz, stdin) > 0)
 			syslog(priority, "%s", buf);
 		if (ferror(stdin))
 			eprintf("getline %s:", "<stdin>");

@@ -114,7 +114,7 @@ cut(FILE *fp, char *fname)
 	ssize_t len;
 	Range *r;
 
-	while ((len = getline(&buf, &size, fp)) >= 0) {
+	while ((len = getline(&buf, &size, fp)) > 0) {
 		if (len && buf[len - 1] == '\n')
 			buf[len - 1] = '\0';
 		if (mode == 'f' && !utfutf(buf, delim)) {
