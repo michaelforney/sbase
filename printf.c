@@ -62,7 +62,6 @@ main(int argc, char *argv[])
 			for (; strchr("+-0123456789", format[i]); i++);
 			if (j != i) {
 				tmp = estrndup(format + j, i - j);
-				tmp[i - j] = 0;
 				width = estrtonum(tmp, 0, INT_MAX);
 				free(tmp);
 			} else {
@@ -84,7 +83,6 @@ main(int argc, char *argv[])
 				for (; strchr("+-0123456789", format[i]); i++);
 				if (j != i) {
 					tmp = estrndup(format + j, i - j);
-					tmp[i - j] = 0;
 					precision = estrtonum(tmp, 0, INT_MAX);
 					free(tmp);
 				} else {
