@@ -46,8 +46,8 @@ getsection(char *buf, int *section)
 static void
 nl(const char *fname, FILE *fp)
 {
-	size_t number = startnum, size = 0;
-	int donumber, oldsection, section = 1, bl = 1;
+	size_t number = startnum, size = 0, bl = 1;
+	int donumber, oldsection, section = 1;
 	char *buf = NULL;
 
 	while (getline(&buf, &size, fp) > 0) {

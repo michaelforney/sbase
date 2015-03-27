@@ -6,7 +6,7 @@
 static void
 usage(void)
 {
-	eprintf("usage: sync\n");
+	eprintf("usage: %s\n", argv0);
 }
 
 int

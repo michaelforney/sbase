@@ -7,7 +7,7 @@
 
 static int     aflag      = 0;
 static size_t *tablist    = NULL;
-static int     tablistlen = 8;
+static size_t  tablistlen = 8;
 
 static size_t
 parselist(const char *s)

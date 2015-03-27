@@ -39,7 +39,8 @@ mdcheckline(const char *s, uint8_t *md, size_t sz)
 
 static void
 mdchecklist(FILE *listfp, struct crypt_ops *ops, uint8_t *md, size_t sz,
-            int *formatsucks, int *noread, int *nonmatch) {
+            int *formatsucks, int *noread, int *nonmatch)
+{
 	FILE *fp;
 	size_t bufsiz = 0;
 	int r;

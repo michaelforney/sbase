@@ -68,7 +68,7 @@ main(int argc, char *argv[])
 				eprintf("getline %s:", argv[i]);
 			if (diff && line[!i][0])
 				printline(!i, line[!i]);
-			while (getline(&line[!i], &linelen[!i], fp[!i]) >= 0)
+			while (getline(&line[!i], &linelen[!i], fp[!i]) > 0)
 				printline(!i, line[!i]);
 			if (ferror(fp[!i]))
 				eprintf("getline %s:", argv[!i]);
