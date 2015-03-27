@@ -10,7 +10,7 @@
 
 enum { Match = 0, NoMatch = 1, Error = 2 };
 
-static void addpattern(const char *);
+static void addpattern(const char *, size_t);
 static void addpatternfile(FILE *);
 static int grep(FILE *, const char *);
 
@@ -37,12 +37,15 @@ struct pattern {
 static SLIST_HEAD(phead, pattern) phead;
 
 static void
-addpattern(const char *pattern)
+addpattern(const char *pattern, size_t patlen)
 {
 	struct pattern *pnode;
 	char *tmp;
 	int bol, eol;
 	size_t len;
+
+	if (!patlen)
+		return;
 
 	/* a null BRE/ERE matches every line */
 	if (!Fflag)
@@ -50,25 +53,25 @@ addpattern(const char *pattern)
 			pattern = ".";
 
 	if (!Fflag && xflag) {
-		tmp = enmalloc(Error, strlen(pattern) + 3);
-		snprintf(tmp, strlen(pattern) + 3, "%s%s%s",
+		tmp = enmalloc(Error, patlen + 3);
+		snprintf(tmp, patlen + 3, "%s%s%s",
 			 pattern[0] == '^' ? "" : "^",
 			 pattern,
-			 pattern[strlen(pattern) - 1] == '$' ? "" : "$");
+			 pattern[patlen - 1] == '$' ? "" : "$");
 	} else if (!Fflag && wflag) {
-		len = strlen(pattern) + 5 + (Eflag ? 2 : 4);
+		len = patlen + 5 + (Eflag ? 2 : 4);
 		tmp = enmalloc(Error, len);
 
 		bol = eol = 0;
 		if (pattern[0] == '^')
 			bol = 1;
-		if (pattern[strlen(pattern) - 1] == '$')
+		if (pattern[patlen - 1] == '$')
 			eol = 1;
 
 		snprintf(tmp, len, "%s\\<%s%.*s%s\\>%s",
 		         bol ? "^" : "",
 		         Eflag ? "(" : "\\(",
-		         (int)strlen(pattern) - bol - eol, pattern + bol,
+		         (int)patlen - bol - eol, pattern + bol,
 		         Eflag ? ")" : "\\)",
 		         eol ? "$" : "");
 	} else {
@@ -90,7 +93,7 @@ addpatternfile(FILE *fp)
 	while ((len = getline(&buf, &size, fp)) > 0) {
 		if (len > 0 && buf[len - 1] == '\n')
 			buf[len - 1] = '\0';
-		addpattern(buf);
+		addpattern(buf, (size_t)len);
 	}
 	if (ferror(fp))
 		enprintf(Error, "read error:");
@@ -190,7 +193,8 @@ main(int argc, char *argv[])
 		break;
 	case 'e':
 		arg = EARGF(usage());
-		fp = fmemopen(arg, strlen(arg) + 1, "r");
+		if(!(fp = fmemopen(arg, strlen(arg) + 1, "r")))
+			eprintf("fmemopen:");
 		addpatternfile(fp);
 		fclose(fp);
 		eflag = 1;
@@ -239,7 +243,8 @@ main(int argc, char *argv[])
 
 	/* just add literal pattern to list */
 	if (!eflag && !fflag) {
-		fp = fmemopen(argv[0], strlen(argv[0]) + 1, "r");
+		if(!(fp = fmemopen(argv[0], strlen(argv[0]) + 1, "r")))
+			eprintf("fmemopen:");
 		addpatternfile(fp);
 		fclose(fp);
 		argc--;
