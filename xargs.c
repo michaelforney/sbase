@@ -234,12 +234,13 @@ main(int argc, char *argv[])
 			}
 		} else {
 			cmd[i] = estrdup("/bin/echo");
-			argsz += strlen(cmd[i]) + 1;
+			argsz += strlen("/bin/echo") + 1;
 			i++;
 		}
 		while (leftover || (arg = poparg())) {
-			if (argsz + strlen(arg) + 1 > argmaxsz || i >= NARGS - 1) {
-				if (strlen(arg) + 1 > argmaxsz) {
+			arglen = strlen(arg);
+			if (argsz + arglen >= argmaxsz || i >= NARGS - 1) {
+				if (arglen >= argmaxsz) {
 					weprintf("insufficient argument space\n");
 					if (xflag)
 						exit(1);
@@ -248,7 +249,7 @@ main(int argc, char *argv[])
 				break;
 			}
 			cmd[i] = estrdup(arg);
-			argsz += strlen(cmd[i]) + 1;
+			argsz += arglen + 1;
 			i++;
 			a++;
 			leftover = 0;
