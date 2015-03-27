@@ -57,15 +57,15 @@ uniqline(FILE *ofp, const char *l, size_t len)
 		prevoffset = NULL;
 	}
 
-        if (l) {
-                if (!prevline || len >= prevlinesiz) {
-                        prevlinesiz = len + 1;
-                        prevline = erealloc(prevline, prevlinesiz);
-                }
-                memcpy(prevline, l, len);
-                prevline[len] = '\0';
-                prevoffset = prevline + (loffset - l);
-        }
+	if (l) {
+		if (!prevline || len >= prevlinesiz) {
+			prevlinesiz = len + 1;
+			prevline = erealloc(prevline, prevlinesiz);
+		}
+		memcpy(prevline, l, len);
+		prevline[len] = '\0';
+		prevoffset = prevline + (loffset - l);
+	}
 	prevlinecount = 1;
 }
 

@@ -193,7 +193,7 @@ main(int argc, char *argv[])
 		break;
 	case 'e':
 		arg = EARGF(usage());
-		if(!(fp = fmemopen(arg, strlen(arg) + 1, "r")))
+		if (!(fp = fmemopen(arg, strlen(arg) + 1, "r")))
 			eprintf("fmemopen:");
 		addpatternfile(fp);
 		fclose(fp);
@@ -243,7 +243,7 @@ main(int argc, char *argv[])
 
 	/* just add literal pattern to list */
 	if (!eflag && !fflag) {
-		if(!(fp = fmemopen(argv[0], strlen(argv[0]) + 1, "r")))
+		if (!(fp = fmemopen(argv[0], strlen(argv[0]) + 1, "r")))
 			eprintf("fmemopen:");
 		addpatternfile(fp);
 		fclose(fp);
