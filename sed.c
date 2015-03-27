@@ -260,7 +260,6 @@ Fninfo fns[] = {
 	[0x7f] = { NULL, NULL, NULL, 0 }, /* index is checked with isascii(3p). fill out rest of array */
 };
 
-
 /*
  * Function Definitions
  */
@@ -385,7 +384,7 @@ compile(char *s, int isfile)
 
 	f = isfile ? fopen(s, "r") : fmemopen(s, strlen(s), "r");
 	if (!f)
-		eprintf("fopen/fmemopen failed\n");
+		eprintf("fopen/fmemopen:");
 
 	/* NOTE: get arg functions can't use genbuf */
 	while (read_line(f, &genbuf) != EOF) {
@@ -435,7 +434,7 @@ compile(char *s, int isfile)
 	}
 
 	if (fclose(f))
-		weprintf("fclose failed\n");
+		weprintf("fclose:");
 }
 
 /* FIXME: if we decide to honor lack of trailing newline, set/clear a global
@@ -788,6 +787,7 @@ get_bt_arg(Cmd *c, char *s)
 	}
 
 	push(&branches, (void *)(c - prog));
+
 	return p;
 }
 
@@ -940,7 +940,6 @@ get_w_arg(Cmd *c, char *s)
 	if (p == s)
 		leprintf("no file name");
 
-	/* man -Wsigncompare is annoying */
 	for (wp = (Wfile **)wfiles.data; (size_t)(wp - (Wfile **)wfiles.data) < wfiles.size; wp++) {
 		if (strlen((*wp)->path) == (size_t)(p - s) && !strncmp(s, (*wp)->path, p - s)) {
 			c->u.file = (*wp)->file;
@@ -1122,7 +1121,7 @@ next_file(void)
 	if (file == stdin)
 		clearerr(file);
 	else if (file && fclose(file))
-		weprintf("fclose failed\n");
+		weprintf("fclose:");
 	file = NULL;
 
 	do {
@@ -1135,7 +1134,7 @@ next_file(void)
 			files++;
 		} else if (!(file = fopen(*files++, "r"))) {
 			/* warn this file didn't open, but move on to next */
-			weprintf("fopen failed\n");
+			weprintf("fopen:");
 		}
 	} while (!file && *files);
 	first = 0;
@@ -1153,9 +1152,9 @@ is_eof(FILE *f)
 
 	c = fgetc(f);
 	if (c == EOF && ferror(f))
-		eprintf("fgetc failed\n");
+		eprintf("fgetc:");
 	if (c != EOF && ungetc(c, f) == EOF)
-		eprintf("ungetc failed\n");
+		eprintf("ungetc EOF\n");
 
 	return c == EOF;
 }
@@ -1191,16 +1190,16 @@ write_file(char *path, FILE *out)
 		check_puts(genbuf.str, out);
 
 	if (fclose(in))
-		weprintf("fclose failed\n");
+		weprintf("fclose:");
 }
 
 void
 check_puts(char *s, FILE *f)
 {
 	if (s && fputs(s, f) == EOF)
-		eprintf("fputs failed\n");
+		eprintf("fputs:");
 	if (fputs("\n", f) == EOF)
-		eprintf("fputs failed\n");
+		eprintf("fputs:");
 }
 
 /* iterate from beg to end updating ranges so we don't miss any commands
@@ -1354,7 +1353,7 @@ cmd_l(Cmd *c)
 			while (fwrite(p, rlen, 1, stdout) < 1 && errno == EINTR)
 				;
 			if (ferror(stdout))
-				eprintf("fwrite failed\n");
+				eprintf("fwrite:");
 		}
 	}
 	check_puts("$", stdout);
@@ -1659,7 +1658,8 @@ new_line(void)
  *        input, but GNU does so busybox does as well. Currently we don't.
  *        Should we?
  */
-void app_line(void)
+void
+app_line(void)
 {
 	while (read_line(file, &genbuf) == EOF) {
 		if (next_file()) {
