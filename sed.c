@@ -116,111 +116,111 @@ typedef struct {
  */
 
 /* Dynamically allocated arrays and strings */
-void resize(void **ptr, size_t *nmemb, size_t size, size_t new_nmemb, void **next);
-void *pop(Vec *v);
-void push(Vec *v, void *p);
-void stracat(String *dst, char *src);
-void strnacat(String *dst, char *src, size_t n);
-void stracpy(String *dst, char *src);
-void strnacpy(String *dst, char *src, size_t n);
+static void resize(void **ptr, size_t *nmemb, size_t size, size_t new_nmemb, void **next);
+static void *pop(Vec *v);
+static void push(Vec *v, void *p);
+static void stracat(String *dst, char *src);
+static void strnacat(String *dst, char *src, size_t n);
+static void stracpy(String *dst, char *src);
+static void strnacpy(String *dst, char *src, size_t n);
 
 /* Cleanup and errors */
 static void usage(void);
 
 /* Parsing functions and related utilities */
-void compile(char *s, int isfile);
-int read_line(FILE *f, String *s);
-char *make_range(Range *range, char *s);
-char *make_addr(Addr *addr, char *s);
-char *find_delim(char *s, Rune delim, int do_brackets);
-char *chompr(char *s, Rune rune);
-char *chomp(char *s);
-Rune *strtorunes(char *s, size_t nrunes);
-long stol(char *s, char **endp);
-size_t escapes(char *beg, char *end, Rune delim, int n_newline);
-size_t echarntorune(Rune *r, char *s, size_t n);
-void insert_labels(void);
+static void compile(char *s, int isfile);
+static int read_line(FILE *f, String *s);
+static char *make_range(Range *range, char *s);
+static char *make_addr(Addr *addr, char *s);
+static char *find_delim(char *s, Rune delim, int do_brackets);
+static char *chompr(char *s, Rune rune);
+static char *chomp(char *s);
+static Rune *strtorunes(char *s, size_t nrunes);
+static long stol(char *s, char **endp);
+static size_t escapes(char *beg, char *end, Rune delim, int n_newline);
+static size_t echarntorune(Rune *r, char *s, size_t n);
+static void insert_labels(void);
 
 /* Get and Free arg and related utilities */
-char *get_aci_arg(Cmd *c, char *s);
-void aci_append(Cmd *c, char *s);
-void free_acir_arg(Cmd *c);
-char *get_bt_arg(Cmd *c, char *s);
-char *get_r_arg(Cmd *c, char *s);
-char *get_s_arg(Cmd *c, char *s);
-void free_s_arg(Cmd *c);
-char *get_w_arg(Cmd *c, char *s);
-char *get_y_arg(Cmd *c, char *s);
-void free_y_arg(Cmd *c);
-char *get_colon_arg(Cmd *c, char *s);
-char *get_lbrace_arg(Cmd *c, char *s);
-char *get_rbrace_arg(Cmd *c, char *s);
-char *semicolon_arg(char *s);
+static char *get_aci_arg(Cmd *c, char *s);
+static void aci_append(Cmd *c, char *s);
+static void free_acir_arg(Cmd *c);
+static char *get_bt_arg(Cmd *c, char *s);
+static char *get_r_arg(Cmd *c, char *s);
+static char *get_s_arg(Cmd *c, char *s);
+static void free_s_arg(Cmd *c);
+static char *get_w_arg(Cmd *c, char *s);
+static char *get_y_arg(Cmd *c, char *s);
+static void free_y_arg(Cmd *c);
+static char *get_colon_arg(Cmd *c, char *s);
+static char *get_lbrace_arg(Cmd *c, char *s);
+static char *get_rbrace_arg(Cmd *c, char *s);
+static char *semicolon_arg(char *s);
 
 /* Running */
-void run(void);
-int in_range(Cmd *c);
-int match_addr(Addr *a);
-int next_file(void);
-int is_eof(FILE *f);
-void do_writes(void);
-void write_file(char *path, FILE *out);
-void check_puts(char *s, FILE *f);
-void update_ranges(Cmd *beg, Cmd *end);
+static void run(void);
+static int in_range(Cmd *c);
+static int match_addr(Addr *a);
+static int next_file(void);
+static int is_eof(FILE *f);
+static void do_writes(void);
+static void write_file(char *path, FILE *out);
+static void check_puts(char *s, FILE *f);
+static void update_ranges(Cmd *beg, Cmd *end);
 
 /* Sed functions */
-void cmd_y(Cmd *c);
-void cmd_x(Cmd *c);
-void cmd_w(Cmd *c);
-void cmd_t(Cmd *c);
-void cmd_s(Cmd *c);
-void cmd_r(Cmd *c);
-void cmd_q(Cmd *c);
-void cmd_P(Cmd *c);
-void cmd_p(Cmd *c);
-void cmd_N(Cmd *c);
-void cmd_n(Cmd *c);
-void cmd_l(Cmd *c);
-void cmd_i(Cmd *c);
-void cmd_H(Cmd *c);
-void cmd_h(Cmd *c);
-void cmd_G(Cmd *c);
-void cmd_g(Cmd *c);
-void cmd_D(Cmd *c);
-void cmd_d(Cmd *c);
-void cmd_c(Cmd *c);
-void cmd_b(Cmd *c);
-void cmd_a(Cmd *c);
-void cmd_colon(Cmd *c);
-void cmd_equal(Cmd *c);
-void cmd_lbrace(Cmd *c);
-void cmd_rbrace(Cmd *c);
-void cmd_last(Cmd *c);
+static void cmd_y(Cmd *c);
+static void cmd_x(Cmd *c);
+static void cmd_w(Cmd *c);
+static void cmd_t(Cmd *c);
+static void cmd_s(Cmd *c);
+static void cmd_r(Cmd *c);
+static void cmd_q(Cmd *c);
+static void cmd_P(Cmd *c);
+static void cmd_p(Cmd *c);
+static void cmd_N(Cmd *c);
+static void cmd_n(Cmd *c);
+static void cmd_l(Cmd *c);
+static void cmd_i(Cmd *c);
+static void cmd_H(Cmd *c);
+static void cmd_h(Cmd *c);
+static void cmd_G(Cmd *c);
+static void cmd_g(Cmd *c);
+static void cmd_D(Cmd *c);
+static void cmd_d(Cmd *c);
+static void cmd_c(Cmd *c);
+static void cmd_b(Cmd *c);
+static void cmd_a(Cmd *c);
+static void cmd_colon(Cmd *c);
+static void cmd_equal(Cmd *c);
+static void cmd_lbrace(Cmd *c);
+static void cmd_rbrace(Cmd *c);
+static void cmd_last(Cmd *c);
 
 /* Actions */
-void new_line(void);
-void app_line(void);
-void new_next(void);
-void old_next(void);
+static void new_line(void);
+static void app_line(void);
+static void new_next(void);
+static void old_next(void);
 
 /*
  * Globals
  */
-Vec braces, labels, branches; /* holds ptrdiff_t. addrs of {, :, bt */
-Vec writes; /* holds cmd*. writes scheduled by a and r commands */
-Vec wfiles; /* holds Wfile*. files for w and s///w commands */
+static Vec braces, labels, branches; /* holds ptrdiff_t. addrs of {, :, bt */
+static Vec writes; /* holds cmd*. writes scheduled by a and r commands */
+static Vec wfiles; /* holds Wfile*. files for w and s///w commands */
 
-Cmd   *prog, *pc; /* Program, program counter */
-size_t pcap;
-size_t lineno;
+static Cmd   *prog, *pc; /* Program, program counter */
+static size_t pcap;
+static size_t lineno;
 
-regex_t *lastre; /* last used regex for empty regex search */
-char   **files;  /* list of file names from argv */
-FILE    *file;   /* current file we are reading */
+static regex_t *lastre; /* last used regex for empty regex search */
+static char   **files;  /* list of file names from argv */
+static FILE    *file;   /* current file we are reading */
 
-String patt, hold, genbuf;
+static String patt, hold, genbuf;
 
-struct {
+static struct {
 	unsigned int n       :1; /* -n (no print) */
 	unsigned int s       :1; /* s/// replacement happened */
 	unsigned int aci_cont:1; /* a,c,i text continuation */
@@ -229,7 +229,7 @@ struct {
 } gflags;
 
 /* FIXME: move character inside Fninfo and only use 26*sizeof(Fninfo) instead of 127*sizeof(Fninfo) bytes */
-Fninfo fns[] = {
+static Fninfo fns[] = {
 	['a'] = { cmd_a     , get_aci_arg   , free_acir_arg , 1 }, /* schedule write of text for later                                                      */
 	['b'] = { cmd_b     , get_bt_arg    , NULL          , 2 }, /* branch to label char *label when building, Cmd *jump when running                     */
 	['c'] = { cmd_c     , get_aci_arg   , free_acir_arg , 2 }, /* delete pattern space. at 0 or 1 addr or end of 2 addr, write text                     */
@@ -268,7 +268,7 @@ Fninfo fns[] = {
  * size, realloc to hold new_nmemb members, return new_nmemb in *memb and one
  * past old end in *next. if realloc fails...explode
  */
-void
+static void
 resize(void **ptr, size_t *nmemb, size_t size, size_t new_nmemb, void **next)
 {
 	void *n, *tmp;
@@ -286,7 +286,7 @@ resize(void **ptr, size_t *nmemb, size_t size, size_t new_nmemb, void **next)
 		*next = n;
 }
 
-void *
+static void *
 pop(Vec *v)
 {
 	if (!v->size)
@@ -294,7 +294,7 @@ pop(Vec *v)
 	return v->data[--v->size];
 }
 
-void
+static void
 push(Vec *v, void *p)
 {
 	if (v->size == v->cap)
@@ -302,7 +302,7 @@ push(Vec *v, void *p)
 	v->data[v->size++] = p;
 }
 
-void
+static void
 stracat(String *dst, char *src)
 {
 	int new = !dst->cap;
@@ -316,7 +316,7 @@ stracat(String *dst, char *src)
 	strcat(dst->str, src);
 }
 
-void
+static void
 strnacat(String *dst, char *src, size_t n)
 {
 	int new = !dst->cap;
@@ -331,7 +331,7 @@ strnacat(String *dst, char *src, size_t n)
 	strlcat(dst->str, src, len);
 }
 
-void
+static void
 stracpy(String *dst, char *src)
 {
 	size_t len;
@@ -342,7 +342,7 @@ stracpy(String *dst, char *src)
 	strcpy(dst->str, src);
 }
 
-void
+static void
 strnacpy(String *dst, char *src, size_t n)
 {
 	size_t len;
@@ -354,7 +354,7 @@ strnacpy(String *dst, char *src, size_t n)
 	estrlcpy(dst->str, src, len);
 }
 
-void
+static void
 leprintf(char *s)
 {
 	if (errno)
@@ -374,7 +374,7 @@ usage(void)
  * we allows semicolons and trailing blanks inside {}
  * we allow spaces after ! (and in between !s)
  */
-void
+static void
 compile(char *s, int isfile)
 {
 	FILE *f;
@@ -440,7 +440,7 @@ compile(char *s, int isfile)
 /* FIXME: if we decide to honor lack of trailing newline, set/clear a global
  * flag when reading a line
  */
-int
+static int
 read_line(FILE *f, String *s)
 {
 	ssize_t len;
@@ -459,7 +459,7 @@ read_line(FILE *f, String *s)
 }
 
 /* read first range from s, return pointer to one past end of range */
-char *
+static char *
 make_range(Range *range, char *s)
 {
 	s = make_addr(&range->beg, s);
@@ -478,7 +478,7 @@ make_range(Range *range, char *s)
 }
 
 /* read first addr from s, return pointer to one past end of addr */
-char *
+static char *
 make_addr(Addr *addr, char *s)
 {
 	Rune r;
@@ -530,7 +530,7 @@ make_addr(Addr *addr, char *s)
  * any escaped character that is not special is just itself (POSIX undefined)
  * FIXME: pull out into some util thing, will be useful for ed as well
  */
-char *
+static char *
 find_delim(char *s, Rune delim, int do_brackets)
 {
 	enum {
@@ -571,14 +571,14 @@ find_delim(char *s, Rune delim, int do_brackets)
 	return s;
 }
 
-char *
+static char *
 chomp(char *s)
 {
 	return chompr(s, 0);
 }
 
 /* eat all leading whitespace and occurrences of rune */
-char *
+static char *
 chompr(char *s, Rune rune)
 {
 	Rune   r;
@@ -592,7 +592,7 @@ chompr(char *s, Rune rune)
 
 /* convert first nrunes Runes from UTF-8 string s in allocated Rune*
  * NOTE: sequence must be valid UTF-8, check first */
-Rune *
+static Rune *
 strtorunes(char *s, size_t nrunes)
 {
 	Rune *rs, *rp;
@@ -606,7 +606,7 @@ strtorunes(char *s, size_t nrunes)
 	return rs;
 }
 
-long
+static long
 stol(char *s, char **endp)
 {
 	long n;
@@ -629,7 +629,7 @@ stol(char *s, char **endp)
  * return the number of converted escapes (backslashes removed)
  * FIXME: this has had too many corner cases slapped on and is ugly. rewrite better
  */
-size_t
+static size_t
 escapes(char *beg, char *end, Rune delim, int n_newline)
 {
 	size_t num = 0;
@@ -673,7 +673,7 @@ escapes(char *beg, char *end, Rune delim, int n_newline)
 	return num;
 }
 
-size_t
+static size_t
 echarntorune(Rune *r, char *s, size_t n)
 {
 	size_t rlen = charntorune(r, s, n);
@@ -682,7 +682,7 @@ echarntorune(Rune *r, char *s, size_t n)
 	return rlen;
 }
 
-void
+static void
 insert_labels(void)
 {
 	size_t i;
@@ -728,7 +728,7 @@ insert_labels(void)
  * ifoobar
  * are equivalent in GNU and busybox. We don't. Should we?
  */
-char *
+static char *
 get_aci_arg(Cmd *c, char *s)
 {
 	c->u.acir.print = check_puts;
@@ -743,7 +743,7 @@ get_aci_arg(Cmd *c, char *s)
 	return s + strlen(s);
 }
 
-void
+static void
 aci_append(Cmd *c, char *s)
 {
 	char *end = s + strlen(s), *p = end;
@@ -759,7 +759,7 @@ aci_append(Cmd *c, char *s)
 	stracat(&c->u.acir.str, s);
 }
 
-void
+static void
 free_acir_arg(Cmd *c)
 {
 	free(c->u.acir.str.str);
@@ -775,7 +775,7 @@ free_acir_arg(Cmd *c)
  * FIXME: POSIX dictates that leading whitespace is ignored but trailing
  * whitespace is not. This is annoying and we should probably get rid of it.
  */
-char *
+static char *
 get_bt_arg(Cmd *c, char *s)
 {
 	char *p = semicolon_arg(s = chomp(s));
@@ -800,7 +800,7 @@ get_bt_arg(Cmd *c, char *s)
  * FIXME: decide whether trailing whitespace should be included and fix
  * accordingly
  */
-char *
+static char *
 get_r_arg(Cmd *c, char *s)
 {
 	char *p = semicolon_arg(s = chomp(s));
@@ -818,7 +818,7 @@ get_r_arg(Cmd *c, char *s)
  *
  * FIXME: allow other escapes in regex and replacement? if so change escapes()
  */
-char *
+static char *
 get_s_arg(Cmd *c, char *s)
 {
 	Rune delim, r;
@@ -920,7 +920,7 @@ get_s_arg(Cmd *c, char *s)
 	return p;
 }
 
-void
+static void
 free_s_arg(Cmd *c)
 {
 	if (c->u.s.re)
@@ -930,7 +930,7 @@ free_s_arg(Cmd *c)
 }
 
 /* see get_r_arg notes */
-char *
+static char *
 get_w_arg(Cmd *c, char *s)
 {
 	char *p = semicolon_arg(s = chomp(s));
@@ -958,7 +958,7 @@ get_w_arg(Cmd *c, char *s)
 	return p;
 }
 
-char *
+static char *
 get_y_arg(Cmd *c, char *s)
 {
 	Rune delim;
@@ -987,7 +987,7 @@ get_y_arg(Cmd *c, char *s)
 	return p + rlen;
 }
 
-void
+static void
 free_y_arg(Cmd *c)
 {
 	free(c->u.y.set1);
@@ -995,7 +995,7 @@ free_y_arg(Cmd *c)
 }
 
 /* see get_bt_arg notes */
-char *
+static char *
 get_colon_arg(Cmd *c, char *s)
 {
 	char *p = semicolon_arg(s = chomp(s));
@@ -1008,14 +1008,14 @@ get_colon_arg(Cmd *c, char *s)
 	return p;
 }
 
-char *
+static char *
 get_lbrace_arg(Cmd *c, char *s)
 {
 	push(&braces, (void *)(c - prog));
 	return s;
 }
 
-char *
+static char *
 get_rbrace_arg(Cmd *c, char *s)
 {
 	Cmd *lbrace;
@@ -1037,7 +1037,7 @@ get_rbrace_arg(Cmd *c, char *s)
  *        POSIX says trailing whitespace is part of label name, file name, etc.
  *        we should probably eat it
  */
-char *
+static char *
 semicolon_arg(char *s)
 {
 	char *p = strpbrk(s, ";}");
@@ -1046,7 +1046,7 @@ semicolon_arg(char *s)
 	return p;
 }
 
-void
+static void
 run(void)
 {
 	lineno = 0;
@@ -1066,7 +1066,7 @@ run(void)
 }
 
 /* return true if we are in range for c, set c->in_match appropriately */
-int
+static int
 in_range(Cmd *c)
 {
 	if (match_addr(&c->range.beg)) {
@@ -1086,7 +1086,7 @@ in_range(Cmd *c)
 }
 
 /* return true if addr matches current line */
-int
+static int
 match_addr(Addr *a)
 {
 	switch (a->type) {
@@ -1112,7 +1112,7 @@ match_addr(Addr *a)
  * stdin if first call and no files
  * return 0 for success and 1 for no more files
  */
-int
+static int
 next_file(void)
 {
 	static unsigned char first = 1;
@@ -1141,7 +1141,7 @@ next_file(void)
 }
 
 /* test if stream is at EOF */
-int
+static int
 is_eof(FILE *f)
 {
 	int c;
@@ -1162,7 +1162,7 @@ is_eof(FILE *f)
  * for aci this is check_puts(string, stdout)
  * for r this is write_file(path, stdout)
  */
-void
+static void
 do_writes(void)
 {
 	Cmd *c;
@@ -1178,7 +1178,7 @@ do_writes(void)
 /* used for r's u.acir.print()
  * FIXME: something like util's concat() would be better
  */
-void
+static void
 write_file(char *path, FILE *out)
 {
 	FILE *in = fopen(path, "r");
@@ -1192,7 +1192,7 @@ write_file(char *path, FILE *out)
 		weprintf("fclose:");
 }
 
-void
+static void
 check_puts(char *s, FILE *f)
 {
 	if (s && fputs(s, f) == EOF)
@@ -1204,7 +1204,7 @@ check_puts(char *s, FILE *f)
 /* iterate from beg to end updating ranges so we don't miss any commands
  * e.g. sed -n '1d;1,3p' should still print lines 2 and 3
  */
-void
+static void
 update_ranges(Cmd *beg, Cmd *end)
 {
 	while (beg < end)
@@ -1214,14 +1214,14 @@ update_ranges(Cmd *beg, Cmd *end)
 /*
  * Sed functions
  */
-void
+static void
 cmd_a(Cmd *c)
 {
 	if (in_range(c))
 		push(&writes, c);
 }
 
-void
+static void
 cmd_b(Cmd *c)
 {
 	if (!in_range(c))
@@ -1232,7 +1232,7 @@ cmd_b(Cmd *c)
 	pc = c->u.jump;
 }
 
-void
+static void
 cmd_c(Cmd *c)
 {
 	if (!in_range(c))
@@ -1246,7 +1246,7 @@ cmd_c(Cmd *c)
 	new_next();
 }
 
-void
+static void
 cmd_d(Cmd *c)
 {
 	if (!in_range(c))
@@ -1255,7 +1255,7 @@ cmd_d(Cmd *c)
 	new_next();
 }
 
-void
+static void
 cmd_D(Cmd *c)
 {
 	char *p;
@@ -1272,14 +1272,14 @@ cmd_D(Cmd *c)
 	}
 }
 
-void
+static void
 cmd_g(Cmd *c)
 {
 	if (in_range(c))
 		stracpy(&patt, hold.str);
 }
 
-void
+static void
 cmd_G(Cmd *c)
 {
 	if (!in_range(c))
@@ -1289,14 +1289,14 @@ cmd_G(Cmd *c)
 	stracat(&patt, hold.str);
 }
 
-void
+static void
 cmd_h(Cmd *c)
 {
 	if (in_range(c))
 		stracpy(&hold, patt.str);
 }
 
-void
+static void
 cmd_H(Cmd *c)
 {
 	if (!in_range(c))
@@ -1306,7 +1306,7 @@ cmd_H(Cmd *c)
 	stracat(&hold, patt.str);
 }
 
-void
+static void
 cmd_i(Cmd *c)
 {
 	if (in_range(c))
@@ -1316,7 +1316,7 @@ cmd_i(Cmd *c)
 /* I think it makes sense to print invalid UTF-8 sequences in octal to satisfy
  * the "visually unambiguous form" sed(1p)
  */
-void
+static void
 cmd_l(Cmd *c)
 {
 	Rune   r;
@@ -1358,7 +1358,7 @@ cmd_l(Cmd *c)
 	check_puts("$", stdout);
 }
 
-void
+static void
 cmd_n(Cmd *c)
 {
 	if (!in_range(c))
@@ -1370,7 +1370,7 @@ cmd_n(Cmd *c)
 	new_line();
 }
 
-void
+static void
 cmd_N(Cmd *c)
 {
 	if (!in_range(c))
@@ -1379,14 +1379,14 @@ cmd_N(Cmd *c)
 	app_line();
 }
 
-void
+static void
 cmd_p(Cmd *c)
 {
 	if (in_range(c))
 		check_puts(patt.str, stdout);
 }
 
-void
+static void
 cmd_P(Cmd *c)
 {
 	char *p;
@@ -1403,7 +1403,7 @@ cmd_P(Cmd *c)
 		*p = '\n';
 }
 
-void
+static void
 cmd_q(Cmd *c)
 {
 	if (!in_range(c))
@@ -1415,14 +1415,14 @@ cmd_q(Cmd *c)
 	gflags.halt = 1;
 }
 
-void
+static void
 cmd_r(Cmd *c)
 {
 	if (in_range(c))
 		push(&writes, c);
 }
 
-void
+static void
 cmd_s(Cmd *c)
 {
 	String tmp;
@@ -1528,7 +1528,7 @@ cmd_s(Cmd *c)
 		check_puts(patt.str, c->u.s.file);
 }
 
-void
+static void
 cmd_t(Cmd *c)
 {
 	if (!in_range(c) || !gflags.s)
@@ -1540,14 +1540,14 @@ cmd_t(Cmd *c)
 	gflags.s = 0;
 }
 
-void
+static void
 cmd_w(Cmd *c)
 {
 	if (in_range(c))
 		check_puts(patt.str, c->u.file);
 }
 
-void
+static void
 cmd_x(Cmd *c)
 {
 	String tmp;
@@ -1560,7 +1560,7 @@ cmd_x(Cmd *c)
 	hold = tmp;
 }
 
-void
+static void
 cmd_y(Cmd *c)
 {
 	String tmp;
@@ -1595,19 +1595,19 @@ cmd_y(Cmd *c)
 	genbuf = tmp;
 }
 
-void
+static void
 cmd_colon(Cmd *c)
 {
 }
 
-void
+static void
 cmd_equal(Cmd *c)
 {
 	if (in_range(c))
 		printf("%zu\n", lineno);
 }
 
-void
+static void
 cmd_lbrace(Cmd *c)
 {
 	Cmd *jump;
@@ -1621,13 +1621,13 @@ cmd_lbrace(Cmd *c)
 	pc = jump;
 }
 
-void
+static void
 cmd_rbrace(Cmd *c)
 {
 }
 
 /* not actually a sed function, but acts like one, put in last spot of script */
-void
+static void
 cmd_last(Cmd *c)
 {
 	if (!gflags.n)
@@ -1641,7 +1641,7 @@ cmd_last(Cmd *c)
  */
 
 /* read new line, continue current cycle */
-void
+static void
 new_line(void)
 {
 	while (read_line(file, &patt) == EOF) {
@@ -1659,7 +1659,7 @@ new_line(void)
  *        input, but GNU does so busybox does as well. Currently we don't.
  *        Should we?
  */
-void
+static void
 app_line(void)
 {
 	while (read_line(file, &genbuf) == EOF) {
@@ -1676,7 +1676,7 @@ app_line(void)
 }
 
 /* read new line, start new cycle */
-void
+static void
 new_next(void)
 {
 	update_ranges(pc + 1, prog + pcap);
@@ -1685,7 +1685,7 @@ new_next(void)
 }
 
 /* keep old pattern space, start new cycle */
-void
+static void
 old_next(void)
 {
 	update_ranges(pc + 1, prog + pcap);
