@@ -1,4 +1,4 @@
-.Dd March 18, 2015
+.Dd March 27, 2015
 .Dt LS 1
 .Os sbase
 .Sh NAME
@@ -6,7 +6,15 @@
 .Nd list directory contents
 .Sh SYNOPSIS
 .Nm
-.Op Fl 1AacdFfHhiLlnqrStUu
+.Op Fl iqr
+.Op Fl ln
+.Op Fl A | a
+.Op Fl 1
+.Op Fl h | F | p
+.Op Fl H | L
+.Op Fl R | d
+.Op Fl S | f | t | U
+.Op Fl c | u
 .Op Ar file ...
 .Sh DESCRIPTION
 .Nm
@@ -74,3 +82,15 @@ sorting or printing.
 .El
 .Sh SEE ALSO
 .Xr stat 2
+.Sh STANDARDS
+The
+.Nm
+utility is compliant with the
+.St -p1003.1-2013
+specification except from the
+.Op Fl Ckmpsx
+flags.
+.Pp
+The
+.Op Fl hU
+flags are an extension to that specification.
