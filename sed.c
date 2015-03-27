@@ -685,15 +685,15 @@ echarntorune(Rune *r, char *s, size_t n)
 void
 insert_labels(void)
 {
+	size_t i;
+	Cmd *from, *to;
+
 	while (branches.size) {
-		Cmd *from = prog + (ptrdiff_t)pop(&branches);
+		from = prog + (ptrdiff_t)pop(&branches);
 
 		if (!from->u.label) {/* no label branch to end of script */
 			from->u.jump = pc - 1;
 		} else {
-			size_t i;
-			Cmd *to;
-
 			for (i = 0; i < labels.size; i++) {
 				to = prog + (ptrdiff_t)labels.data[i];
 				if (!strcmp(from->u.label, to->u.label)) {
@@ -824,13 +824,13 @@ get_s_arg(Cmd *c, char *s)
 	Rune delim, r;
 	Cmd buf;
 	char *p;
-	int esc;
+	int esc, lastre;
 
 	/* s/Find/Replace/Flags */
 
 	/* Find */
 	if (!gflags.s_cont) { /* NOT continuing from literal newline in replacement text */
-		int lastre = 0;
+		lastre = 0;
 		c->u.s.repl = (String){ NULL, 0 };
 		c->u.s.occurrence = 1;
 		c->u.s.file = NULL;
@@ -923,10 +923,9 @@ get_s_arg(Cmd *c, char *s)
 void
 free_s_arg(Cmd *c)
 {
-	if (c->u.s.re) {
+	if (c->u.s.re)
 		regfree(c->u.s.re);
-		free(c->u.s.re);
-	}
+	free(c->u.s.re);
 	free(c->u.s.repl.str);
 }
 
@@ -1338,8 +1337,8 @@ cmd_l(Cmd *c)
 	 * just wrap at 80 Runes?
 	 */
 	for (p = patt.str, end = p + strlen(p); p < end; p += rlen) {
-		if (isascii(*p) && escapes[(unsigned)*p]) {
-			printf("%s", escapes[(unsigned)*p]);
+		if (isascii(*p) && escapes[(unsigned int)*p]) {
+			printf("%s", escapes[(unsigned int)*p]);
 			rlen = 1;
 		} else if (!(rlen = charntorune(&r, p, end - p))) {
 		/* ran out of chars, print the bytes of the short sequence */
@@ -1426,22 +1425,30 @@ cmd_r(Cmd *c)
 void
 cmd_s(Cmd *c)
 {
+	String tmp;
+	Rune r;
+	size_t plen, rlen, len;
+	char *p, *s, *end;
+	unsigned int matches = 0, last_empty = 1, qflag = 0, cflags = 0;
+	regex_t *re;
+	regmatch_t *rm, *pmatch = NULL;
+
 	if (!in_range(c))
 		return;
 
 	if (!c->u.s.re && !lastre)
 		leprintf("no previous regex");
 
-	regex_t *re = c->u.s.re ? c->u.s.re : lastre;
-	regmatch_t pmatch[re->re_nsub + 1];
-	unsigned matches = 0, last_empty = 1, qflag = 0, cflags = 0;
-	char *s = patt.str;
-	String tmp;
-
+	re = c->u.s.re ? c->u.s.re : lastre;
 	lastre = re;
-	*genbuf.str = '\0';
 
-	while (!qflag && !regexec(re, s, LEN(pmatch), pmatch, cflags)) {
+	plen = re->re_nsub + 1;
+	pmatch = emalloc(plen * sizeof(regmatch_t));
+
+	*genbuf.str = '\0';
+	s = patt.str;
+
+	while (!qflag && !regexec(re, s, plen, pmatch, cflags)) {
 		cflags = REG_NOTBOL; /* match against beginning of line first time, but not again */
 		if (!*s) /* match against empty string first time, but not again */
 			qflag = 1;
@@ -1452,9 +1459,6 @@ cmd_s(Cmd *c)
 		 */
 		if ((last_empty || pmatch[0].rm_eo) &&
 		    (++matches == c->u.s.occurrence || !c->u.s.occurrence)) {
-			char *p;
-			size_t len;
-
 			/* copy over everything before the match */
 			strnacat(&genbuf, s, pmatch[0].rm_so);
 
@@ -1477,7 +1481,7 @@ cmd_s(Cmd *c)
 						/* only need to check here if using lastre, otherwise we checked when building */
 						if (!c->u.s.re && (size_t)(*p - '0') > re->re_nsub)
 							leprintf("back reference number greater than number of groups");
-						regmatch_t *rm = &pmatch[*p - '0'];
+						rm = &pmatch[*p - '0'];
 						strnacat(&genbuf, s + rm->rm_so, rm->rm_eo - rm->rm_so);
 					} else { /* character after backslash taken literally (well one byte, but it works) */
 						strnacat(&genbuf, p, 1);
@@ -1491,10 +1495,8 @@ cmd_s(Cmd *c)
 		}
 
 		if (!pmatch[0].rm_eo) { /* empty match, advance one rune and add it to output */
-			Rune r;
-			char *end = s + strlen(s);
-			size_t rlen = charntorune(&r, s, end - s);
-
+			end = s + strlen(s);
+			rlen = charntorune(&r, s, end - s);
 
 			if (!rlen) { /* ran out of bytes, copy short sequence */
 				stracat(&genbuf, s);
@@ -1507,6 +1509,7 @@ cmd_s(Cmd *c)
 		last_empty = !pmatch[0].rm_eo;
 		s += pmatch[0].rm_eo;
 	}
+	free(pmatch);
 
 	if (!(matches && matches >= c->u.s.occurrence)) /* no replacement */
 		return;
@@ -1562,8 +1565,8 @@ cmd_y(Cmd *c)
 {
 	String tmp;
 	Rune r, *rp;
-	size_t rlen;
-	char *s, *end;
+	size_t n, rlen;
+	char *s, *end, buf[UTFmax];
 
 	if (!in_range(c))
 		return;
@@ -1580,8 +1583,6 @@ cmd_y(Cmd *c)
 				if (*rp == r)
 					break;
 			if (*rp) { /* found r in set1, replace with Rune from set2 */
-				size_t n;
-				char buf[UTFmax];
 				n = runetochar(buf, c->u.y.set2 + (rp - c->u.y.set1));
 				strnacat(&genbuf, buf, n);
 			} else {
