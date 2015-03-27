@@ -191,16 +191,15 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	int leftover = 0;
+	int leftover = 0, i;
 	size_t argsz, argmaxsz;
+	size_t arglen, a;
 	char *arg = "";
-	int i, a;
 
-	argmaxsz = sysconf(_SC_ARG_MAX);
-	if (argmaxsz < 0)
-		eprintf("sysconf:");
+	if ((argmaxsz = sysconf(_SC_ARG_MAX)) == (size_t)-1)
+		argmaxsz = _POSIX_ARG_MAX;
 	/* Leave some room for environment variables */
-	argmaxsz -= 4 * 1024;
+	argmaxsz -= 4096;
 
 	ARGBEGIN {
 	case 'n':
