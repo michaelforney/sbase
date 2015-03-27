@@ -406,9 +406,9 @@ pri_exec(struct arg *arg)
 static int
 pri_ok(struct arg *arg)
 {
-	int status;
+	int status, reply;
 	pid_t pid;
-	char ***brace, reply, buf[256];
+	char ***brace, buf[256];
 	struct okarg *o = arg->extra.p;
 
 	fprintf(stderr, "%s: %s ?", *o->argv, arg->path);
