@@ -22,9 +22,7 @@ getlines(FILE *fp, struct linebuf *b)
 		b->lines[b->nlines - 1] = memcpy(emalloc(linelen), line, linelen);
 	}
 	free(line);
-	if(!b->nlines || !b->lines)
-		return;
-	if (!strchr(b->lines[b->nlines - 1], '\n')) {
+	if (b->lines && b->nlines && !strchr(b->lines[b->nlines - 1], '\n')) {
 		b->lines[b->nlines - 1] = erealloc(b->lines[b->nlines - 1], linelen + 1);
 		b->lines[b->nlines - 1][linelen - 1] = '\n';
 		b->lines[b->nlines - 1][linelen] = '\0';
