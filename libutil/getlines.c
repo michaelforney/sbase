@@ -9,20 +9,21 @@
 void
 getlines(FILE *fp, struct linebuf *b)
 {
-	char *line = NULL, **nline;
+	char *line = NULL;
 	size_t size = 0, linelen;
 	ssize_t len;
 
 	while ((len = getline(&line, &size, fp)) > 0) {
 		if (++b->nlines > b->capacity) {
 			b->capacity += 512;
-			nline = erealloc(b->lines, b->capacity * sizeof(*b->lines));
-			b->lines = nline;
+			b->lines = erealloc(b->lines, b->capacity * sizeof(*b->lines));
 		}
 		linelen = len + 1;
 		b->lines[b->nlines - 1] = memcpy(emalloc(linelen), line, linelen);
 	}
 	free(line);
+	if(!b->nlines || !b->lines)
+		return;
 	if (!strchr(b->lines[b->nlines - 1], '\n')) {
 		b->lines[b->nlines - 1] = erealloc(b->lines[b->nlines - 1], linelen + 1);
 		b->lines[b->nlines - 1][linelen - 1] = '\n';
