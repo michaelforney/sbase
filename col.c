@@ -184,7 +184,7 @@ allocbuf(void)
 static void
 usage(void)
 {
-	enprintf(2, "usage: %s [-pbfx] [-l num]\n", argv0);
+	eprintf("usage: %s [-pbfx] [-l num]\n", argv0);
 }
 
 int
