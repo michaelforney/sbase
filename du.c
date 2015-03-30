@@ -94,7 +94,7 @@ main(int argc, char *argv[])
 
 	bsize = getenv("BLOCKSIZE");
 	if (bsize)
-		blksize = estrtonum(bsize, 0, MIN(LLONG_MAX, SIZE_MAX));
+		blksize = estrtonum(bsize, 1, MIN(LLONG_MAX, SIZE_MAX));
 	if (kflag)
 		blksize = 1024;
 
