@@ -39,7 +39,6 @@ static struct range *set2        = NULL;
 static size_t set2ranges         = 0;
 static int    (*set2check)(Rune) = NULL;
 
-
 static size_t
 rangelen(struct range r)
 {

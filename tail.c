@@ -106,6 +106,9 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
+	if (!num)
+		return 0;
+
 	if (!argc)
 		tail(stdin, "<stdin>");
 	else {
