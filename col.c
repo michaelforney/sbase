@@ -198,7 +198,7 @@ main(int argc, char *argv[])
 		halfline = 1;
 		break;
 	case 'l':
-		pagesize = estrtonum(EARGF(usage()), 0, MIN(SIZE_MAX, LLONG_MAX));
+		pagesize = estrtonum(EARGF(usage()), 1, MIN(SIZE_MAX, LLONG_MAX));
 		break;
 	case 'p':
 		escape = 1;
