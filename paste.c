@@ -109,6 +109,8 @@ main(int argc, char *argv[])
 	unescape(adelim);
 	delim = ereallocarray(NULL, utflen(adelim) + 1, sizeof(*delim));
 	len = utftorunestr(adelim, delim);
+	if (!len)
+		usage();
 
 	/* populate file list */
 	dsc = ereallocarray(NULL, argc, sizeof(*dsc));
