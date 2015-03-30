@@ -8,7 +8,7 @@
 #include "utf.h"
 #include "util.h"
 
-#define NLINES 256
+#define NLINES 128
 #define NCOLS 800
 
 static Rune **buf;

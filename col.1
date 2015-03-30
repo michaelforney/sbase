@@ -54,7 +54,7 @@ Do not convert spaces to tabs.
 .It Fl l Ar num
 Buffer
 .Ar num
-lines in memory.
+lines in memory. By default, 128 lines are buffered.
 .El
 .Sh SEE ALSO
 .Xr nroff 1 ,
@@ -62,7 +62,7 @@ lines in memory.
 .Xr ms 6
 .Sh BUGS
 .Nm
-only buffers up to 256 lines with up to 800 bytes per line
+only buffers up to 128 lines with up to 800 bytes per line
 if the line-number hasn't been set differently with the
 .Op Fl l
 flag.
