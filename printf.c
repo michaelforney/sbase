@@ -11,7 +11,7 @@
 static void
 usage(void)
 {
-	eprintf("%s format [arg ...]\n", argv0);
+	eprintf("usage: %s format [arg ...]\n", argv0);
 }
 
 int
