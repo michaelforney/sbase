@@ -6,7 +6,6 @@ sbase such as vi and sh are also not listed here.
 at
 awk
 bc
-command
 diff
 ed
 getconf
