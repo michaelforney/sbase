@@ -33,9 +33,8 @@ enprintf(int status, const char *fmt, ...)
 void
 venprintf(int status, const char *fmt, va_list ap)
 {
-#ifdef DEBUG
-	fprintf(stderr, "%s: ", argv0);
-#endif
+	if (strncmp(fmt, "usage", strlen("usage")))
+		fprintf(stderr, "%s: ", argv0);
 
 	vfprintf(stderr, fmt, ap);
 
@@ -52,9 +51,8 @@ weprintf(const char *fmt, ...)
 {
 	va_list ap;
 
-#ifdef DEBUG
-	fprintf(stderr, "%s: ", argv0);
-#endif
+	if (strncmp(fmt, "usage", strlen("usage")))
+		fprintf(stderr, "%s: ", argv0);
 
 	va_start(ap, fmt);
 	vfprintf(stderr, fmt, ap);
