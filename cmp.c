@@ -71,5 +71,9 @@ main(int argc, char *argv[])
 		}
 	}
 
+	enfshut(2, fp[0], argv[0]);
+	if (fp[0] != fp[1])
+		enfshut(2, fp[1], argv[1]);
+	enfshut(2, stdout, "<stdout>");
 	return !same;
 }

@@ -76,8 +76,9 @@ main(int argc, char *argv[])
 		}
 		diff = strcmp(line[0], line[1]);
 		LIMIT(diff, -1, 1);
-		printline((2-diff) % 3, line[MAX(0, diff)]);
+		printline((2 - diff) % 3, line[MAX(0, diff)]);
 	}
 end:
-	return 0;
+	return !!(fshut(fp[0], argv[0]) + (fp[0] != fp[1] && fshut(fp[1], argv[1])) +
+	          fshut(stdout, "<stdout>"));
 }

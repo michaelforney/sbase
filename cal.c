@@ -208,5 +208,5 @@ main(int argc, char *argv[])
 
 	drawcal(year, month - 1, ncols, nmons, fday);
 
-	return 0;
+	return fshut(stdout, "<stdout>");
 }

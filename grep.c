@@ -196,7 +196,7 @@ main(int argc, char *argv[])
 		if (!(fp = fmemopen(arg, strlen(arg) + 1, "r")))
 			eprintf("fmemopen:");
 		addpatternfile(fp);
-		fclose(fp);
+		efshut(fp, arg);
 		eflag = 1;
 		break;
 	case 'f':
@@ -205,7 +205,7 @@ main(int argc, char *argv[])
 		if (!fp)
 			enprintf(Error, "fopen %s:", arg);
 		addpatternfile(fp);
-		fclose(fp);
+		efshut(fp, arg);
 		fflag = 1;
 		break;
 	case 'h':
@@ -246,7 +246,7 @@ main(int argc, char *argv[])
 		if (!(fp = fmemopen(argv[0], strlen(argv[0]) + 1, "r")))
 			eprintf("fmemopen:");
 		addpatternfile(fp);
-		fclose(fp);
+		efshut(fp, argv[0]);
 		argc--;
 		argv++;
 	}
@@ -269,8 +269,12 @@ main(int argc, char *argv[])
 			m = grep(fp, argv[i]);
 			if (m == Error || (match != Error && m == Match))
 				match = m;
-			fclose(fp);
+			if (fshut(fp, argv[i]))
+				match = Error;
 		}
 	}
+
+	enfshut(Error, stdin, "<stdin>");
+	enfshut(Error, stdout, "<stdout>");
 	return match;
 }

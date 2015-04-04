@@ -101,7 +101,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	FILE *fp;
+	FILE *fp = NULL;
 
 	ARGBEGIN {
 	case 'm':
@@ -126,8 +126,8 @@ main(int argc, char *argv[])
 			uuencodeb64(fp, argv[1], argv[0]);
 		else
 			uuencode(fp, argv[1], argv[0]);
-		fclose(fp);
 	}
 
-	return 0;
+	return !!((fp && fshut(fp, argv[0])) + fshut(stdin, "<stdin>") +
+	          fshut(stdout, "<stdout>"));
 }

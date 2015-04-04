@@ -91,11 +91,12 @@ main(int argc, char *argv[])
 				continue;
 			}
 			wc(fp, *argv);
-			fclose(fp);
+			if (fshut(fp, *argv))
+				ret = 1;
 		}
 		if (many)
 			output("total", tc, tl, tw);
 	}
 
-	return ret;
+	return !!(fshut(stdin, "<stdin>") + fshut(stdout, "<stdout>")) || ret;
 }

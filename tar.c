@@ -166,8 +166,7 @@ archive(const char *path)
 			if (fwrite(b, BLKSIZ, 1, tarfile) != 1)
 				eprintf("fwrite:");
 		}
-		if (fclose(f) == EOF)
-			eprintf("fclose %s:", path);
+		efshut(f, path);
 	}
 
 	return 0;
@@ -246,8 +245,8 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 		if (f && fwrite(b, MIN(l, BLKSIZ), 1, f) != 1)
 			eprintf("fwrite %s:", fname);
 	}
-	if (f && fclose(f) == EOF)
-		eprintf("fclose %s:", fname);
+	if (f)
+		fshut(f, fname);
 
 	if (!mflag) {
 		times[0].tv_sec = times[1].tv_sec = mtime;

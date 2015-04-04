@@ -131,10 +131,9 @@ main(int argc, char *argv[])
 				eprintf("fopen %s:", argv[1]);
 		}
 		uniq(fp, ofp);
-		fclose(fp);
 	}
 	uniqfinish(ofp);
-	fclose(ofp);
 
-	return 0;
+	return !!(fshut(fp, fp == stdin ? "<stdin>" : argv[0]) +
+	          fshut(ofp, ofp == stdout ? "<stdout>" : argv[1]));
 }

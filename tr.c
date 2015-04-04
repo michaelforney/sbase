@@ -204,7 +204,7 @@ main(int argc, char *argv[])
 		eprintf("set2 can't be imaged to from a complement.\n");
 read:
 	if (!efgetrune(&r, stdin, "<stdin>"))
-		return 0;
+		return !!(fshut(stdin, "<stdin>") + fshut(stdout, "<stdout>"));
 	off1 = off2 = 0;
 	for (i = 0; i < set1ranges; i++) {
 		if (set1[i].start <= r && r <= set1[i].end) {

@@ -159,7 +159,8 @@ main(int argc, char *argv[])
 				continue;
 			}
 			unexpand(*argv, fp);
-			fclose(fp);
+			if (fshut(fp, *argv))
+				ret = 1;
 		}
 	}
 

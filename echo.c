@@ -18,5 +18,5 @@ main(int argc, char *argv[])
 	if (!nflag)
 		putchar('\n');
 
-	return 0;
+	return fshut(stdout, "<stdout>");
 }

@@ -33,5 +33,5 @@ main(int argc, char *argv[])
 	}
 	puts(p);
 
-	return 0;
+	return fshut(stdout, "<stdout>");
 }

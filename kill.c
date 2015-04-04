@@ -74,17 +74,15 @@ main(int argc, char *argv[])
 			if (!argc) {
 				for (i = 0; i < LEN(sigs); i++)
 					puts(sigs[i].name);
-				return 0;
 			} else if (argc == 1) {
 				sig = estrtonum(*argv, 0, INT_MAX);
 				if (sig > 128)
 					sig = WTERMSIG(sig);
 				puts(sig2name(sig));
-				return 0;
 			} else {
 				usage();
 			}
-			break;
+			return fshut(stdout, "<stdout>");
 		case 's':
 			if ((*argv)[2])
 				goto longopt;

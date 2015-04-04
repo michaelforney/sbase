@@ -61,9 +61,11 @@ main(int argc, char *argv[])
 				eprintf("mkstemp %s:", path);
 			return 1;
 		}
-		close(fd);
+		if (close(fd))
+			eprintf("close %s:", path);
 	}
 	puts(path);
 
+	efshut(stdout, "<stdout>");
 	return 0;
 }

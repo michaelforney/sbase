@@ -196,10 +196,11 @@ main(int argc, char *argv[])
 					continue;
 				}
 				cut(fp, *argv);
-				fclose(fp);
+				if (fshut(fp, *argv))
+					ret = 1;
 			}
 		}
 	}
 
-	return ret;
+	return !!(fshut(stdin, "<stdin>") + fshut(stdout, "<stdout>")) || ret;
 }

@@ -34,5 +34,6 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	return cryptfunc(argc, argv, &sha1_ops, md, sizeof(md));
+	return cryptfunc(argc, argv, &sha1_ops, md, sizeof(md)) ||
+	       !!(fshut(stdin, "<stdin>") + fshut(stdout, "<stdout>"));
 }

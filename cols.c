@@ -25,7 +25,7 @@ main(int argc, char *argv[])
 	struct winsize w;
 	struct linebuf b = EMPTY_LINEBUF;
 	size_t chars = 65, maxlen = 0, i, j, k, len, bytes, cols, rows;
-	int cflag = 0;
+	int cflag = 0, ret = 0;
 	char *p;
 
 	ARGBEGIN {
@@ -50,10 +50,12 @@ main(int argc, char *argv[])
 		for (; *argv; argc--, argv++) {
 			if (!(fp = fopen(*argv, "r"))) {
 				weprintf("fopen %s:", *argv);
+				ret = 1;
 				continue;
 			}
 			getlines(fp, &b);
-			fclose(fp);
+			if (fshut(fp, *argv))
+				ret = 1;
 		}
 	}
 
@@ -82,5 +84,5 @@ main(int argc, char *argv[])
 		putchar('\n');
 	}
 
-	return 0;
+	return !!(fshut(stdin, "<stdin>") + fshut(stdout, "<stdout>")) || ret;
 }

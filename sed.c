@@ -433,8 +433,7 @@ compile(char *s, int isfile)
 		}
 	}
 
-	if (fclose(f))
-		weprintf("fclose:");
+	fshut(f, s);
 }
 
 /* FIXME: if we decide to honor lack of trailing newline, set/clear a global
@@ -1119,8 +1118,8 @@ next_file(void)
 
 	if (file == stdin)
 		clearerr(file);
-	else if (file && fclose(file))
-		weprintf("fclose:");
+	if (file)
+		fshut(file, "<file>");
 	file = NULL;
 
 	do {
@@ -1188,8 +1187,7 @@ write_file(char *path, FILE *out)
 	while (read_line(in, &genbuf) != EOF)
 		check_puts(genbuf.str, out);
 
-	if (fclose(in))
-		weprintf("fclose:");
+	fshut(in, path);
 }
 
 static void
@@ -1730,5 +1728,6 @@ main(int argc, char *argv[])
 
 	files = argv;
 	run();
-	return 0;
+
+	return !!(fshut(stdin, "<stdin>") + fshut(stdout, "<stdout>"));
 }

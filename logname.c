@@ -25,5 +25,5 @@ main(int argc, char *argv[])
 	else
 		eprintf("no login name\n");
 
-	return 0;
+	return fshut(stdout, "<stdout>");
 }

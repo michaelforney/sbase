@@ -45,5 +45,5 @@ main(int argc, char *argv[])
 	for (; environ && *environ; environ++)
 		puts(*environ);
 
-	return 0;
+	return fshut(stdout, "<stdout>");
 }

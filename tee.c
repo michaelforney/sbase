@@ -46,8 +46,6 @@ main(int argc, char *argv[])
 			eprintf("fwrite %s:", (i != argc) ? argv[i] : "<stdout>");
 		}
 	}
-	if (ferror(stdin))
-		eprintf("fread <stdin>:");
 
-	return 0;
+	return !!(fshut(stdin, "<stdin>") + fshut(stdout, "<stdout>"));
 }

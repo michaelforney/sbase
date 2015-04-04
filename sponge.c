@@ -32,8 +32,5 @@ main(int argc, char *argv[])
 		eprintf("fopen %s:", argv[0]);
 	concat(tmpfp, "<tmpfile>", fp, argv[0]);
 
-	fclose(fp);
-	fclose(tmpfp);
-
-	return 0;
+	return !!(fshut(fp, argv[0]) + fshut(tmpfp, "<tmpfile>"));
 }

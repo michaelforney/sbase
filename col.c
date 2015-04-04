@@ -217,5 +217,5 @@ main(int argc, char *argv[])
 	col();
 	flush();
 
-	return 0;
+	return !!(fshut(stdin, "<stdin>") + fshut(stdout, "<stdout>"));
 }

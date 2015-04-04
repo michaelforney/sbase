@@ -266,5 +266,6 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
+	enfshut(3, stdout, "<stdout>");
 	return !parse(argv, argc);
 }

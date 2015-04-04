@@ -72,8 +72,6 @@ main(int argc, char *argv[])
 	if (!argc) {
 		while (getline(&buf, &sz, stdin) > 0)
 			syslog(priority, "%s", buf);
-		if (ferror(stdin))
-			eprintf("getline %s:", "<stdin>");
 	} else {
 		for (i = 0, sz = 0; i < argc; i++)
 			sz += strlen(argv[i]);
@@ -89,5 +87,5 @@ main(int argc, char *argv[])
 
 	closelog();
 
-	return 0;
+	return fshut(stdin, "<stdin>");
 }

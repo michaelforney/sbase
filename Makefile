@@ -50,6 +50,7 @@ LIBUTILSRC =\
 	libutil/eregcomp.c\
 	libutil/estrtod.c\
 	libutil/fnck.c\
+	libutil/fshut.c\
 	libutil/getlines.c\
 	libutil/human.c\
 	libutil/md5.c\

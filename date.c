@@ -45,5 +45,5 @@ main(int argc, char *argv[])
 	strftime(buf, sizeof(buf), fmt, now);
 	puts(buf);
 
-	return 0;
+	return fshut(stdout, "<stdout>");
 }

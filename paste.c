@@ -86,10 +86,10 @@ int
 main(int argc, char *argv[])
 {
 	struct fdescr *dsc;
-	Rune  *delim;
+	Rune *delim;
 	size_t i, len;
-	int    seq = 0;
-	char  *adelim = "\t";
+	int seq = 0, ret = 0;
+	char *adelim = "\t";
 
 	ARGBEGIN {
 	case 's':
@@ -116,22 +116,23 @@ main(int argc, char *argv[])
 	dsc = ereallocarray(NULL, argc, sizeof(*dsc));
 
 	for (i = 0; i < argc; i++) {
-		if (!strcmp(argv[i], "-"))
+		if (!strcmp(argv[i], "-")) {
 			dsc[i].fp = stdin;
-		else
-			dsc[i].fp = fopen(argv[i], "r");
-		if (!dsc[i].fp)
+		} else if (!(dsc[i].fp = fopen(argv[i], "r"))) {
 			eprintf("fopen %s:", argv[i]);
+		}
 		dsc[i].name = argv[i];
 	}
 
-	if (seq)
+	if (seq) {
 		sequential(dsc, argc, delim, len);
-	else
+	} else {
 		parallel(dsc, argc, delim, len);
+	}
 
 	for (i = 0; i < argc; i++)
-		fclose(dsc[i].fp);
+		if (dsc[i].fp != stdin && fshut(dsc[i].fp, argv[i]))
+			ret = 1;
 
-	return 0;
+	return fshut(stdin, "<stdin>") || fshut(stdout, "<stdout>") || ret;
 }

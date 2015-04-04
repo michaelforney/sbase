@@ -55,5 +55,5 @@ main(int argc, char *argv[])
 		putword(u.machine);
 	putchar('\n');
 
-	return 0;
+	return fshut(stdout, "<stdout>");
 }

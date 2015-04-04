@@ -269,5 +269,6 @@ main(int argc, char *argv[])
 
 	free(argb);
 
-	return nerrors ? 123 : 0;
+	return (nerrors || !!(fshut(stdin, "<stdin>") +
+	       fshut(stdout, "<stdout>"))) ? 123 : 0;
 }

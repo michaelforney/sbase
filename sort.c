@@ -236,7 +236,7 @@ main(int argc, char *argv[])
 	FILE *fp, *ofp = stdout;
 	struct linebuf linebuf = EMPTY_LINEBUF;
 	size_t i;
-	int global_flags = 0;
+	int global_flags = 0, ret = 0;
 	char *outfile = NULL;
 
 	ARGBEGIN {
@@ -300,7 +300,8 @@ main(int argc, char *argv[])
 		} else {
 			getlines(fp, &linebuf);
 		}
-		fclose(fp);
+		if (fshut(fp, *argv))
+			ret = 1;
 	}
 
 	if (!Cflag && !cflag) {
@@ -318,5 +319,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	return 0;
+	enfshut(2, stdin, "<stdin>");
+	enfshut(2, stdout, "<stdout>");
+	return ret;
 }

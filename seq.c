@@ -143,5 +143,5 @@ main(int argc, char *argv[])
 	}
 	putchar('\n');
 
-	return 0;
+	return fshut(stdout, "<stdout>");
 }

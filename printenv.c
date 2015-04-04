@@ -35,5 +35,5 @@ main(int argc, char *argv[])
 		}
 	}
 
-	return ret;
+	return fshut(stdout, "<stdout>") || ret;
 }

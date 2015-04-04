@@ -108,5 +108,5 @@ main(int argc, char *argv[])
 		}
 	}
 
-	return recurse_status;
+	return fshut(stdout, "<stdout>") || recurse_status;
 }

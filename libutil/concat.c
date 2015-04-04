@@ -12,11 +12,8 @@ concat(FILE *fp1, const char *s1, FILE *fp2, const char *s2)
 
 	while ((n = fread(buf, 1, sizeof(buf), fp1))) {
 		fwrite(buf, 1, n, fp2);
-		if (ferror(fp2))
-			eprintf("fwrite %s:", s2);
-		if (feof(fp1) || ferror(fp1))
+
+		if (feof(fp1) || ferror(fp1) || ferror(fp2))
 			break;
 	}
-	if (ferror(fp1))
-		eprintf("fread %s", s1);
 }

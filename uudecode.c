@@ -273,10 +273,7 @@ main(int argc, char *argv[])
 
 	if (nfp != stdout && chmod(fname, mode) < 0)
 		eprintf("chmod %s:", fname);
-	if (fp)
-		fclose(fp);
-	if (nfp)
-		fclose(nfp);
 
-	return 0;
+	return !!(fshut(fp, fp == stdin ? "<stdin>" : argv[0]) +
+	          fshut(nfp, nfp == stdout ? "<stdout>" : fname));
 }

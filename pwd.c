@@ -46,5 +46,5 @@ main(int argc, char *argv[])
 		eprintf("getcwd:");
 	puts((mode == 'L') ? getpwd(cwd) : cwd);
 
-	return 0;
+	return fshut(stdout, "<stdout>");
 }

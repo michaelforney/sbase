@@ -27,7 +27,7 @@ nextfile(FILE *f, char *buf, int plen, int slen)
 	static int filecount = 0;
 
 	if (f)
-		fclose(f);
+		fshut(f, "<file>");
 	if (itostr(buf + plen, filecount++, slen) < 0)
 		return NULL;
 
@@ -124,9 +124,6 @@ main(int argc, char *argv[])
 		putc(ch, out);
 	}
 
-	fclose(in);
-	if (out)
-		fclose(out);
-
-	return 0;
+	return !!(fshut(in, "<infile>") + (out && fshut(out, "<outfile>")) +
+	          fshut(stdin, "<stdin>") + fshut(stdout, "<stdout>"));
 }

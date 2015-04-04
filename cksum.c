@@ -111,9 +111,11 @@ main(int argc, char *argv[])
 				continue;
 			}
 			cksum(fp, *argv);
-			fclose(fp);
+			if (fshut(fp, *argv)) {
+				ret = 1;
+			}
 		}
 	}
 
-	return ret;
+	return fshut(stdout, "<stdout>") || ret;
 }

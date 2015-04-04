@@ -3,6 +3,7 @@
 
 #include <regex.h>
 #include <stddef.h>
+#include <stdio.h>
 
 #include "arg.h"
 #include "compat.h"
@@ -33,6 +34,10 @@ void *enmalloc(int, size_t);
 void *enrealloc(int, void *, size_t);
 char *enstrdup(int, const char *);
 char *enstrndup(int, const char *, size_t);
+
+void enfshut(int, FILE *, const char *);
+void efshut(FILE *, const char *);
+int  fshut(FILE *, const char *);
 
 void enprintf(int, const char *, ...);
 void eprintf(const char *, ...);

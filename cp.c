@@ -53,5 +53,5 @@ main(int argc, char *argv[])
 	}
 	enmasse(argc, argv, cp);
 
-	return cp_status;
+	return fshut(stdout, "<stdout>") || cp_status;
 }

@@ -36,10 +36,12 @@ main(int argc, char *argv[])
 				ret = 1;
 			} else {
 				concat(fp, *argv, stdout, "<stdout>");
-				fclose(fp);
+				if (fshut(fp, *argv)) {
+					ret = 1;
+				}
 			}
 		}
 	}
 
-	return ret;
+	return !!(fshut(stdin, "<stdin>") + fshut(stdout, "<stdout>")) || ret;
 }

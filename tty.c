@@ -26,5 +26,5 @@ main(int argc, char *argv[])
 	tty = ttyname(STDIN_FILENO);
 	puts(tty ? tty : "not a tty");
 
-	return !tty;
+	return fshut(stdout, "<stdout>") || !tty;
 }

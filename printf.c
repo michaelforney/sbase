@@ -152,5 +152,5 @@ main(int argc, char *argv[])
 			cooldown = 1;
 	}
 
-	return 0;
+	return fshut(stdout, "<stdout>");
 }

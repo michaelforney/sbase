@@ -130,7 +130,8 @@ main(int argc, char *argv[])
 			tail(fp, *argv);
 
 			if (!fflag) {
-				fclose(fp);
+				if (fshut(fp, *argv))
+					ret = 1;
 				continue;
 			}
 			for (tmp = NULL, tmpsize = 0;;) {
@@ -155,5 +156,5 @@ main(int argc, char *argv[])
 		}
 	}
 
-	return ret;
+	return !!(fshut(stdin, "<stdin>") + fshut(stdout, "<stdout>")) || ret;
 }

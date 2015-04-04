@@ -193,8 +193,8 @@ main(int argc, char *argv[])
 		if (!(fp = fopen(argv[0], "r")))
 			eprintf("fopen %s:", argv[0]);
 		nl(argv[0], fp);
-		fclose(fp);
 	}
 
-	return 0;
+	return !!(fshut(fp, argv[0]) + fshut(stdin, "<stdin>") +
+	          fshut(stdout, "<stdout>"));
 }
