@@ -111,7 +111,7 @@ getlinetype(char *type, regex_t *preg)
 int
 main(int argc, char *argv[])
 {
-	FILE *fp;
+	FILE *fp = NULL;
 	size_t l, s;
 	char *d, *formattype, *formatblit;
 
@@ -195,6 +195,6 @@ main(int argc, char *argv[])
 		nl(argv[0], fp);
 	}
 
-	return !!(fshut(fp, argv[0]) + fshut(stdin, "<stdin>") +
+	return !!((fp && fshut(fp, argv[0])) + fshut(stdin, "<stdin>") +
 	          fshut(stdout, "<stdout>"));
 }
