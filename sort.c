@@ -283,8 +283,9 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
+	/* -b shall only apply to custom key definitions */
 	if (!head && global_flags)
-		addkeydef("1", global_flags);
+		addkeydef("1", global_flags & ~(MOD_STARTB|MOD_ENDB));
 	addkeydef("1", global_flags & MOD_R);
 
 	if (!argc) {
