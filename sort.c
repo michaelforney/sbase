@@ -161,7 +161,7 @@ parse_keydef(struct keydef *kd, char *s, int flags)
 			return -1;
 		if (*rest == '.') {
 			kd->end_char = strtol(rest+1, &rest, 10);
-			if (kd->end_char < 1)
+			if (kd->end_char < 0)
 				return -1;
 		}
 		if (parse_flags(&rest, &kd->flags, MOD_ENDB) < 0)
