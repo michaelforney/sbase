@@ -100,7 +100,7 @@ main(int argc, char *argv[])
 
 	if (!argc) {
 		recurse(".", &n, &r);
-		printpath(nblks(n), ".");
+		printpath(n, ".");
 	} else {
 		for (; *argv; argc--, argv++) {
 			recurse(*argv, &n, &r);
