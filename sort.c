@@ -157,7 +157,7 @@ parse_keydef(struct keydef *kd, char *s, int flags)
 		return -1;
 	if (*rest == ',') {
 		kd->end_column = strtol(rest+1, &rest, 10);
-		if (kd->end_column && kd->end_column < kd->start_column)
+		if (kd->end_column < 1)
 			return -1;
 		if (*rest == '.') {
 			kd->end_char = strtol(rest+1, &rest, 10);
