@@ -103,6 +103,7 @@ main(int argc, char *argv[])
 		printpath(n, ".");
 	} else {
 		for (; *argv; argc--, argv++) {
+			n = 0;
 			recurse(*argv, &n, &r);
 			printpath(n, *argv);
 		}
