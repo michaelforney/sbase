@@ -3,7 +3,8 @@
 
 #include "../util.h"
 
-int fshut(FILE *fp, const char *fname)
+int
+fshut(FILE *fp, const char *fname)
 {
 	int ret = 0;
 
@@ -27,13 +28,15 @@ int fshut(FILE *fp, const char *fname)
 	return ret;
 }
 
-void enfshut(int status, FILE *fp, const char *fname)
+void
+enfshut(int status, FILE *fp, const char *fname)
 {
 	if (fshut(fp, fname))
 		exit(status);
 }
 
-void efshut(FILE *fp, const char *fname)
+void
+efshut(FILE *fp, const char *fname)
 {
 	enfshut(1, fp, fname);
 }
