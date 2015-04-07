@@ -122,7 +122,6 @@ static void push(Vec *v, void *p);
 static void stracat(String *dst, char *src);
 static void strnacat(String *dst, char *src, size_t n);
 static void stracpy(String *dst, char *src);
-static void strnacpy(String *dst, char *src, size_t n);
 
 /* Cleanup and errors */
 static void usage(void);
@@ -340,18 +339,6 @@ stracpy(String *dst, char *src)
 	if (dst->cap < len)
 		resize((void **)&dst->str, &dst->cap, 1, len * 2, NULL);
 	strcpy(dst->str, src);
-}
-
-static void
-strnacpy(String *dst, char *src, size_t n)
-{
-	size_t len;
-
-	len = strlen(src);
-	len = strlen(dst->str) + MIN(n, len) + 1;
-	if (dst->cap < len)
-		resize((void **)&dst->str, &dst->cap, 1, len * 2, NULL);
-	estrlcpy(dst->str, src, len);
 }
 
 static void
