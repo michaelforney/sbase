@@ -1105,7 +1105,7 @@ next_file(void)
 
 	if (file == stdin)
 		clearerr(file);
-	if (file)
+	else if (file)
 		fshut(file, "<file>");
 	file = NULL;
 
