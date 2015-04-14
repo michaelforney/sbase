@@ -19,7 +19,7 @@
 /* because putting integers in pointers is undefined by the standard */
 union extra {
 	void    *p;
-	intptr_t i;
+	intmax_t i;
 };
 
 /* Argument passed into a primary's function */
