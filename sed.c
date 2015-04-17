@@ -1428,7 +1428,7 @@ cmd_s(Cmd *c)
 	lastre = re;
 
 	plen = re->re_nsub + 1;
-	pmatch = emalloc(plen * sizeof(regmatch_t));
+	pmatch = ereallocarray(NULL, plen, sizeof(regmatch_t));
 
 	*genbuf.str = '\0';
 	s = patt.str;
