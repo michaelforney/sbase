@@ -37,7 +37,7 @@ recurse(const char *path, void *data, struct recursor *r)
 		recurse_status = 1;
 		return;
 	}
-	if (!S_ISDIR(st.st_mode) || (S_ISDIR(st.st_mode) && (r->flags & NODIRS))) {
+	if (!S_ISDIR(st.st_mode)) {
 		(r->fn)(path, &st, data, r);
 		return;
 	}
@@ -61,26 +61,28 @@ recurse(const char *path, void *data, struct recursor *r)
 	if (!r->depth && (r->flags & DIRFIRST))
 		(r->fn)(path, &st, data, r);
 
-	while ((d = readdir(dp))) {
-		if (r->follow == 'H') {
-			statf_name = "lstat";
-			statf = lstat;
-		}
-		if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
-			continue;
-		estrlcpy(subpath, path, sizeof(subpath));
-		if (path[strlen(path) - 1] != '/')
-			estrlcat(subpath, "/", sizeof(subpath));
-		estrlcat(subpath, d->d_name, sizeof(subpath));
-		if (statf(subpath, &dst) < 0) {
-			weprintf("%s %s:", statf_name, subpath);
-			recurse_status = 1;
-		} else if ((r->flags & SAMEDEV) && dst.st_dev != st.st_dev) {
-			continue;
-		} else {
-			r->depth++;
-			(r->fn)(subpath, &dst, data, r);
-			r->depth--;
+	if (!r->maxdepth || r->depth + 1 < r->maxdepth) {
+		while ((d = readdir(dp))) {
+			if (r->follow == 'H') {
+				statf_name = "lstat";
+				statf = lstat;
+			}
+			if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
+				continue;
+			estrlcpy(subpath, path, sizeof(subpath));
+			if (path[strlen(path) - 1] != '/')
+				estrlcat(subpath, "/", sizeof(subpath));
+			estrlcat(subpath, d->d_name, sizeof(subpath));
+			if (statf(subpath, &dst) < 0) {
+				weprintf("%s %s:", statf_name, subpath);
+				recurse_status = 1;
+			} else if ((r->flags & SAMEDEV) && dst.st_dev != st.st_dev) {
+				continue;
+			} else {
+				r->depth++;
+				(r->fn)(subpath, &dst, data, r);
+				r->depth--;
+			}
 		}
 	}
 

@@ -32,7 +32,7 @@ chownpwgr(const char *path, struct stat *st, void *data, struct recursor *r)
 	if (chownf(path, uid, gid) < 0) {
 		weprintf("%s %s:", chownf_name, path);
 		ret = 1;
-	} else if (!(r->flags & NODIRS) && st && S_ISDIR(st->st_mode)) {
+	} else if (st && S_ISDIR(st->st_mode)) {
 		recurse(path, NULL, r);
 	}
 }
@@ -48,7 +48,8 @@ main(int argc, char *argv[])
 {
 	struct group *gr;
 	struct passwd *pw;
-	struct recursor r = { .fn = chownpwgr, .hist = NULL, .depth = 0, .follow = 'P', .flags = NODIRS};
+	struct recursor r = { .fn = chownpwgr, .hist = NULL, .depth = 0, .maxdepth = 1,
+	                      .follow = 'P', .flags = 0 };
 	char *owner, *group;
 
 	ARGBEGIN {
@@ -57,7 +58,7 @@ main(int argc, char *argv[])
 		break;
 	case 'r':
 	case 'R':
-		r.flags &= ~NODIRS;
+		r.maxdepth = 0;
 		break;
 	case 'H':
 	case 'L':

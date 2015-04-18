@@ -315,7 +315,8 @@ int
 main(int argc, char *argv[])
 {
 	FILE *fp;
-	struct recursor r = { .fn = c, .hist = NULL, .depth = 0, .follow = 'P', .flags = DIRFIRST};
+	struct recursor r = { .fn = c, .hist = NULL, .depth = 0, .maxdepth = 0,
+	                      .follow = 'P', .flags = DIRFIRST };
 	struct stat st;
 	char *file = NULL, *dir = ".", mode = '\0';
 

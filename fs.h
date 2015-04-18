@@ -3,23 +3,23 @@
 #include <sys/types.h>
 
 struct history {
-        struct history *prev;
-        dev_t dev;
-        ino_t ino;
+	struct history *prev;
+	dev_t dev;
+	ino_t ino;
 };
 
 struct recursor {
-        void (*fn)(const char *, struct stat *st, void *, struct recursor *);
-        struct history *hist;
-        int depth;
-        int follow;
-        int flags;
+	void (*fn)(const char *, struct stat *st, void *, struct recursor *);
+	struct history *hist;
+	int depth;
+	int maxdepth;
+	int follow;
+	int flags;
 };
 
 enum {
 	SAMEDEV  = 1 << 0,
 	DIRFIRST = 1 << 1,
-	NODIRS   = 1 << 2,
 };
 
 extern int cp_aflag;
