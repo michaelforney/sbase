@@ -9,7 +9,6 @@
 #include "util.h"
 
 static int   hflag = 0;
-static int   Rflag = 0;
 static gid_t gid = -1;
 static int   ret = 0;
 
@@ -30,7 +29,7 @@ chgrp(const char *path, struct stat *st, void *data, struct recursor *r)
 	if (st && chownf(path, st->st_uid, gid) < 0) {
 		weprintf("%s %s:", chownf_name, path);
 		ret = 1;
-	} else if (Rflag && st && S_ISDIR(st->st_mode)) {
+	} else if (!(r->flags & NODIRS) && st && S_ISDIR(st->st_mode)) {
 		recurse(path, NULL, r);
 	}
 }
@@ -45,14 +44,14 @@ int
 main(int argc, char *argv[])
 {
 	struct group *gr;
-	struct recursor r = { .fn = chgrp, .hist = NULL, .depth = 0, .follow = 'P', .flags = 0 };
+	struct recursor r = { .fn = chgrp, .hist = NULL, .depth = 0, .follow = 'P', .flags = NODIRS };
 
 	ARGBEGIN {
 	case 'h':
 		hflag = 1;
 		break;
 	case 'R':
-		Rflag = 1;
+		r.flags &= ~NODIRS;
 		break;
 	case 'H':
 	case 'L':

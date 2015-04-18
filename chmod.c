@@ -4,7 +4,6 @@
 #include "fs.h"
 #include "util.h"
 
-static int    Rflag   = 0;
 static char  *modestr = "";
 static mode_t mask    = 0;
 static int    ret     = 0;
@@ -18,7 +17,7 @@ chmodr(const char *path, struct stat *st, void *data, struct recursor *r)
 	if (chmod(path, m) < 0) {
 		weprintf("chmod %s:", path);
 		ret = 1;
-	} else if (Rflag && st && S_ISDIR(st->st_mode)) {
+	} else if (!(r->flags & NODIRS) && st && S_ISDIR(st->st_mode)) {
 		recurse(path, NULL, r);
 	}
 }
@@ -32,7 +31,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	struct recursor r = { .fn = chmodr, .hist = NULL, .depth = 0, .follow = 'P', .flags = 0};
+	struct recursor r = { .fn = chmodr, .hist = NULL, .depth = 0, .follow = 'P', .flags = NODIRS};
 	size_t i;
 
 	argv0 = argv[0], argc--, argv++;
@@ -43,7 +42,7 @@ main(int argc, char *argv[])
 		for (i = 1; (*argv)[i]; i++) {
 			switch ((*argv)[i]) {
 			case 'R':
-				Rflag = 1;
+				r.flags &= ~NODIRS;
 				break;
 			case 'H':
 			case 'L':

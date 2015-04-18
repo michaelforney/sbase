@@ -3,22 +3,29 @@
 
 #include <errno.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "../fs.h"
 #include "../util.h"
 
 int rm_fflag = 0;
-int rm_rflag = 0;
 int rm_status = 0;
 
 void
 rm(const char *path, struct stat *st, void *data, struct recursor *r)
 {
-	if (rm_rflag && st && S_ISDIR(st->st_mode))
+	if (!(r->flags & NODIRS) && st && S_ISDIR(st->st_mode)) {
 		recurse(path, NULL, r);
-	if (remove(path) < 0) {
+
+		if (rmdir(path) < 0) {
+			if (!rm_fflag)
+				weprintf("rmdir %s:", path);
+			if (!(rm_fflag && errno == ENOENT))
+				rm_status = 1;
+		}
+	} else if (unlink(path) < 0) {
 		if (!rm_fflag)
-			weprintf("remove %s:", path);
+			weprintf("unlink %s:", path);
 		if (!(rm_fflag && errno == ENOENT))
 			rm_status = 1;
 	}

@@ -11,7 +11,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	struct recursor r = { .fn = rm, .hist = NULL, .depth = 0, .follow = 'P', .flags = 0};
+	struct recursor r = { .fn = rm, .hist = NULL, .depth = 0, .follow = 'P', .flags = NODIRS };
 
 	ARGBEGIN {
 	case 'f':
@@ -19,7 +19,7 @@ main(int argc, char *argv[])
 		break;
 	case 'R':
 	case 'r':
-		rm_rflag = 1;
+		r.flags &= ~NODIRS;
 		break;
 	default:
 		usage();

@@ -11,7 +11,6 @@
 #include "util.h"
 
 static int   hflag = 0;
-static int   Rflag = 0;
 static uid_t uid = -1;
 static gid_t gid = -1;
 static int   ret = 0;
@@ -33,7 +32,7 @@ chownpwgr(const char *path, struct stat *st, void *data, struct recursor *r)
 	if (chownf(path, uid, gid) < 0) {
 		weprintf("%s %s:", chownf_name, path);
 		ret = 1;
-	} else if (Rflag && st && S_ISDIR(st->st_mode)) {
+	} else if (!(r->flags & NODIRS) && st && S_ISDIR(st->st_mode)) {
 		recurse(path, NULL, r);
 	}
 }
@@ -49,7 +48,7 @@ main(int argc, char *argv[])
 {
 	struct group *gr;
 	struct passwd *pw;
-	struct recursor r = { .fn = chownpwgr, .hist = NULL, .depth = 0, .follow = 'P', .flags = 0};
+	struct recursor r = { .fn = chownpwgr, .hist = NULL, .depth = 0, .follow = 'P', .flags = NODIRS};
 	char *owner, *group;
 
 	ARGBEGIN {
@@ -58,7 +57,7 @@ main(int argc, char *argv[])
 		break;
 	case 'r':
 	case 'R':
-		Rflag = 1;
+		r.flags &= ~NODIRS;
 		break;
 	case 'H':
 	case 'L':

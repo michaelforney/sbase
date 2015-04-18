@@ -37,7 +37,7 @@ recurse(const char *path, void *data, struct recursor *r)
 		recurse_status = 1;
 		return;
 	}
-	if (!S_ISDIR(st.st_mode)) {
+	if (!S_ISDIR(st.st_mode) || (S_ISDIR(st.st_mode) && (r->flags & NODIRS))) {
 		(r->fn)(path, &st, data, r);
 		return;
 	}
