@@ -8,7 +8,6 @@
 #include "../fs.h"
 #include "../util.h"
 
-int rm_fflag = 0;
 int rm_status = 0;
 
 void
@@ -18,15 +17,15 @@ rm(const char *path, struct stat *st, void *data, struct recursor *r)
 		recurse(path, NULL, r);
 
 		if (rmdir(path) < 0) {
-			if (!rm_fflag)
+			if (!(r->flags & SILENT))
 				weprintf("rmdir %s:", path);
-			if (!(rm_fflag && errno == ENOENT))
+			if (!((r->flags & SILENT) && errno == ENOENT))
 				rm_status = 1;
 		}
 	} else if (unlink(path) < 0) {
-		if (!rm_fflag)
+		if (!(r->flags & SILENT))
 			weprintf("unlink %s:", path);
-		if (!(rm_fflag && errno == ENOENT))
+		if (!((r->flags & SILENT) && errno == ENOENT))
 			rm_status = 1;
 	}
 }

@@ -16,7 +16,7 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	case 'f':
-		rm_fflag = 1;
+		r.flags |= SILENT;
 		break;
 	case 'R':
 	case 'r':
@@ -27,7 +27,7 @@ main(int argc, char *argv[])
 	} ARGEND;
 
 	if (!argc) {
-		if (!rm_fflag)
+		if (!(r.flags & SILENT))
 			usage();
 		else
 			return 0;

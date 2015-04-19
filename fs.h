@@ -20,6 +20,7 @@ struct recursor {
 enum {
 	SAMEDEV  = 1 << 0,
 	DIRFIRST = 1 << 1,
+	SILENT   = 1 << 2,
 };
 
 extern int cp_aflag;

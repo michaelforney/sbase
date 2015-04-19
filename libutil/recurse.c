@@ -33,8 +33,10 @@ recurse(const char *path, void *data, struct recursor *r)
 	}
 
 	if (statf(path, &st) < 0) {
-		weprintf("%s %s:", statf_name, path);
-		recurse_status = 1;
+		if (!(r->flags & SILENT)) {
+			weprintf("%s %s:", statf_name, path);
+			recurse_status = 1;
+		}
 		return;
 	}
 	if (!S_ISDIR(st.st_mode)) {
@@ -53,8 +55,10 @@ recurse(const char *path, void *data, struct recursor *r)
 			return;
 
 	if (!(dp = opendir(path))) {
-		weprintf("opendir %s:", path);
-		recurse_status = 1;
+		if (!(r->flags & SILENT)) {
+			weprintf("opendir %s:", path);
+			recurse_status = 1;
+		}
 		return;
 	}
 
@@ -74,8 +78,10 @@ recurse(const char *path, void *data, struct recursor *r)
 				estrlcat(subpath, "/", sizeof(subpath));
 			estrlcat(subpath, d->d_name, sizeof(subpath));
 			if (statf(subpath, &dst) < 0) {
-				weprintf("%s %s:", statf_name, subpath);
-				recurse_status = 1;
+				if (!(r->flags & SILENT)) {
+					weprintf("%s %s:", statf_name, subpath);
+					recurse_status = 1;
+				}
 			} else if ((r->flags & SAMEDEV) && dst.st_dev != st.st_dev) {
 				continue;
 			} else {
