@@ -99,6 +99,7 @@ BIN =\
 	fold\
 	grep\
 	head\
+	join\
 	hostname\
 	kill\
 	link\
