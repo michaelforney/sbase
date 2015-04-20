@@ -125,14 +125,13 @@ nextbrack:
 				factor = 1;
 				base = (rstr[i + 3] == '0') ? 8 : 10;
 				for (n = j - 1; n > i + 2; n--) {
-					if (rstr[n] < '0' && rstr[n] > '9') {
+					if (rstr[n] < '0' || rstr[n] > '9') {
 						n = 0;
 						break;
 					}
 					q += (rstr[n] - '0') * factor;
 					factor *= base;
 				}
-
 				if (n == 0) {
 					j = m + 1;
 					goto nextbrack;
