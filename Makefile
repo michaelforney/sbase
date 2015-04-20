@@ -54,6 +54,7 @@ LIBUTILSRC =\
 	libutil/getlines.c\
 	libutil/human.c\
 	libutil/md5.c\
+	libutil/mkdirp.c\
 	libutil/mode.c\
 	libutil/putword.c\
 	libutil/reallocarray.c\

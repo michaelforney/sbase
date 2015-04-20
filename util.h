@@ -74,3 +74,4 @@ long long strtonum(const char *, long long, long long, const char **);
 long long enstrtonum(int, const char *, long long, long long);
 long long estrtonum(const char *, long long, long long);
 size_t unescape(char *);
+int mkdirp(const char *);

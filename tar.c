@@ -174,29 +174,6 @@ archive(const char *path)
 }
 
 static int
-mkdirp(char *path)
-{
-	char *p;
-
-	for (p = path; *p; p++) {
-		if (*p != '/')
-			continue;
-		*p = '\0';
-		if (mkdir(path, S_IRWXU | S_IRWXG | S_IRWXO) < 0 && errno != EEXIST) {
-			weprintf("mkdir %s:", path);
-			*p = '/';
-			return -1;
-		}
-		*p = '/';
-	}
-	if (mkdir(path, S_IRWXU | S_IRWXG | S_IRWXO) < 0 && errno != EEXIST) {
-		weprintf("mkdir %s:", path);
-		return -1;
-	}
-	return 0;
-}
-
-static int
 unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 {
 	FILE *f = NULL;
