@@ -197,6 +197,8 @@ main(int argc, char *argv[])
 		set2ranges = makeset(argv[1], &set2, &set2check);
 	if (dflag == sflag && !set2ranges && !set2check)
 		eprintf("set2 must be non-empty.\n");
+	if (argc == 2 && !set2check != !set1check)
+		eprintf("can't mix classes with non-classes.\n");
 	if (set2check && set2check != islowerrune && set2check != isupperrune)
 		eprintf("set2 can only be the 'lower' or 'upper' class.\n");
 	if (set2check && cflag && !dflag)
