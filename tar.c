@@ -4,6 +4,7 @@
 
 #include <errno.h>
 #include <grp.h>
+#include <libgen.h>
 #include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -173,18 +174,45 @@ archive(const char *path)
 }
 
 static int
+mkdirp(char *path)
+{
+	char *p;
+
+	for (p = path; *p; p++) {
+		if (*p != '/')
+			continue;
+		*p = '\0';
+		if (mkdir(path, S_IRWXU | S_IRWXG | S_IRWXO) < 0 && errno != EEXIST) {
+			weprintf("mkdir %s:", path);
+			*p = '/';
+			return -1;
+		}
+		*p = '/';
+	}
+	if (mkdir(path, S_IRWXU | S_IRWXG | S_IRWXO) < 0 && errno != EEXIST) {
+		weprintf("mkdir %s:", path);
+		return -1;
+	}
+	return 0;
+}
+
+static int
 unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 {
 	FILE *f = NULL;
 	struct timeval times[2];
 	struct header *h = (void *)b;
 	long mode, major, minor, type, mtime, uid, gid;
-	char lname[101], *p;
+	char lname[101], *tmp, *p;
 
 	if (!mflag && ((mtime = strtoul(h->mtime, &p, 8)) < 0 || *p != '\0'))
 		eprintf("strtoul %s: invalid number\n", h->mtime);
 	if (unlink(fname) < 0 && errno != ENOENT && errno != EISDIR)
 		eprintf("unlink %s:", fname);
+
+	tmp = strdup(fname);
+	mkdirp(dirname(tmp));
+	free(tmp);
 
 	switch (h->type) {
 	case REG:
