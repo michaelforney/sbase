@@ -210,7 +210,7 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 	if (unlink(fname) < 0 && errno != ENOENT && errno != EISDIR)
 		eprintf("unlink %s:", fname);
 
-	tmp = strdup(fname);
+	tmp = estrdup(fname);
 	mkdirp(dirname(tmp));
 	free(tmp);
 
