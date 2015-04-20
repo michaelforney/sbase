@@ -280,6 +280,33 @@ c(const char *path, struct stat *st, void *data, struct recursor *r)
 }
 
 static void
+sanitize(struct header *h)
+{
+	size_t i, j;
+	struct {
+		char  *f;
+		size_t l;
+	} fields[] = {
+		{ h->mode,   sizeof(h->mode)   },
+		{ h->uid,    sizeof(h->uid)    },
+		{ h->gid,    sizeof(h->gid)    },
+		{ h->size,   sizeof(h->size)   },
+		{ h->mtime,  sizeof(h->mtime)  },
+		{ h->chksum, sizeof(h->chksum) },
+		{ h->major,  sizeof(h->major)  },
+		{ h->minor,  sizeof(h->minor)  }
+	};
+
+	/* Numeric fields can be terminated with spaces instead of
+	 * NULs as per the ustar specification.  Patch all of them to
+	 * use NULs so we can perform string operations on them. */
+	for (i = 0; i < LEN(fields); i++)
+		for (j = 0; j < fields[i].l; j++)
+			if (fields[i].f[j] == ' ')
+				fields[i].f[j] = '\0';
+}
+
+static void
 xt(int (*fn)(char *, ssize_t, char[BLKSIZ]))
 {
 	struct header *h;
@@ -289,6 +316,7 @@ xt(int (*fn)(char *, ssize_t, char[BLKSIZ]))
 	h = (void *)b;
 
 	while (fread(b, BLKSIZ, 1, tarfile) == 1 && *(h->name)) {
+		sanitize(h);
 		fname[0] = '\0';
 		if (*(h->prefix)) {
 			estrlcat(fname, h->prefix, sizeof(fname));
