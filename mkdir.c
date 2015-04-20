@@ -11,7 +11,7 @@ mkdirp(char *path)
 {
 	char *p;
 
-	for (p = path; *p; p++) {
+	for (p = path + (*path == '/'); *p; p++) {
 		if (*p != '/')
 			continue;
 		*p = '\0';
