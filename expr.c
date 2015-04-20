@@ -261,11 +261,15 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
+	int ret;
+
 	ARGBEGIN {
 	default:
 		usage();
 	} ARGEND;
 
+	ret = !parse(argv, argc);
 	enfshut(3, stdout, "<stdout>");
-	return !parse(argv, argc);
+
+	return ret;
 }
