@@ -11,17 +11,21 @@ mkdirp(char *path)
 {
 	char *p;
 
-	for (p = path + (*path == '/'); *p; p++) {
+	for (p = path; *p; p++) {
 		if (*p != '/')
 			continue;
 		*p = '\0';
 		if (mkdir(path, S_IRWXU | S_IRWXG | S_IRWXO) < 0 && errno != EEXIST) {
 			weprintf("mkdir %s:", path);
+			*p = '/';
 			return -1;
 		}
 		*p = '/';
 	}
-
+	if (mkdir(path, S_IRWXU | S_IRWXG | S_IRWXO) < 0 && errno != EEXIST) {
+		weprintf("mkdir %s:", path);
+		return -1;
+	}
 	return 0;
 }
 
@@ -54,14 +58,15 @@ main(int argc, char *argv[])
 		usage();
 
 	for (; *argv; argc--, argv++) {
-		if (pflag && mkdirp(*argv) < 0) {
-			ret = 1;
-		} else if (mkdir(*argv, S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
-			if (!(pflag && errno == EEXIST)) {
+		if (pflag) {
+			if (mkdirp(*argv) < 0)
+				ret = 1;
+		} else if (mkdir(*argv, S_IRWXU | S_IRWXG | S_IRWXO) < 0 &&
+		           errno != EEXIST) {
 				weprintf("mkdir %s:", *argv);
 				ret = 1;
-			}
-		} else if (mflag && chmod(*argv, mode) < 0) {
+		}
+		if (mflag && chmod(*argv, mode) < 0) {
 			weprintf("chmod %s:", *argv);
 			ret = 1;
 		}
