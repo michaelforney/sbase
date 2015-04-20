@@ -205,8 +205,8 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 	long mode, major, minor, type, mtime, uid, gid;
 	char lname[101], *tmp, *p;
 
-	if (!mflag && ((mtime = strtoul(h->mtime, &p, 8)) < 0 || *p != '\0'))
-		eprintf("strtoul %s: invalid number\n", h->mtime);
+	if (!mflag && ((mtime = strtol(h->mtime, &p, 8)) < 0 || *p != '\0'))
+		eprintf("strtol %s: invalid number\n", h->mtime);
 	if (unlink(fname) < 0 && errno != ENOENT && errno != EISDIR)
 		eprintf("unlink %s:", fname);
 
@@ -217,8 +217,8 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 	switch (h->type) {
 	case REG:
 	case AREG:
-		if ((mode = strtoul(h->mode, &p, 8)) < 0 || *p != '\0')
-			eprintf("strtoul %s: invalid number\n", h->mode);
+		if ((mode = strtol(h->mode, &p, 8)) < 0 || *p != '\0')
+			eprintf("strtol %s: invalid number\n", h->mode);
 		if (!(f = fopen(fname, "w")))
 			eprintf("fopen %s:", fname);
 		if (chmod(fname, mode) < 0)
@@ -233,26 +233,26 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 				fname, lname);
 		break;
 	case DIRECTORY:
-		if ((mode = strtoul(h->mode, &p, 8)) < 0 || *p != '\0')
-			eprintf("strtoul %s: invalid number\n", h->mode);
+		if ((mode = strtol(h->mode, &p, 8)) < 0 || *p != '\0')
+			eprintf("strtol %s: invalid number\n", h->mode);
 		if (mkdir(fname, (mode_t)mode) < 0 && errno != EEXIST)
 			eprintf("mkdir %s:", fname);
 		break;
 	case CHARDEV:
 	case BLOCKDEV:
-		if ((mode = strtoul(h->mode, &p, 8)) < 0 || *p != '\0')
-			eprintf("strtoul %s: invalid number\n", h->mode);
-		if ((major = strtoul(h->major, &p, 8)) < 0 || *p != '\0')
-			eprintf("strtoul %s: invalid number\n", h->major);
-		if ((minor = strtoul(h->minor, &p, 8)) < 0 || *p != '\0')
-			eprintf("strtoul %s: invalid number\n", h->minor);
+		if ((mode = strtol(h->mode, &p, 8)) < 0 || *p != '\0')
+			eprintf("strtol %s: invalid number\n", h->mode);
+		if ((major = strtol(h->major, &p, 8)) < 0 || *p != '\0')
+			eprintf("strtol %s: invalid number\n", h->major);
+		if ((minor = strtol(h->minor, &p, 8)) < 0 || *p != '\0')
+			eprintf("strtol %s: invalid number\n", h->minor);
 		type = (h->type == CHARDEV) ? S_IFCHR : S_IFBLK;
 		if (mknod(fname, type | mode, makedev(major, minor)) < 0)
 			eprintf("mknod %s:", fname);
 		break;
 	case FIFO:
-		if ((mode = strtoul(h->mode, &p, 8)) < 0 || *p != '\0')
-			eprintf("strtoul %s: invalid number\n", h->mode);
+		if ((mode = strtol(h->mode, &p, 8)) < 0 || *p != '\0')
+			eprintf("strtol %s: invalid number\n", h->mode);
 		if (mknod(fname, S_IFIFO | mode, 0) < 0)
 			eprintf("mknod %s:", fname);
 		break;
@@ -260,10 +260,10 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 		eprintf("unsupported tar-filetype %c\n", h->type);
 	}
 
-	if ((uid = strtoul(h->uid, &p, 8)) < 0 || *p != '\0')
-		eprintf("strtoul %s: invalid number\n", h->uid);
-	if ((gid = strtoul(h->gid, &p, 8)) < 0 || *p != '\0')
-		eprintf("strtoul %s: invalid number\n", h->gid);
+	if ((uid = strtol(h->uid, &p, 8)) < 0 || *p != '\0')
+		eprintf("strtol %s: invalid number\n", h->uid);
+	if ((gid = strtol(h->gid, &p, 8)) < 0 || *p != '\0')
+		eprintf("strtol %s: invalid number\n", h->gid);
 	if (!getuid() && chown(fname, uid, gid))
 		eprintf("chown %s:", fname);
 
@@ -351,8 +351,8 @@ xt(int (*fn)(char *, ssize_t, char[BLKSIZ]))
 			estrlcat(fname, "/", sizeof(fname));
 		}
 		estrlcat(fname, h->name, sizeof(fname));
-		if ((size = strtoul(h->size, &p, 8)) < 0 || *p != '\0')
-			eprintf("strtoul %s: invalid number\n", h->size);
+		if ((size = strtol(h->size, &p, 8)) < 0 || *p != '\0')
+			eprintf("strtol %s: invalid number\n", h->size);
 
 		fn(fname, size, b);
 	}
