@@ -242,7 +242,7 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 	if ((gid = strtol(h->gid, &p, 8)) < 0 || *p != '\0')
 		eprintf("strtol %s: invalid number\n", h->gid);
 	if (!getuid() && chown(fname, uid, gid))
-		eprintf("chown %s:", fname);
+		weprintf("chown %s:", fname);
 
 	for (; l > 0; l -= BLKSIZ) {
 		if (fread(b, BLKSIZ, 1, tarfile) != 1)
