@@ -313,26 +313,34 @@ sanitize(struct header *h)
 }
 
 static void
-xt(int (*fn)(char *, ssize_t, char[BLKSIZ]))
+xt(int argc, char *argv[], int (*fn)(char *, ssize_t, char[BLKSIZ]))
 {
 	char b[BLKSIZ], fname[256 + 1], *p;
-	struct header *h;
+	struct header *h = (struct header *)b;
 	long size;
-	int n;
+	int i, n;
 
-	h = (void *)b;
+	while (fread(b, BLKSIZ, 1, tarfile) == 1 && *h->name) {
+		sanitize(h), n = 0;
 
-	while (fread(b, BLKSIZ, 1, tarfile) == 1 && *(h->name)) {
-		sanitize(h);
-		n = 0;
+		/* small dance around non-null terminated fields */
 		if (h->prefix[0])
 			n = snprintf(fname, sizeof(fname), "%.*s/",
 			             (int)sizeof(h->prefix), h->prefix);
 		snprintf(fname + n, sizeof(fname) - n, "%.*s",
 		         (int)sizeof(h->name), h->name);
+
+		if (argc) {
+			/* only extract the given files */
+			for (i = 0; i < argc; i++)
+				if (!strcmp(argv[i], fname))
+					break;
+			if (i == argc)
+				continue;
+		}
+
 		if ((size = strtol(h->size, &p, 8)) < 0 || *p != '\0')
 			eprintf("strtol %s: invalid number\n", h->size);
-
 		fn(fname, size, b);
 	}
 	if (ferror(tarfile))
@@ -430,7 +438,7 @@ main(int argc, char *argv[])
 
 		if (chdir(dir) < 0)
 			eprintf("chdir %s:", dir);
-		xt((mode == 'x') ? unarchive : print);
+		xt(argc, argv, (mode == 'x') ? unarchive : print);
 		break;
 	}
 
