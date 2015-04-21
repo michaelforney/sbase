@@ -113,7 +113,7 @@ archive(const char *path)
 	pw = getpwuid(st.st_uid);
 	gr = getgrgid(st.st_gid);
 
-	h = (void *)b;
+	h = (struct header *)b;
 	memset(b, 0, sizeof(b));
 	estrlcpy(h->name,    path,                        sizeof(h->name));
 	putoctal(h->mode,    (unsigned)st.st_mode & 0777, sizeof(h->mode));
@@ -171,7 +171,7 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 {
 	FILE *f = NULL;
 	struct timeval times[2];
-	struct header *h = (void *)b;
+	struct header *h = (struct header *)b;
 	long mode, major, minor, type, mtime, uid, gid;
 	char lname[101], *tmp, *p;
 
