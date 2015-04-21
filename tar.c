@@ -341,7 +341,7 @@ static void
 usage(void)
 {
 	eprintf("usage: %s [-C dir] [-j | -z] -x [-m | -t] [-f file]\n"
-		"       %s [-C dir] [-h] -c dir [-f file]\n", argv0, argv0);
+		"       %s [-C dir] [-h] -c dir ... [-f file]\n", argv0, argv0);
 }
 
 int
@@ -379,10 +379,11 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (!mode || argc != (mode == 'c'))
+	if (!mode)
 		usage();
-	if (mode == 'c' && filtermode)
-		usage();
+	if (mode == 'c')
+		if (!argc || filtermode)
+			usage();
 
 	switch (mode) {
 	case 'c':
@@ -401,7 +402,8 @@ main(int argc, char *argv[])
 		}
 		if (chdir(dir) < 0)
 			eprintf("chdir %s:", dir);
-		recurse(argv[0], NULL, &r);
+		for (; *argv; argc--, argv++)
+			recurse(*argv, NULL, &r);
 		break;
 	case 't':
 	case 'x':
