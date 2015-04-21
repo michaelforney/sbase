@@ -203,7 +203,8 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 		break;
 	case HARDLINK:
 	case SYMLINK:
-		estrlcpy(lname, h->link, sizeof(lname));
+		snprintf(lname, sizeof(lname), "%.*s", (int)sizeof(h->link),
+		         h->link);
 		if (((h->type == HARDLINK) ? link : symlink)(lname, fname) < 0)
 			eprintf("%s %s -> %s:",
 			        (h->type == HARDLINK) ? "link" : "symlink",
@@ -314,20 +315,21 @@ sanitize(struct header *h)
 static void
 xt(int (*fn)(char *, ssize_t, char[BLKSIZ]))
 {
+	char b[BLKSIZ], fname[256 + 1], *p;
 	struct header *h;
 	long size;
-	char b[BLKSIZ], fname[256 + 1], *p;
+	int n;
 
 	h = (void *)b;
 
 	while (fread(b, BLKSIZ, 1, tarfile) == 1 && *(h->name)) {
 		sanitize(h);
-		fname[0] = '\0';
-		if (*(h->prefix)) {
-			estrlcat(fname, h->prefix, sizeof(fname));
-			estrlcat(fname, "/", sizeof(fname));
-		}
-		estrlcat(fname, h->name, sizeof(fname));
+		n = 0;
+		if (h->prefix[0])
+			n = snprintf(fname, sizeof(fname), "%.*s/",
+			             (int)sizeof(h->prefix), h->prefix);
+		snprintf(fname + n, sizeof(fname) - n, "%.*s",
+		         (int)sizeof(h->name), h->name);
 		if ((size = strtol(h->size, &p, 8)) < 0 || *p != '\0')
 			eprintf("strtol %s: invalid number\n", h->size);
 
