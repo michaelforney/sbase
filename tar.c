@@ -109,16 +109,9 @@ archive(const char *path)
 		weprintf("ignoring %s\n", path);
 		return 0;
 	}
-	errno = 0;
-	if (!(pw = getpwuid(st.st_uid)) && errno) {
-		weprintf("getpwuid:");
-		return 0;
-	}
-	errno = 0;
-	if (!(gr = getgrgid(st.st_gid)) && errno) {
-		weprintf("getgrgid:");
-		return 0;
-	}
+
+	pw = getpwuid(st.st_uid);
+	gr = getgrgid(st.st_gid);
 
 	h = (void *)b;
 	memset(b, 0, sizeof(b));
