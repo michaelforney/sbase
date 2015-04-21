@@ -9,7 +9,7 @@ putword(FILE *fp, const char *s)
 	static int first = 1;
 
 	if (!first)
-		putchar(' ');
+		fputc(' ', fp);
 
 	fputs(s, fp);
 	first = 0;
