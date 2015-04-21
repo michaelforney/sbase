@@ -160,12 +160,15 @@ static void
 spawn(void)
 {
 	int savederrno;
+	int first = 1;
 	char **p;
 
 	if (tflag) {
 		for (p = cmd; *p; p++) {
+			if (!first)
+				fputc(' ', stderr);
 			fputs(*p, stderr);
-			fputc(' ', stderr);
+			first = 0;
 		}
 		fputc('\n', stderr);
 	}
