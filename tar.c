@@ -350,8 +350,8 @@ xt(int argc, char *argv[], int (*fn)(char *, ssize_t, char[BLKSIZ]))
 static void
 usage(void)
 {
-	eprintf("usage: %s [-C dir] [-j | -z] -x [-m | -t] [-f file]\n"
-		"       %s [-C dir] [-h] -c dir ... [-f file]\n", argv0, argv0);
+	eprintf("usage: %s [-C dir] [-j | -z] -x [-m | -t] [-f file] [file ...]\n"
+		"       %s [-C dir] [-h] -c path ... [-f file]\n", argv0, argv0);
 }
 
 int

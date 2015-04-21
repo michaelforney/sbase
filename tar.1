@@ -1,4 +1,4 @@
-.Dd March 21, 2015
+.Dd April 21, 2015
 .Dt TAR 1
 .Os sbase
 .Sh NAME
@@ -10,17 +10,18 @@
 .Op Fl j | Fl z
 .Fl x Op Fl m | Fl t
 .Op Fl f Ar file
+.Op Ar file ...
 .Nm
 .Op Fl C Ar dir
 .Op Fl h
-.Fl c Ar dir
+.Fl c Ar path ...
 .Op Fl f Ar file
 .Sh DESCRIPTION
 .Nm
 is the standard file archiver.
 .Sh OPTIONS
 .Bl -tag -width Ds
-.It Fl c Ar path
+.It Fl c Ar path ...
 Create archive from
 .Ar path .
 .It Fl C Ar dir
