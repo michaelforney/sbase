@@ -68,7 +68,7 @@ void fnck(const char *, const char *, int (*)(const char *, const char *, int), 
 mode_t getumask(void);
 char *humansize(double);
 mode_t parsemode(const char *, mode_t, mode_t);
-void putword(const char *);
+void putword(FILE *, const char *);
 #undef strtonum
 long long strtonum(const char *, long long, long long, const char **);
 long long enstrtonum(int, const char *, long long, long long);

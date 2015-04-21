@@ -44,15 +44,15 @@ main(int argc, char *argv[])
 		eprintf("uname:");
 
 	if (sflag || !(nflag || rflag || vflag || mflag))
-		putword(u.sysname);
+		putword(stdout, u.sysname);
 	if (nflag)
-		putword(u.nodename);
+		putword(stdout, u.nodename);
 	if (rflag)
-		putword(u.release);
+		putword(stdout, u.release);
 	if (vflag)
-		putword(u.version);
+		putword(stdout, u.version);
 	if (mflag)
-		putword(u.machine);
+		putword(stdout, u.machine);
 	putchar('\n');
 
 	return fshut(stdout, "<stdout>");

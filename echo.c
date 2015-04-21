@@ -14,7 +14,7 @@ main(int argc, char *argv[])
 	}
 
 	for (; *argv; argc--, argv++)
-		putword(*argv);
+		putword(stdout, *argv);
 	if (!nflag)
 		putchar('\n');
 

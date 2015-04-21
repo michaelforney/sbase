@@ -4,13 +4,13 @@
 #include "../util.h"
 
 void
-putword(const char *s)
+putword(FILE *fp, const char *s)
 {
 	static int first = 1;
 
 	if (!first)
 		putchar(' ');
 
-	fputs(s, stdout);
+	fputs(s, fp);
 	first = 0;
 }
