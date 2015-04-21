@@ -252,22 +252,12 @@ parse(char *expr[], int numexpr)
 	return (valp->str && *valp->str) || valp->num;
 }
 
-static void
-usage(void)
-{
-	enprintf(3, "usage: %s expression\n", argv0);
-}
-
 int
 main(int argc, char *argv[])
 {
 	int ret;
 
-	ARGBEGIN {
-	default:
-		usage();
-	} ARGEND;
-
+	argv0 = argv[0], argc--, argv++;
 	ret = !parse(argv, argc);
 	enfshut(3, stdout, "<stdout>");
 
