@@ -323,17 +323,22 @@ xt(int argc, char *argv[], int (*fn)(char *, ssize_t, char[BLKSIZ]))
 		snprintf(fname + n, sizeof(fname) - n, "%.*s",
 		         (int)sizeof(h->name), h->name);
 
+		if ((size = strtol(h->size, &p, 8)) < 0 || *p != '\0')
+			eprintf("strtol %s: invalid number\n", h->size);
+
 		if (argc) {
 			/* only extract the given files */
 			for (i = 0; i < argc; i++)
 				if (!strcmp(argv[i], fname))
 					break;
-			if (i == argc)
+			if (i == argc) {
+				for (; size > 0; size -= BLKSIZ)
+					if (fread(b, BLKSIZ, 1, tarfile) != 1)
+						eprintf("fread %s:", tarfilename);
 				continue;
+			}
 		}
 
-		if ((size = strtol(h->size, &p, 8)) < 0 || *p != '\0')
-			eprintf("strtol %s: invalid number\n", h->size);
 		fn(fname, size, b);
 	}
 	if (ferror(tarfile))
