@@ -339,6 +339,14 @@ xt(int argc, char *argv[], int (*fn)(char *, ssize_t, char[BLKSIZ]))
 			}
 		}
 
+		/* ignore global pax header craziness */
+		if (h->type == 'g') {
+			for (; size > 0; size -= BLKSIZ)
+				if (fread(b, BLKSIZ, 1, tarfile) != 1)
+					eprintf("fread %s:", tarfilename);
+			continue;
+		}
+
 		fn(fname, size, b);
 	}
 	if (ferror(tarfile))
