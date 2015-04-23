@@ -55,6 +55,31 @@ static dev_t tardev;
 static int  mflag;
 static char filtermode = '\0';
 
+struct ent {
+	char *name;
+	time_t mtime;
+} *ents;
+static size_t entlen;
+
+static void
+pushent(char *name, time_t mtime)
+{
+	ents = reallocarray(ents, entlen + 1, sizeof(*ents));
+	ents[entlen].name = strdup(name);
+	ents[entlen].mtime = mtime;
+	entlen++;
+}
+
+struct ent *
+popent(void)
+{
+	if (entlen) {
+		entlen--;
+		return &ents[entlen];
+	}
+	return NULL;
+}
+
 static FILE *
 decomp(FILE *fp)
 {
@@ -170,7 +195,6 @@ static int
 unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 {
 	FILE *f = NULL;
-	struct timeval times[2];
 	struct header *h = (struct header *)b;
 	long mode, major, minor, type, mtime, uid, gid;
 	char lname[101], *tmp, *p;
@@ -247,13 +271,7 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 	if (f)
 		fshut(f, fname);
 
-	if (!mflag) {
-		times[0].tv_sec = times[1].tv_sec = mtime;
-		times[0].tv_usec = times[1].tv_usec = 0;
-		if (utimes(fname, times) < 0)
-			eprintf("utimes %s:", fname);
-	}
-
+	pushent(fname, mtime);
 	return 0;
 }
 
@@ -315,7 +333,9 @@ static void
 xt(int argc, char *argv[], int (*fn)(char *, ssize_t, char[BLKSIZ]))
 {
 	char b[BLKSIZ], fname[256 + 1], *p;
+	struct timeval times[2];
 	struct header *h = (struct header *)b;
+	struct ent *ent;
 	long size;
 	int i, n;
 
@@ -353,6 +373,18 @@ xt(int argc, char *argv[], int (*fn)(char *, ssize_t, char[BLKSIZ]))
 	}
 	if (ferror(tarfile))
 		eprintf("fread %s:", tarfilename);
+
+	if (!mflag) {
+		while ((ent = popent())) {
+			times[0].tv_sec = times[1].tv_sec = ent->mtime;
+			times[0].tv_usec = times[1].tv_usec = 0;
+			if (utimes(ent->name, times) < 0)
+				weprintf("utimes %s:", ent->name);
+			free(ent->name);
+		}
+		free(ents);
+		ents = NULL;
+	}
 }
 
 static void
