@@ -3,6 +3,7 @@
 #include <sys/time.h>
 
 #include <errno.h>
+#include <fcntl.h>
 #include <grp.h>
 #include <libgen.h>
 #include <pwd.h>
@@ -47,8 +48,7 @@ enum Type {
 	BLOCKDEV = '4', DIRECTORY = '5', FIFO = '6'
 };
 
-static FILE *tarfile;
-static char *tarfilename;
+static int tarfd;
 static ino_t tarinode;
 static dev_t tardev;
 
@@ -59,6 +59,7 @@ static struct ent {
 	char *name;
 	time_t mtime;
 } *ents;
+
 static size_t entlen;
 
 static void
@@ -80,8 +81,8 @@ popent(void)
 	return NULL;
 }
 
-static FILE *
-decomp(FILE *fp)
+static int
+decomp(int fd)
 {
 	int fds[2];
 	char *tool;
@@ -93,7 +94,7 @@ decomp(FILE *fp)
 	case -1:
 		eprintf("fork:");
 	case 0:
-		dup2(fileno(fp), 0);
+		dup2(fd, 0);
 		dup2(fds[1], 1);
 		close(fds[0]);
 		close(fds[1]);
@@ -104,8 +105,32 @@ decomp(FILE *fp)
 		_exit(1);
 	}
 	close(fds[1]);
+	return fds[0];
+}
 
-	return fdopen(fds[0], "r");
+static ssize_t
+eread(int fd, void *buf, size_t n)
+{
+	ssize_t r;
+
+again:
+	r = read(fd, buf, n);
+	if (r < 0) {
+		if (errno == EINTR)
+			goto again;
+		eprintf("read:");
+	}
+	return r;
+}
+
+static ssize_t
+ewrite(int fd, const void *buf, size_t n)
+{
+	ssize_t r;
+
+	if ((r = write(fd, buf, n)) != n)
+		eprintf("write:");
+	return r;
 }
 
 static void
@@ -118,14 +143,14 @@ putoctal(char *dst, unsigned num, int size)
 static int
 archive(const char *path)
 {
-	FILE *f = NULL;
+	unsigned char b[BLKSIZ];
 	struct group *gr;
 	struct header *h;
 	struct passwd *pw;
 	struct stat st;
 	size_t chksum, x;
 	ssize_t l, r;
-	unsigned char b[BLKSIZ];
+	int fd = -1;
 
 	if (lstat(path, &st) < 0) {
 		weprintf("lstat %s:", path);
@@ -154,7 +179,9 @@ archive(const char *path)
 	if (S_ISREG(st.st_mode)) {
 		h->type = REG;
 		putoctal(h->size, (unsigned)st.st_size,  sizeof(h->size));
-		f = fopen(path, "r");
+		fd = open(path, O_RDONLY);
+		if (fd < 0)
+			eprintf("open %s:", path);
 	} else if (S_ISDIR(st.st_mode)) {
 		h->type = DIRECTORY;
 	} else if (S_ISLNK(st.st_mode)) {
@@ -174,18 +201,15 @@ archive(const char *path)
 	for (x = 0, chksum = 0; x < sizeof(*h); x++)
 		chksum += b[x];
 	putoctal(h->chksum, chksum, sizeof(h->chksum));
+	ewrite(tarfd, b, BLKSIZ);
 
-	if (fwrite(b, BLKSIZ, 1, tarfile) != 1)
-		eprintf("fwrite:");
-
-	if (f) {
-		while ((l = fread(b, 1, BLKSIZ, f)) > 0) {
+	if (fd != -1) {
+		while ((l = eread(fd, b, BLKSIZ)) > 0) {
 			if (l < BLKSIZ)
 				memset(b + l, 0, BLKSIZ - l);
-			if (fwrite(b, BLKSIZ, 1, tarfile) != 1)
-				eprintf("fwrite:");
+			ewrite(tarfd, b, BLKSIZ);
 		}
-		efshut(f, path);
+		close(fd);
 	}
 
 	return 0;
@@ -194,10 +218,10 @@ archive(const char *path)
 static int
 unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 {
-	FILE *f = NULL;
-	struct header *h = (struct header *)b;
-	long mode, major, minor, type, mtime, uid, gid;
 	char lname[101], *tmp, *p;
+	long mode, major, minor, type, mtime, uid, gid;
+	struct header *h = (struct header *)b;
+	int fd = -1;
 
 	if (!mflag && ((mtime = strtol(h->mtime, &p, 8)) < 0 || *p != '\0'))
 		eprintf("strtol %s: invalid number\n", h->mtime);
@@ -213,10 +237,11 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 	case AREG:
 		if ((mode = strtol(h->mode, &p, 8)) < 0 || *p != '\0')
 			eprintf("strtol %s: invalid number\n", h->mode);
-		if (!(f = fopen(fname, "w")))
-			eprintf("fopen %s:", fname);
-		if (chmod(fname, mode) < 0)
-			eprintf("chmod %s:", fname);
+		fd = open(fname, O_WRONLY | O_TRUNC | O_CREAT, 0644);
+		if (fd < 0)
+			eprintf("open %s:", fname);
+		if (fchmod(fd, mode) < 0)
+			eprintf("fchmod %s:", fname);
 		break;
 	case HARDLINK:
 	case SYMLINK:
@@ -262,14 +287,12 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 	if (!getuid() && chown(fname, uid, gid))
 		weprintf("chown %s:", fname);
 
-	for (; l > 0; l -= BLKSIZ) {
-		if (fread(b, BLKSIZ, 1, tarfile) != 1)
-			eprintf("fread %s:", tarfilename);
-		if (f && fwrite(b, MIN(l, BLKSIZ), 1, f) != 1)
-			eprintf("fwrite %s:", fname);
+	if (fd != -1) {
+		for (; l > 0; l -= BLKSIZ)
+			if (eread(tarfd, b, BLKSIZ) > 0)
+				ewrite(fd, b, MIN(l, BLKSIZ));
+		close(fd);
 	}
-	if (f)
-		fshut(f, fname);
 
 	pushent(fname, mtime);
 	return 0;
@@ -281,8 +304,8 @@ skipblk(ssize_t l)
 	char b[BLKSIZ];
 
 	for (; l > 0; l -= BLKSIZ)
-		if (fread(b, BLKSIZ, 1, tarfile) != 1)
-			eprintf("fread %s:", tarfilename);
+		if (!eread(tarfd, b, BLKSIZ))
+			break;
 }
 
 static int
@@ -339,7 +362,7 @@ xt(int argc, char *argv[], int (*fn)(char *, ssize_t, char[BLKSIZ]))
 	long size;
 	int i, n;
 
-	while (fread(b, BLKSIZ, 1, tarfile) == 1 && *h->name) {
+	while (eread(tarfd, b, BLKSIZ) > 0 && h->name[0]) {
 		sanitize(h), n = 0;
 
 		/* small dance around non-null terminated fields */
@@ -371,8 +394,6 @@ xt(int argc, char *argv[], int (*fn)(char *, ssize_t, char[BLKSIZ]))
 
 		fn(fname, size, b);
 	}
-	if (ferror(tarfile))
-		eprintf("fread %s:", tarfilename);
 
 	if (!mflag) {
 		while ((ent = popent())) {
@@ -397,11 +418,11 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	FILE *fp;
 	struct recursor r = { .fn = c, .hist = NULL, .depth = 0, .maxdepth = 0,
 	                      .follow = 'P', .flags = DIRFIRST };
 	struct stat st;
 	char *file = NULL, *dir = ".", mode = '\0';
+	int fd;
 
 	ARGBEGIN {
 	case 'x':
@@ -437,19 +458,17 @@ main(int argc, char *argv[])
 
 	switch (mode) {
 	case 'c':
+		tarfd = 1;
 		if (file) {
-			if (!(fp = fopen(file, "w")))
-				eprintf("fopen %s:", file);
+			tarfd = open(file, O_WRONLY | O_TRUNC | O_CREAT, 0644);
+			if (tarfd < 0)
+				eprintf("open %s:", file);
 			if (lstat(file, &st) < 0)
 				eprintf("lstat %s:", file);
 			tarinode = st.st_ino;
 			tardev = st.st_dev;
-			tarfile = fp;
-			tarfilename = file;
-		} else {
-			tarfile = stdout;
-			tarfilename = "<stdout>";
 		}
+
 		if (chdir(dir) < 0)
 			eprintf("chdir %s:", dir);
 		for (; *argv; argc--, argv++)
@@ -457,22 +476,19 @@ main(int argc, char *argv[])
 		break;
 	case 't':
 	case 'x':
+		tarfd = 0;
 		if (file) {
-			if (!(fp = fopen(file, "r")))
-				eprintf("fopen %s:", file);
-		} else {
-			fp = stdin;
+			tarfd = open(file, O_RDONLY);
+			if (tarfd < 0)
+				eprintf("open %s:", file);
 		}
-
-		tarfilename = file;
 
 		switch (filtermode) {
 		case 'j':
 		case 'z':
-			tarfile = decomp(fp);
-			break;
-		default:
-			tarfile = fp;
+			fd = tarfd;
+			tarfd = decomp(tarfd);
+			close(fd);
 			break;
 		}
 
