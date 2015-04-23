@@ -257,15 +257,21 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 	return 0;
 }
 
-static int
-print(char *fname, ssize_t l, char b[BLKSIZ])
+static void
+skipblk(ssize_t l)
 {
-	puts(fname);
+	char b[BLKSIZ];
 
 	for (; l > 0; l -= BLKSIZ)
 		if (fread(b, BLKSIZ, 1, tarfile) != 1)
 			eprintf("fread %s:", tarfilename);
+}
 
+static int
+print(char *fname, ssize_t l, char b[BLKSIZ])
+{
+	puts(fname);
+	skipblk(l);
 	return 0;
 }
 
@@ -332,18 +338,14 @@ xt(int argc, char *argv[], int (*fn)(char *, ssize_t, char[BLKSIZ]))
 				if (!strcmp(argv[i], fname))
 					break;
 			if (i == argc) {
-				for (; size > 0; size -= BLKSIZ)
-					if (fread(b, BLKSIZ, 1, tarfile) != 1)
-						eprintf("fread %s:", tarfilename);
+				skipblk(size);
 				continue;
 			}
 		}
 
 		/* ignore global pax header craziness */
 		if (h->type == 'g') {
-			for (; size > 0; size -= BLKSIZ)
-				if (fread(b, BLKSIZ, 1, tarfile) != 1)
-					eprintf("fread %s:", tarfilename);
+			skipblk(size);
 			continue;
 		}
 
