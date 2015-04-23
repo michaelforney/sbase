@@ -52,8 +52,8 @@ static int tarfd;
 static ino_t tarinode;
 static dev_t tardev;
 
-static int  mflag;
-static char filtermode = '\0';
+static int mflag;
+static int filtermode;
 
 static struct ent {
 	char *name;
