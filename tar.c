@@ -143,7 +143,7 @@ putoctal(char *dst, unsigned num, int size)
 static int
 archive(const char *path)
 {
-	unsigned char b[BLKSIZ];
+	char b[BLKSIZ];
 	struct group *gr;
 	struct header *h;
 	struct passwd *pw;
