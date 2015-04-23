@@ -148,7 +148,7 @@ archive(const char *path)
 	struct header *h;
 	struct passwd *pw;
 	struct stat st;
-	size_t chksum, x;
+	size_t chksum, i;
 	ssize_t l, r;
 	int fd = -1;
 
@@ -198,8 +198,8 @@ archive(const char *path)
 	}
 
 	memset(h->chksum, ' ', sizeof(h->chksum));
-	for (x = 0, chksum = 0; x < sizeof(*h); x++)
-		chksum += b[x];
+	for (i = 0, chksum = 0; i < sizeof(*h); i++)
+		chksum += b[i];
 	putoctal(h->chksum, chksum, sizeof(h->chksum));
 	ewrite(tarfd, b, BLKSIZ);
 
