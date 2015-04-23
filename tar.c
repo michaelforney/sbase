@@ -24,7 +24,7 @@ struct header {
 	char mtime[12];
 	char chksum[8];
 	char type;
-	char link[100];
+	char linkname[100];
 	char magic[6];
 	char version[2];
 	char uname[32];
@@ -186,9 +186,9 @@ archive(const char *path)
 		h->type = DIRECTORY;
 	} else if (S_ISLNK(st.st_mode)) {
 		h->type = SYMLINK;
-		if ((r = readlink(path, h->link, sizeof(h->link) - 1)) < 0)
+		if ((r = readlink(path, h->linkname, sizeof(h->linkname) - 1)) < 0)
 			eprintf("readlink %s:", path);
-		h->link[r] = '\0';
+		h->linkname[r] = '\0';
 	} else if (S_ISCHR(st.st_mode) || S_ISBLK(st.st_mode)) {
 		h->type = S_ISCHR(st.st_mode) ? CHARDEV : BLOCKDEV;
 		putoctal(h->major, (unsigned)major(st.st_dev), sizeof(h->major));
@@ -245,8 +245,8 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 		break;
 	case HARDLINK:
 	case SYMLINK:
-		snprintf(lname, sizeof(lname), "%.*s", (int)sizeof(h->link),
-		         h->link);
+		snprintf(lname, sizeof(lname), "%.*s", (int)sizeof(h->linkname),
+		         h->linkname);
 		if (((h->type == HARDLINK) ? link : symlink)(lname, fname) < 0)
 			eprintf("%s %s -> %s:",
 			        (h->type == HARDLINK) ? "link" : "symlink",
