@@ -55,7 +55,7 @@ static dev_t tardev;
 static int  mflag;
 static char filtermode = '\0';
 
-struct ent {
+static struct ent {
 	char *name;
 	time_t mtime;
 } *ents;
@@ -70,7 +70,7 @@ pushent(char *name, time_t mtime)
 	entlen++;
 }
 
-struct ent *
+static struct ent *
 popent(void)
 {
 	if (entlen) {
