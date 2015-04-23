@@ -15,6 +15,26 @@
 #include "fs.h"
 #include "util.h"
 
+#define BLKSIZ 512
+
+#undef major
+#define major(dev) ((int)(((unsigned int)(dev) >> 8) & 0xff))
+#undef minor
+#define minor(dev) ((int)((dev) & 0xff))
+#undef makedev
+#define makedev(major, minor) (((major) << 8) | (minor))
+
+enum Type {
+	REG       = '0',
+	AREG      = '\0',
+	HARDLINK  = '1',
+	SYMLINK   = '2',
+	CHARDEV   = '3',
+	BLOCKDEV  = '4',
+	DIRECTORY = '5',
+	FIFO      = '6'
+};
+
 struct header {
 	char name[100];
 	char mode[8];
@@ -34,19 +54,12 @@ struct header {
 	char prefix[155];
 };
 
-#define BLKSIZ 512
+static struct ent {
+	char *name;
+	time_t mtime;
+} *ents;
 
-#undef major
-#define major(dev) ((int)(((unsigned int)(dev) >> 8) & 0xff))
-#undef minor
-#define minor(dev) ((int)((dev) & 0xff))
-#undef makedev
-#define makedev(major, minor) (((major) << 8) | (minor))
-
-enum Type {
-	REG = '0', AREG = '\0', HARDLINK = '1', SYMLINK = '2', CHARDEV = '3',
-	BLOCKDEV = '4', DIRECTORY = '5', FIFO = '6'
-};
+static size_t entslen;
 
 static int tarfd;
 static ino_t tarinode;
@@ -55,28 +68,21 @@ static dev_t tardev;
 static int mflag;
 static int filtermode;
 
-static struct ent {
-	char *name;
-	time_t mtime;
-} *ents;
-
-static size_t entlen;
-
 static void
 pushent(char *name, time_t mtime)
 {
-	ents = reallocarray(ents, entlen + 1, sizeof(*ents));
-	ents[entlen].name = strdup(name);
-	ents[entlen].mtime = mtime;
-	entlen++;
+	ents = reallocarray(ents, entslen + 1, sizeof(*ents));
+	ents[entslen].name = strdup(name);
+	ents[entslen].mtime = mtime;
+	entslen++;
 }
 
 static struct ent *
 popent(void)
 {
-	if (entlen) {
-		entlen--;
-		return &ents[entlen];
+	if (entslen) {
+		entslen--;
+		return &ents[entslen];
 	}
 	return NULL;
 }
