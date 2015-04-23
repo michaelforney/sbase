@@ -353,6 +353,35 @@ sanitize(struct header *h)
 }
 
 static void
+chktar(struct header *h)
+{
+	char tmp[8], *err;
+	char *p = (char *)h;
+	long s1, s2, i;
+
+	if (h->prefix[0] == '\0' && h->name[0] == '\0')
+		goto bad;
+	if (strncmp("ustar", h->magic, 5))
+		goto bad;
+	memcpy(tmp, h->chksum, sizeof(tmp));
+	for (i = 0; i < sizeof(tmp); i++)
+		if (tmp[i] == ' ')
+			tmp[i] = '\0';
+	s1 = strtol(tmp, &err, 8);
+	if (s1 < 0 || *err != '\0')
+		goto bad;
+	memset(h->chksum, ' ', sizeof(h->chksum));
+	for (i = 0, s2 = 0; i < sizeof(*h); i++)
+		s2 += p[i];
+	if (s1 != s2)
+		goto bad;
+	memcpy(h->chksum, tmp, sizeof(h->chksum));
+	return;
+bad:
+	eprintf("malformed tar archive\n");
+}
+
+static void
 xt(int argc, char *argv[], int (*fn)(char *, ssize_t, char[BLKSIZ]))
 {
 	char b[BLKSIZ], fname[256 + 1], *p;
@@ -363,6 +392,7 @@ xt(int argc, char *argv[], int (*fn)(char *, ssize_t, char[BLKSIZ]))
 	int i, n;
 
 	while (eread(tarfd, b, BLKSIZ) > 0 && h->name[0]) {
+		chktar(h);
 		sanitize(h), n = 0;
 
 		/* small dance around non-null terminated fields */
