@@ -33,7 +33,7 @@ nblks(blkcnt_t blocks)
 	return (512 * blocks + blksize - 1) / blksize;
 }
 
-void
+static void
 du(const char *path, struct stat *st, void *total, struct recursor *r)
 {
 	size_t subtotal = 0;
