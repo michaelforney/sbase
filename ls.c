@@ -162,7 +162,7 @@ output(const struct entry *ent)
 	printf("%s %4ld %-8.8s %-8.8s ", mode, (long)ent->nlink, pwname, grname);
 
 	if (hflag)
-		printf("%10s ", humansize((unsigned long)ent->size));
+		printf("%10s ", humansize(ent->size));
 	else
 		printf("%10lu ", (unsigned long)ent->size);
 	printf("%s %s%s", buf, ent->name, indicator(ent->mode));

@@ -5,18 +5,20 @@
 #include "../util.h"
 
 char *
-humansize(double n)
+humansize(size_t n)
 {
 	static char buf[16];
 	const char postfixes[] = "BKMGTPE";
-	size_t i;
+	double size;
+	int i;
 
-	for (i = 0; n >= 1024 && i < strlen(postfixes); i++)
-		n /= 1024;
+	for (size = n, i = 0; size >= 1024 && i < strlen(postfixes); i++)
+		size /= 1024;
 
 	if (!i)
-		snprintf(buf, sizeof(buf), "%lu", (unsigned long)n);
+		snprintf(buf, sizeof(buf), "%zu", n);
 	else
-		snprintf(buf, sizeof(buf), "%.1f%c", n, postfixes[i]);
+		snprintf(buf, sizeof(buf), "%.1f%c", size, postfixes[i]);
+
 	return buf;
 }
