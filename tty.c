@@ -15,10 +15,7 @@ main(int argc, char *argv[])
 {
 	char *tty;
 
-	ARGBEGIN {
-	default:
-		usage();
-	} ARGEND;
+	argv0 = argv[0], argc--, argv++;
 
 	if (argc)
 		usage();

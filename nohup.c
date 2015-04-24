@@ -19,10 +19,7 @@ main(int argc, char *argv[])
 {
 	int fd, savederrno;
 
-	ARGBEGIN {
-	default:
-		usage();
-	} ARGEND;
+	argv0 = argv[0], argc--, argv++;
 
 	if (!argc)
 		usage();

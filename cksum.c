@@ -84,22 +84,13 @@ cksum(FILE *fp, const char *s)
 	putchar('\n');
 }
 
-static void
-usage(void)
-{
-	eprintf("usage: %s [file ...]\n", argv0);
-}
-
 int
 main(int argc, char *argv[])
 {
 	FILE *fp;
 	int ret = 0;
 
-	ARGBEGIN {
-	default:
-		usage();
-	} ARGEND;
+	argv0 = argv[0], argc--, argv++;
 
 	if (!argc) {
 		cksum(stdin, NULL);

@@ -6,22 +6,13 @@
 
 extern char **environ;
 
-static void
-usage(void)
-{
-	eprintf("usage: %s [var ...]\n", argv0);
-}
-
 int
 main(int argc, char *argv[])
 {
 	char *var;
 	int ret = 0;
 
-	ARGBEGIN {
-	default:
-		usage();
-	} ARGEND;
+	argv0 = argv[0], argc--, argv++;
 
 	if (!argc) {
 		for (; *environ; environ++)

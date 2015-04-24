@@ -16,10 +16,7 @@ main(int argc, char *argv[])
 {
 	char host[HOST_NAME_MAX + 1];
 
-	ARGBEGIN {
-	default:
-		usage();
-	} ARGEND;
+	argv0 = argv[0], argc--, argv++;
 
 	if (!argc) {
 		if (gethostname(host, sizeof(host)) < 0)

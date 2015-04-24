@@ -17,10 +17,7 @@ main(int argc, char *argv[])
 	ssize_t off;
 	char *p;
 
-	ARGBEGIN {
-	default:
-		usage();
-	} ARGEND;
+	argv0 = argv[0], argc--, argv++;
 
 	if (argc != 1 && argc != 2)
 		usage();

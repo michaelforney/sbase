@@ -14,10 +14,7 @@ main(int argc, char *argv[])
 {
 	unsigned seconds;
 
-	ARGBEGIN {
-	default:
-		usage();
-	} ARGEND;
+	argv0 = argv[0], argc--, argv++;
 
 	if (argc != 1)
 		usage();
