@@ -3,33 +3,42 @@
 .Os sbase
 .Sh NAME
 .Nm which
-.Nd locate a program file (or files) in the path
+.Nd locate programs in the path
 .Sh SYNOPSIS
 .Nm
 .Op Fl a
-.Op Ar name ...
+.Ar name ...
 .Sh DESCRIPTION
 .Nm
-looks for programs in
+looks for each
+.Ar name
+in the
 .Ev PATH
-.
-.Pp
-If
-.Fl a
-is specified it will display all matches and not stop at the first match.
+directories, stopping at the first match and printing
+the full path to stdout.
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl a
+Don't stop at the first match and search all
+.Ev PATH
+directories.
+.El
 .Sh EXIT STATUS
-The
-.Nm
-utility exits with one of the following values:
 .Bl -tag -width Ds
 .It 0
-All names were successfully resolved.
+Each
+.Ar name
+was found.
 .It 1
-Some names were resolved but not all.
+At least one
+.Ar name
+was not found.
 .It 2
-No names were resolved.
+No
+.Ar name
+was found.
+.It 3
+An error occurred.
 .El
-.Sh DIAGNOSTICS
-If a program is not found it will print "Command not found" to stderr.
 .Sh SEE ALSO
 .Xr environ 7

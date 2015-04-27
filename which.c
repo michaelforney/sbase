@@ -1,5 +1,7 @@
 #include <sys/stat.h>
+#include <sys/types.h>
 
+#include <fcntl.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,30 +16,34 @@ static int aflag;
 static int
 which(const char *path, const char *name)
 {
-	char file[PATH_MAX], *p, *s, *ptr;
-	size_t len;
+	char *ptr, *p;
+	size_t i, len;
 	struct stat st;
-	int found = 0;
+	int dirfd, found = 0;
 
-	p = ptr = estrdup(path);
-	for (s = p; (s = strsep(&p, ":")); ) {
-		if (!s[0])
-			s = ".";
-		len = strlen(s);
-
-		if (snprintf(file, sizeof(file), "%s%s%s",
-			s,
-			len > 0 && s[len - 1] != '/' ? "/" : "",
-			name) >= sizeof(file))
-			eprintf("path too long\n");
-
-		if (stat(file, &st) == 0 && S_ISREG(st.st_mode) &&
-		    access(file, X_OK) == 0) {
-			found = 1;
-			puts(file);
-			if (!aflag)
-				break;
+	ptr = p = enstrdup(3, path);
+	len = strlen(p);
+	for (i = 0; i < len + 1; i++) {
+		if (ptr[i] != ':' && ptr[i] != '\0')
+			continue;
+		ptr[i] = '\0';
+		if ((dirfd = open(p, O_RDONLY, 0)) >= 0) {
+			if (!fstatat(dirfd, name, &st, 0) &&
+		            S_ISREG(st.st_mode) &&
+		            !faccessat(dirfd, name, X_OK, 0)) {
+				found = 1;
+				fputs(p, stdout);
+				if (i && ptr[i - 1] != '/')
+					fputc('/', stdout);
+				puts(name);
+				if (!aflag) {
+					close(dirfd);
+					break;
+				}
+			}
+			close(dirfd);
 		}
+		p = ptr + i + 1;
 	}
 	free(ptr);
 
@@ -47,14 +53,14 @@ which(const char *path, const char *name)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-a] name...\n", argv0);
+	eprintf("usage: %s [-a] name ...\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
 	char *path;
-	int i, found;
+	int found = 0, foundall = 1;
 
 	ARGBEGIN {
 	case 'a':
@@ -68,13 +74,16 @@ main(int argc, char *argv[])
 		usage();
 
 	if (!(path = getenv("PATH")))
-		eprintf("$PATH not set\n");
+		enprintf(3, "$PATH is not set\n");
 
-	for (i = 0, found = 0; i < argc; i++) {
-		if (which(path, argv[i]))
-			found++;
-		else
-			weprintf("%s: Command not found.\n", argv[i]);
+	for (; *argv; argc--, argv++) {
+		if (which(path, *argv)) {
+			found = 1;
+		} else {
+			weprintf("%s: command not found.\n", *argv);
+			foundall = 0;
+		}
 	}
-	return !found ? 2 : found == argc ? 0 : 1;
+
+	return found ? foundall ? 0 : 1 : 2;
 }
