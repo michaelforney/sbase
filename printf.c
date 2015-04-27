@@ -22,7 +22,7 @@ main(int argc, char *argv[])
 	long long num;
 	double dou;
 	int cooldown = 0, width, precision;
-	char *format, *tmp, *arg, *fmt;
+	char *format, *tmp, *arg, *fmt, flag;
 
 	argv0 = argv[0];
 	if (argc < 2)
@@ -48,9 +48,13 @@ main(int argc, char *argv[])
 			continue;
 		}
 
+		/* flag */
+		for (flag = ' ', i++; strchr("#-+ 0", format[i]); i++) {
+			flag = format[i];
+		}
+
 		/* field width */
 		width = -1;
-		for (i++; strchr("#-+ 0", format[i]); i++);
 		if (format[i] == '*') {
 			if (argi < argc)
 				width = estrtonum(argv[argi++], 0, INT_MAX);
@@ -133,14 +137,16 @@ main(int argc, char *argv[])
 				num = rarg[0];
 			} else
 				num = (strlen(arg) > 0) ? estrtonum(arg, LLONG_MIN, LLONG_MAX) : 0;
-			fmt = estrdup("%*ll#");
-			fmt[4] = format[i];
+			fmt = estrdup("%#*ll#");
+			fmt[1] = flag;
+			fmt[5] = format[i];
 			printf(fmt, width, num);
 			free(fmt);
 			break;
 		case 'a': case 'A': case 'e': case 'E': case 'f': case 'F': case 'g': case 'G':
-			fmt = estrdup("%*.*#");
-			fmt[4] = format[i];
+			fmt = estrdup("%#*.*#");
+			fmt[1] = flag;
+			fmt[5] = format[i];
 			dou = (strlen(arg) > 0) ? estrtod(arg) : 0;
 			printf(fmt, width, precision, dou);
 			free(fmt);
