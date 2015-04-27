@@ -91,6 +91,7 @@ The following tools are implemented:
 =*|o uudecode    .
 =*|o uuencode    .
 #*|o wc          .
+=* x which       .
 =*|o xargs       (-p)
 =*|x yes         .
 

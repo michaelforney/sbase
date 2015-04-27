@@ -152,6 +152,7 @@ BIN =\
 	uudecode\
 	uuencode\
 	wc\
+	which\
 	xargs\
 	yes
 

@@ -1,0 +1,35 @@
+.Dd April 27, 2015
+.Dt WHICH 1
+.Os sbase
+.Sh NAME
+.Nm which
+.Nd locate a program file (or files) in the path
+.Sh SYNOPSIS
+.Nm
+.Op Fl a
+.Op Ar name ...
+.Sh DESCRIPTION
+.Nm
+looks for programs in
+.Ev PATH
+.
+.Pp
+If
+.Fl a
+is specified it will display all matches and not stop at the first match.
+.Sh EXIT STATUS
+The
+.Nm
+utility exits with one of the following values:
+.Bl -tag -width Ds
+.It 0
+All names were successfully resolved.
+.It 1
+Some names were resolved but not all.
+.It 2
+No names were resolved.
+.El
+.Sh DIAGNOSTICS
+If a program is not found it will print "Command not found" to stderr.
+.Sh SEE ALSO
+.Xr environ 7
