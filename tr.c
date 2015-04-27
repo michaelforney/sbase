@@ -221,6 +221,8 @@ read:
 				else
 					goto write;
 			}
+			if (cflag)
+				goto write;
 			for (m = 0; m < i; m++)
 				off1 += rangelen(set1[m]);
 			off1 += r - set1[m].start;
