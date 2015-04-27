@@ -60,9 +60,6 @@ static int pairs = 1;
 static size_t seplen;
 static struct outlist output;
 
-char *argv0;
-
-
 static void
 usage(void)
 {
