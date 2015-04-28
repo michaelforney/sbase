@@ -6,7 +6,7 @@
 #include "../util.h"
 
 char *
-humansize(uintmax_t n)
+humansize(off_t n)
 {
 	static char buf[16];
 	const char postfixes[] = "BKMGTPE";
@@ -17,7 +17,7 @@ humansize(uintmax_t n)
 		size /= 1024;
 
 	if (!i)
-		snprintf(buf, sizeof(buf), "%ju", n);
+		snprintf(buf, sizeof(buf), "%ju", (uintmax_t)n);
 	else
 		snprintf(buf, sizeof(buf), "%.1f%c", size, postfixes[i]);
 
