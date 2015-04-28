@@ -1,11 +1,12 @@
 /* See LICENSE file for copyright and license details. */
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "../util.h"
 
 char *
-humansize(size_t n)
+humansize(uintmax_t n)
 {
 	static char buf[16];
 	const char postfixes[] = "BKMGTPE";
@@ -16,7 +17,7 @@ humansize(size_t n)
 		size /= 1024;
 
 	if (!i)
-		snprintf(buf, sizeof(buf), "%zu", n);
+		snprintf(buf, sizeof(buf), "%ju", n);
 	else
 		snprintf(buf, sizeof(buf), "%.1f%c", size, postfixes[i]);
 

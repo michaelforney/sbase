@@ -66,7 +66,7 @@ int eregcomp(regex_t *, const char *, int);
 void enmasse(int, char **, int (*)(const char *, const char *, int));
 void fnck(const char *, const char *, int (*)(const char *, const char *, int), int);
 mode_t getumask(void);
-char *humansize(size_t);
+char *humansize(uintmax_t);
 mode_t parsemode(const char *, mode_t, mode_t);
 void putword(FILE *, const char *);
 #undef strtonum
