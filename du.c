@@ -19,15 +19,15 @@ static int sflag = 0;
 static int hflag = 0;
 
 static void
-printpath(size_t n, const char *path)
+printpath(uintmax_t n, const char *path)
 {
 	if (hflag)
 		printf("%s\t%s\n", humansize(n * blksize), path);
 	else
-		printf("%zu\t%s\n", n, path);
+		printf("%ju\t%s\n", n, path);
 }
 
-static size_t
+static uintmax_t
 nblks(blkcnt_t blocks)
 {
 	return (512 * blocks + blksize - 1) / blksize;
@@ -36,11 +36,11 @@ nblks(blkcnt_t blocks)
 static void
 du(const char *path, struct stat *st, void *total, struct recursor *r)
 {
-	size_t subtotal = 0;
+	uintmax_t subtotal = 0;
 
 	if (st && S_ISDIR(st->st_mode))
 		recurse(path, &subtotal, r);
-	*((size_t *)total) += subtotal + nblks(st ? st->st_blocks : 0);
+	*((uintmax_t *)total) += subtotal + nblks(st ? st->st_blocks : 0);
 
 	if (!sflag && r->depth <= maxdepth && r->depth && st && (S_ISDIR(st->st_mode) || aflag))
 		printpath(subtotal + nblks(st->st_blocks), path);
@@ -57,7 +57,7 @@ main(int argc, char *argv[])
 {
 	struct recursor r = { .fn = du, .hist = NULL, .depth = 0, .maxdepth = 0,
 	                      .follow = 'P', .flags = 0 };
-	size_t n = 0;
+	uintmax_t n = 0;
 	int kflag = 0, dflag = 0;
 	char *bsize;
 
