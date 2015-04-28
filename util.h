@@ -3,6 +3,7 @@
 
 #include <regex.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 
 #include "arg.h"
