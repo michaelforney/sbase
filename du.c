@@ -4,9 +4,9 @@
 
 #include <errno.h>
 #include <limits.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "fs.h"
 #include "util.h"
@@ -19,7 +19,7 @@ static int sflag = 0;
 static int hflag = 0;
 
 static void
-printpath(uintmax_t n, const char *path)
+printpath(off_t n, const char *path)
 {
 	if (hflag)
 		printf("%s\t%s\n", humansize(n * blksize), path);
@@ -27,7 +27,7 @@ printpath(uintmax_t n, const char *path)
 		printf("%ju\t%s\n", n, path);
 }
 
-static uintmax_t
+static off_t
 nblks(blkcnt_t blocks)
 {
 	return (512 * blocks + blksize - 1) / blksize;
@@ -36,11 +36,11 @@ nblks(blkcnt_t blocks)
 static void
 du(const char *path, struct stat *st, void *total, struct recursor *r)
 {
-	uintmax_t subtotal = 0;
+	off_t subtotal = 0;
 
 	if (st && S_ISDIR(st->st_mode))
 		recurse(path, &subtotal, r);
-	*((uintmax_t *)total) += subtotal + nblks(st ? st->st_blocks : 0);
+	*((off_t *)total) += subtotal + nblks(st ? st->st_blocks : 0);
 
 	if (!sflag && r->depth <= maxdepth && r->depth && st && (S_ISDIR(st->st_mode) || aflag))
 		printpath(subtotal + nblks(st->st_blocks), path);
@@ -57,7 +57,7 @@ main(int argc, char *argv[])
 {
 	struct recursor r = { .fn = du, .hist = NULL, .depth = 0, .maxdepth = 0,
 	                      .follow = 'P', .flags = 0 };
-	uintmax_t n = 0;
+	off_t n = 0;
 	int kflag = 0, dflag = 0;
 	char *bsize;
 
