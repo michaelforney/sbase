@@ -1,3 +1,4 @@
+/* See LICENSE file for copyright and license details. */
 #include <ctype.h>
 #include <stdint.h>
 #include <stdio.h>
