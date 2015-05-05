@@ -18,13 +18,13 @@ getlines(FILE *fp, struct linebuf *b)
 			b->capacity += 512;
 			b->lines = erealloc(b->lines, b->capacity * sizeof(*b->lines));
 		}
-		linelen = len + 1;
-		b->lines[b->nlines - 1] = memcpy(emalloc(linelen), line, linelen);
+		linelen = len;
+		b->lines[b->nlines - 1] = memcpy(emalloc(linelen + 1), line, linelen + 1);
 	}
 	free(line);
-	if (b->lines && b->nlines && !strchr(b->lines[b->nlines - 1], '\n')) {
-		b->lines[b->nlines - 1] = erealloc(b->lines[b->nlines - 1], linelen + 1);
-		b->lines[b->nlines - 1][linelen - 1] = '\n';
-		b->lines[b->nlines - 1][linelen] = '\0';
+	if (b->lines && b->nlines && b->lines[b->nlines - 1][linelen - 1] != '\n') {
+		b->lines[b->nlines - 1] = erealloc(b->lines[b->nlines - 1], linelen + 2);
+		b->lines[b->nlines - 1][linelen] = '\n';
+		b->lines[b->nlines - 1][linelen + 1] = '\0';
 	}
 }
