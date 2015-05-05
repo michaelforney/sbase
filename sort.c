@@ -38,10 +38,12 @@ static int parse_keydef(struct keydef *, char *, int);
 static char *skipblank(char *);
 static char *skipnonblank(char *);
 static char *skipcolumn(char *, char *, int);
-static char *columns(char *, const struct keydef *);
+static size_t columns(char *, const struct keydef *, char **, size_t *);
 
 static int Cflag = 0, cflag = 0, uflag = 0;
 static char *fieldsep = NULL;
+static char *col1, *col2;
+static size_t col1siz, col2siz;
 
 static void
 addkeydef(char *def, int flags)
@@ -81,32 +83,28 @@ check(FILE *fp)
 static int
 linecmp(const char **a, const char **b)
 {
-	char *s1, *s2;
 	int res = 0;
 	long double x, y;
 	struct kdlist *node;
 
 	for (node = head; node && res == 0; node = node->next) {
-		s1 = columns((char *)*a, &node->keydef);
-		s2 = columns((char *)*b, &node->keydef);
+		columns((char *)*a, &node->keydef, &col1, &col1siz);
+		columns((char *)*b, &node->keydef, &col2, &col2siz);
 
 		/* if -u is given, don't use default key definition
 		 * unless it is the only one */
 		if (uflag && node == tail && head != tail) {
 			res = 0;
 		} else if (node->keydef.flags & MOD_N) {
-			x = strtold(s1, NULL);
-			y = strtold(s2, NULL);
+			x = strtold(col1, NULL);
+			y = strtold(col2, NULL);
 			res = x < y ? -1 : x > y;
 		} else {
-			res = strcmp(s1, s2);
+			res = strcmp(col1, col2);
 		}
 
 		if (node->keydef.flags & MOD_R)
 			res = -res;
-
-		free(s1);
-		free(s2);
 	}
 
 	return res;
@@ -202,10 +200,11 @@ skipcolumn(char *s, char *eol, int next_col)
 	return s;
 }
 
-static char *
-columns(char *line, const struct keydef *kd)
+static size_t
+columns(char *line, const struct keydef *kd, char **col, size_t *colsiz)
 {
 	char *start, *end, *eol = strchr(line, '\n');
+	size_t len;
 	int i;
 
 	for (i = 1, start = line; i < kd->start_column; i++)
@@ -226,7 +225,14 @@ columns(char *line, const struct keydef *kd)
 	} else {
 		end = eol;
 	}
-	return enstrndup(2, start, start > end ? 0 : end - start);
+	len = start > end ? 0 : end - start;
+	if (!*col || *colsiz < len)
+		*col = erealloc(*col, len + 1);
+	memcpy(*col, start, len);
+	(*col)[len] = '\0';
+	if (*colsiz < len)
+		*colsiz = len;
+	return len;
 }
 
 static void
@@ -258,7 +264,7 @@ main(int argc, char *argv[])
 		addkeydef(EARGF(usage()), global_flags);
 		break;
 	case 'm':
-		/* more or less for free, but for perfomance-reasons,
+		/* more or less for free, but for performance-reasons,
 		 * we should keep this flag in mind and maybe some later
 		 * day implement it properly so we don't run out of memory
 		 * while merging large sorted files.
