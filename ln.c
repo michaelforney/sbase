@@ -19,7 +19,8 @@ int
 main(int argc, char *argv[])
 {
 	char *fname, *to;
-	int sflag = 0, fflag = 0, hasto = 0, dirfd = AT_FDCWD, flags = AT_SYMLINK_FOLLOW;
+	int sflag = 0, fflag = 0, hasto = 0, dirfd = AT_FDCWD, ret = 0,
+		flags = AT_SYMLINK_FOLLOW;
 	struct stat st, tost;
 
 	ARGBEGIN {
@@ -64,12 +65,14 @@ main(int argc, char *argv[])
 		if (!sflag) {
 			if (stat(*argv, &st) < 0) {
 				weprintf("stat %s:", *argv);
+				ret = 1;
 				continue;
 			} else if (fstatat(dirfd, to, &tost, AT_SYMLINK_NOFOLLOW) < 0) {
 				if (errno != ENOENT)
 					eprintf("stat %s:", to);
 			} else if (st.st_dev == tost.st_dev && st.st_ino == tost.st_ino) {
 				weprintf("%s and %s are the same file\n", *argv, *argv);
+				ret = 1;
 				continue;
 			}
 		}
@@ -78,8 +81,9 @@ main(int argc, char *argv[])
 		if ((!sflag ? linkat(AT_FDCWD, *argv, dirfd, to, flags)
 		            : symlinkat(*argv, dirfd, to)) < 0) {
 			weprintf("%s %s <- %s:", fname, *argv, to);
+			ret = 1;
 		}
 	}
 
-	return 0;
+	return ret;
 }
