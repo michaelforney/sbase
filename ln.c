@@ -61,21 +61,20 @@ main(int argc, char *argv[])
 	for (; *argv; argc--, argv++) {
 		if (!hasto)
 			to = basename(*argv);
-		if (fflag) {
+		if (!sflag) {
 			if (stat(*argv, &st) < 0) {
 				weprintf("stat %s:", *argv);
 				continue;
 			} else if (fstatat(dirfd, to, &tost, AT_SYMLINK_NOFOLLOW) < 0) {
 				if (errno != ENOENT)
 					eprintf("stat %s:", to);
-			} else {
-				if (st.st_dev == tost.st_dev && st.st_ino == tost.st_ino) {
-					weprintf("%s and %s are the same file\n", *argv, *argv);
-					continue;
-				}
-				unlinkat(dirfd, to, 0);
+			} else if (st.st_dev == tost.st_dev && st.st_ino == tost.st_ino) {
+				weprintf("%s and %s are the same file\n", *argv, *argv);
+				continue;
 			}
 		}
+		if (fflag)
+			unlinkat(dirfd, to, 0);
 		if ((!sflag ? linkat(AT_FDCWD, *argv, dirfd, to, flags)
 		            : symlinkat(*argv, dirfd, to)) < 0) {
 			weprintf("%s %s <- %s:", fname, *argv, to);
