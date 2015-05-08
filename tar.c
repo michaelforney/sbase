@@ -67,6 +67,15 @@ static dev_t tardev;
 
 static int mflag, vflag;
 static int filtermode;
+static const char *filtertool;
+
+static const char *filtertools[] = {
+	['J'] = "xz",
+	['Z'] = "compress",
+	['a'] = "lzma",
+	['j'] = "bzip2",
+	['z'] = "gzip",
+};
 
 static void
 pushent(char *name, time_t mtime)
@@ -88,10 +97,34 @@ popent(void)
 }
 
 static int
-decomp(int fd)
+comp(int fd, const char *tool, const char *flags)
 {
 	int fds[2];
-	char *tool;
+
+	if (pipe(fds) < 0)
+		eprintf("pipe:");
+
+	switch (fork()) {
+	case -1:
+		eprintf("fork:");
+	case 0:
+		dup2(fd, 1);
+		dup2(fds[0], 0);
+		close(fds[0]);
+		close(fds[1]);
+
+		execlp(tool, tool, flags, NULL);
+		weprintf("execlp %s:", tool);
+		_exit(1);
+	}
+	close(fds[0]);
+	return fds[1];
+}
+
+static int
+decomp(int fd, const char *tool, const char *flags)
+{
+	int fds[2];
 
 	if (pipe(fds) < 0)
 		eprintf("pipe:");
@@ -105,8 +138,7 @@ decomp(int fd)
 		close(fds[0]);
 		close(fds[1]);
 
-		tool = (filtermode == 'j') ? "bzip2" : "gzip";
-		execlp(tool, tool, "-cd", NULL);
+		execlp(tool, tool, flags, NULL);
 		weprintf("execlp %s:", tool);
 		_exit(1);
 	}
@@ -390,7 +422,7 @@ bad:
 }
 
 static void
-xt(int argc, char *argv[], int (*fn)(char *, ssize_t, char[BLKSIZ]))
+xt(int argc, char *argv[], int mode)
 {
 	char b[BLKSIZ], fname[256 + 1], *p;
 	struct timeval times[2];
@@ -398,6 +430,7 @@ xt(int argc, char *argv[], int (*fn)(char *, ssize_t, char[BLKSIZ]))
 	struct ent *ent;
 	long size;
 	int i, n;
+	int (*fn)(char *, ssize_t, char[BLKSIZ]) = (mode == 'x') ? unarchive : print;
 
 	while (eread(tarfd, b, BLKSIZ) > 0 && h->name[0]) {
 		chktar(h);
@@ -451,8 +484,8 @@ xt(int argc, char *argv[], int (*fn)(char *, ssize_t, char[BLKSIZ]))
 static void
 usage(void)
 {
-	eprintf("usage: %s [-C dir] [-j | -z] -x [-m | -t] [-f file] [file ...]\n"
-		"       %s [-C dir] [-h] -c path ... [-f file]\n", argv0, argv0);
+	eprintf("usage: %s [-C dir] [-J | -Z | -a | -j | -z] -x [-m | -t] [-f file] [file ...]\n"
+		"       %s [-C dir] [-J | -Z | -a | -j | -z] [-h] -c path ... [-f file]\n", argv0, argv0);
 }
 
 int
@@ -479,9 +512,13 @@ main(int argc, char *argv[])
 	case 'm':
 		mflag = 1;
 		break;
+	case 'J':
+	case 'Z':
+	case 'a':
 	case 'j':
 	case 'z':
 		filtermode = ARGC();
+		filtertool = filtertools[filtermode];
 		break;
 	case 'h':
 		r.follow = 'L';
@@ -496,7 +533,7 @@ main(int argc, char *argv[])
 	if (!mode)
 		usage();
 	if (mode == 'c')
-		if (!argc || filtermode)
+		if (!argc)
 			usage();
 
 	switch (mode) {
@@ -512,6 +549,9 @@ main(int argc, char *argv[])
 			tardev = st.st_dev;
 		}
 
+		if (filtertool)
+			tarfd = comp(tarfd, filtertool, "-cf");
+
 		if (chdir(dir) < 0)
 			eprintf("chdir %s:", dir);
 		for (; *argv; argc--, argv++)
@@ -526,18 +566,15 @@ main(int argc, char *argv[])
 				eprintf("open %s:", file);
 		}
 
-		switch (filtermode) {
-		case 'j':
-		case 'z':
+		if (filtertool) {
 			fd = tarfd;
-			tarfd = decomp(tarfd);
+			tarfd = decomp(tarfd, filtertool, "-cd");
 			close(fd);
-			break;
 		}
 
 		if (chdir(dir) < 0)
 			eprintf("chdir %s:", dir);
-		xt(argc, argv, (mode == 'x') ? unarchive : print);
+		xt(argc, argv, mode);
 		break;
 	}
 

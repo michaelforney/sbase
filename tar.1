@@ -7,12 +7,13 @@
 .Sh SYNOPSIS
 .Nm
 .Op Fl C Ar dir
-.Op Fl j | Fl z
+.Op Fl J | Fl Z | Fl a | Fl j | Fl z
 .Fl x Op Fl m | Fl t
 .Op Fl f Ar file
 .Op Ar file ...
 .Nm
 .Op Fl C Ar dir
+.Op Fl J | Fl Z | Fl a | Fl j | Fl z
 .Op Fl h
 .Fl c Ar path ...
 .Op Fl f Ar file
@@ -40,16 +41,14 @@ List all files in the archive.
 Extract archive.
 .It Fl h
 Always dereference symbolic links while recursively traversing directories.
-.It Fl j | Fl z
-Use bzip2 | gzip decompression. The
-.Xr bzip2 1 |
-.Xr gzip 1
+.It Fl J | Fl Z | Fl a | Fl j | Fl z
+Use xz | compress | lzma | bzip2 | gzip decompression. These
 utilities must be installed separately.
 Using these flags is discouraged in favour of the flexibility
 and clarity of pipes:
 .Bd -literal -offset indent
-$ bzcat archive.tar.bz2 | tar -x
-$ zcat archive.tar.gz | tar -x
+$ bzip2 -cd archive.tar.bz2 | tar -x
+$ gzip -cd archive.tar.gz | tar -x
 .Ed
 .Bd -literal -offset indent
 $ tar -c file ... | bzip2 > archive.tar.bz2
