@@ -65,7 +65,7 @@ static int tarfd;
 static ino_t tarinode;
 static dev_t tardev;
 
-static int mflag;
+static int mflag, vflag;
 static int filtermode;
 
 static void
@@ -326,6 +326,8 @@ static void
 c(const char *path, struct stat *st, void *data, struct recursor *r)
 {
 	archive(path);
+	if (vflag)
+		puts(path);
 
 	if (st && S_ISDIR(st->st_mode))
 		recurse(path, NULL, r);
@@ -429,6 +431,8 @@ xt(int argc, char *argv[], int (*fn)(char *, ssize_t, char[BLKSIZ]))
 		}
 
 		fn(fname, size, b);
+		if (vflag && mode != 't')
+			puts(fname);
 	}
 
 	if (!mflag) {
@@ -481,6 +485,9 @@ main(int argc, char *argv[])
 		break;
 	case 'h':
 		r.follow = 'L';
+		break;
+	case 'v':
+		vflag = 1;
 		break;
 	default:
 		usage();
