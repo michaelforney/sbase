@@ -237,7 +237,7 @@ archive(const char *path)
 
 	memset(h->chksum, ' ', sizeof(h->chksum));
 	for (i = 0, chksum = 0; i < sizeof(*h); i++)
-		chksum += b[i];
+		chksum += (unsigned char)b[i];
 	putoctal(h->chksum, chksum, sizeof(h->chksum));
 	ewrite(tarfd, b, BLKSIZ);
 
@@ -412,7 +412,7 @@ chktar(struct header *h)
 		goto bad;
 	memset(h->chksum, ' ', sizeof(h->chksum));
 	for (i = 0, s2 = 0; i < sizeof(*h); i++)
-		s2 += p[i];
+		s2 += (unsigned char)p[i];
 	if (s1 != s2)
 		goto bad;
 	memcpy(h->chksum, tmp, sizeof(h->chksum));
