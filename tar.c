@@ -458,7 +458,7 @@ xt(int argc, char *argv[], int mode)
 		}
 
 		/* ignore global pax header craziness */
-		if (h->type == 'g') {
+		if (h->type == 'g' || h->type == 'x') {
 			skipblk(size);
 			continue;
 		}
