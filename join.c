@@ -292,7 +292,7 @@ initspan(struct span *sp)
 {
 	sp->nl = 0;
 	sp->maxl = INIT;
-	sp->lines = ereallocarray(NULL, INIT, sizeof(struct line *));;
+	sp->lines = ereallocarray(NULL, INIT, sizeof(struct line *));
 }
 
 static void
