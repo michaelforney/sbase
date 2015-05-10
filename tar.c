@@ -401,7 +401,7 @@ chktar(struct header *h)
 
 	if (h->prefix[0] == '\0' && h->name[0] == '\0')
 		goto bad;
-	if (strncmp("ustar", h->magic, 5))
+	if (h->magic[0] && strncmp("ustar", h->magic, 5))
 		goto bad;
 	memcpy(tmp, h->chksum, sizeof(tmp));
 	for (i = 0; i < sizeof(tmp); i++)
