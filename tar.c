@@ -32,7 +32,8 @@ enum Type {
 	CHARDEV   = '3',
 	BLOCKDEV  = '4',
 	DIRECTORY = '5',
-	FIFO      = '6'
+	FIFO      = '6',
+	RESERVED  = '7'
 };
 
 struct header {
@@ -273,6 +274,7 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 	switch (h->type) {
 	case REG:
 	case AREG:
+	case RESERVED:
 		if ((mode = strtol(h->mode, &p, 8)) < 0 || *p != '\0')
 			eprintf("strtol %s: invalid number\n", h->mode);
 		fd = open(fname, O_WRONLY | O_TRUNC | O_CREAT, 0644);
