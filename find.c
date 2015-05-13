@@ -799,7 +799,7 @@ parse(int argc, char **argv)
 		} else if ((op = find_op(*arg))) { /* token is an operator */
 			if (lasttype == LPAR && op->type == RPAR)
 				eprintf("empty parens\n");
-			if (lasttype == PRIM && op->type == NOT) { /* need another implicit -a */
+			if ((lasttype == PRIM || lasttype == RPAR) && op->type == NOT) { /* need another implicit -a */
 				*tok++ = and;
 				ntok++;
 			}
