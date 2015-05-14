@@ -239,7 +239,7 @@ lsdir(const char *path)
 				}
 				*p = '\0';
 			}
-			mkent(&ents[n - 1], name, tflag || Fflag || iflag || lflag || pflag || Rflag, Lflag);
+			mkent(&ents[n - 1], name, tflag || Sflag || Fflag || iflag || lflag || pflag || Rflag, Lflag);
 		}
 	}
 	closedir(dp);
