@@ -1029,7 +1029,7 @@ main(int argc, char **argv)
 		weprintf("clock_gettime() failed:");
 
 	while (npaths--)
-		find(*paths, NULL);
+		find(*paths++, NULL);
 
 	for (t = toks; t->type != END; t++)
 		if (t->type == PRIM && t->u.pinfo->freearg)
