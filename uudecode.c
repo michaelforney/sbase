@@ -246,7 +246,7 @@ main(int argc, char *argv[])
 	if (argc > 1)
 		usage();
 
-	if (!argc) {
+	if (!argc || (argv[0][0] == '-' && !argv[0][1])) {
 		fp = stdin;
 		ifname = "<stdin>";
 	} else {

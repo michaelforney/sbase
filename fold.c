@@ -95,14 +95,17 @@ main(int argc, char *argv[])
 		fold(stdin, "<stdin>");
 	} else {
 		for (; *argv; argc--, argv++) {
-			if (!(fp = fopen(*argv, "r"))) {
+			if ((*argv)[0] == '-' && !(*argv)[1]) {
+				*argv = "<stdin>";
+				fp = stdin;
+			} else if (!(fp = fopen(*argv, "r"))) {
 				weprintf("fopen %s:", *argv);
 				ret = 1;
-			} else {
-				fold(fp, *argv);
-				if (fshut(fp, *argv))
-					ret = 1;
+				continue;
 			}
+			fold(fp, *argv);
+			if (fp != stdin && fshut(fp, *argv))
+				ret = 1;
 		}
 	}
 

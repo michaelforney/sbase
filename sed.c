@@ -1114,7 +1114,7 @@ next_file(void)
 			if (first) /* given no files, default to stdin */
 				file = stdin;
 			/* else we've used all our files, leave file = NULL */
-		} else if (!strcmp(*files, "-")) {
+		} else if ((*files)[0] == '-' && !(*files)[1]) {
 			file = stdin;
 			files++;
 		} else if (!(file = fopen(*files++, "r"))) {
@@ -1123,6 +1123,7 @@ next_file(void)
 		}
 	} while (!file && *files);
 	first = 0;
+
 	return !file;
 }
 

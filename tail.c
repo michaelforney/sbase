@@ -83,7 +83,7 @@ main(int argc, char *argv[])
 	struct stat st1, st2;
 	FILE *fp;
 	size_t tmpsize;
-	int ret = 0, newline, many;
+	int ret = 0, newline = 0, many = 0;
 	char *numstr, *tmp;
 	void (*tail)(FILE *, const char *) = taketail;
 
@@ -115,7 +115,10 @@ main(int argc, char *argv[])
 		if ((many = argc > 1) && fflag)
 			usage();
 		for (newline = 0; *argv; argc--, argv++) {
-			if (!(fp = fopen(*argv, "r"))) {
+			if ((*argv)[0] == '-' && !(*argv)[1]) {
+				*argv = "<stdin>";
+				fp = stdin;
+			} else if (!(fp = fopen(*argv, "r"))) {
 				weprintf("fopen %s:", *argv);
 				ret = 1;
 				continue;
@@ -130,7 +133,7 @@ main(int argc, char *argv[])
 			tail(fp, *argv);
 
 			if (!fflag) {
-				if (fshut(fp, *argv))
+				if (fp != stdin && fshut(fp, *argv))
 					ret = 1;
 				continue;
 			}

@@ -32,7 +32,7 @@ main(int argc, char *argv[])
 {
 	size_t n = 10;
 	FILE *fp;
-	int ret = 0, newline, many;
+	int ret = 0, newline = 0, many = 0;
 
 	ARGBEGIN {
 	case 'n':
@@ -50,7 +50,10 @@ main(int argc, char *argv[])
 	} else {
 		many = argc > 1;
 		for (newline = 0; *argv; argc--, argv++) {
-			if (!(fp = fopen(*argv, "r"))) {
+			if ((*argv)[0] == '-' && !(*argv)[1]) {
+				*argv = "<stdin>";
+				fp = stdin;
+			} else if (!(fp = fopen(*argv, "r"))) {
 				weprintf("fopen %s:", *argv);
 				ret = 1;
 				continue;
@@ -62,7 +65,7 @@ main(int argc, char *argv[])
 			}
 			newline = 1;
 			head(fp, *argv, n);
-			if(fshut(fp, *argv))
+			if (fp != stdin && fshut(fp, *argv))
 				ret = 1;
 		}
 	}

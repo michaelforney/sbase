@@ -96,7 +96,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	FILE *fp = stdin, *ofp = stdout;
+	FILE *fp, *ofp;
 
 	ARGBEGIN {
 	case 'c':
@@ -124,16 +124,23 @@ main(int argc, char *argv[])
 	if (!argc) {
 		uniq(stdin, stdout);
 	} else {
-		if (strcmp(argv[0], "-") && !(fp = fopen(argv[0], "r")))
+		if (argv[0][0] == '-' && !argv[0][1]) {
+			argv[0] = "<stdin>";
+			fp = stdin;
+		} else if (!(fp = fopen(argv[0], "r"))) {
 			eprintf("fopen %s:", argv[0]);
-		if (argc == 2) {
-			if (strcmp(argv[1], "-") && !(ofp = fopen(argv[1], "w")))
-				eprintf("fopen %s:", argv[1]);
+		}
+		if (argc == 1 || (argv[1][0] == '-' && !argv[1][1])) {
+			argv[1] = "<stdout>";
+			ofp = stdout;
+		} else if (!(ofp = fopen(argv[1], "w"))) {
+			eprintf("fopen %s:", argv[1]);
 		}
 		uniq(fp, ofp);
 	}
 	uniqfinish(ofp);
 
-	return !!(fshut(fp, fp == stdin ? "<stdin>" : argv[0]) +
-	          fshut(ofp, ofp == stdout ? "<stdout>" : argv[1]));
+	efshut(fp, argv[0]);
+	efshut(ofp, argv[1]);
+	return 0;
 }

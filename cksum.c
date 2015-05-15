@@ -96,17 +96,19 @@ main(int argc, char *argv[])
 		cksum(stdin, NULL);
 	} else {
 		for (; *argv; argc--, argv++) {
-			if (!(fp = fopen(*argv, "r"))) {
+			if ((*argv)[0] == '-' && !(*argv)[1]) {
+				*argv = "<stdin>";
+				fp = stdin;
+			} else if (!(fp = fopen(*argv, "r"))) {
 				weprintf("fopen %s:", *argv);
 				ret = 1;
 				continue;
 			}
 			cksum(fp, *argv);
-			if (fshut(fp, *argv)) {
+			if (fp != stdin && fshut(fp, *argv))
 				ret = 1;
-			}
 		}
 	}
 
-	return fshut(stdout, "<stdout>") || ret;
+	return !!(fshut(stdin, "<stdin>") + fshut(stdout, "<stdout>")) || ret;
 }

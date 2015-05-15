@@ -116,7 +116,8 @@ main(int argc, char *argv[])
 	dsc = ereallocarray(NULL, argc, sizeof(*dsc));
 
 	for (i = 0; i < argc; i++) {
-		if (!strcmp(argv[i], "-")) {
+		if (argv[i][0] == '-' && !argv[i][1]) {
+			argv[i] = "<stdin>";
 			dsc[i].fp = stdin;
 		} else if (!(dsc[i].fp = fopen(argv[i], "r"))) {
 			eprintf("fopen %s:", argv[i]);
@@ -134,5 +135,5 @@ main(int argc, char *argv[])
 		if (dsc[i].fp != stdin && fshut(dsc[i].fp, argv[i]))
 			ret = 1;
 
-	return fshut(stdin, "<stdin>") || fshut(stdout, "<stdout>") || ret;
+	return !!(fshut(stdin, "<stdin>") + fshut(stdout, "<stdout>")) || ret;
 }

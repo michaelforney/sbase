@@ -30,16 +30,16 @@ main(int argc, char *argv[])
 	} else {
 		for (; *argv; argc--, argv++) {
 			if ((*argv)[0] == '-' && !(*argv)[1]) {
-				concat(stdin, "<stdin>", stdout, "<stdout>");
+				*argv = "<stdin>";
+				fp = stdin;
 			} else if (!(fp = fopen(*argv, "r"))) {
 				weprintf("fopen %s:", *argv);
 				ret = 1;
-			} else {
-				concat(fp, *argv, stdout, "<stdout>");
-				if (fshut(fp, *argv)) {
-					ret = 1;
-				}
+				continue;
 			}
+			concat(fp, *argv, stdout, "<stdout>");
+			if (fp != stdin && fshut(fp, *argv))
+				ret = 1;
 		}
 	}
 

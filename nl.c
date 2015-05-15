@@ -190,11 +190,15 @@ main(int argc, char *argv[])
 	if (!argc) {
 		nl("<stdin>", stdin);
 	} else {
-		if (!(fp = fopen(argv[0], "r")))
+		if (argv[0][0] == '-' && !argv[0][1]) {
+			argv[0] = "<stdin>";
+			fp = stdin;
+		} else if (!(fp = fopen(argv[0], "r"))) {
 			eprintf("fopen %s:", argv[0]);
+		}
 		nl(argv[0], fp);
 	}
 
-	return !!((fp && fshut(fp, argv[0])) + fshut(stdin, "<stdin>") +
-	          fshut(stdout, "<stdout>"));
+	return !!((fp && fp != stdin && fshut(fp, argv[0]))
+	          + fshut(stdin, "<stdin>") + fshut(stdout, "<stdout>"));
 }

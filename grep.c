@@ -259,17 +259,20 @@ main(int argc, char *argv[])
 	if (argc == 0) {
 		match = grep(stdin, "<stdin>");
 	} else {
-		for (i = 0; i < argc; i++) {
-			if (!(fp = fopen(argv[i], "r"))) {
+		for (; *argv; argc--, argv++) {
+			if ((*argv)[0] == '-' && !(*argv)[1]) {
+				*argv = "<stdin>";
+				fp = stdin;
+			} else if (!(fp = fopen(*argv, "r"))) {
 				if (!sflag)
-					weprintf("fopen %s:", argv[i]);
+					weprintf("fopen %s:", *argv);
 				match = Error;
 				continue;
 			}
-			m = grep(fp, argv[i]);
+			m = grep(fp, *argv);
 			if (m == Error || (match != Error && m == Match))
 				match = m;
-			if (fshut(fp, argv[i]))
+			if (fp != stdin && fshut(fp, *argv))
 				match = Error;
 		}
 	}

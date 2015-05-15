@@ -187,18 +187,17 @@ main(int argc, char *argv[])
 		cut(stdin, "<stdin>");
 	else {
 		for (; *argv; argc--, argv++) {
-			if (*argv[0] == '-' && !*argv[1]) {
-				cut(stdin, "<stdin>");
-			} else {
-				if (!(fp = fopen(*argv, "r"))) {
-					weprintf("fopen %s:", *argv);
-					ret = 1;
-					continue;
-				}
-				cut(fp, *argv);
-				if (fshut(fp, *argv))
-					ret = 1;
+			if ((*argv)[0] == '-' && !(*argv)[1]) {
+				*argv = "<stdin>";
+				fp = stdin;
+			} else if (!(fp = fopen(*argv, "r"))) {
+				weprintf("fopen %s:", *argv);
+				ret = 1;
+				continue;
 			}
+			cut(fp, *argv);
+			if (fp != stdin && fshut(fp, *argv))
+				ret = 1;
 		}
 	}
 

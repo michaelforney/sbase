@@ -126,18 +126,24 @@ cryptmain(int argc, char *argv[], struct crypt_ops *ops, uint8_t *md, size_t sz)
 		mdprint(md, "<stdin>", sz);
 	} else {
 		for (; *argv; argc--, argv++) {
-			if (!(fp = fopen(*argv, "r"))) {
+			if ((*argv)[0] == '-' && !(*argv)[1]) {
+				*argv = "<stdin>";
+				fp = stdin;
+			} else if (!(fp = fopen(*argv, "r"))) {
 				weprintf("fopen %s:", *argv);
 				ret = 1;
 				continue;
 			}
-			if (cryptsum(ops, fp, *argv, md) == 1)
+			if (cryptsum(ops, fp, *argv, md)) {
 				ret = 1;
-			else
+			} else {
 				mdprint(md, *argv, sz);
-			fclose(fp);
+			}
+			if (fp != stdin && fshut(fp, *argv))
+				ret = 1;
 		}
 	}
+
 	return ret;
 }
 

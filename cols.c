@@ -48,13 +48,16 @@ main(int argc, char *argv[])
 		getlines(stdin, &b);
 	} else {
 		for (; *argv; argc--, argv++) {
-			if (!(fp = fopen(*argv, "r"))) {
+			if ((*argv)[0] == '-' && !(*argv)[1]) {
+				*argv = "<stdin>";
+				fp = stdin;
+			} else if (!(fp = fopen(*argv, "r"))) {
 				weprintf("fopen %s:", *argv);
 				ret = 1;
 				continue;
 			}
 			getlines(fp, &b);
-			if (fshut(fp, *argv))
+			if (fp != stdin && fshut(fp, *argv))
 				ret = 1;
 		}
 	}

@@ -114,7 +114,7 @@ main(int argc, char *argv[])
 	if (!argc || argc > 2)
 		usage();
 
-	if (argc == 1) {
+	if (argc == 1 || (argv[0][0] == '-' && !argv[0][1])) {
 		if (mflag)
 			uuencodeb64(stdin, argv[0], "<stdin>");
 		else

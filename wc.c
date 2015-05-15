@@ -84,13 +84,16 @@ main(int argc, char *argv[])
 		wc(stdin, NULL);
 	} else {
 		for (many = (argc > 1); *argv; argc--, argv++) {
-			if (!(fp = fopen(*argv, "r"))) {
+			if ((*argv)[0] == '-' && !(*argv)[1]) {
+				*argv = "<stdin>";
+				fp = stdin;
+			} else if (!(fp = fopen(*argv, "r"))) {
 				weprintf("fopen %s:", *argv);
 				ret = 1;
 				continue;
 			}
 			wc(fp, *argv);
-			if (fshut(fp, *argv))
+			if (fp != stdin && fshut(fp, *argv))
 				ret = 1;
 		}
 		if (many)
