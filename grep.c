@@ -173,7 +173,7 @@ int
 main(int argc, char *argv[])
 {
 	struct pattern *pnode;
-	int i, m, flags = REG_NOSUB, match = NoMatch;
+	int m, flags = REG_NOSUB, match = NoMatch;
 	FILE *fp;
 	char *arg;
 
