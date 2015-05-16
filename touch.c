@@ -14,14 +14,13 @@
 static int aflag;
 static int cflag;
 static int mflag;
-static struct timespec t;
+static struct timespec times[2];
 
 static void
 touch(const char *file)
 {
 	int fd;
 	struct stat st;
-	struct timespec times[2];
 	int r;
 
 	if ((r = stat(file, &st)) < 0) {
@@ -30,8 +29,10 @@ touch(const char *file)
 		if (cflag)
 			return;
 	} else if (!r) {
-		times[0] = aflag ? t : st.st_atim;
-		times[1] = mflag ? t : st.st_mtim;
+		if (!aflag)
+			times[0] = st.st_atim;
+		if (!mflag)
+			times[1] = st.st_mtim;
 		if (utimensat(AT_FDCWD, file, times, 0) < 0)
 			eprintf("utimensat %s:", file);
 		return;
@@ -117,8 +118,8 @@ int
 main(int argc, char *argv[])
 {
 	struct stat st;
-	char *ref;
-	clock_gettime(CLOCK_REALTIME, &t);
+	char *ref = NULL;
+	clock_gettime(CLOCK_REALTIME, &times[0]);
 
 	ARGBEGIN {
 	case 'a':
@@ -129,7 +130,7 @@ main(int argc, char *argv[])
 		break;
 	case 'd':
 	case 't':
-		t.tv_sec = parsetime(EARGF(usage()), t.tv_sec);
+		times[0].tv_sec = parsetime(EARGF(usage()), times[0].tv_sec);
 		break;
 	case 'm':
 		mflag = 1;
@@ -138,10 +139,11 @@ main(int argc, char *argv[])
 		ref = EARGF(usage());
 		if (stat(ref, &st) < 0)
 			eprintf("stat '%s':", ref);
-		t = st.st_mtim;
+		times[0] = st.st_atim;
+		times[1] = st.st_mtim;
 		break;
 	case 'T':
-		t.tv_sec = estrtonum(EARGF(usage()), 0, LLONG_MAX);
+		times[0].tv_sec = estrtonum(EARGF(usage()), 0, LLONG_MAX);
 		break;
 	default:
 		usage();
@@ -151,6 +153,8 @@ main(int argc, char *argv[])
 		usage();
 	if (!aflag && !mflag)
 		aflag = mflag = 1;
+	if (!ref)
+		times[1] = times[0];
 
 	for (; *argv; argc--, argv++)
 		touch(*argv);
