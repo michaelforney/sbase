@@ -30,7 +30,7 @@ cp(const char *s1, const char *s2, int depth)
 	FILE *f1, *f2;
 	struct dirent *d;
 	struct stat st;
-	struct utimbuf ut;
+	struct timespec times[2];
 	ssize_t r;
 	int (*statf)(const char *, struct stat *);
 	char target[PATH_MAX], ns1[PATH_MAX], ns2[PATH_MAX], *statf_name;
@@ -154,9 +154,9 @@ cp(const char *s1, const char *s2, int depth)
 	if (cp_aflag || cp_pflag) {
 		/* timestamp and owner*/
 		if (!S_ISLNK(st.st_mode)) {
-			ut.actime = st.st_atime;
-			ut.modtime = st.st_mtime;
-			utime(s2, &ut);
+			times[0] = st.st_atim;
+			times[1] = st.st_mtim;
+			utimensat(AT_FDCWD, s2, times, 0);
 
 			if (chown(s2, st.st_uid, st.st_gid) < 0) {
 				weprintf("chown %s:", s2);
