@@ -85,7 +85,7 @@ main(int argc, char *argv[])
 		width = estrtonum(EARGF(usage()), 1, MIN(LLONG_MAX, SIZE_MAX));
 		break;
 	ARGNUM:
-		width = ARGNUMF();
+		width = estrtonum(argv[0], 1, MIN(LLONG_MAX, SIZE_MAX));
 		break;
 	default:
 		usage();
