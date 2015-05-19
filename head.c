@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "util.h"
 
@@ -50,7 +51,7 @@ main(int argc, char *argv[])
 	} else {
 		many = argc > 1;
 		for (newline = 0; *argv; argc--, argv++) {
-			if ((*argv)[0] == '-' && !(*argv)[1]) {
+			if (!strcmp(*argv, "-")) {
 				*argv = "<stdin>";
 				fp = stdin;
 			} else if (!(fp = fopen(*argv, "r"))) {

@@ -1,4 +1,6 @@
 /* See LICENSE file for copyright and license details. */
+#include <string.h>
+
 #include "utf.h"
 #include "util.h"
 
@@ -84,7 +86,7 @@ main(int argc, char *argv[])
 		wc(stdin, NULL);
 	} else {
 		for (many = (argc > 1); *argv; argc--, argv++) {
-			if ((*argv)[0] == '-' && !(*argv)[1]) {
+			if (!strcmp(*argv, "-")) {
 				*argv = "<stdin>";
 				fp = stdin;
 			} else if (!(fp = fopen(*argv, "r"))) {

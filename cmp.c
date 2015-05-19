@@ -1,6 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "util.h"
 
@@ -32,7 +33,7 @@ main(int argc, char *argv[])
 		usage();
 
 	for (n = 0; n < 2; n++) {
-		if (argv[n][0] == '-' && !argv[n][1]) {
+		if (!strcmp(argv[n], "-")) {
 			argv[n] = "<stdin>";
 			fp[n] = stdin;
 		} else {

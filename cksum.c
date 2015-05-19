@@ -1,6 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 #include <inttypes.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "util.h"
 
@@ -96,7 +97,7 @@ main(int argc, char *argv[])
 		cksum(stdin, NULL);
 	} else {
 		for (; *argv; argc--, argv++) {
-			if ((*argv)[0] == '-' && !(*argv)[1]) {
+			if (!strcmp(*argv, "-")) {
 				*argv = "<stdin>";
 				fp = stdin;
 			} else if (!(fp = fopen(*argv, "r"))) {

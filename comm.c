@@ -50,7 +50,7 @@ main(int argc, char *argv[])
 		usage();
 
 	for (i = 0; i < 2; i++) {
-		if (argv[i][0] == '-' && !argv[i][1]) {
+		if (!strcmp(argv[i], "-")) {
 			argv[i] = "<stdin>";
 			fp[i] = stdin;
 		} else if (!(fp[i] = fopen(argv[i], "r"))) {

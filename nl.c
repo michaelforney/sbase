@@ -190,7 +190,7 @@ main(int argc, char *argv[])
 	if (!argc) {
 		nl("<stdin>", stdin);
 	} else {
-		if (argv[0][0] == '-' && !argv[0][1]) {
+		if (!strcmp(argv[0], "-")) {
 			argv[0] = "<stdin>";
 			fp = stdin;
 		} else if (!(fp = fopen(argv[0], "r"))) {

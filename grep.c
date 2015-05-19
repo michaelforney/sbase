@@ -260,7 +260,7 @@ main(int argc, char *argv[])
 		match = grep(stdin, "<stdin>");
 	} else {
 		for (; *argv; argc--, argv++) {
-			if ((*argv)[0] == '-' && !(*argv)[1]) {
+			if (!strcmp(*argv, "-")) {
 				*argv = "<stdin>";
 				fp = stdin;
 			} else if (!(fp = fopen(*argv, "r"))) {

@@ -116,7 +116,7 @@ main(int argc, char *argv[])
 	dsc = ereallocarray(NULL, argc, sizeof(*dsc));
 
 	for (i = 0; i < argc; i++) {
-		if (argv[i][0] == '-' && !argv[i][1]) {
+		if (!strcmp(argv[i], "-")) {
 			argv[i] = "<stdin>";
 			dsc[i].fp = stdin;
 		} else if (!(dsc[i].fp = fopen(argv[i], "r"))) {

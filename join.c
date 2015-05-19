@@ -528,7 +528,7 @@ main(int argc, char *argv[])
 		usage();
 
 	for (n = 0; n < 2; n++) {
-		if (argv[n][0] == '-' && !argv[n][1]) {
+		if (!strcmp(argv[n], "-")) {
 			argv[n] = "<stdin>";
 			fp[n] = stdin;
 		} else if (!(fp[n] = fopen(argv[n], "r"))) {

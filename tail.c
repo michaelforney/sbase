@@ -115,7 +115,7 @@ main(int argc, char *argv[])
 		if ((many = argc > 1) && fflag)
 			usage();
 		for (newline = 0; *argv; argc--, argv++) {
-			if ((*argv)[0] == '-' && !(*argv)[1]) {
+			if (!strcmp(*argv, "-")) {
 				*argv = "<stdin>";
 				fp = stdin;
 			} else if (!(fp = fopen(*argv, "r"))) {

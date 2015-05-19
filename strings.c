@@ -2,6 +2,7 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "utf.h"
 #include "util.h"
@@ -79,7 +80,7 @@ main(int argc, char *argv[])
 		strings(stdin, "<stdin>", len);
 	} else {
 		for (; *argv; argc--, argv++) {
-			if ((*argv)[0] == '-' && !(*argv)[1]) {
+			if (!strcmp(*argv, "-")) {
 				*argv = "<stdin>";
 				fp = stdin;
 			} else if (!(fp = fopen(*argv, "r"))) {

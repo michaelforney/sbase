@@ -1,5 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "text.h"
@@ -29,7 +30,7 @@ main(int argc, char *argv[])
 		concat(stdin, "<stdin>", stdout, "<stdout>");
 	} else {
 		for (; *argv; argc--, argv++) {
-			if ((*argv)[0] == '-' && !(*argv)[1]) {
+			if (!strcmp(*argv, "-")) {
 				*argv = "<stdin>";
 				fp = stdin;
 			} else if (!(fp = fopen(*argv, "r"))) {
