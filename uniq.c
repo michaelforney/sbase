@@ -96,7 +96,9 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	FILE *fp, *ofp;
+	FILE *fp[2] = { stdin, stdout };
+	int i;
+	char *fname[2] = { "<stdin>", "<stdout>" };
 
 	ARGBEGIN {
 	case 'c':
@@ -121,26 +123,18 @@ main(int argc, char *argv[])
 	if (argc > 2)
 		usage();
 
-	if (!argc) {
-		uniq(stdin, stdout);
-	} else {
-		if (argv[0][0] == '-' && !argv[0][1]) {
-			argv[0] = "<stdin>";
-			fp = stdin;
-		} else if (!(fp = fopen(argv[0], "r"))) {
-			eprintf("fopen %s:", argv[0]);
+	for (i = 0; i < argc; i++) {
+		if (strcmp(argv[i], "-")) {
+			fname[i] = argv[i];
+			if (!(fp[i] = fopen(argv[i], (i == 0) ? "r" : "w")))
+				eprintf("fopen %s:", argv[i]);
 		}
-		if (argc == 1 || (argv[1][0] == '-' && !argv[1][1])) {
-			argv[1] = "<stdout>";
-			ofp = stdout;
-		} else if (!(ofp = fopen(argv[1], "w"))) {
-			eprintf("fopen %s:", argv[1]);
-		}
-		uniq(fp, ofp);
 	}
-	uniqfinish(ofp);
 
-	efshut(fp, argv[0]);
-	efshut(ofp, argv[1]);
+	uniq(fp[0], fp[1]);
+	uniqfinish(fp[1]);
+
+	efshut(fp[0], fname[0]);
+	efshut(fp[1], fname[1]);
 	return 0;
 }
