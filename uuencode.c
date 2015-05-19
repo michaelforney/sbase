@@ -6,8 +6,6 @@
 
 #include "util.h"
 
-static int mflag = 0;
-
 static unsigned int
 b64e(unsigned char b[2])
 {
@@ -103,10 +101,11 @@ int
 main(int argc, char *argv[])
 {
 	FILE *fp = NULL;
+	void (*uuencode_f)(FILE *, const char *, const char *) = uuencode;
 
 	ARGBEGIN {
 	case 'm':
-		mflag = 1;
+		uuencode_f = uuencodeb64;
 		break;
 	default:
 		usage();
@@ -116,17 +115,11 @@ main(int argc, char *argv[])
 		usage();
 
 	if (argc == 1 || !strcmp(argv[0], "-")) {
-		if (mflag)
-			uuencodeb64(stdin, argv[0], "<stdin>");
-		else
-			uuencode(stdin, argv[0], "<stdin>");
+		uuencode_f(stdin, argv[0], "<stdin>");
 	} else {
 		if (!(fp = fopen(argv[0], "r")))
 			eprintf("fopen %s:", argv[0]);
-		if (mflag)
-			uuencodeb64(fp, argv[1], argv[0]);
-		else
-			uuencode(fp, argv[1], argv[0]);
+		uuencode_f(fp, argv[1], argv[0]);
 	}
 
 	return !!((fp && fshut(fp, argv[0])) + fshut(stdin, "<stdin>") +
