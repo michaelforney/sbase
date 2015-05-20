@@ -11,12 +11,10 @@
 #include "utf.h"
 #include "util.h"
 
-static int    fflag = 0;
-static size_t num   = 10;
-static char   mode  = 'n';
+static char mode = 'n';
 
 static void
-dropinit(FILE *fp, const char *str)
+dropinit(FILE *fp, const char *str, size_t n)
 {
 	Rune r;
 	char *buf = NULL;
@@ -24,11 +22,11 @@ dropinit(FILE *fp, const char *str)
 	ssize_t len;
 
 	if (mode == 'n') {
-		while (i < num && (len = getline(&buf, &size, fp)) > 0)
+		while (i < n && (len = getline(&buf, &size, fp)) > 0)
 			if (len > 0 && buf[len - 1] == '\n')
 				i++;
 	} else {
-		while (i < num && (len = efgetrune(&r, fp, str)))
+		while (i < n && (len = efgetrune(&r, fp, str)))
 			i++;
 	}
 	free(buf);
@@ -36,23 +34,26 @@ dropinit(FILE *fp, const char *str)
 }
 
 static void
-taketail(FILE *fp, const char *str)
+taketail(FILE *fp, const char *str, size_t n)
 {
 	Rune *r = NULL;
 	char **ring = NULL;
 	size_t i, j, *size = NULL;
 
+	if (!n)
+		return;
+
 	if (mode == 'n') {
-		ring = ecalloc(num, sizeof *ring);
-		size = ecalloc(num, sizeof *size);
+		ring = ecalloc(n, sizeof(*ring));
+		size = ecalloc(n, sizeof(*size));
 
 		for (i = j = 0; getline(&ring[i], &size[i], fp) > 0; )
-			i = j = (i + 1) % num;
+			i = j = (i + 1) % n;
 	} else {
-		r = ecalloc(num, sizeof *r);
+		r = ecalloc(n, sizeof(*r));
 
 		for (i = j = 0; efgetrune(&r[i], fp, str); )
-			i = j = (i + 1) % num;
+			i = j = (i + 1) % n;
 	}
 	if (ferror(fp))
 		eprintf("%s: read error:", str);
@@ -64,7 +65,7 @@ taketail(FILE *fp, const char *str)
 		} else if (r) {
 			efputrune(&r[j], stdout, "<stdout>");
 		}
-	} while ((j = (j + 1) % num) != i);
+	} while ((j = (j + 1) % n) != i);
 
 	free(ring);
 	free(size);
@@ -82,10 +83,10 @@ main(int argc, char *argv[])
 {
 	struct stat st1, st2;
 	FILE *fp;
-	size_t tmpsize;
-	int ret = 0, newline = 0, many = 0;
+	size_t tmpsize, n = 10;
+	int fflag = 0, ret = 0, newline = 0, many = 0;
 	char *numstr, *tmp;
-	void (*tail)(FILE *, const char *) = taketail;
+	void (*tail)(FILE *, const char *, size_t) = taketail;
 
 	ARGBEGIN {
 	case 'f':
@@ -95,22 +96,19 @@ main(int argc, char *argv[])
 	case 'n':
 		mode = ARGC();
 		numstr = EARGF(usage());
-		num = MIN(llabs(estrtonum(numstr, LLONG_MIN + 1, MIN(LLONG_MAX, SIZE_MAX))), SIZE_MAX);
+		n = MIN(llabs(estrtonum(numstr, LLONG_MIN + 1, MIN(LLONG_MAX, SIZE_MAX))), SIZE_MAX);
 		if (strchr(numstr, '+'))
 			tail = dropinit;
 		break;
 	ARGNUM:
-		num = ARGNUMF();
+		n = ARGNUMF();
 		break;
 	default:
 		usage();
 	} ARGEND;
 
-	if (!num)
-		return 0;
-
 	if (!argc)
-		tail(stdin, "<stdin>");
+		tail(stdin, "<stdin>", n);
 	else {
 		if ((many = argc > 1) && fflag)
 			usage();
@@ -130,7 +128,7 @@ main(int argc, char *argv[])
 			if (!(S_ISFIFO(st1.st_mode) || S_ISREG(st1.st_mode)))
 				fflag = 0;
 			newline = 1;
-			tail(fp, *argv);
+			tail(fp, *argv, n);
 
 			if (!fflag) {
 				if (fp != stdin && fshut(fp, *argv))
