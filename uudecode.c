@@ -228,6 +228,7 @@ main(int argc, char *argv[])
 {
 	FILE *fp = NULL, *nfp = NULL;
 	mode_t mode = 0;
+	int ret = 0;
 	char *fname, *header, *ifname, *ofname = NULL;
 	void (*d) (FILE *, FILE *) = NULL;
 
@@ -274,6 +275,8 @@ main(int argc, char *argv[])
 	if (nfp != stdout && chmod(fname, mode) < 0)
 		eprintf("chmod %s:", fname);
 
-	return !!(fshut(fp, fp == stdin ? "<stdin>" : argv[0]) +
-	          fshut(nfp, nfp == stdout ? "<stdout>" : fname));
+	ret |= fshut(fp, (fp == stdin) ? "<stdin>" : argv[0]);
+	ret |= fshut(nfp, (nfp == stdout) ? "<stdout>" : fname);
+
+	return ret;
 }

@@ -113,6 +113,7 @@ main(int argc, char *argv[])
 {
 	FILE *fp = NULL;
 	size_t l, s;
+	int ret = 0;
 	char *d, *formattype, *formatblit;
 
 	ARGBEGIN {
@@ -199,6 +200,8 @@ main(int argc, char *argv[])
 		nl(argv[0], fp);
 	}
 
-	return !!((fp && fp != stdin && fshut(fp, argv[0]))
-	          + fshut(stdin, "<stdin>") + fshut(stdout, "<stdout>"));
+	ret |= fp && fp != stdin && fshut(fp, argv[0]);
+	ret |= fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>");
+
+	return ret;
 }

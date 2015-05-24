@@ -15,7 +15,7 @@ main(int argc, char *argv[])
 {
 	FILE **fps = NULL;
 	size_t i, n, nfps;
-	int aflag = 0, iflag = 0;
+	int ret = 0, aflag = 0, iflag = 0;
 	char buf[BUFSIZ];
 
 	ARGBEGIN {
@@ -47,5 +47,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	return !!(fshut(stdin, "<stdin>") + fshut(stdout, "<stdout>"));
+	ret |= fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>");
+
+	return ret;
 }

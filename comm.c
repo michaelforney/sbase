@@ -33,7 +33,7 @@ main(int argc, char *argv[])
 {
 	FILE *fp[2];
 	size_t linelen[2] = { 0, 0 };
-	int i, diff = 0;
+	int ret = 0, i, diff = 0;
 	char *line[2] = { NULL, NULL };
 
 	ARGBEGIN {
@@ -79,6 +79,9 @@ main(int argc, char *argv[])
 		printline((2 - diff) % 3, line[MAX(0, diff)]);
 	}
 end:
-	return !!(fshut(fp[0], argv[0]) + (fp[0] != fp[1] && fshut(fp[1], argv[1])) +
-	          fshut(stdout, "<stdout>"));
+	ret |= fshut(fp[0], argv[0]);
+	ret |= (fp[0] != fp[1]) && fshut(fp[1], argv[1]);
+	ret |= fshut(stdout, "<stdout>");
+
+	return ret;
 }

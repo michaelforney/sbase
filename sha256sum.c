@@ -23,7 +23,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	int (*cryptfunc)(int, char **, struct crypt_ops *, uint8_t *, size_t) = cryptmain;
+	int ret = 0, (*cryptfunc)(int, char **, struct crypt_ops *, uint8_t *, size_t) = cryptmain;
 	uint8_t md[SHA256_DIGEST_LENGTH];
 
 	ARGBEGIN {
@@ -34,6 +34,8 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	return cryptfunc(argc, argv, &sha256_ops, md, sizeof(md)) ||
-	       !!(fshut(stdin, "<stdin>") + fshut(stdout, "<stdout>"));
+	ret |= cryptfunc(argc, argv, &sha256_ops, md, sizeof(md));
+	ret |= fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>");
+
+	return ret;
 }

@@ -168,7 +168,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	efshut(stdin, "<stdin>");
-	efshut(stdout, "<stdout>");
+	ret |= fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>");
+
 	return ret;
 }

@@ -50,7 +50,7 @@ main(int argc, char *argv[])
 	FILE *in = stdin, *out = NULL;
 	size_t size = 1000, scale = 1, n;
 	long l;
-	int ch, plen, slen = 2, always = 0;
+	int ret = 0, ch, plen, slen = 2, always = 0;
 	char name[NAME_MAX + 1], *prefix = "x", *file = NULL, *tmp, *end;
 
 	ARGBEGIN {
@@ -124,6 +124,9 @@ main(int argc, char *argv[])
 		putc(ch, out);
 	}
 
-	return !!(fshut(in, "<infile>") + (out && fshut(out, "<outfile>")) +
-	          fshut(stdin, "<stdin>") + fshut(stdout, "<stdout>"));
+	ret |= (in != stdin) && fshut(in, "<infile>");
+	ret |= out && (out != stdout) && fshut(out, "<outfile>");
+	ret |= fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>");
+
+	return ret;
 }

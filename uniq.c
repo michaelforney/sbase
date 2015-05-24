@@ -97,7 +97,7 @@ int
 main(int argc, char *argv[])
 {
 	FILE *fp[2] = { stdin, stdout };
-	int i;
+	int ret = 0, i;
 	char *fname[2] = { "<stdin>", "<stdout>" };
 
 	ARGBEGIN {
@@ -134,7 +134,7 @@ main(int argc, char *argv[])
 	uniq(fp[0], fp[1]);
 	uniqfinish(fp[1]);
 
-	efshut(fp[0], fname[0]);
-	efshut(fp[1], fname[1]);
-	return 0;
+	ret |= fshut(fp[0], fname[0]) | fshut(fp[1], fname[1]);
+
+	return ret;
 }

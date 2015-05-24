@@ -190,6 +190,8 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
+	int ret = 0;
+
 	ARGBEGIN {
 	case 'b':
 		backspace = 1;
@@ -217,5 +219,7 @@ main(int argc, char *argv[])
 	col();
 	flush();
 
-	return !!(fshut(stdin, "<stdin>") + fshut(stdout, "<stdout>"));
+	ret |= fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>");
+
+	return ret;
 }

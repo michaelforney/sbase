@@ -258,8 +258,11 @@ main(int argc, char *argv[])
 	int ret;
 
 	argv0 = argv[0], argc--, argv++;
+
 	ret = !parse(argv, argc);
-	enfshut(3, stdout, "<stdout>");
+
+	if (fshut(stdout, "<stdout>"))
+		ret = 3;
 
 	return ret;
 }

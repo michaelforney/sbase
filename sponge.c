@@ -14,6 +14,7 @@ int
 main(int argc, char *argv[])
 {
 	FILE *fp, *tmpfp;
+	int ret = 0;
 
 	argv0 = argv[0], argc--, argv++;
 
@@ -29,5 +30,7 @@ main(int argc, char *argv[])
 		eprintf("fopen %s:", argv[0]);
 	concat(tmpfp, "<tmpfile>", fp, argv[0]);
 
-	return !!(fshut(fp, argv[0]) + fshut(tmpfp, "<tmpfile>"));
+	ret |= fshut(fp, argv[0]) | fshut(tmpfp, "<tmpfile>");
+
+	return ret;
 }

@@ -477,7 +477,7 @@ main(int argc, char *argv[])
 {
 	size_t jf[2] = { jfield, jfield, };
 	FILE *fp[2];
-	int n;
+	int ret = 0, n;
 	char *fno;
 
 	ARGBEGIN {
@@ -544,9 +544,9 @@ main(int argc, char *argv[])
 	if (oflag)
 		freespecs(&output);
 
-	enfshut(2, fp[0], argv[0]);
-	if (fp[0] != fp[1])
-		enfshut(2, fp[1], argv[1]);
-	enfshut(2, stdout, "<stdout>");
-	return 0;
+	if (fshut(fp[0], argv[0]) | (fp[0] != fp[1] && fshut(fp[1], argv[1])) |
+	    fshut(stdout, "<stdout>"))
+		ret = 2;
+
+	return ret;
 }

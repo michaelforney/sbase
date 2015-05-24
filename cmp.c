@@ -16,7 +16,7 @@ main(int argc, char *argv[])
 {
 	FILE *fp[2];
 	size_t line = 1, n;
-	int lflag = 0, sflag = 0, same = 1, b[2];
+	int ret = 0, lflag = 0, sflag = 0, same = 1, b[2];
 
 	ARGBEGIN {
 	case 'l':
@@ -72,9 +72,11 @@ main(int argc, char *argv[])
 		}
 	}
 
-	enfshut(2, fp[0], argv[0]);
-	if (fp[0] != fp[1])
-		enfshut(2, fp[1], argv[1]);
-	enfshut(2, stdout, "<stdout>");
-	return !same;
+	if (!ret)
+		ret = !same;
+	if (fshut(fp[0], argv[0]) | (fp[0] != fp[1] && fshut(fp[1], argv[1])) |
+	    fshut(stdout, "<stdout>"))
+		ret = 2;
+
+	return ret;
 }

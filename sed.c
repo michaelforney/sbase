@@ -1682,7 +1682,7 @@ int
 main(int argc, char *argv[])
 {
 	char *arg;
-	int script = 0;
+	int ret = 0, script = 0;
 
 	ARGBEGIN {
 	case 'n':
@@ -1717,5 +1717,7 @@ main(int argc, char *argv[])
 	files = argv;
 	run();
 
-	return !!(fshut(stdin, "<stdin>") + fshut(stdout, "<stdout>"));
+	ret |= fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>");
+
+	return ret;
 }

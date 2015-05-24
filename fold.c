@@ -110,5 +110,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	return !!(fshut(stdin, "<stdin>") + fshut(stdout, "<stdout>")) || ret;
+	ret |= fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>");
+
+	return ret;
 }

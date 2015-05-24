@@ -194,7 +194,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	int leftover = 0, i;
+	int ret = 0, leftover = 0, i;
 	size_t argsz, argmaxsz;
 	size_t arglen, a;
 	char *arg = "";
@@ -272,6 +272,8 @@ main(int argc, char *argv[])
 
 	free(argb);
 
-	return (nerrors || !!(fshut(stdin, "<stdin>") +
-	       fshut(stdout, "<stdout>"))) ? 123 : 0;
+	if (nerrors || (fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>")))
+		ret = 123;
+
+	return ret;
 }

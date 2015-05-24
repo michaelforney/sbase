@@ -1036,5 +1036,7 @@ main(int argc, char **argv)
 			t->u.pinfo->freearg(t->extra);
 	free(toks);
 
-	return !!(fshut(stdin, "<stdin>") + fshut(stdout, "<stdout>")) || gflags.ret;
+	gflags.ret |= fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>");
+
+	return gflags.ret;
 }

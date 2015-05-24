@@ -277,7 +277,8 @@ main(int argc, char *argv[])
 		}
 	}
 
-	enfshut(Error, stdin, "<stdin>");
-	enfshut(Error, stdout, "<stdout>");
+	if (fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>"))
+		match = Error;
+
 	return match;
 }

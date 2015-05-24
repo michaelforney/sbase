@@ -102,5 +102,7 @@ main(int argc, char *argv[])
 			output("total", tc, tl, tw);
 	}
 
-	return !!(fshut(stdin, "<stdin>") + fshut(stdout, "<stdout>")) || ret;
+	ret |= fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>");
+
+	return ret;
 }

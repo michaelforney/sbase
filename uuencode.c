@@ -102,6 +102,7 @@ main(int argc, char *argv[])
 {
 	FILE *fp = NULL;
 	void (*uuencode_f)(FILE *, const char *, const char *) = uuencode;
+	int ret = 0;
 
 	ARGBEGIN {
 	case 'm':
@@ -122,6 +123,8 @@ main(int argc, char *argv[])
 		uuencode_f(fp, argv[1], argv[0]);
 	}
 
-	return !!((fp && fshut(fp, argv[0])) + fshut(stdin, "<stdin>") +
-	          fshut(stdout, "<stdout>"));
+	ret |= fp && fshut(fp, argv[0]);
+	ret |= fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>");
+
+	return ret;
 }

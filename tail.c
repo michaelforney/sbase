@@ -47,7 +47,7 @@ taketail(FILE *fp, const char *str, size_t n)
 		ring = ecalloc(n, sizeof(*ring));
 		size = ecalloc(n, sizeof(*size));
 
-		for (i = j = 0; getline(&ring[i], &size[i], fp) > 0; )
+		for (i = j = 0; getline(ring + i, size + i, fp) > 0; )
 			i = j = (i + 1) % n;
 	} else {
 		r = ecalloc(n, sizeof(*r));
@@ -157,5 +157,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	return !!(fshut(stdin, "<stdin>") + fshut(stdout, "<stdout>")) || ret;
+	ret |= fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>");
+
+	return ret;
 }

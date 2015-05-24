@@ -174,6 +174,7 @@ main(int argc, char *argv[])
 {
 	Rune r = 0, lastrune = 0;
 	size_t off1, off2, i, m;
+	int ret = 0;
 
 	ARGBEGIN {
 	case 'c':
@@ -204,8 +205,10 @@ main(int argc, char *argv[])
 	if (set2check && cflag && !dflag)
 		eprintf("set2 can't be imaged to from a complement.\n");
 read:
-	if (!efgetrune(&r, stdin, "<stdin>"))
-		return !!(fshut(stdin, "<stdin>") + fshut(stdout, "<stdout>"));
+	if (!efgetrune(&r, stdin, "<stdin>")) {
+		ret |= fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>");
+		return ret;
+	}
 	off1 = off2 = 0;
 	for (i = 0; i < set1ranges; i++) {
 		if (set1[i].start <= r && r <= set1[i].end) {

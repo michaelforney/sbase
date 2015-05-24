@@ -133,7 +133,9 @@ main(int argc, char *argv[])
 
 	for (i = 0; i < argc; i++)
 		if (dsc[i].fp != stdin && fshut(dsc[i].fp, argv[i]))
-			ret = 1;
+			ret |= fshut(dsc[i].fp, argv[i]);
 
-	return !!(fshut(stdin, "<stdin>") + fshut(stdout, "<stdout>")) || ret;
+	ret |= fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>");
+
+	return ret;
 }

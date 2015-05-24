@@ -332,7 +332,8 @@ main(int argc, char *argv[])
 		}
 	}
 
-	enfshut(2, stdin, "<stdin>");
-	enfshut(2, stdout, "<stdout>");
+	if (fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>"))
+		ret = 2;
+
 	return ret;
 }
