@@ -221,6 +221,7 @@ static String patt, hold, genbuf;
 
 static struct {
 	unsigned int n       :1; /* -n (no print) */
+	unsigned int E       :1; /* -E (extended re) */
 	unsigned int s       :1; /* s/// replacement happened */
 	unsigned int aci_cont:1; /* a,c,i text continuation */
 	unsigned int s_cont  :1; /* s/// replacement text continuation */
@@ -360,6 +361,7 @@ usage(void)
 /* Differences from POSIX
  * we allows semicolons and trailing blanks inside {}
  * we allow spaces after ! (and in between !s)
+ * we allow extended regular expressions (-E)
  */
 static void
 compile(char *s, int isfile)
@@ -499,7 +501,7 @@ make_addr(Addr *addr, char *s)
 			p -= escapes(s, p, delim, 0);
 			*p++ = '\0';
 			addr->u.re = emalloc(sizeof(*addr->u.re));
-			eregcomp(addr->u.re, s, 0);
+			eregcomp(addr->u.re, s, gflags.E ? REG_EXTENDED : 0);
 			s = p;
 		}
 	} else {
@@ -844,7 +846,7 @@ get_s_arg(Cmd *c, char *s)
 		} else {
 			c->u.s.re = emalloc(sizeof(*c->u.s.re));
 			/* FIXME: different eregcomp that calls fatal */
-			eregcomp(c->u.s.re, s, 0);
+			eregcomp(c->u.s.re, s, gflags.E ? REG_EXTENDED : 0);
 		}
 		s = p + runelen(delim);
 	}
@@ -1688,6 +1690,9 @@ main(int argc, char *argv[])
 	ARGBEGIN {
 	case 'n':
 		gflags.n = 1;
+		break;
+	case 'E':
+		gflags.E = 1;
 		break;
 	case 'e':
 		arg = EARGF(usage());
