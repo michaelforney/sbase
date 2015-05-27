@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <libgen.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "util.h"
@@ -18,10 +19,10 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	char *fname, *to;
-	int sflag = 0, fflag = 0, hasto = 0, dirfd = AT_FDCWD, ret = 0,
-		flags = AT_SYMLINK_FOLLOW;
-	struct stat st, tost;
+	char *targetdir = ".", *target = NULL;
+	int ret = 0, sflag = 0, fflag = 0, dirfd = AT_FDCWD,
+	    hastarget = 0, flags = AT_SYMLINK_FOLLOW;
+	struct stat st, tst;
 
 	ARGBEGIN {
 	case 'f':
@@ -43,15 +44,16 @@ main(int argc, char *argv[])
 	if (!argc)
 		usage();
 
-	fname = sflag ? "symlink" : "link";
-
-	if (argc >= 2) {
+	if (argc > 1) {
 		if (!stat(argv[argc - 1], &st) && S_ISDIR(st.st_mode)) {
 			if ((dirfd = open(argv[argc - 1], O_RDONLY)) < 0)
 				eprintf("open %s:", argv[argc - 1]);
+			targetdir = argv[argc - 1];
+			if (targetdir[strlen(targetdir) - 1] == '/')
+				targetdir[strlen(targetdir) - 1] = '\0';
 		} else if (argc == 2) {
-			to = argv[argc - 1];
-			hasto = 1;
+			hastarget = 1;
+			target = argv[argc - 1];
 		} else {
 			eprintf("%s: not a directory\n", argv[argc - 1]);
 		}
@@ -60,27 +62,34 @@ main(int argc, char *argv[])
 	}
 
 	for (; *argv; argc--, argv++) {
-		if (!hasto)
-			to = basename(*argv);
-		if (!sflag) {
-			if (stat(*argv, &st) < 0) {
-				weprintf("stat %s:", *argv);
-				ret = 1;
-				continue;
-			} else if (fstatat(dirfd, to, &tost, AT_SYMLINK_NOFOLLOW) < 0) {
-				if (errno != ENOENT)
-					eprintf("stat %s:", to);
-			} else if (st.st_dev == tost.st_dev && st.st_ino == tost.st_ino) {
-				weprintf("%s and %s are the same file\n", *argv, *argv);
+		if (!hastarget)
+			target = basename(*argv);
+
+		if (stat(*argv, &st) < 0) {
+			weprintf("stat %s:", *argv);
+			ret = 1;
+			continue;
+		} else if (fstatat(dirfd, target, &tst, AT_SYMLINK_NOFOLLOW) < 0) {
+			if (errno != ENOENT) {
+				weprintf("fstatat %s %s:", targetdir, target);
 				ret = 1;
 				continue;
 			}
+		} else if (st.st_dev == tst.st_dev && st.st_ino == tst.st_ino) {
+			weprintf("%s and %s/%s are the same file\n", *argv, targetdir, target);
+			ret = 1;
+			continue;
 		}
-		if (fflag)
-			unlinkat(dirfd, to, 0);
-		if ((!sflag ? linkat(AT_FDCWD, *argv, dirfd, to, flags)
-		            : symlinkat(*argv, dirfd, to)) < 0) {
-			weprintf("%s %s <- %s:", fname, *argv, to);
+
+		if (fflag && unlinkat(dirfd, target, 0) < 0 && errno != ENOENT) {
+			weprintf("unlinkat %s %s:", targetdir, target);
+			ret = 1;
+			continue;
+		}
+		if ((sflag ? symlinkat(*argv, dirfd, target) :
+		             linkat(AT_FDCWD, *argv, dirfd, target, flags)) < 0) {
+			weprintf("%s %s <- %s/%s:", sflag ? "symlinkat" : "linkat",
+			         *argv, targetdir, target);
 			ret = 1;
 		}
 	}
