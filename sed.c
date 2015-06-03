@@ -1691,6 +1691,7 @@ main(int argc, char *argv[])
 	case 'n':
 		gflags.n = 1;
 		break;
+	case 'r':
 	case 'E':
 		gflags.E = 1;
 		break;
