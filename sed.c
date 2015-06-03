@@ -1665,6 +1665,7 @@ app_line(void)
 static void
 new_next(void)
 {
+	*patt.str = '\0';
 	update_ranges(pc + 1, prog + pcap);
 	new_line();
 	pc = prog - 1;
