@@ -76,11 +76,8 @@ mdone:
 			eprintf("realpath %s:", argv[0]);
 		break;
 	case 'f':
-		p = dirname(estrdup(argv[0]));
-		if (!realpath(p, b))
-			eprintf("realpath %s:", p);
-		estrlcat(b, "/", sizeof(arg));
-		estrlcat(b, basename(estrdup(argv[0])), sizeof(arg));
+		if (!realpath(argv[0], b))
+			eprintf("realpath %s:", argv[0]);
 		break;
 	default:
 		if ((n = readlink(argv[0], b, PATH_MAX - 1)) < 0)
