@@ -22,7 +22,6 @@ The following tools are implemented:
 =*|o cksum       .
 =*|o cmp         .
 #*|x cols        .
-#*|x col         .
 =*|o comm        .
 =*|o cp          (-i)
 =*|x cron        .

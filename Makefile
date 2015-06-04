@@ -83,7 +83,6 @@ BIN =\
 	cksum\
 	cmp\
 	cols\
-	col\
 	comm\
 	cp\
 	cron\
