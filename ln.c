@@ -65,20 +65,23 @@ main(int argc, char *argv[])
 		if (!hastarget)
 			target = basename(*argv);
 
-		if (stat(*argv, &st) < 0) {
-			weprintf("stat %s:", *argv);
-			ret = 1;
-			continue;
-		} else if (fstatat(dirfd, target, &tst, AT_SYMLINK_NOFOLLOW) < 0) {
-			if (errno != ENOENT) {
-				weprintf("fstatat %s %s:", targetdir, target);
+		if (!sflag) {
+			if (stat(*argv, &st) < 0) {
+				weprintf("stat %s:", *argv);
+				ret = 1;
+				continue;
+			} else if (fstatat(dirfd, target, &tst, AT_SYMLINK_NOFOLLOW) < 0) {
+				if (errno != ENOENT) {
+					weprintf("fstatat %s %s:", targetdir, target);
+					ret = 1;
+					continue;
+				}
+			} else if (st.st_dev == tst.st_dev && st.st_ino == tst.st_ino) {
+				weprintf("%s and %s/%s are the same file\n",
+						*argv, targetdir, target);
 				ret = 1;
 				continue;
 			}
-		} else if (st.st_dev == tst.st_dev && st.st_ino == tst.st_ino) {
-			weprintf("%s and %s/%s are the same file\n", *argv, targetdir, target);
-			ret = 1;
-			continue;
 		}
 
 		if (fflag && unlinkat(dirfd, target, 0) < 0 && errno != ENOENT) {
