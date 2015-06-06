@@ -140,7 +140,7 @@ prjoin(struct line *la, struct line *lb, size_t jfa, size_t jfb)
 		for (i = 0; i < lb->nf; i++) {
 			if (i != jfb) {
 				prfield(&lb->fields[i]);
-				if (i < la->nf - 1)
+				if (i < lb->nf - 1)
 					prsep();
 			}
 		}
