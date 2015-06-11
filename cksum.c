@@ -5,6 +5,7 @@
 
 #include "util.h"
 
+static int ret = 0;
 static const unsigned long crctab[] = {         0x00000000,
 0x04c11db7, 0x09823b6e, 0x0d4326d9, 0x130476dc, 0x17c56b6b,
 0x1a864db2, 0x1e475005, 0x2608edb8, 0x22c9f00f, 0x2f8ad6d6,
@@ -71,8 +72,11 @@ cksum(FILE *fp, const char *s)
 			ck = (ck << 8) ^ crctab[(ck >> 24) ^ buf[i]];
 		len += n;
 	}
-	if (ferror(fp))
-		eprintf("fread %s:", s ? s : "<stdin>");
+	if (ferror(fp)) {
+		weprintf("fread %s:", s ? s : "<stdin>");
+		ret = 1;
+		return;
+	}
 
 	for (i = len; i; i >>= 8)
 		ck = (ck << 8) ^ crctab[(ck >> 24) ^ (i & 0xFF)];
@@ -89,7 +93,6 @@ int
 main(int argc, char *argv[])
 {
 	FILE *fp;
-	int ret = 0;
 
 	argv0 = argv[0], argc--, argv++;
 
