@@ -282,8 +282,8 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	struct entry *ents;
-	size_t i;
+	struct entry *ent, **dents, **fents;
+	size_t i, ds, fs;
 
 	ARGBEGIN {
 	case '1':
@@ -361,17 +361,41 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	many = (argc > 1);
-	if (argc == 0)
-		*--argv = ".", argc++;
+	switch (argc) {
+	case 0: /* fallthrough */
+		*--argv = ".", ++argc;
+	case 1: 
+		ent = emalloc(sizeof(*ent));
+		mkent(ent, argv[0], 1, Hflag || Lflag);
+		ls(ent, 1);
+		break;
+	default:
+		many = 1;
+		for (i = ds = fs = 0, fents = dents = NULL; i < argc; ++i) {
+			ent = emalloc(sizeof(*ent));
+			mkent(ent, argv[i], 1, Hflag || Lflag);
 
-	ents = ereallocarray(NULL, argc, sizeof(*ents));
+			if ((!dflag && S_ISDIR(ent->mode)) ||
+			    ((S_ISLNK(ent->mode) && S_ISDIR(ent->tmode)) &&
+			    ((Hflag || Lflag) || !(dflag || Fflag || lflag)))) {
+				dents = ereallocarray(dents, ++ds, sizeof(ent));
+				dents[ds - 1] = ent;
+			} else {
+				fents = ereallocarray(fents, ++fs, sizeof(ent));
+				fents[fs - 1] = ent;
+			}
+		}
+ 
+		qsort(fents, fs, sizeof(ent), entcmp);
+		qsort(dents, ds, sizeof(ent), entcmp);
 
-	for (i = 0; i < argc; i++)
-		mkent(&ents[i], argv[i], 1, Hflag || Lflag);
-	qsort(ents, argc, sizeof(*ents), entcmp);
-	for (i = 0; i < argc; i++)
-		ls(&ents[rflag ? argc-i-1 : i], 1);
+		for (i = 0; i < fs; ++i)
+			ls(fents[rflag ? (fs - i - 1) : i], 0);
+		if (fs && ds)
+			putchar('\n');
+		for (i = 0; i < ds; ++i)
+			ls(dents[rflag ? (ds - i - 1) : i], 1);
+	}
 
 	return fshut(stdout, "<stdout>");
 }
