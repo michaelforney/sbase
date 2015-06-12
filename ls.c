@@ -21,8 +21,14 @@ struct entry {
 	gid_t   gid;
 	off_t   size;
 	time_t  t;
-	ino_t   ino;
+	dev_t   dev;
+	ino_t   ino, tino;
 };
+
+static struct {
+	dev_t dev;
+	ino_t ino;
+} tree[PATH_MAX] = { { 0, 0 } };
 
 static int Aflag = 0;
 static int aflag = 0;
@@ -69,9 +75,17 @@ mkent(struct entry *ent, char *path, int dostat, int follow)
 		ent->t = st.st_atime;
 	else
 		ent->t = st.st_mtime;
+	ent->dev   = st.st_dev;
 	ent->ino   = st.st_ino;
-	if (S_ISLNK(ent->mode))
-		ent->tmode = stat(path, &st) == 0 ? st.st_mode : 0;
+	if (S_ISLNK(ent->mode)) {
+		if (stat(path, &st) == 0) {
+			ent->tmode = st.st_mode;
+			ent->dev   = st.st_dev;
+			ent->tino  = st.st_ino;
+		} else {
+			ent->tmode = ent->tino = 0;
+		}
+	}
 }
 
 static char *
@@ -270,15 +284,42 @@ lsdir(const char *path, const struct entry *dir)
 	free(ents);
 }
 
+static int
+visit(const struct entry *ent)
+{
+	dev_t dev;
+	ino_t ino;
+	int i;
+
+	dev = ent->dev;
+	ino = S_ISLNK(ent->mode) ? ent->tino : ent->ino;
+
+	for (i = 0; tree[i].ino && i < PATH_MAX; ++i) {
+		if (ino == tree[i].ino && dev == tree[i].dev)
+			return -1;
+	}
+
+	tree[i].ino = ino;
+	tree[i].dev = dev;
+	return i;
+}
+
 static void
 ls(const char *path, const struct entry *ent, int listdir)
 {
+	int treeind;
 	char cwd[PATH_MAX];
 
 	if (!listdir) {
 		output(ent);
 	} else if (S_ISDIR(ent->mode) ||
 	    (S_ISLNK(ent->mode) && S_ISDIR(ent->tmode))) {
+		if ((treeind = visit(ent)) < 0) {
+			fprintf(stderr, "%s%s: already visited\n",
+			    path, ent->name);
+			return;
+		}
+
 		if (!getcwd(cwd, PATH_MAX))
 			eprintf("getcwd:");
 
@@ -289,6 +330,7 @@ ls(const char *path, const struct entry *ent, int listdir)
 
 		printf("%s", path);
 		lsdir(path, ent);
+		tree[treeind].ino = 0;
 
 		if (chdir(cwd) < 0)
 			eprintf("chdir %s:", cwd);
