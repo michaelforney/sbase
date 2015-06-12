@@ -102,15 +102,34 @@ output(const struct entry *ent)
 	struct group *gr;
 	struct passwd *pw;
 	ssize_t len;
-	char buf[BUFSIZ], *fmt,
+	size_t l;
+	char *name, *c, *u, *fmt, buf[BUFSIZ],
 	     pwname[_SC_LOGIN_NAME_MAX], grname[_SC_LOGIN_NAME_MAX],
 	     mode[] = "----------";
+	Rune r;
+
+	if (qflag) {
+		name = emalloc(strlen(ent->name) + 1);
+ 
+		for (c = name, u = ent->name; *u; u += l) {
+			l = chartorune(&r, u);
+			if (isprintrune(r)) {
+				memcpy(c, u, l);
+				c += l;
+			} else {
+				*c++ = '?';
+			}
+		}
+		*c = '\0';
+	} else {
+		name = ent->name;
+	}
 
 	if (iflag)
 		printf("%lu ", (unsigned long)ent->ino);
 	if (!lflag) {
-		printf("%s%s\n", ent->name, indicator(ent->mode));
-		return;
+		printf("%s%s\n", name, indicator(ent->mode));
+		goto cleanup;
 	}
 	if (S_ISREG(ent->mode))
 		mode[0] = '-';
@@ -173,6 +192,10 @@ output(const struct entry *ent)
 		printf(" -> %s%s", buf, indicator(ent->tmode));
 	}
 	putchar('\n');
+
+cleanup:
+	if (qflag)
+		free(name);
 }
 
 static int
@@ -193,11 +216,10 @@ static void
 lsdir(const char *path)
 {
 	DIR *dp;
-	Rune r;
 	struct entry ent, *ents = NULL;
 	struct dirent *d;
-	size_t i, n = 0, len;
-	char cwd[PATH_MAX], *p, *q, *name;
+	size_t i, n = 0;
+	char cwd[PATH_MAX], *name;
 
 	if (!getcwd(cwd, sizeof(cwd)))
 		eprintf("getcwd:");
@@ -224,21 +246,7 @@ lsdir(const char *path)
 			ls(&ent, Rflag);
 		} else {
 			ents = ereallocarray(ents, ++n, sizeof(*ents));
-			name = p = estrdup(d->d_name);
-			if (qflag) {
-				q = d->d_name;
-				while (*q) {
-					len = chartorune(&r, q);
-					if (isprintrune(r)) {
-						memcpy(p, q, len);
-						p += len, q += len;
-					} else {
-						*p++ = '?';
-						q += len;
-					}
-				}
-				*p = '\0';
-			}
+			name = estrdup(d->d_name);
 			mkent(&ents[n - 1], name, tflag || Sflag || Fflag || iflag || lflag || pflag || Rflag, Lflag);
 		}
 	}
