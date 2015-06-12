@@ -45,12 +45,11 @@ static int nflag = 0;
 static int pflag = 0;
 static int qflag = 0;
 static int Rflag = 0;
-static int Sflag = 0;
 static int rflag = 0;
-static int tflag = 0;
 static int Uflag = 0;
 static int uflag = 0;
 static int first = 1;
+static char sort = 0;
 
 static void ls(const char *, const struct entry *, int);
 
@@ -217,12 +216,19 @@ entcmp(const void *va, const void *vb)
 	int cmp = 0;
 	const struct entry *a = va, *b = vb;
 
-	if (Sflag)
+	switch (sort) {
+	case 'S':
 		cmp = b->size - a->size;
-	else if (tflag)
+		break;
+	case 't':
 		cmp = b->t - a->t;
+		break;
+	}
 
-	return cmp ? cmp : strcmp(a->name, b->name);
+	if (!cmp)
+		cmp = strcmp(a->name, b->name);
+
+	return rflag ? 0 - cmp : cmp;
 }
 
 static void
@@ -249,7 +255,7 @@ lsdir(const char *path, const struct entry *dir)
 
 		ents = ereallocarray(ents, ++n, sizeof(*ents));
 		mkent(&ents[n - 1], estrdup(d->d_name), Fflag || iflag ||
-		    lflag || pflag || Rflag || Sflag, Lflag);
+		    lflag || pflag || Rflag || sort, Lflag);
 	}
 
 	closedir(dp);
@@ -260,7 +266,7 @@ lsdir(const char *path, const struct entry *dir)
 	if (path[0] || dir->name[0] != '.')
 		printf("%s:\n", dir->name);
 	for (i = 0; i < n; i++)
-		output(&ents[rflag ? (n - 1 - i) : i]);
+		output(&ents[i]);
 
 	if (Rflag) {
 		if (snprintf(prefix, PATH_MAX, "%s%s/", path, dir->name) >=
@@ -268,7 +274,7 @@ lsdir(const char *path, const struct entry *dir)
 			eprintf("path too long: %s%s\n", path, dir->name);
 
 		for (i = 0; i < n; i++) {
-			ent = &ents[rflag ? (n - 1 - i) : i];
+			ent = &ents[i];
 			if (strcmp(ent->name, ".") == 0 ||
 			    strcmp(ent->name, "..") == 0)
 				continue;
@@ -403,16 +409,13 @@ main(int argc, char *argv[])
 		Rflag = 1;
 		break;
 	case 'r':
-		if (!fflag)
-			rflag = 1;
+		rflag = 1;
 		break;
 	case 'S':
-		Sflag = 1;
-		tflag = 0;
+		sort = 'S';
 		break;
 	case 't':
-		Sflag = 0;
-		tflag = 1;
+		sort = 't';
 		break;
 	case 'U':
 		Uflag = 1;
@@ -456,11 +459,11 @@ main(int argc, char *argv[])
 		qsort(dents, ds, sizeof(ent), entcmp);
 
 		for (i = 0; i < fs; ++i)
-			ls("", fents[rflag ? (fs - i - 1) : i], 0);
+			ls("", fents[i], 0);
 		if (fs && ds)
 			putchar('\n');
 		for (i = 0; i < ds; ++i)
-			ls("", dents[rflag ? (ds - i - 1) : i], 1);
+			ls("", dents[i], 1);
 	}
 
 	return fshut(stdout, "<stdout>");
