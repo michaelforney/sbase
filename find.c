@@ -635,6 +635,7 @@ get_ok_arg(char *argv[], union extra *extra)
 	for (arg = argv, braces = o->braces; *arg; arg++)
 		if (!strcmp(*arg, "{}"))
 			*braces++ = arg;
+	*braces = NULL;
 
 	gflags.print = 0;
 	return arg;
