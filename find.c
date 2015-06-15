@@ -408,16 +408,16 @@ pri_ok(struct arg *arg)
 {
 	int status, reply;
 	pid_t pid;
-	char ***brace, buf[256];
+	char ***brace, c;
 	struct okarg *o = arg->extra.p;
 
 	fprintf(stderr, "%s: %s ?", *o->argv, arg->path);
 	reply = fgetc(stdin);
 
 	/* throw away rest of line */
-	while (fgets(buf, sizeof(buf), stdin) && *buf && buf[strlen(buf) - 1] == '\n')
+	while ((c = fgetc(stdin)) != '\n' && c != EOF)
 		/* FIXME: what if the first character of the rest of the line is a null
-		 * byte? probably shouldn't juse fgets() */
+		 * byte? */
 		;
 
 	if (feof(stdin)) /* FIXME: ferror()? */
