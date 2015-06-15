@@ -411,7 +411,7 @@ pri_ok(struct arg *arg)
 	char ***brace, c;
 	struct okarg *o = arg->extra.p;
 
-	fprintf(stderr, "%s: %s ?", *o->argv, arg->path);
+	fprintf(stderr, "%s: %s ? ", *o->argv, arg->path);
 	reply = fgetc(stdin);
 
 	/* throw away rest of line */
