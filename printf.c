@@ -50,7 +50,7 @@ main(int argc, char *argv[])
 
 		/* flag */
 		for (flag = '\0', i++; strchr("#-+ 0", format[i]); i++) {
-			if (!flag) flag = format[i];
+			flag = format[i];
 		}
 
 		/* field width */
