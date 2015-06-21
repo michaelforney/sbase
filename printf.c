@@ -49,8 +49,8 @@ main(int argc, char *argv[])
 		}
 
 		/* flag */
-		for (flag = ' ', i++; strchr("#-+ 0", format[i]); i++) {
-			flag = format[i];
+		for (flag = '\0', i++; strchr("#-+ 0", format[i]); i++) {
+			if (!flag) flag = format[i];
 		}
 
 		/* field width */
@@ -135,18 +135,21 @@ main(int argc, char *argv[])
 				rarg = ereallocarray(NULL, utflen(arg) + 1, sizeof(*rarg));
 				utftorunestr(arg, rarg);
 				num = rarg[0];
-			} else
+			} else {
 				num = (strlen(arg) > 0) ? estrtonum(arg, LLONG_MIN, LLONG_MAX) : 0;
-			fmt = estrdup("%#*ll#");
-			fmt[1] = flag;
-			fmt[5] = format[i];
-			printf(fmt, width, num);
+			}
+			fmt = estrdup(flag ? "%#*.*ll#" : "%*.*ll#");
+			if (flag)
+				fmt[1] = flag;
+			fmt[flag ? 7 : 6] = format[i];
+			printf(fmt, width, precision, num);
 			free(fmt);
 			break;
 		case 'a': case 'A': case 'e': case 'E': case 'f': case 'F': case 'g': case 'G':
-			fmt = estrdup("%#*.*#");
-			fmt[1] = flag;
-			fmt[5] = format[i];
+			fmt = estrdup(flag ? "%#*.*#" : "%*.*#");
+			if (flag)
+				fmt[1] = flag;
+			fmt[flag ? 5 : 4] = format[i];
 			dou = (strlen(arg) > 0) ? estrtod(arg) : 0;
 			printf(fmt, width, precision, dou);
 			free(fmt);
