@@ -335,19 +335,14 @@ makespec(char *s)
 	int fileno;
 	size_t fldno;
 
-	switch (s[0]) {
-	case '0':         /* join field */
+	if (!strcmp(s, "0")) {   /* join field must be 0 and nothing else */
 		fileno = 0;
 		fldno = 0;
-		break;
-	case '1': case '2':
-		if (sscanf(s, "%d.%zu", &fileno, &fldno) != 2)
-			eprintf("\"%s\": invalid format\n", s);
-		fldno--;     /* ugly */
-		break;
-	default:
-		eprintf("%c: invalid file number (must be 0, 1 or 2)\n", s[0]);
-		break;
+	} else if ((s[0] == '1' || s[0] == '2') && s[1] == '.') {
+		fileno = s[0] - '0';
+		fldno = estrtonum(&s[2], 1, MIN(LLONG_MAX, SIZE_MAX)) - 1;
+	} else {
+		eprintf("%s: invalid format\n", s);
 	}
 
 	sp = ereallocarray(NULL, INIT, sizeof(struct spec));
