@@ -60,4 +60,6 @@ extern char *argv0;
 					(&argv[0][1]) :\
 					(argc--, argv++, argv[0])))
 
+#define LNGARG()	&argv[0][0]
+
 #endif
