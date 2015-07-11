@@ -607,6 +607,7 @@ get_exec_arg(char *argv[], union extra *extra)
 		for (arg = argv, braces = e->u.s.braces; *arg; arg++)
 			if (!strcmp(*arg, "{}"))
 				*braces++ = arg;
+		*braces = NULL;
 	}
 	gflags.print = 0;
 	return arg;
