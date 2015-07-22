@@ -173,10 +173,7 @@ linecmp(struct line *la, struct line *lb, size_t jfa, size_t jfb)
 	} else {
 		status = memcmp(la->fields[jfa].s, lb->fields[jfb].s,
 		MAX (la->fields[jfa].len, lb->fields[jfb].len));
-		if (status > 0)
-			status = 1;
-		else if (status < 0)
-			status = -1;
+		LIMIT(status, -1, 1);
 	}
 
 	return status;
