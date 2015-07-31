@@ -168,7 +168,7 @@ $(BIN): $(LIB) $(@:=.o)
 $(OBJ): $(HDR) config.mk
 
 .o:
-	$(LD) $(LDFLAGS) -o $@ $< $(LIB)
+	$(CC) $(LDFLAGS) -o $@ $< $(LIB)
 
 .c.o:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
