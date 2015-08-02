@@ -26,136 +26,19 @@ enum {
 
 static TAILQ_HEAD(kdhead, keydef) kdhead = TAILQ_HEAD_INITIALIZER(kdhead);
 
-static int parse_flags(char **, int *, int);
-static void addkeydef(char *, int);
-static int linecmp(const char **, const char **);
-static void check(FILE *);
 static char *skipblank(char *);
 static char *skipnonblank(char *);
 static char *skipcolumn(char *, char *, int);
 static size_t columns(char *, const struct keydef *, char **, size_t *);
+static int linecmp(const char **, const char **);
+static void check(FILE *);
+static int parse_flags(char **, int *, int);
+static void addkeydef(char *, int);
 
 static int Cflag = 0, cflag = 0, uflag = 0;
 static char *fieldsep = NULL;
 static char *col1, *col2;
 static size_t col1siz, col2siz;
-
-static int
-parse_flags(char **s, int *flags, int bflag)
-{
-	while (isalpha((int)**s)) {
-		switch (*((*s)++)) {
-		case 'b':
-			*flags |= bflag;
-			break;
-		case 'n':
-			*flags |= MOD_N;
-			break;
-		case 'r':
-			*flags |= MOD_R;
-			break;
-		default:
-			return -1;
-		}
-	}
-
-	return 0;
-}
-
-static void
-addkeydef(char *kdstr, int flags)
-{
-	struct keydef *kd;
-
-	kd = enmalloc(2, sizeof(*kd));
-
-	/* parse key definition kdstr with format
-	 * start_column[.start_char][flags][,end_column[.end_char][flags]]
-	 */
-	kd->start_column = 1;
-	kd->start_char = 1;
-	kd->end_column = 0; /* 0 means end of line */
-	kd->end_char = 0;   /* 0 means end of column */
-	kd->flags = flags;
-
-	if ((kd->start_column = strtol(kdstr, &kdstr, 10)) < 1)
-		enprintf(2, "invalid start column in key definition\n");
-
-	if (*kdstr == '.') {
-		if ((kd->start_char = strtol(kdstr + 1, &kdstr, 10)) < 1)
-			enprintf(2, "invalid start character in key definition\n");
-	}
-	if (parse_flags(&kdstr, &kd->flags, MOD_STARTB) < 0)
-		enprintf(2, "invalid start flags in key definition\n");
-
-	if (*kdstr == ',') {
-		if ((kd->end_column = strtol(kdstr + 1, &kdstr, 10)) < 0)
-			enprintf(2, "invalid end column in key definition\n");
-		if (*kdstr == '.') {
-			if ((kd->end_char = strtol(kdstr + 1, &kdstr, 10)) < 0)
-				enprintf(2, "invalid end character in key definition\n");
-		}
-		if (parse_flags(&kdstr, &kd->flags, MOD_ENDB) < 0)
-			enprintf(2, "invalid end flags in key definition\n");
-	}
-
-	if (*kdstr != '\0')
-		enprintf(2, "invalid key definition\n");
-
-	TAILQ_INSERT_TAIL(&kdhead, kd, entry);
-}
-
-static int
-linecmp(const char **a, const char **b)
-{
-	int res = 0;
-	long double x, y;
-	struct keydef *kd;
-
-	TAILQ_FOREACH(kd, &kdhead, entry) {
-		columns((char *)*a, kd, &col1, &col1siz);
-		columns((char *)*b, kd, &col2, &col2siz);
-
-		/* if -u is given, don't use default key definition
-		 * unless it is the only one */
-		if (uflag && kd == TAILQ_LAST(&kdhead, kdhead) &&
-		    TAILQ_LAST(&kdhead, kdhead) != TAILQ_FIRST(&kdhead)) {
-			res = 0;
-		} else if (kd->flags & MOD_N) {
-			x = strtold(col1, NULL);
-			y = strtold(col2, NULL);
-			res = (x < y) ? (-1) : (x > y);
-		} else {
-			res = strcmp(col1, col2);
-		}
-
-		if (kd->flags & MOD_R)
-			res = -res;
-		if (res)
-			break;
-	}
-
-	return res;
-}
-
-static void
-check(FILE *fp)
-{
-	static struct { char *buf; size_t size; } prev, cur, tmp;
-
-	if (!prev.buf && getline(&prev.buf, &prev.size, fp) < 0)
-		eprintf("getline:");
-	while (getline(&cur.buf, &cur.size, fp) > 0) {
-		if (uflag > linecmp((const char **) &cur.buf, (const char **) &prev.buf)) {
-			if (!Cflag)
-				weprintf("disorder: %s", cur.buf);
-			exit(1);
-		}
-		tmp = cur;
-		cur = prev;
-		prev = tmp;
-	}
-}
 
 static char *
 skipblank(char *s)
@@ -221,6 +104,123 @@ columns(char *line, const struct keydef *kd, char **col, size_t *colsiz)
 	if (*colsiz < len)
 		*colsiz = len;
 	return len;
+}
+
+static int
+linecmp(const char **a, const char **b)
+{
+	int res = 0;
+	long double x, y;
+	struct keydef *kd;
+
+	TAILQ_FOREACH(kd, &kdhead, entry) {
+		columns((char *)*a, kd, &col1, &col1siz);
+		columns((char *)*b, kd, &col2, &col2siz);
+
+		/* if -u is given, don't use default key definition
+		 * unless it is the only one */
+		if (uflag && kd == TAILQ_LAST(&kdhead, kdhead) &&
+		    TAILQ_LAST(&kdhead, kdhead) != TAILQ_FIRST(&kdhead)) {
+			res = 0;
+		} else if (kd->flags & MOD_N) {
+			x = strtold(col1, NULL);
+			y = strtold(col2, NULL);
+			res = (x < y) ? (-1) : (x > y);
+		} else {
+			res = strcmp(col1, col2);
+		}
+
+		if (kd->flags & MOD_R)
+			res = -res;
+		if (res)
+			break;
+	}
+
+	return res;
+}
+
+static void
+check(FILE *fp)
+{
+	static struct { char *buf; size_t size; } prev, cur, tmp;
+
+	if (!prev.buf && getline(&prev.buf, &prev.size, fp) < 0)
+		eprintf("getline:");
+	while (getline(&cur.buf, &cur.size, fp) > 0) {
+		if (uflag > linecmp((const char **) &cur.buf, (const char **) &prev.buf)) {
+			if (!Cflag)
+				weprintf("disorder: %s", cur.buf);
+			exit(1);
+		}
+		tmp = cur;
+		cur = prev;
+		prev = tmp;
+	}
+}
+
+static int
+parse_flags(char **s, int *flags, int bflag)
+{
+	while (isalpha((int)**s)) {
+		switch (*((*s)++)) {
+		case 'b':
+			*flags |= bflag;
+			break;
+		case 'n':
+			*flags |= MOD_N;
+			break;
+		case 'r':
+			*flags |= MOD_R;
+			break;
+		default:
+			return -1;
+		}
+	}
+
+	return 0;
+}
+
+static void
+addkeydef(char *kdstr, int flags)
+{
+	struct keydef *kd;
+
+	kd = enmalloc(2, sizeof(*kd));
+
+	/* parse key definition kdstr with format
+	 * start_column[.start_char][flags][,end_column[.end_char][flags]]
+	 */
+	kd->start_column = 1;
+	kd->start_char = 1;
+	kd->end_column = 0; /* 0 means end of line */
+	kd->end_char = 0;   /* 0 means end of column */
+	kd->flags = flags;
+
+	if ((kd->start_column = strtol(kdstr, &kdstr, 10)) < 1)
+		enprintf(2, "invalid start column in key definition\n");
+
+	if (*kdstr == '.') {
+		if ((kd->start_char = strtol(kdstr + 1, &kdstr, 10)) < 1)
+			enprintf(2, "invalid start character in key definition\n");
+	}
+	if (parse_flags(&kdstr, &kd->flags, MOD_STARTB) < 0)
+		enprintf(2, "invalid start flags in key definition\n");
+
+	if (*kdstr == ',') {
+		if ((kd->end_column = strtol(kdstr + 1, &kdstr, 10)) < 0)
+			enprintf(2, "invalid end column in key definition\n");
+		if (*kdstr == '.') {
+			if ((kd->end_char = strtol(kdstr + 1, &kdstr, 10)) < 0)
+				enprintf(2, "invalid end character in key definition\n");
+		}
+		if (parse_flags(&kdstr, &kd->flags, MOD_ENDB) < 0)
+			enprintf(2, "invalid end flags in key definition\n");
+	}
+
+	if (*kdstr != '\0')
+		enprintf(2, "invalid key definition\n");
+
+	TAILQ_INSERT_TAIL(&kdhead, kd, entry);
 }
 
 static void
