@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "queue.h"
 #include "text.h"
 #include "util.h"
 
@@ -13,22 +14,17 @@ struct keydef {
 	int start_char;
 	int end_char;
 	int flags;
+	TAILQ_ENTRY(keydef) entry;
 };
 
 enum {
-	MOD_N      = 1 << 1,
-	MOD_STARTB = 1 << 2,
-	MOD_ENDB   = 1 << 3,
-	MOD_R      = 1 << 4,
+	MOD_N      = 1 << 0,
+	MOD_STARTB = 1 << 1,
+	MOD_ENDB   = 1 << 2,
+	MOD_R      = 1 << 3,
 };
 
-struct kdlist {
-	struct keydef keydef;
-	struct kdlist *next;
-};
-
-static struct kdlist *head = NULL;
-static struct kdlist *tail = NULL;
+static TAILQ_HEAD(kdhead, keydef) kdhead = TAILQ_HEAD_INITIALIZER(kdhead);
 
 static void addkeydef(char *, int);
 static void check(FILE *);
@@ -46,19 +42,15 @@ static char *col1, *col2;
 static size_t col1siz, col2siz;
 
 static void
-addkeydef(char *def, int flags)
+addkeydef(char *kdstr, int flags)
 {
-	struct kdlist *node;
+	struct keydef *kd;
 
-	node = enmalloc(2, sizeof(*node));
-	if (!head)
-		head = node;
-	if (parse_keydef(&node->keydef, def, flags))
+	kd = enmalloc(2, sizeof(*kd));
+	if (parse_keydef(kd, kdstr, flags))
 		enprintf(2, "faulty key definition\n");
-	if (tail)
-		tail->next = node;
-	node->next = NULL;
-	tail = node;
+
+	TAILQ_INSERT_TAIL(&kdhead, kd, entry);
 }
 
 static void
@@ -85,26 +77,29 @@ linecmp(const char **a, const char **b)
 {
 	int res = 0;
 	long double x, y;
-	struct kdlist *node;
+	struct keydef *kd;
 
-	for (node = head; node && res == 0; node = node->next) {
-		columns((char *)*a, &node->keydef, &col1, &col1siz);
-		columns((char *)*b, &node->keydef, &col2, &col2siz);
+	TAILQ_FOREACH(kd, &kdhead, entry) {
+		columns((char *)*a, kd, &col1, &col1siz);
+		columns((char *)*b, kd, &col2, &col2siz);
 
 		/* if -u is given, don't use default key definition
 		 * unless it is the only one */
-		if (uflag && node == tail && head != tail) {
+		if (uflag && kd == TAILQ_LAST(&kdhead, kdhead) &&
+		    TAILQ_LAST(&kdhead, kdhead) != TAILQ_FIRST(&kdhead)) {
 			res = 0;
-		} else if (node->keydef.flags & MOD_N) {
+		} else if (kd->flags & MOD_N) {
 			x = strtold(col1, NULL);
 			y = strtold(col2, NULL);
-			res = x < y ? -1 : x > y;
+			res = (x < y) ? (-1) : (x > y);
 		} else {
 			res = strcmp(col1, col2);
 		}
 
-		if (node->keydef.flags & MOD_R)
+		if (kd->flags & MOD_R)
 			res = -res;
+		if (res)
+			break;
 	}
 
 	return res;
@@ -139,8 +134,7 @@ parse_keydef(struct keydef *kd, char *s, int flags)
 
 	kd->start_column = 1;
 	kd->start_char = 1;
-	/* 0 means end of line */
-	kd->end_column = 0;
+	kd->end_column = 0; /* 0 means end of line */
 	kd->end_char = 0;
 	kd->flags = flags;
 
@@ -290,8 +284,8 @@ main(int argc, char *argv[])
 	} ARGEND;
 
 	/* -b shall only apply to custom key definitions */
-	if (!head && global_flags)
-		addkeydef("1", global_flags & ~(MOD_STARTB|MOD_ENDB));
+	if (TAILQ_EMPTY(&kdhead) && global_flags)
+		addkeydef("1", global_flags & ~(MOD_STARTB | MOD_ENDB));
 	addkeydef("1", global_flags & MOD_R);
 
 	if (!argc) {
