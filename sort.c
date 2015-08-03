@@ -6,6 +6,7 @@
 
 #include "queue.h"
 #include "text.h"
+#include "utf.h"
 #include "util.h"
 
 struct keydef {
@@ -43,7 +44,7 @@ static size_t col1siz, col2siz;
 static char *
 skipblank(char *s)
 {
-	while (isblank(*s))
+	while (*s == ' ' || *s == '\t')
 		s++;
 	return s;
 }
@@ -51,7 +52,7 @@ skipblank(char *s)
 static char *
 skipnonblank(char *s)
 {
-	while (*s && *s != '\n' && !isblank(*s))
+	while (*s && *s != '\n' && *s != ' ' && *s != '\t')
 		s++;
 	return s;
 }
@@ -74,25 +75,35 @@ skipcolumn(char *s, char *eol, int next_col)
 static size_t
 columns(char *line, const struct keydef *kd, char **col, size_t *colsiz)
 {
+	Rune r;
 	char *start, *end, *eol = strchr(line, '\n');
-	size_t len;
+	size_t len, utflen, rlen;
 	int i;
 
 	for (i = 1, start = line; i < kd->start_column; i++)
 		start = skipcolumn(start, eol, 1);
 	if (kd->flags & MOD_STARTB)
 		start = skipblank(start);
-	start = MIN(eol, start + kd->start_char - 1);
+	for (utflen = 0; start < eol && utflen < kd->start_char - 1;) {
+		rlen = chartorune(&r, start);
+		start += rlen;
+		utflen++;
+	}
 
 	if (kd->end_column) {
 		for (i = 1, end = line; i < kd->end_column; i++)
 			end = skipcolumn(end, eol, 1);
 		if (kd->flags & MOD_ENDB)
 			end = skipblank(end);
-		if (kd->end_char)
-			end = MIN(eol, end + kd->end_char);
-		else
+		if (kd->end_char) {
+			for (utflen = 0; end < eol && utflen < kd->end_char;) {
+				rlen = chartorune(&r, end);
+				end += rlen;
+				utflen++;
+			}
+		} else {
 			end = skipcolumn(end, eol, 0);
+		}
 	} else {
 		end = eol;
 	}
