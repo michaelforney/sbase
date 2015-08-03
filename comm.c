@@ -33,7 +33,7 @@ main(int argc, char *argv[])
 {
 	FILE *fp[2];
 	size_t linelen[2] = { 0, 0 };
-	int ret = 0, i, diff = 0;
+	int ret = 0, i, diff = 0, seenline = 0;
 	char *line[2] = { NULL, NULL };
 
 	ARGBEGIN {
@@ -62,11 +62,13 @@ main(int argc, char *argv[])
 		for (i = 0; i < 2; i++) {
 			if (diff && i == (diff < 0))
 				continue;
-			if (getline(&line[i], &linelen[i], fp[i]) > 0)
+			if (getline(&line[i], &linelen[i], fp[i]) > 0) {
+				seenline = 1;
 				continue;
+			}
 			if (ferror(fp[i]))
 				eprintf("getline %s:", argv[i]);
-			if (diff && line[!i][0])
+			if ((diff || seenline) && line[!i][0])
 				printline(!i, line[!i]);
 			while (getline(&line[!i], &linelen[!i], fp[!i]) > 0)
 				printline(!i, line[!i]);
@@ -76,6 +78,7 @@ main(int argc, char *argv[])
 		}
 		diff = strcmp(line[0], line[1]);
 		LIMIT(diff, -1, 1);
+		seenline = 0;
 		printline((2 - diff) % 3, line[MAX(0, diff)]);
 	}
 end:
