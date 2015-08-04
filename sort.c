@@ -27,17 +27,9 @@ enum {
 
 static TAILQ_HEAD(kdhead, keydef) kdhead = TAILQ_HEAD_INITIALIZER(kdhead);
 
-static char *skipblank(char *);
-static char *skipnonblank(char *);
-static char *skipcolumn(char *, char *, int);
-static size_t columns(char *, const struct keydef *, char **, size_t *);
-static int linecmp(const char **, const char **);
-static void check(FILE *);
-static int parse_flags(char **, int *, int);
-static void addkeydef(char *, int);
-
 static int Cflag = 0, cflag = 0, uflag = 0;
 static char *fieldsep = NULL;
+static size_t fieldseplen = 0;
 static char *col1, *col2;
 static size_t col1siz, col2siz;
 
@@ -46,6 +38,7 @@ skipblank(char *s)
 {
 	while (*s == ' ' || *s == '\t')
 		s++;
+
 	return s;
 }
 
@@ -54,21 +47,25 @@ skipnonblank(char *s)
 {
 	while (*s && *s != '\n' && *s != ' ' && *s != '\t')
 		s++;
+
 	return s;
 }
 
 static char *
-skipcolumn(char *s, char *eol, int next_col)
+skipcolumn(char *s, char *eol, int skip_to_next_col)
 {
 	if (fieldsep) {
-		if ((s = strstr(s, fieldsep)))
-			s += next_col ? strlen(fieldsep) : 0;
-		else
+		if ((s = strstr(s, fieldsep))) {
+			if (skip_to_next_col)
+				s += fieldseplen;
+		} else {
 			s = eol;
+		}
 	} else {
 		s = skipblank(s);
 		s = skipnonblank(s);
 	}
+
 	return s;
 }
 
@@ -107,13 +104,14 @@ columns(char *line, const struct keydef *kd, char **col, size_t *colsiz)
 	} else {
 		end = eol;
 	}
-	len = start > end ? 0 : end - start;
+	len = (start > end) ? 0 : (end - start);
 	if (!*col || *colsiz < len)
 		*col = erealloc(*col, len + 1);
 	memcpy(*col, start, len);
 	(*col)[len] = '\0';
 	if (*colsiz < len)
 		*colsiz = len;
+
 	return len;
 }
 
@@ -136,7 +134,7 @@ linecmp(const char **a, const char **b)
 		} else if (kd->flags & MOD_N) {
 			x = strtold(col1, NULL);
 			y = strtold(col2, NULL);
-			res = (x < y) ? (-1) : (x > y);
+			res = (x < y) ? -1 : (x > y);
 		} else {
 			res = strcmp(col1, col2);
 		}
@@ -150,23 +148,26 @@ linecmp(const char **a, const char **b)
 	return res;
 }
 
-static void
-check(FILE *fp)
+static int
+check(FILE *fp, const char *fname)
 {
 	static struct { char *buf; size_t size; } prev, cur, tmp;
 
 	if (!prev.buf && getline(&prev.buf, &prev.size, fp) < 0)
 		eprintf("getline:");
 	while (getline(&cur.buf, &cur.size, fp) > 0) {
-		if (uflag > linecmp((const char **) &cur.buf, (const char **) &prev.buf)) {
+		if (uflag > linecmp((const char **)&cur.buf,
+		                    (const char **)&prev.buf)) {
 			if (!Cflag)
-				weprintf("disorder: %s", cur.buf);
-			exit(1);
+				weprintf("disorder %s: %s", fname, cur.buf);
+			return 1;
 		}
 		tmp = cur;
 		cur = prev;
 		prev = tmp;
 	}
+
+	return 0;
 }
 
 static int
@@ -212,7 +213,8 @@ addkeydef(char *kdstr, int flags)
 
 	if (*kdstr == '.') {
 		if ((kd->start_char = strtol(kdstr + 1, &kdstr, 10)) < 1)
-			enprintf(2, "invalid start character in key definition\n");
+			enprintf(2, "invalid start character in key "
+			         "definition\n");
 	}
 	if (parse_flags(&kdstr, &kd->flags, MOD_STARTB) < 0)
 		enprintf(2, "invalid start flags in key definition\n");
@@ -222,7 +224,8 @@ addkeydef(char *kdstr, int flags)
 			enprintf(2, "invalid end column in key definition\n");
 		if (*kdstr == '.') {
 			if ((kd->end_char = strtol(kdstr + 1, &kdstr, 10)) < 0)
-				enprintf(2, "invalid end character in key definition\n");
+				enprintf(2, "invalid end character in key "
+				         "definition\n");
 		}
 		if (parse_flags(&kdstr, &kd->flags, MOD_ENDB) < 0)
 			enprintf(2, "invalid end flags in key definition\n");
@@ -281,6 +284,7 @@ main(int argc, char *argv[])
 		break;
 	case 't':
 		fieldsep = EARGF(usage());
+		fieldseplen = strlen(fieldsep);
 		break;
 	case 'u':
 		uflag = 1;
@@ -296,7 +300,8 @@ main(int argc, char *argv[])
 
 	if (!argc) {
 		if (Cflag || cflag) {
-			check(stdin);
+			if (check(stdin, "<stdin>") && !ret)
+				ret = 1;
 		} else {
 			getlines(stdin, &linebuf);
 		}
@@ -309,12 +314,13 @@ main(int argc, char *argv[])
 			continue;
 		}
 		if (Cflag || cflag) {
-			check(fp);
+			if (check(fp, *argv) && !ret)
+				ret = 1;
 		} else {
 			getlines(fp, &linebuf);
 		}
 		if (fp != stdin && fshut(fp, *argv))
-			ret = 1;
+			ret = 2;
 	}
 
 	if (!Cflag && !cflag) {
@@ -325,14 +331,16 @@ main(int argc, char *argv[])
 				(int (*)(const void *, const void *))linecmp);
 
 		for (i = 0; i < linebuf.nlines; i++) {
-			if (!uflag || i == 0 || linecmp((const char **)&linebuf.lines[i],
-						(const char **)&linebuf.lines[i-1])) {
+			if (!uflag || i == 0 ||
+			    linecmp((const char **)&linebuf.lines[i],
+			            (const char **)&linebuf.lines[i - 1])) {
 				fputs(linebuf.lines[i], ofp);
 			}
 		}
 	}
 
-	if (fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>"))
+	if (fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>") |
+	    fshut(stderr, "<stderr>"))
 		ret = 2;
 
 	return ret;
