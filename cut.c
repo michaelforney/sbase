@@ -105,7 +105,7 @@ seek(const char *s, size_t pos, size_t *prev, size_t count)
 }
 
 static void
-cut(FILE *fp, char *fname)
+cut(FILE *fp, const char *fname)
 {
 	static char *buf = NULL;
 	static size_t size = 0;
