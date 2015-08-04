@@ -34,7 +34,7 @@ The following tools are implemented:
 #*|o expand      .
 #*|o expr        .
 =*|o false       .
-=    find        manpage
+=    find        .
 #*|o fold        .
 =* o grep        .
 =*|o head        .
@@ -62,7 +62,7 @@ The following tools are implemented:
 =*|o renice      .
 =*|o rm          (-i)
 =*|o rmdir       .
-#    sed         manpage
+#    sed         .
 =*|x seq         .
 =*|x setsid      .
 =*|x sha1sum     .
