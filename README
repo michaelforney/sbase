@@ -10,8 +10,8 @@ The following tools are implemented:
 '|'  -> Audited,       'o' -> POSIX 2013 compliant,   'x' -> Non-POSIX,
 '()' -> Petty flag
 
-     UTILITY     MISSING FLAGS
-     -------     -------------
+     UTILITY     MISSING
+     -------     -------
 =*|o basename    .
 =*|o cal         .
 =*|o cat         .
@@ -34,7 +34,7 @@ The following tools are implemented:
 #*|o expand      .
 #*|o expr        .
 =*|o false       .
-=    find        .
+=    find        manpage
 #*|o fold        .
 =* o grep        .
 =*|o head        .
@@ -62,7 +62,7 @@ The following tools are implemented:
 =*|o renice      .
 =*|o rm          (-i)
 =*|o rmdir       .
-#    sed         .
+#    sed         manpage
 =*|x seq         .
 =*|x setsid      .
 =*|x sha1sum     .
