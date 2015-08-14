@@ -78,6 +78,7 @@ The following tools are implemented:
 =*|x tar         .
 =*|o tee         .
 =*|o test        .
+=* x tftp        .
 =*|o time        .
 =*|o touch       .
 #*|o tr          .

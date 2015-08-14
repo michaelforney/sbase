@@ -139,6 +139,7 @@ BIN =\
 	tar\
 	tee\
 	test\
+	tftp\
 	time\
 	touch\
 	tr\
