@@ -39,6 +39,7 @@ taketail(FILE *fp, const char *str, size_t n)
 	Rune *r = NULL;
 	char **ring = NULL;
 	size_t i, j, *size = NULL;
+	int seenln = 0;
 
 	if (!n)
 		return;
@@ -47,7 +48,7 @@ taketail(FILE *fp, const char *str, size_t n)
 		ring = ecalloc(n, sizeof(*ring));
 		size = ecalloc(n, sizeof(*size));
 
-		for (i = j = 0; getline(ring + i, size + i, fp) > 0; )
+		for (i = j = 0; getline(ring + i, size + i, fp) > 0; seenln = 1)
 			i = j = (i + 1) % n;
 	} else {
 		r = ecalloc(n, sizeof(*r));
@@ -59,7 +60,7 @@ taketail(FILE *fp, const char *str, size_t n)
 		eprintf("%s: read error:", str);
 
 	do {
-		if (ring && ring[j]) {
+		if (seenln && ring && ring[j]) {
 			fputs(ring[j], stdout);
 			free(ring[j]);
 		} else if (r) {
