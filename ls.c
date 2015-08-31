@@ -122,7 +122,7 @@ output(const struct entry *ent)
 
 	if (qflag) {
 		name = emalloc(strlen(ent->name) + 1);
- 
+
 		for (c = name, u = ent->name; *u; u += l) {
 			l = chartorune(&r, u);
 			if (isprintrune(r)) {
@@ -431,7 +431,7 @@ main(int argc, char *argv[])
 	switch (argc) {
 	case 0: /* fallthrough */
 		*--argv = ".", ++argc;
-	case 1: 
+	case 1:
 		ent = emalloc(sizeof(*ent));
 		mkent(ent, argv[0], 1, Hflag || Lflag);
 		ls("", ent, (!dflag && S_ISDIR(ent->mode)) ||
@@ -454,7 +454,7 @@ main(int argc, char *argv[])
 				fents[fs - 1] = ent;
 			}
 		}
- 
+
 		qsort(fents, fs, sizeof(ent), entcmp);
 		qsort(dents, ds, sizeof(ent), entcmp);
 
