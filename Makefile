@@ -218,7 +218,7 @@ sbase-box: $(LIB) $(SRC)
 	echo 'else { fputs("[ ", stdout);'                                                                   >> build/$@.c
 	for f in $(SRC); do echo "fputs(\"$${f%.c} \", stdout);"; done                                       >> build/$@.c
 	echo 'putchar(0xa); }; return 0; }'                                                                  >> build/$@.c
-	$(LD) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ build/*.c $(LIB)
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ build/*.c $(LIB)
 	rm -r build
 
 sbase-box-install: sbase-box

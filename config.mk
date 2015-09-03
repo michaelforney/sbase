@@ -6,7 +6,6 @@ PREFIX = /usr/local
 MANPREFIX = $(PREFIX)/share/man
 
 CC = cc
-LD = $(CC)
 AR = ar
 RANLIB = ranlib
 
