@@ -347,7 +347,7 @@ ls(const char *path, const struct entry *ent, int listdir)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-1AacdFHhiLlqRrtUu] [file ...]\n", argv0);
+	eprintf("usage: %s [-1AacdFfHhiLlnpqRrtUu] [file ...]\n", argv0);
 }
 
 int
