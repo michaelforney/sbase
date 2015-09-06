@@ -1326,7 +1326,7 @@ cmd_l(Cmd *c)
 	 */
 	for (p = patt.str, end = p + strlen(p); p < end; p += rlen) {
 		if (isascii(*p) && escapes[(unsigned int)*p]) {
-			printf("%s", escapes[(unsigned int)*p]);
+			fputs(escapes[(unsigned int)*p], stdout);
 			rlen = 1;
 		} else if (!(rlen = charntorune(&r, p, end - p))) {
 			/* ran out of chars, print the bytes of the short sequence */

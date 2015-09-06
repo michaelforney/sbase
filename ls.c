@@ -335,7 +335,7 @@ ls(const char *path, const struct entry *ent, int listdir)
 		else
 			putchar('\n');
 
-		printf("%s", path);
+		fputs(path, stdout);
 		lsdir(path, ent);
 		tree[treeind].ino = 0;
 
