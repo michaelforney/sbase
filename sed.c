@@ -1329,7 +1329,7 @@ cmd_l(Cmd *c)
 			printf("%s", escapes[(unsigned int)*p]);
 			rlen = 1;
 		} else if (!(rlen = charntorune(&r, p, end - p))) {
-		/* ran out of chars, print the bytes of the short sequence */
+			/* ran out of chars, print the bytes of the short sequence */
 			for (; p < end; p++)
 				printf("\\%03hho", (unsigned char)*p);
 			break;

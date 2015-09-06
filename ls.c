@@ -28,7 +28,7 @@ struct entry {
 static struct {
 	dev_t dev;
 	ino_t ino;
-} tree[PATH_MAX] = { { 0, 0 } };
+} tree[PATH_MAX];
 
 static int Aflag = 0;
 static int aflag = 0;
@@ -307,6 +307,7 @@ visit(const struct entry *ent)
 
 	tree[i].ino = ino;
 	tree[i].dev = dev;
+
 	return i;
 }
 

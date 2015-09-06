@@ -87,12 +87,12 @@ cp(const char *s1, const char *s2, int depth)
 				continue;
 
 			estrlcpy(ns1, s1, sizeof(ns1));
-			if(s1[strlen(s1) - 1] != '/')
+			if (s1[strlen(s1) - 1] != '/')
 				estrlcat(ns1, "/", sizeof(ns1));
 			estrlcat(ns1, d->d_name, sizeof(ns1));
 
 			estrlcpy(ns2, s2, sizeof(ns2));
-			if(s2[strlen(s2) - 1] != '/')
+			if (s2[strlen(s2) - 1] != '/')
 				estrlcat(ns2, "/", sizeof(ns2));
 			estrlcat(ns2, d->d_name, sizeof(ns2));
 
