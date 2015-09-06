@@ -175,14 +175,14 @@ output(const struct entry *ent)
 	if (ent->mode & S_ISVTX) mode[9] = (mode[9] == 'x') ? 't' : 'T';
 
 	if (!nflag && (pw = getpwuid(ent->uid)))
-		snprintf(pwname, LEN(pwname), "%s", pw->pw_name);
+		snprintf(pwname, sizeof(pwname), "%s", pw->pw_name);
 	else
-		snprintf(pwname, LEN(pwname), "%d", ent->uid);
+		snprintf(pwname, sizeof(pwname), "%d", ent->uid);
 
 	if (!nflag && (gr = getgrgid(ent->gid)))
-		snprintf(grname, LEN(grname), "%s", gr->gr_name);
+		snprintf(grname, sizeof(grname), "%s", gr->gr_name);
 	else
-		snprintf(grname, LEN(grname), "%d", ent->gid);
+		snprintf(grname, sizeof(grname), "%d", ent->gid);
 
 	if (time(NULL) > ent->t + (180 * 24 * 60 * 60)) /* 6 months ago? */
 		fmt = "%b %d  %Y";
