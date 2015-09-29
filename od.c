@@ -108,13 +108,13 @@ main(int argc, char *argv[])
 	ARGBEGIN {
 	case 'A':
 		s = EARGF(usage());
-		if (strlen(s) > 1 || !strchr("doxn", s[0]))
+		if (strlen(s) != 1 || !strchr("doxn", s[0]))
 			usage();
 		radix = s[0];
 		break;
 	case 't':
 		s = EARGF(usage());
-		if (strlen(s) > 1 || !strchr("acdoux", s[0]))
+		if (strlen(s) != 1 || !strchr("acdoux", s[0]))
 			usage();
 		type = s[0];
 		break;
