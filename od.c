@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <ctype.h>
 #include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,6 +7,8 @@
 #include "util.h"
 
 static size_t bytes_per_line = 16;
+static off_t maxbytes = -1;
+static off_t skip = 0;
 static unsigned char radix = 'o';
 static unsigned char type = 'o';
 
@@ -43,25 +46,24 @@ printchar(FILE *f, unsigned char c)
 		['u'] = "%3hhu ", ['x'] = "%02hhx ",
 	};
 
-	if (type != 'a' && type != 'c') {
-		fprintf(f, fmtdict[type], c);
-	} else {
-		switch (type) {
-		case 'a':
-			c &= ~128; /* clear high bit as required by standard */
-			if (c < LEN(namedict) || c == 127) {
-				fprintf(f, "%3s ", (c == 127) ? "del" : namedict[c]);
-				return;
-			}
-			break;
-		case 'c':
-			if (strchr("\a\b\t\n\b\f\r\0", c)) {
-				fprintf(f, "%3s ", escdict[c]);
-				return;
-			}
-			break;
+	switch (type) {
+	case 'a':
+		c &= ~128; /* clear high bit as required by standard */
+		if (c < LEN(namedict) || c == 127) {
+			fprintf(f, "%3s ", (c == 127) ? "del" : namedict[c]);
+		} else {
+			fprintf(f, "%3c ", c);
 		}
-		fprintf(f, "%3c ", c);
+		break;
+	case 'c':
+		if (strchr("\a\b\t\n\b\f\r\0", c)) {
+			fprintf(f, "%3s ", escdict[c]);
+		} else {
+			fprintf(f, "%3c ", c);
+		}
+		break;
+	default:
+		fprintf(f, fmtdict[type], c);
 	}
 }
 
@@ -73,9 +75,12 @@ od(FILE *in, char *in_name, FILE *out, char *out_name)
 	unsigned char buf[BUFSIZ];
 
 	for (addr = 0; (chunklen = fread(buf, 1, BUFSIZ, in)); ) {
-		for (i = 0; i < chunklen; ++i, ++addr) {
-			if ((addr % bytes_per_line) == 0) {
-				if (addr)
+		for (i = 0; i < chunklen && (maxbytes == -1 ||
+		     (addr - skip) < maxbytes); ++i, ++addr) {
+			if (addr - skip < 0)
+				continue;
+			if (((addr - skip) % bytes_per_line) == 0) {
+				if (addr - skip)
 					fputc('\n', out);
 				printaddress(out, addr);
 			}
@@ -84,7 +89,8 @@ od(FILE *in, char *in_name, FILE *out, char *out_name)
 		if (feof(in) || ferror(in) || ferror(out))
 			break;
 	}
-	fputc('\n', out);
+	if (addr)
+		fputc('\n', out);
 	if (radix != 'n') {
 		printaddress(out, addr);
 		fputc('\n', out);
@@ -110,6 +116,12 @@ main(int argc, char *argv[])
 		if (strlen(s) != 1 || !strchr("doxn", s[0]))
 			usage();
 		radix = s[0];
+		break;
+	case 'j':
+		skip = parseoffset(EARGF(usage()));
+		break;
+	case 'N':
+		maxbytes = parseoffset(EARGF(usage()));
 		break;
 	case 't':
 		s = EARGF(usage());
