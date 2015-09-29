@@ -36,7 +36,6 @@ printchar(FILE *f, unsigned char c)
 		"so",  "si",  "dle", "dc1", "dc2", "dc3", "dc4",
 		"nak", "syn", "etb", "can", "em",  "sub", "esc",
 		"fs",  "gs",  "rs",  "us",  "sp",
-		[127] = "del"
 	};
 	const char *escdict[] = {
 		['\0'] = "\\0", ['\a'] = "\\a",
@@ -56,7 +55,7 @@ printchar(FILE *f, unsigned char c)
 		case 'a':
 			c &= ~128; /* clear high bit as required by standard */
 			if (c < LEN(namedict) || c == 127) {
-				fprintf(f, "%3s ", namedict[c]);
+				fprintf(f, "%3s ", (c == 127) ? "del" : namedict[c]);
 				return;
 			}
 			break;
