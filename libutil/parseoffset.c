@@ -10,7 +10,7 @@ off_t
 parseoffset(const char *str)
 {
 	off_t res;
-	size_t scale;
+	size_t scale = 1;
 	int base = 10;
 	char *end;
 
@@ -55,5 +55,5 @@ parseoffset(const char *str)
 		return -1;
 	}
 
-	return res;
+	return res * scale;
 }
