@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -9,21 +10,15 @@ static unsigned char radix = 'o';
 static unsigned char type = 'o';
 
 static void
-usage(void)
+printaddress(FILE *f, off_t addr)
 {
-	eprintf("usage: %s [-A d|o|x|n] [-t a|c|d|o|u|x] [file ...]\n", argv0);
-}
-
-static void
-printaddress(FILE *f, size_t addr)
-{
-	char fmt[] = "%06z# ";
+	char fmt[] = "%07j# ";
 
 	if (radix == 'n') {
 		fputc(' ', f);
 	} else {
 		fmt[4] = radix;
-		fprintf(f, fmt, addr);
+		fprintf(f, fmt, (intmax_t)addr);
 	}
 }
 
@@ -73,13 +68,12 @@ printchar(FILE *f, unsigned char c)
 static void
 od(FILE *in, char *in_name, FILE *out, char *out_name)
 {
+	off_t addr;
+	size_t i, chunklen;
 	unsigned char buf[BUFSIZ];
-	char fmt[] = "\n%.6z#";
-	off_t addr, bread, i;
 
-	addr = 0;
-	for (; (bread = fread(buf, 1, BUFSIZ, in)); ) {
-		for (i = 0; i < bread; ++i, ++addr) {
+	for (addr = 0; (chunklen = fread(buf, 1, BUFSIZ, in)); ) {
+		for (i = 0; i < chunklen; ++i, ++addr) {
 			if ((addr % bytes_per_line) == 0) {
 				if (addr)
 					fputc('\n', out);
@@ -90,11 +84,17 @@ od(FILE *in, char *in_name, FILE *out, char *out_name)
 		if (feof(in) || ferror(in) || ferror(out))
 			break;
 	}
-	if (radix != 'n') {
-		fmt[5] = radix;
-		fprintf(out, fmt, addr);
-	}
 	fputc('\n', out);
+	if (radix != 'n') {
+		printaddress(out, addr);
+		fputc('\n', out);
+	}
+}
+
+static void
+usage(void)
+{
+	eprintf("usage: %s [-A d|o|x|n] [-t a|c|d|o|u|x] [file ...]\n", argv0);
 }
 
 int
