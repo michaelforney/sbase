@@ -4,8 +4,9 @@
 
 #include "util.h"
 
-static char addr_radix = 'o';
-static char *type = "o";
+static size_t bytes_per_line = 16;
+static unsigned char radix = 'o';
+static unsigned char type = 'o';
 
 static void
 usage(void)
@@ -14,120 +15,87 @@ usage(void)
 }
 
 static void
-print_address(FILE *f, size_t addr)
+printaddress(FILE *f, size_t addr)
 {
-	switch (addr_radix) {
-	case 'x':
-		fprintf(f, "%06zx ", addr);
-		break;
-	case 'd':
-		fprintf(f, "%06zd ", addr);
-		break;
-	case 'n':
-		fprintf(f, "%s", " ");
-		break;
-	case 'o':
-	default:
-		fprintf(f, "%06zo ", addr);
-		break;
-	}
-}
+	char fmt[] = "%06z# ";
 
-static char char_string[2];
-
-static const char *
-escaped_char(unsigned char c)
-{
-	switch (c) {
-	case '\0':
-		return "\\0";
-	case '\a':
-		return "\\a";
-	case '\b':
-		return "\\b";
-	case '\t':
-		return "\\t";
-	case '\n':
-		return "\\n";
-	case '\v':
-		return "\\v";
-	case '\f':
-		return "\\f";
-	case '\r':
-		return "\\r";
-	default:
-		char_string[0] = c;
-		char_string[1] = '\0';
-		return char_string;
-	}
-}
-
-static const char *
-named_char(unsigned char c)
-{
-	static const int table_size = 33;
-	static const char * named_chars[] = {"nul", "soh", "stx", "etx", "eot", 
-	 "enq", "ack", "bel", "bs", "ht", "nl", "vt", "ff", "cr", "so", "si", 
-	 "dle", "dc1", "dc2", "dc3", "dc4", "nak", "syn", "etb", "can", "em", 
-	 "sub", "esc", "fs", "gs", "rs", "us", "sp"};
-
-	c &= ~128; /* clear high bit of byte, as required by standard */
-	if (c < table_size) {
-		return named_chars[c];
-	} else if (c == 127) {
-		return "del"; 
+	if (radix == 'n') {
+		fputc(' ', f);
 	} else {
-		char_string[0] = c;
-		char_string[1] = '\0';
-		return char_string;
+		fmt[4] = radix;
+		fprintf(f, fmt, addr);
 	}
 }
 
 static void
-print_content(FILE *f, char type, unsigned char cont)
+printchar(FILE *f, unsigned char c)
 {
-	switch (type) {
-	case 'a':
-		fprintf(f, "%3s ", named_char(cont));
-		break;
-	case 'c':
-		fprintf(f, "%3s ", escaped_char(cont));
-		break;
-	case 'd':
-		fprintf(f, "%4hhd ", cont);
-		break;
-	case 'o':
-		fprintf(f, "%03hho ", cont);
-		break;
-	case 'u':
-		fprintf(f, "%3hhu ", cont);
-		break;
-	case 'x':
-		fprintf(f, "%02hhx ", cont);
-		break;
+	const char *namedict[] = {
+		"nul", "soh", "stx", "etx", "eot", "enq", "ack",
+		"bel", "bs",  "ht",  "nl",  "vt",  "ff",  "cr",
+		"so",  "si",  "dle", "dc1", "dc2", "dc3", "dc4",
+		"nak", "syn", "etb", "can", "em",  "sub", "esc",
+		"fs",  "gs",  "rs",  "us",  "sp",
+		[127] = "del"
+	};
+	const char *escdict[] = {
+		['\0'] = "\\0", ['\a'] = "\\a",
+		['\b'] = "\\b", ['\t'] = "\\t",
+		['\n'] = "\\n", ['\v'] = "\\v",
+		['\f'] = "\\f", ['\r'] = "\\r",
+	};
+	const char *fmtdict[] = {
+		['d'] = "%4hhd ", ['o'] = "%03hho ",
+		['u'] = "%3hhu ", ['x'] = "%02hhx ",
+	};
+
+	if (type != 'a' && type != 'c') {
+		fprintf(f, fmtdict[type], c);
+	} else {
+		switch (type) {
+		case 'a':
+			c &= ~128; /* clear high bit as required by standard */
+			if (c < LEN(namedict) || c == 127) {
+				fprintf(f, "%3s ", namedict[c]);
+				return;
+			}
+			break;
+		case 'c':
+			if (strchr("\a\b\t\n\b\f\r\0", c)) {
+				fprintf(f, "%3s ", escdict[c]);
+				return;
+			}
+			break;
+		}
+		fprintf(f, "%3c ", c);
 	}
 }
 
 static void
-od(FILE *fp_in, const char *name_in, FILE *fp_out, const char *name_out)
+od(FILE *in, char *in_name, FILE *out, char *out_name)
 {
 	unsigned char buf[BUFSIZ];
-	size_t addr, buf_size, i;
-	const size_t bytes_per_line = 16;
+	char fmt[] = "\n%.6z#";
+	off_t addr, bread, i;
 
 	addr = 0;
-	for (; (buf_size = fread(buf, 1, BUFSIZ, fp_in)); ) {
-		for (i = 0; i < buf_size; ++i, ++addr) {
+	for (; (bread = fread(buf, 1, BUFSIZ, in)); ) {
+		for (i = 0; i < bread; ++i, ++addr) {
 			if ((addr % bytes_per_line) == 0) {
-				if (addr != 0) fprintf(fp_out, "%s", "\n");
-				print_address(fp_out, addr);
+				if (addr)
+					fputc('\n', out);
+				printaddress(out, addr);
 			}
-			print_content(fp_out, type[0], buf[i]);
+			printchar(out, buf[i]);
 		}
-		if (feof(fp_in) || ferror(fp_in) || ferror(fp_out))
+		if (feof(in) || ferror(in) || ferror(out))
 			break;
 	}
-	fprintf(fp_out, "\n%.7zx \n", addr);
+	if (radix != 'n') {
+		fmt[5] = radix;
+		fprintf(out, fmt, addr);
+	}
+	fputc('\n', out);
 }
 
 int
@@ -135,19 +103,20 @@ main(int argc, char *argv[])
 {
 	FILE *fp;
 	int ret = 0;
-    char *s;
+	char *s;
 
 	ARGBEGIN {
 	case 'A':
 		s = EARGF(usage());
 		if (strlen(s) > 1 || !strchr("doxn", s[0]))
 			usage();
-		addr_radix = s[0];
+		radix = s[0];
 		break;
 	case 't':
-		type = EARGF(usage());
-		if (strlen(type) > 1 || !strchr("acdoux", type[0]))
+		s = EARGF(usage());
+		if (strlen(s) > 1 || !strchr("acdoux", s[0]))
 			usage();
+		type = s[0];
 		break;
 	default:
 		usage();
@@ -171,7 +140,8 @@ main(int argc, char *argv[])
 		}
 	}
 
-	ret |= fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>");
+	ret |= fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>") |
+	       fshut(stderr, "<stderr>");
 
 	return ret;
 }
