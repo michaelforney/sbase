@@ -115,6 +115,7 @@ BIN =\
 	nice\
 	nl\
 	nohup\
+	od\
 	paste\
 	printenv\
 	printf\

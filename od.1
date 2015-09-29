@@ -1,0 +1,30 @@
+.Dd September 28, 2015
+.Dt OD 1
+.Os sbase
+.Sh NAME
+.Nm od
+.Nd octal dump
+.Sh SYNOPSIS
+.Nm
+.Op Fl A Ar d|o|x|n
+.Op Fl t Ar a|c|d|o|u|x
+.Op Ar file...
+.Sh DESCRIPTION
+.Nm
+writes an octal dump of each
+.Ar file
+to stdout.  If no
+.Ar file
+is given, then
+.Nm
+reads from stdin.
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl A Ar d|o|x|n
+Display the address in base \fId\fRecimal | \fIo\fRctal |
+he\fIx\fRadecimal | \fIn\fRone.  If unspecified, the default is octal.
+.It Fl t Ar a|c|d|o|u|x
+Display the content as n\fIa\fRmed character, \fIc\fRharacter, signed
+\fId\fRecimal, \fIo\fRctal, \fIu\fRnsigned decimal, or
+he\fIx\fRadecimal.  If unspecified, the default is octal.
+.El

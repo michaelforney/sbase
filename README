@@ -54,6 +54,7 @@ The following tools are implemented:
 =*|o nice        .
 #*|o nl          .
 =*|o nohup       .
+     od          a lot
 #*|o paste       .
 =*|x printenv    .
 #*|o printf      .
