@@ -48,10 +48,9 @@ int
 main(int argc, char *argv[])
 {
 	FILE *in = stdin, *out = NULL;
-	size_t size = 1000, scale = 1, n;
-	long l;
+	size_t size = 1000, n;
 	int ret = 0, ch, plen, slen = 2, always = 0;
-	char name[NAME_MAX + 1], *prefix = "x", *file = NULL, *tmp, *end;
+	char name[NAME_MAX + 1], *prefix = "x", *file = NULL;
 
 	ARGBEGIN {
 	case 'a':
@@ -59,29 +58,8 @@ main(int argc, char *argv[])
 		break;
 	case 'b':
 		always = 1;
-		tmp = EARGF(usage());
-		l = strtol(tmp, &end, 10);
-		if (l <= 0)
-			eprintf("invalid number of bytes: %s\n", tmp);
-		size = (size_t)l;
-		if (!*end)
-			break;
-		switch (toupper((int)*end)) {
-		case 'K':
-			scale = 1024;
-			break;
-		case 'M':
-			scale = 1024L * 1024L;
-			break;
-		case 'G':
-			scale = 1024L * 1024L * 1024L;
-			break;
-		default:
-			usage();
-		}
-		if (size > (SIZE_MAX / scale))
-			eprintf("'%s': out of range\n", tmp);
-		size *= scale;
+		if ((size = parseoffset(EARGF(usage()))) < 0)
+			return 1;
 		break;
 	case 'd':
 		base = 10;
@@ -89,8 +67,7 @@ main(int argc, char *argv[])
 		break;
 	case 'l':
 		always = 0;
-		tmp = EARGF(usage());
-		size = estrtonum(tmp, 1, MIN(LLONG_MAX, SIZE_MAX));
+		size = estrtonum(EARGF(usage()), 1, MIN(LLONG_MAX, SIZE_MAX));
 		break;
 	default:
 		usage();
