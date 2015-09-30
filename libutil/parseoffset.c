@@ -14,6 +14,11 @@ parseoffset(const char *str)
 	int base = 10;
 	char *end;
 
+	if (!str || !*str) {
+		weprintf("parseoffset: empty string\n");
+		return -1;
+	}
+
 	/* bases */
 	if (!strncasecmp(str, "0x", strlen("0x"))) {
 		base = 16;
@@ -24,7 +29,7 @@ parseoffset(const char *str)
 
 	res = strtol(str, &end, base);
 	if (res < 0) {
-		weprintf("invalid file offset: %s\n", str);
+		weprintf("parseoffset %s: negative value\n", str);
 		return -1;
 	}
 
@@ -44,14 +49,14 @@ parseoffset(const char *str)
 			scale = 1024L * 1024L * 1024L;
 			break;
 		default:
-			weprintf("invalid file offset suffix: %s\n", str);
+			weprintf("parseoffset %s: invalid suffix\n", str);
 			return -1;
 		}
 	}
 
 	/* prevent overflow */
 	if (res > (SIZE_MAX / scale)) {
-		weprintf("file offset out of range: %s\n", str);
+		weprintf("parseoffset %s: out of range\n", str);
 		return -1;
 	}
 
