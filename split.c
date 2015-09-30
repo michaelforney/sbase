@@ -58,8 +58,10 @@ main(int argc, char *argv[])
 		break;
 	case 'b':
 		always = 1;
-		if ((size = parseoffset(EARGF(usage()))) <= 0)
+		if ((size = parseoffset(EARGF(usage()))) < 0)
 			return 1;
+		if (!size)
+			eprintf("size needs to be positive\n");
 		break;
 	case 'd':
 		base = 10;
