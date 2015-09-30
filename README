@@ -36,6 +36,7 @@ The following tools are implemented:
 =*|o false       .
 =    find        .
 #*|o fold        .
+=* o getconf     (-v)
 =* o grep        .
 =*|o head        .
 =*|x hostname    .

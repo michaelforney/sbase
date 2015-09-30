@@ -8,7 +8,6 @@ awk
 bc
 diff
 ed
-getconf
 install
 patch
 pathchk

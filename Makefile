@@ -98,6 +98,7 @@ BIN =\
 	false\
 	find\
 	fold\
+	getconf\
 	grep\
 	head\
 	join\
