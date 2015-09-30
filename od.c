@@ -118,10 +118,12 @@ main(int argc, char *argv[])
 		radix = s[0];
 		break;
 	case 'j':
-		skip = parseoffset(EARGF(usage()));
+		if ((skip = parseoffset(EARGF(usage()))) < 0)
+			return 1;
 		break;
 	case 'N':
-		maxbytes = parseoffset(EARGF(usage()));
+		if ((maxbytes = parseoffset(EARGF(usage()))) < 0)
+			return 1;
 		break;
 	case 't':
 		s = EARGF(usage());
