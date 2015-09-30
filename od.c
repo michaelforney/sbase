@@ -89,10 +89,10 @@ od(FILE *in, char *in_name, FILE *out, char *out_name)
 		if (feof(in) || ferror(in) || ferror(out))
 			break;
 	}
-	if (addr)
+	if (addr - skip > 0)
 		fputc('\n', out);
 	if (radix != 'n') {
-		printaddress(out, addr);
+		printaddress(out, MAX(addr, skip));
 		fputc('\n', out);
 	}
 }
