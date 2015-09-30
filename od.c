@@ -100,7 +100,7 @@ od(FILE *in, char *in_name, FILE *out, char *out_name)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-A d|o|x|n] [-t a|c|d|o|u|x] [file ...]\n", argv0);
+	eprintf("usage: %s [-A d|o|x|n] [-t a|c|d|o|u|x] [-v] [file ...]\n", argv0);
 }
 
 int
@@ -128,6 +128,9 @@ main(int argc, char *argv[])
 		if (strlen(s) != 1 || !strchr("acdoux", s[0]))
 			usage();
 		type = s[0];
+		break;
+	case 'v':
+		/* Always set. Use "uniq -f 1 -c" to handle duplicate lines. */
 		break;
 	default:
 		usage();

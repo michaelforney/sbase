@@ -8,6 +8,7 @@
 .Nm
 .Op Fl A Ar d|o|x|n
 .Op Fl t Ar a|c|d|o|u|x
+.Op Fl v
 .Op Ar file...
 .Sh DESCRIPTION
 .Nm
@@ -27,4 +28,6 @@ he\fIx\fRadecimal | \fIn\fRone.  If unspecified, the default is octal.
 Display the content as n\fIa\fRmed character, \fIc\fRharacter, signed
 \fId\fRecimal, \fIo\fRctal, \fIu\fRnsigned decimal, or
 he\fIx\fRadecimal.  If unspecified, the default is octal.
+.It Fl v
+Always set. Write all input data, including duplicate lines.
 .El
