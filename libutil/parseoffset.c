@@ -1,5 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 #include <ctype.h>
+#include <errno.h>
 #include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,25 +10,21 @@
 off_t
 parseoffset(const char *str)
 {
-	off_t res;
-	size_t scale = 1;
-	int base = 10;
+	off_t res, scale = 1;
 	char *end;
 
-	if (!str || !*str) {
-		weprintf("parseoffset: empty string\n");
+	/* strictly check what strtol() usually would let pass */
+	if (!str || !*str || isspace(*str) || *str == '+' || *str == '-') {
+		weprintf("parseoffset %s: invalid value\n", str);
 		return -1;
 	}
 
-	/* bases */
-	if (!strncasecmp(str, "0x", strlen("0x"))) {
-		base = 16;
-	} else if (*str == '0') {
-		str++;
-		base = 8;
+	errno = 0;
+	res = strtol(str, &end, 0);
+	if (errno) {
+		weprintf("parseoffset %s: invalid value\n", str);
+		return -1;
 	}
-
-	res = strtol(str, &end, base);
 	if (res < 0) {
 		weprintf("parseoffset %s: negative value\n", str);
 		return -1;
@@ -49,7 +46,7 @@ parseoffset(const char *str)
 			scale = 1024L * 1024L * 1024L;
 			break;
 		default:
-			weprintf("parseoffset %s: invalid suffix\n", str);
+			weprintf("parseoffset %s: invalid suffix '%s'\n", str, end);
 			return -1;
 		}
 	}
