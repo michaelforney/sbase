@@ -179,28 +179,28 @@ static const struct var confstr_l[] = {
 
 static const struct var limits_l[] = {
 	{ "_POSIX_CLOCKRES_MIN",                 _POSIX_CLOCKRES_MIN                 },
-	{ "_POSIX_AIO_LISTIO_MAX",               _POSIX_AIO_LISTIO_MAX               },
-	{ "_POSIX_AIO_MAX",                      _POSIX_AIO_MAX                      },
+	/*{ "_POSIX_AIO_LISTIO_MAX",               _POSIX_AIO_LISTIO_MAX               },*/
+	/*{ "_POSIX_AIO_MAX",                      _POSIX_AIO_MAX                      },*/
 	{ "_POSIX_ARG_MAX",                      _POSIX_ARG_MAX                      },
 	{ "_POSIX_CHILD_MAX",                    _POSIX_CHILD_MAX                    },
-	{ "_POSIX_DELAYTIMER_MAX",               _POSIX_DELAYTIMER_MAX               },
+	/*{ "_POSIX_DELAYTIMER_MAX",               _POSIX_DELAYTIMER_MAX               },*/
 	{ "_POSIX_HOST_NAME_MAX",                _POSIX_HOST_NAME_MAX                },
 	{ "_POSIX_LINK_MAX",                     _POSIX_LINK_MAX                     },
 	{ "_POSIX_LOGIN_NAME_MAX",               _POSIX_LOGIN_NAME_MAX               },
 	{ "_POSIX_MAX_CANON",                    _POSIX_MAX_CANON                    },
 	{ "_POSIX_MAX_INPUT",                    _POSIX_MAX_INPUT                    },
-	{ "_POSIX_MQ_OPEN_MAX",                  _POSIX_MQ_OPEN_MAX                  },
-	{ "_POSIX_MQ_PRIO_MAX",                  _POSIX_MQ_PRIO_MAX                  },
+	/*{ "_POSIX_MQ_OPEN_MAX",                  _POSIX_MQ_OPEN_MAX                  },*/
+	/*{ "_POSIX_MQ_PRIO_MAX",                  _POSIX_MQ_PRIO_MAX                  },*/
 	{ "_POSIX_NAME_MAX",                     _POSIX_NAME_MAX                     },
 	{ "_POSIX_NGROUPS_MAX",                  _POSIX_NGROUPS_MAX                  },
 	{ "_POSIX_OPEN_MAX",                     _POSIX_OPEN_MAX                     },
 	{ "_POSIX_PATH_MAX",                     _POSIX_PATH_MAX                     },
 	{ "_POSIX_PIPE_BUF",                     _POSIX_PIPE_BUF                     },
 	{ "_POSIX_RE_DUP_MAX",                   _POSIX_RE_DUP_MAX                   },
-	{ "_POSIX_RTSIG_MAX",                    _POSIX_RTSIG_MAX                    },
+	/*{ "_POSIX_RTSIG_MAX",                    _POSIX_RTSIG_MAX                    },*/
 	{ "_POSIX_SEM_NSEMS_MAX",                _POSIX_SEM_NSEMS_MAX                },
 	{ "_POSIX_SEM_VALUE_MAX",                _POSIX_SEM_VALUE_MAX                },
-	{ "_POSIX_SIGQUEUE_MAX",                 _POSIX_SIGQUEUE_MAX                 },
+	/*{ "_POSIX_SIGQUEUE_MAX",                 _POSIX_SIGQUEUE_MAX                 },*/
 	{ "_POSIX_SSIZE_MAX",                    _POSIX_SSIZE_MAX                    },
 	/*{ "_POSIX_SS_REPL_MAX",                  _POSIX_SS_REPL_MAX                  },*/
 	{ "_POSIX_STREAM_MAX",                   _POSIX_STREAM_MAX                   },
@@ -209,7 +209,7 @@ static const struct var limits_l[] = {
 	{ "_POSIX_THREAD_DESTRUCTOR_ITERATIONS", _POSIX_THREAD_DESTRUCTOR_ITERATIONS },
 	{ "_POSIX_THREAD_KEYS_MAX",              _POSIX_THREAD_KEYS_MAX              },
 	{ "_POSIX_THREAD_THREADS_MAX",           _POSIX_THREAD_THREADS_MAX           },
-	{ "_POSIX_TIMER_MAX",                    _POSIX_TIMER_MAX                    },
+	/*{ "_POSIX_TIMER_MAX",                    _POSIX_TIMER_MAX                    },*/
 	{ "_POSIX_TTY_NAME_MAX",                 _POSIX_TTY_NAME_MAX                 },
 	{ "_POSIX_TZNAME_MAX",                   _POSIX_TZNAME_MAX                   },
 	{ "_POSIX2_BC_BASE_MAX",                 _POSIX2_BC_BASE_MAX                 },
