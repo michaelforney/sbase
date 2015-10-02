@@ -56,7 +56,7 @@ printchar(FILE *f, unsigned char c)
 		}
 		break;
 	case 'c':
-		if (strchr("\a\b\t\n\b\f\r\0", c)) {
+		if (strchr("\a\b\t\n\v\f\r\0", c)) {
 			fprintf(f, "%3s ", escdict[c]);
 		} else {
 			fprintf(f, "%3c ", c);
