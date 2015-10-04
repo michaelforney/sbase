@@ -55,10 +55,12 @@ List information about the targets of symbolic links instead of the links
 themselves.
 .It Fl l
 List detailed information about each file, including their type, permissions,
-links, owner, group, size, and last file status/modification time.
+links, owner, group, size or major and minor numbers if the file is a
+character/block device, and last file status/modification time.
 .It Fl n
 List detailed information about each file, including their type, permissions,
-links, owner, group, size, and last file status/modification time, but with
+links, owner, group, size or major and minor numbers if the file is a
+character/block device, and last file status/modification time, but with
 numeric IDs.
 .It Fl p
 Append a file type indicator to directories.

@@ -1,5 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 #include <sys/stat.h>
+#include <sys/types.h>
 
 #include <dirent.h>
 #include <grp.h>
@@ -22,6 +23,7 @@ struct entry {
 	off_t   size;
 	time_t  t;
 	dev_t   dev;
+	dev_t   rdev;
 	ino_t   ino, tino;
 };
 
@@ -75,6 +77,7 @@ mkent(struct entry *ent, char *path, int dostat, int follow)
 	else
 		ent->t = st.st_mtime;
 	ent->dev   = st.st_dev;
+	ent->rdev  = st.st_rdev;
 	ent->ino   = st.st_ino;
 	if (S_ISLNK(ent->mode)) {
 		if (stat(path, &st) == 0) {
@@ -192,7 +195,9 @@ output(const struct entry *ent)
 	strftime(buf, sizeof(buf), fmt, localtime(&ent->t));
 	printf("%s %4ld %-8.8s %-8.8s ", mode, (long)ent->nlink, pwname, grname);
 
-	if (hflag)
+	if (S_ISBLK(ent->mode) || S_ISCHR(ent->mode))
+		printf("%4u, %4u ", major(ent->rdev), minor(ent->rdev));
+	else if (hflag)
 		printf("%10s ", humansize(ent->size));
 	else
 		printf("%10lu ", (unsigned long)ent->size);
