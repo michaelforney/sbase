@@ -17,13 +17,6 @@
 
 #define BLKSIZ 512
 
-#undef major
-#define major(dev) ((int)(((unsigned int)(dev) >> 8) & 0xff))
-#undef minor
-#define minor(dev) ((int)((dev) & 0xff))
-#undef makedev
-#define makedev(major, minor) (((major) << 8) | (minor))
-
 enum Type {
 	REG       = '0',
 	AREG      = '\0',
