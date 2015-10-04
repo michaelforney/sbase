@@ -240,7 +240,7 @@ main(int argc, char *argv[])
 	ARGBEGIN {
 	case 'v':
 		/* ignore */
-		(void)(EARGF(usage()));
+		EARGF(usage());
 		break;
 	} ARGEND;
 
