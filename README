@@ -35,6 +35,7 @@ The following tools are implemented:
 #*|o expr        .
 =*|o false       .
 =    find        .
+=* x flock       .
 #*|o fold        .
 =* o getconf     (-v)
 =* o grep        .
