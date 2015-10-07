@@ -31,7 +31,7 @@ main(int argc, char *argv[])
 		flags = LOCK_UN;
 		break;
 	case 'x':
-		/* for compat */
+		flags = LOCK_EX;
 		break;
 	default:
 		usage();
