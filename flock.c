@@ -40,7 +40,7 @@ main(int argc, char *argv[])
 	if (argc < 2)
 		usage();
 
-	if ((fd = open(*argv, O_RDONLY | O_CREAT)) < 0)
+	if ((fd = open(*argv, O_RDONLY | O_CREAT, 0644)) < 0)
 		eprintf("open %s:", *argv);
 
 	if (flock(fd, flags | nonblk)) {
