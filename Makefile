@@ -97,6 +97,7 @@ BIN =\
 	expr\
 	false\
 	find\
+	flock\
 	fold\
 	getconf\
 	grep\
