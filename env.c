@@ -39,7 +39,7 @@ main(int argc, char *argv[])
 		execvp(*argv, argv);
 		savederrno = errno;
 		weprintf("execvp %s:", *argv);
-		_exit(126 + (savederrno == EEXIST));
+		_exit(126 + (savederrno == ENOENT));
 	}
 
 	for (; environ && *environ; environ++)
