@@ -6,7 +6,7 @@
 .Nd tool to manage locks on files
 .Sh SYNOPSIS
 .Nm
-.Op Fl nsux
+.Op Fl nosux
 .Ar file
 .Ar cmd Op arg ...
 .Sh DESCRIPTION
@@ -20,6 +20,9 @@ does not exist, it will be created.
 .It Fl n
 Set non-blocking mode on the lock.  Fail immediately if the lock
 cannot be acquired.
+.It Fl o
+Close the file descriptor before exec to avoid having the exec'ed
+program holding on to the lock.
 .It Fl s
 Acquire a shared lock.
 .It Fl u

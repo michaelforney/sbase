@@ -12,18 +12,21 @@
 static void
 usage(void)
 {
-	eprintf("usage: %s [-nsux] file cmd [arg ...]\n", argv0);
+	eprintf("usage: %s [-nosux] file cmd [arg ...]\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
-	int fd, status, savederrno, flags = LOCK_EX, nonblk = 0;
+	int fd, status, savederrno, flags = LOCK_EX, nonblk = 0, oflag = 0;
 	pid_t pid;
 
 	ARGBEGIN {
 	case 'n':
 		nonblk = LOCK_NB;
+		break;
+	case 'o':
+		oflag = 1;
 		break;
 	case 's':
 		flags = LOCK_SH;
@@ -54,6 +57,8 @@ main(int argc, char *argv[])
 	case -1:
 		eprintf("fork:");
 	case 0:
+		if (oflag && close(fd) < 0)
+			eprintf("close:");
 		argv++;
 		execvp(*argv, argv);
 		savederrno = errno;
