@@ -64,9 +64,9 @@ main(int argc, char *argv[])
 	}
 	waitpid(pid, &status, 0);
 
-        if (WIFSIGNALED(status))
-                return 128 + WTERMSIG(status);
-        if (WIFEXITED(status))
+	if (WIFSIGNALED(status))
+		return 128 + WTERMSIG(status);
+	if (WIFEXITED(status))
 		return WEXITSTATUS(status);
 
 	if (close(fd) < 0)
