@@ -1,33 +1,44 @@
 /* See LICENSE file for copyright and license details. */
-#include <ctype.h>
-#include <inttypes.h>
+#include <endian.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "queue.h"
 #include "util.h"
 
-static size_t bytes_per_line = 16;
-static off_t maxbytes = -1;
+struct type {
+	unsigned char     format;
+	unsigned int      len;
+	TAILQ_ENTRY(type) entry;
+};
+
+static TAILQ_HEAD(head, type) head = TAILQ_HEAD_INITIALIZER(head);
+static unsigned char addr_format = 'o';
 static off_t skip = 0;
-static unsigned char radix = 'o';
-static unsigned char type = 'o';
+static off_t max = -1;
+static size_t linelen = 1;
 
 static void
-printaddress(FILE *f, off_t addr)
+printaddress(off_t addr)
 {
-	char fmt[] = "%07j# ";
+	char fmt[] = "%07j#";
 
-	if (radix == 'n') {
-		fputc(' ', f);
+	if (addr_format == 'n') {
+		fputc(' ', stdout);
 	} else {
-		fmt[4] = radix;
-		fprintf(f, fmt, (intmax_t)addr);
+		fmt[4] = addr_format;
+		printf(fmt, (intmax_t)addr);
 	}
 }
 
 static void
-printchar(FILE *f, unsigned char c)
-{
+printchunk(unsigned char *s, unsigned char format, size_t len) {
+	long long res, basefac;
+	size_t i;
+	char fmt[] = " %0*ll#";
+
 	const char *namedict[] = {
 		"nul", "soh", "stx", "etx", "eot", "enq", "ack",
 		"bel", "bs",  "ht",  "nl",  "vt",  "ff",  "cr",
@@ -41,72 +52,127 @@ printchar(FILE *f, unsigned char c)
 		['\n'] = "\\n", ['\v'] = "\\v",
 		['\f'] = "\\f", ['\r'] = "\\r",
 	};
-	const char *fmtdict[] = {
-		['d'] = "%4hhd ", ['o'] = "%03hho ",
-		['u'] = "%3hhu ", ['x'] = "%02hhx ",
-	};
 
-	switch (type) {
+	switch (format) {
 	case 'a':
-		c &= ~128; /* clear high bit as required by standard */
-		if (c < LEN(namedict) || c == 127) {
-			fprintf(f, "%3s ", (c == 127) ? "del" : namedict[c]);
+		*s &= ~128; /* clear high bit as required by standard */
+		if (*s < LEN(namedict) || *s == 127) {
+			printf(" %3s", (*s == 127) ? "del" : namedict[*s]);
 		} else {
-			fprintf(f, "%3c ", c);
+			printf(" %3c", *s);
 		}
 		break;
 	case 'c':
-		if (strchr("\a\b\t\n\v\f\r\0", c)) {
-			fprintf(f, "%3s ", escdict[c]);
+		if (strchr("\a\b\t\n\v\f\r\0", *s)) {
+			printf(" %3s", escdict[*s]);
 		} else {
-			fprintf(f, "%3c ", c);
+			printf(" %3c", *s);
 		}
 		break;
 	default:
-		fprintf(f, fmtdict[type], c);
+		res = 0;
+		basefac = 1;
+#if __BYTE_ORDER == __BIG_ENDIAN
+		for (i = len; i; i--) {
+			res += s[i - 1] * basefac;
+#else
+		for (i = 0; i < len; i++) {
+			res += s[i] * basefac;
+#endif
+			basefac <<= 8;
+		}
+		fmt[6] = format;
+		printf(fmt, (int)(3 * len + len - 1), res);
 	}
 }
 
 static void
-od(FILE *in, char *in_name, FILE *out, char *out_name)
+printline(unsigned char *line, size_t len, off_t addr)
 {
-	off_t addr;
-	size_t i, chunklen;
-	unsigned char buf[BUFSIZ];
+	struct type *t = NULL;
+	size_t i;
+	int first = 1;
 
-	for (addr = 0; (chunklen = fread(buf, 1, BUFSIZ, in)); ) {
-		for (i = 0; i < chunklen && (maxbytes == -1 ||
-		     (addr - skip) < maxbytes); ++i, ++addr) {
-			if (addr - skip < 0)
-				continue;
-			if (((addr - skip) % bytes_per_line) == 0) {
-				if (addr - skip)
-					fputc('\n', out);
-				printaddress(out, addr);
-			}
-			printchar(out, buf[i]);
+	if (TAILQ_EMPTY(&head))
+		goto once;
+	TAILQ_FOREACH(t, &head, entry) {
+once:
+		if (first) {
+			printaddress(addr);
+			first = 0;
+		} else {
+			printf("%*c", (addr_format == 'n') ? 1 : 7, ' ');
 		}
-		if (feof(in) || ferror(in) || ferror(out))
+		for (i = 0; i < len; ) {
+			printchunk(line + i, t ? t->format : 'o',
+			           MIN(len - i, t ? t->len : 4));
+			i += MIN(len - i, t ? t->len : 4);
+		}
+		fputc('\n', stdout);
+		if (TAILQ_EMPTY(&head) || (!len && !first))
 			break;
 	}
-	if (addr - skip > 0)
-		fputc('\n', out);
-	if (radix != 'n') {
-		printaddress(out, MAX(addr, skip));
-		fputc('\n', out);
+}
+
+static void
+od(FILE *fp, char *fname, int last)
+{
+	static unsigned char *line;
+	static size_t lineoff;
+	size_t i;
+	unsigned char buf[BUFSIZ];
+	static off_t addr;
+	size_t buflen;
+
+	while (skip - addr) {
+		buflen = fread(buf, 1, MIN(skip - addr, BUFSIZ), fp);
+		addr += buflen;
+		if (feof(fp) || ferror(fp))
+			return;
 	}
+	if (!line)
+		line = emalloc(linelen);
+
+	while ((buflen = fread(buf, 1, max >= 0 ?
+	                       max - (addr - skip) : BUFSIZ, fp))) {
+		for (i = 0; i < buflen; i++, addr++) {
+			line[lineoff++] = buf[i];
+			if (lineoff == linelen) {
+				printline(line, lineoff, addr - lineoff + 1);
+				lineoff = 0;
+			}
+		}
+	}
+	if (lineoff)
+		printline(line, lineoff, addr - lineoff);
+	printline((unsigned char *)"", 0, addr);
+}
+
+static int
+lcm(unsigned int a, unsigned int b)
+{
+	unsigned int c, d, e;
+
+	for (c = a, d = b; c ;) {
+		e = c;
+		c = d % c;
+		d = e;
+	}
+
+	return a / d * b;
 }
 
 static void
 usage(void)
 {
-	eprintf("usage: %s [-A d|o|x|n] [-t a|c|d|o|u|x] [-v] [file ...]\n", argv0);
+	eprintf("usage: %s", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
 	FILE *fp;
+	struct type *t;
 	int ret = 0;
 	char *s;
 
@@ -115,31 +181,78 @@ main(int argc, char *argv[])
 		s = EARGF(usage());
 		if (strlen(s) != 1 || !strchr("doxn", s[0]))
 			usage();
-		radix = s[0];
+		addr_format = s[0];
 		break;
 	case 'j':
 		if ((skip = parseoffset(EARGF(usage()))) < 0)
-			return 1;
+			usage();
 		break;
 	case 'N':
-		if ((maxbytes = parseoffset(EARGF(usage()))) < 0)
-			return 1;
+		if ((max = parseoffset(EARGF(usage()))) < 0)
+			usage();
 		break;
 	case 't':
 		s = EARGF(usage());
-		if (strlen(s) != 1 || !strchr("acdoux", s[0]))
-			usage();
-		type = s[0];
+		for (; *s; s++) {
+			t = emalloc(sizeof(struct type));
+			switch (*s) {
+			case 'a':
+			case 'c':
+				t->format = *s;
+				t->len = 1;
+				TAILQ_INSERT_TAIL(&head, t, entry);
+				break;
+			case 'd':
+			case 'o':
+			case 'u':
+			case 'x':
+				t->format = *s;
+				/* todo: allow multiple digits */
+				if (*(s+1) > '0' || *(s+1) <= '9') {
+					t->len = *(s+1) - '0';
+					s++;
+				} else {
+					switch (*(s + 1)) {
+					case 'C':
+						t->len = sizeof(char);
+						break;
+					case 'S':
+						t->len = sizeof(short);
+						break;
+					case 'I':
+						t->len = sizeof(int);
+						break;
+					case 'L':
+						t->len = sizeof(long);
+						break;
+					default:
+						t->len = 4;
+					}
+				}
+				TAILQ_INSERT_TAIL(&head, t, entry);
+				break;
+			default:
+				usage();
+			}
+		}
 		break;
 	case 'v':
-		/* Always set. Use "uniq -f 1 -c" to handle duplicate lines. */
+		/* always set - use uniq(1) to handle duplicate lines */
 		break;
 	default:
 		usage();
 	} ARGEND;
 
+	/* line length is lcm of type lengths and >= 16 by doubling */
+	TAILQ_FOREACH(t, &head, entry)
+		linelen = lcm(linelen, t->len);
+	if (TAILQ_EMPTY(&head))
+		linelen = 16;
+	while (linelen < 16)
+		linelen *= 2;
+
 	if (!argc) {
-		od(stdin, "<stdin>", stdout, "<stdout>");
+		od(stdin, "<stdin>", 1);
 	} else {
 		for (; *argv; argc--, argv++) {
 			if (!strcmp(*argv, "-")) {
@@ -150,7 +263,7 @@ main(int argc, char *argv[])
 				ret = 1;
 				continue;
 			}
-			od(fp, *argv, stdout, "<stdout>");
+			od(fp, *argv, (!*(argv + 1)));
 			if (fp != stdin && fshut(fp, *argv))
 				ret = 1;
 		}
