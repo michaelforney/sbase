@@ -1,4 +1,4 @@
-.Dd 2015-10-09
+.Dd 2015-10-25
 .Dt OD 1
 .Os sbase
 .Sh NAME
@@ -7,6 +7,7 @@
 .Sh SYNOPSIS
 .Nm
 .Op Fl A Ar addrformat
+.Op Fl E | e
 .Op Fl t Ar outputformat...
 .Op Fl v
 .Op Ar file ...
@@ -26,6 +27,12 @@ reads from stdin.
 is one of d|o|x|n and sets the address to be
 either in \fId\fRecimal, \fIo\fRctal, he\fIx\fRadecimal or \fIn\fRot
 printed at all.  The default is octal.
+.It Fl E | e
+Force Little Endian
+.Fl ( e )
+or Big Endian
+.Fl ( E )
+system-independently.
 .It Fl t Ar outputformat
 .Ar outputformat
 is a list of a|c|d|o|u|x followed by a digit or C|S|I|L and sets
@@ -49,3 +56,7 @@ The
 flag is enabled by default and the 'd' parameter for the
 .Op Fl t
 flag is interpreted as 'u'.
+.Pp
+The
+.Op Ee
+flags are an extension to that specification.

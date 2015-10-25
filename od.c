@@ -1,5 +1,4 @@
 /* See LICENSE file for copyright and license details. */
-#include <endian.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,6 +6,8 @@
 
 #include "queue.h"
 #include "util.h"
+
+#define HOST_BIG_ENDIAN (*(uint16_t *)"\0\xff" == 0xff)
 
 struct type {
 	unsigned char     format;
@@ -19,6 +20,7 @@ static unsigned char addr_format = 'o';
 static off_t skip = 0;
 static off_t max = -1;
 static size_t linelen = 1;
+static int big_endian;
 
 static void
 printaddress(off_t addr)
@@ -37,7 +39,7 @@ static void
 printchunk(unsigned char *s, unsigned char format, size_t len) {
 	long long res, basefac;
 	size_t i;
-	char fmt[] = " %0*ll#";
+	char fmt[] = " %#*ll#";
 
 	const char *namedict[] = {
 		"nul", "soh", "stx", "etx", "eot", "enq", "ack",
@@ -70,17 +72,18 @@ printchunk(unsigned char *s, unsigned char format, size_t len) {
 		}
 		break;
 	default:
-		res = 0;
-		basefac = 1;
-#if __BYTE_ORDER == __BIG_ENDIAN
-		for (i = len; i; i--) {
-			res += s[i - 1] * basefac;
-#else
-		for (i = 0; i < len; i++) {
-			res += s[i] * basefac;
-#endif
-			basefac <<= 8;
+		if (big_endian == HOST_BIG_ENDIAN) {
+			for (res = 0, basefac = 1, i = 0; i < len; i++) {
+				res += s[i] * basefac;
+				basefac <<= 8;
+			}
+		} else {
+			for (res = 0, basefac = 1, i = len; i; i--) {
+				res += s[i - 1] * basefac;
+				basefac <<= 8;
+			}
 		}
+		fmt[2] = big_endian ? '-' : '+';
 		fmt[6] = format;
 		printf(fmt, (int)(3 * len + len - 1), res);
 	}
@@ -165,7 +168,7 @@ lcm(unsigned int a, unsigned int b)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-A addressformat] [-t outputformat] "
+	eprintf("usage: %s [-A addressformat] [-E | -e] [-t outputformat] "
 	        "[-v] [file ...]\n", argv0);
 }
 
@@ -177,12 +180,18 @@ main(int argc, char *argv[])
 	int ret = 0;
 	char *s;
 
+	big_endian = HOST_BIG_ENDIAN;
+
 	ARGBEGIN {
 	case 'A':
 		s = EARGF(usage());
 		if (strlen(s) != 1 || !strchr("doxn", s[0]))
 			usage();
 		addr_format = s[0];
+		break;
+	case 'E':
+	case 'e':
+		big_endian = (ARGC() == 'E');
 		break;
 	case 'j':
 		if ((skip = parseoffset(EARGF(usage()))) < 0)
