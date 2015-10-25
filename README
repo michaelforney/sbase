@@ -37,7 +37,7 @@ The following tools are implemented:
 =    find        .
 =* x flock       .
 #*|o fold        .
-=* o getconf     (-v)
+=*|o getconf     (-v)
 =* o grep        .
 =*|o head        .
 =*|x hostname    .
