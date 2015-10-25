@@ -83,7 +83,7 @@ printchunk(unsigned char *s, unsigned char format, size_t len) {
 				basefac <<= 8;
 			}
 		}
-		fmt[2] = big_endian ? '-' : '+';
+		fmt[2] = big_endian ? '-' : ' ';
 		fmt[6] = format;
 		printf(fmt, (int)(3 * len + len - 1), res);
 	}
