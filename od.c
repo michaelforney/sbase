@@ -224,11 +224,10 @@ main(int argc, char *argv[])
 			case 'x':
 				t->format = *s;
 				/* todo: allow multiple digits */
-				if (*(s+1) > '0' || *(s+1) <= '9') {
-					t->len = *(s+1) - '0';
-					s++;
+				if (*(s+1) > '0' && *(s+1) <= '9') {
+					t->len = *(++s) - '0';
 				} else {
-					switch (*(s + 1)) {
+					switch (*(++s)) {
 					case 'C':
 						t->len = sizeof(char);
 						break;
