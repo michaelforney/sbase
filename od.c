@@ -7,8 +7,6 @@
 #include "queue.h"
 #include "util.h"
 
-#define HOST_BIG_ENDIAN (*(uint16_t *)"\0\xff" == 0xff)
-
 struct type {
 	unsigned char     format;
 	unsigned int      len;
@@ -72,14 +70,14 @@ printchunk(unsigned char *s, unsigned char format, size_t len) {
 		}
 		break;
 	default:
-		if (big_endian == HOST_BIG_ENDIAN) {
-			for (res = 0, basefac = 1, i = 0; i < len; i++) {
-				res += s[i] * basefac;
+		if (big_endian) {
+			for (res = 0, basefac = 1, i = len; i; i--) {
+				res += s[i - 1] * basefac;
 				basefac <<= 8;
 			}
 		} else {
-			for (res = 0, basefac = 1, i = len; i; i--) {
-				res += s[i - 1] * basefac;
+			for (res = 0, basefac = 1, i = 0; i < len; i++) {
+				res += s[i] * basefac;
 				basefac <<= 8;
 			}
 		}
@@ -180,7 +178,7 @@ main(int argc, char *argv[])
 	int ret = 0;
 	char *s;
 
-	big_endian = HOST_BIG_ENDIAN;
+	big_endian = (*(uint16_t *)"\0\xff" == 0xff);
 
 	ARGBEGIN {
 	case 'A':
