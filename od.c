@@ -34,7 +34,8 @@ printaddress(off_t addr)
 }
 
 static void
-printchunk(unsigned char *s, unsigned char format, size_t len) {
+printchunk(unsigned char *s, unsigned char format, size_t len)
+{
 	long long res, basefac;
 	size_t i;
 	char fmt[] = " %#*ll#";
