@@ -93,6 +93,7 @@ printline(unsigned char *line, size_t len, off_t addr)
 	struct type *t = NULL;
 	size_t i;
 	int first = 1;
+	unsigned char *tmp;
 
 	if (TAILQ_EMPTY(&head))
 		goto once;
@@ -104,10 +105,17 @@ once:
 		} else {
 			printf("%*c", (addr_format == 'n') ? 1 : 7, ' ');
 		}
-		for (i = 0; i < len; ) {
-			printchunk(line + i, t ? t->format : 'o',
-			           MIN(len - i, t ? t->len : 4));
-			i += MIN(len - i, t ? t->len : 4);
+		for (i = 0; i < len; i += MIN(len - i, t ? t->len : 4)) {
+			if (len - i < (t ? t->len : 4)) {
+				tmp = ecalloc(t ? t->len : 4, 1);
+				memcpy(tmp, line + i, len - i);
+				printchunk(tmp, t ? t->format : 'o',
+				           t ? t->len : 4);
+				free(tmp);
+			} else {
+				printchunk(line + i, t ? t->format : 'o',
+				           t ? t->len : 4);
+			}
 		}
 		fputc('\n', stdout);
 		if (TAILQ_EMPTY(&head) || (!len && !first))
