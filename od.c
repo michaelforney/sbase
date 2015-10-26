@@ -134,7 +134,7 @@ od(FILE *fp, char *fname, int last)
 	static off_t addr;
 	size_t buflen;
 
-	while (skip - addr) {
+	while (skip - addr > 0) {
 		buflen = fread(buf, 1, MIN(skip - addr, BUFSIZ), fp);
 		addr += buflen;
 		if (feof(fp) || ferror(fp))
@@ -153,9 +153,10 @@ od(FILE *fp, char *fname, int last)
 			}
 		}
 	}
-	if (lineoff)
+	if (lineoff && last)
 		printline(line, lineoff, addr - lineoff);
-	printline((unsigned char *)"", 0, addr);
+	if (last)
+		printline((unsigned char *)"", 0, addr);
 }
 
 static int
