@@ -11,7 +11,7 @@ fshut(FILE *fp, const char *fname)
 
 	/* fflush() is undefined for input streams by ISO C,
 	 * but not POSIX 2008 if you ignore ISO C overrides.
-	 * Leave it unchecked an rely on the following
+	 * Leave it unchecked and rely on the following
 	 * functions to detect errors.
 	 */
 	fflush(fp);
