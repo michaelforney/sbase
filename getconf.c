@@ -33,7 +33,7 @@ static const struct var pathconf_l[] = {
 	{ "_POSIX_ASYNC_IO",             _PC_ASYNC_IO             },
 	{ "_POSIX_PRIO_IO",              _PC_PRIO_IO              },
 	{ "_POSIX_SYNC_IO",              _PC_SYNC_IO              },
-#ifdef _PC_TIMESTAMP_RESOLUTION	
+#ifdef _PC_TIMESTAMP_RESOLUTION
 	{ "_POSIX_TIMESTAMP_RESOLUTION", _PC_TIMESTAMP_RESOLUTION },
 #endif
 };
@@ -155,7 +155,7 @@ static const struct var sysconf_l[] = {
 	{ "_XOPEN_SHM",                        _SC_XOPEN_SHM                    },
 	{ "_XOPEN_STREAMS",                    _SC_XOPEN_STREAMS                },
 	{ "_XOPEN_UNIX",                       _SC_XOPEN_UNIX                   },
-#ifdef _SC_XOPEN_UUCP	
+#ifdef _SC_XOPEN_UUCP
 	{ "_XOPEN_UUCP",                       _SC_XOPEN_UUCP                   },
 #endif
 	{ "_XOPEN_VERSION",                    _SC_XOPEN_VERSION                },
@@ -175,21 +175,21 @@ static const struct var confstr_l[] = {
 	{ "POSIX_V7_LPBIG_OFFBIG_CFLAGS",   _CS_POSIX_V7_LPBIG_OFFBIG_CFLAGS   },
 	{ "POSIX_V7_LPBIG_OFFBIG_LDFLAGS",  _CS_POSIX_V7_LPBIG_OFFBIG_LDFLAGS  },
 	{ "POSIX_V7_LPBIG_OFFBIG_LIBS",     _CS_POSIX_V7_LPBIG_OFFBIG_LIBS     },
-#ifdef _CS_POSIX_V7_THREADS_CFLAGS	
+#ifdef _CS_POSIX_V7_THREADS_CFLAGS
 	{ "POSIX_V7_THREADS_CFLAGS",        _CS_POSIX_V7_THREADS_CFLAGS        },
 #endif
 #ifdef _CS_POSIX_V7_THREADS_LDFLAGS
 	{ "POSIX_V7_THREADS_LDFLAGS",       _CS_POSIX_V7_THREADS_LDFLAGS       },
 #endif
 	{ "POSIX_V7_WIDTH_RESTRICTED_ENVS", _CS_POSIX_V7_WIDTH_RESTRICTED_ENVS },
-#ifdef _CS_V7_ENV	
+#ifdef _CS_V7_ENV
 	{ "V7_ENV",                         _CS_V7_ENV                         },
 #endif
 };
 
 static const struct var limits_l[] = {
 	{ "_POSIX_CLOCKRES_MIN",                 _POSIX_CLOCKRES_MIN                 },
-#ifdef _POSIX_AIO_LISTIO_MAX	
+#ifdef _POSIX_AIO_LISTIO_MAX
 	{ "_POSIX_AIO_LISTIO_MAX",               _POSIX_AIO_LISTIO_MAX               },
 #endif
 #ifdef _POSIX_AIO_MAX
@@ -197,7 +197,7 @@ static const struct var limits_l[] = {
 #endif
 	{ "_POSIX_ARG_MAX",                      _POSIX_ARG_MAX                      },
 	{ "_POSIX_CHILD_MAX",                    _POSIX_CHILD_MAX                    },
-#ifdef _POSIX_DELAYTIMER_MAX	
+#ifdef _POSIX_DELAYTIMER_MAX
 	{ "_POSIX_DELAYTIMER_MAX",               _POSIX_DELAYTIMER_MAX               },
 #endif
 	{ "_POSIX_HOST_NAME_MAX",                _POSIX_HOST_NAME_MAX                },
@@ -205,7 +205,7 @@ static const struct var limits_l[] = {
 	{ "_POSIX_LOGIN_NAME_MAX",               _POSIX_LOGIN_NAME_MAX               },
 	{ "_POSIX_MAX_CANON",                    _POSIX_MAX_CANON                    },
 	{ "_POSIX_MAX_INPUT",                    _POSIX_MAX_INPUT                    },
-#ifdef _POSIX_MQ_OPEN_MAX	
+#ifdef _POSIX_MQ_OPEN_MAX
 	{ "_POSIX_MQ_OPEN_MAX",                  _POSIX_MQ_OPEN_MAX                  },
 #endif
 #ifdef _POSIX_MQ_PRIO_MAX
@@ -222,11 +222,11 @@ static const struct var limits_l[] = {
 #endif
 	{ "_POSIX_SEM_NSEMS_MAX",                _POSIX_SEM_NSEMS_MAX                },
 	{ "_POSIX_SEM_VALUE_MAX",                _POSIX_SEM_VALUE_MAX                },
-#ifdef _POSIX_SIGQUEUE_MAX	
+#ifdef _POSIX_SIGQUEUE_MAX
 	{ "_POSIX_SIGQUEUE_MAX",                 _POSIX_SIGQUEUE_MAX                 },
 #endif
 	{ "_POSIX_SSIZE_MAX",                    _POSIX_SSIZE_MAX                    },
-#ifdef _POSIX_SS_REPL_MAX	
+#ifdef _POSIX_SS_REPL_MAX
 	{ "_POSIX_SS_REPL_MAX",                  _POSIX_SS_REPL_MAX                  },
 #endif
 	{ "_POSIX_STREAM_MAX",                   _POSIX_STREAM_MAX                   },
