@@ -358,7 +358,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	struct entry *ent, *dents, *fents;
+	struct entry *ent, **dents, **fents;
 	size_t i, ds, fs;
 
 	ARGBEGIN {
@@ -447,27 +447,29 @@ main(int argc, char *argv[])
 		break;
 	default:
 		for (i = ds = fs = 0, fents = dents = NULL; i < argc; ++i) {
+			ent = emalloc(sizeof(*ent));
+			mkent(ent, argv[i], 1, Hflag || Lflag);
+
 			if ((!dflag && S_ISDIR(ent->mode)) ||
 			    ((S_ISLNK(ent->mode) && S_ISDIR(ent->tmode)) &&
 			    ((Hflag || Lflag) || !(dflag || Fflag || lflag)))) {
-				dents = ereallocarray(dents, ++ds, sizeof(*dents));
-				ent = &dents[ds - 1];
+				dents = ereallocarray(dents, ++ds, sizeof(ent));
+				dents[ds - 1] = ent;
 			} else {
-				fents = ereallocarray(fents, ++fs, sizeof(*fents));
-				ent = &fents[fs - 1];
+				fents = ereallocarray(fents, ++fs, sizeof(ent));
+				fents[fs - 1] = ent;
 			}
-			mkent(ent, argv[i], 1, Hflag || Lflag);
 		}
 
-		qsort(fents, fs, sizeof(*fents), entcmp);
-		qsort(dents, ds, sizeof(*dents), entcmp);
+		qsort(fents, fs, sizeof(ent), entcmp);
+		qsort(dents, ds, sizeof(ent), entcmp);
 
 		for (i = 0; i < fs; ++i)
-			ls("", &fents[i], 0);
+			ls("", fents[i], 0);
 		if (fs && ds)
 			putchar('\n');
 		for (i = 0; i < ds; ++i)
-			ls("", &dents[i], 1);
+			ls("", dents[i], 1);
 	}
 
 	return fshut(stdout, "<stdout>");
