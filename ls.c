@@ -358,7 +358,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	struct entry *ent, **dents, **fents;
+	struct entry ent, *dents, *fents;
 	size_t i, ds, fs;
 
 	ARGBEGIN {
@@ -438,26 +438,24 @@ main(int argc, char *argv[])
 	case 0: /* fallthrough */
 		*--argv = ".", ++argc;
 	case 1:
-		ent = emalloc(sizeof(*ent));
-		mkent(ent, argv[0], 1, Hflag || Lflag);
-		ls("", ent, (!dflag && S_ISDIR(ent->mode)) ||
-		    ((S_ISLNK(ent->mode) && S_ISDIR(ent->tmode)) &&
+		mkent(&ent, argv[0], 1, Hflag || Lflag);
+		ls("", &ent, (!dflag && S_ISDIR(ent.mode)) ||
+		    ((S_ISLNK(ent.mode) && S_ISDIR(ent.tmode)) &&
 		    ((Hflag || Lflag) || !(dflag || Fflag || lflag))));
 
 		break;
 	default:
 		for (i = ds = fs = 0, fents = dents = NULL; i < argc; ++i) {
-			ent = emalloc(sizeof(*ent));
-			mkent(ent, argv[i], 1, Hflag || Lflag);
+			mkent(&ent, argv[i], 1, Hflag || Lflag);
 
-			if ((!dflag && S_ISDIR(ent->mode)) ||
-			    ((S_ISLNK(ent->mode) && S_ISDIR(ent->tmode)) &&
+			if ((!dflag && S_ISDIR(ent.mode)) ||
+			    ((S_ISLNK(ent.mode) && S_ISDIR(ent.tmode)) &&
 			    ((Hflag || Lflag) || !(dflag || Fflag || lflag)))) {
-				dents = ereallocarray(dents, ++ds, sizeof(ent));
-				dents[ds - 1] = ent;
+				dents = ereallocarray(dents, ++ds, sizeof(*dents));
+				memcpy(&dents[ds - 1], &ent, sizeof(ent));
 			} else {
-				fents = ereallocarray(fents, ++fs, sizeof(ent));
-				fents[fs - 1] = ent;
+				fents = ereallocarray(fents, ++fs, sizeof(*fents));
+				memcpy(&fents[fs - 1], &ent, sizeof(ent));
 			}
 		}
 
@@ -465,11 +463,13 @@ main(int argc, char *argv[])
 		qsort(dents, ds, sizeof(ent), entcmp);
 
 		for (i = 0; i < fs; ++i)
-			ls("", fents[i], 0);
+			ls("", &fents[i], 0);
+		free(fents);
 		if (fs && ds)
 			putchar('\n');
 		for (i = 0; i < ds; ++i)
-			ls("", dents[i], 1);
+			ls("", &dents[i], 1);
+		free(dents);
 	}
 
 	return fshut(stdout, "<stdout>");
