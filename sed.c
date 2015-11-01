@@ -1706,7 +1706,7 @@ main(int argc, char *argv[])
 		script = 1;
 		break;
 	default : usage();
-	} ARGEND;
+	} ARGEND
 
 	/* no script to run */
 	if (!script && !argc)

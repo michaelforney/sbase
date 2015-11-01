@@ -27,7 +27,7 @@ main(int argc, char *argv[])
 		break;
 	default:
 		usage();
-	} ARGEND;
+	} ARGEND
 
 	if (iflag && signal(SIGINT, SIG_IGN) == SIG_ERR)
 		eprintf("signal:");

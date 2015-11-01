@@ -33,7 +33,7 @@ main(int argc, char *argv[])
 		break;
 	default:
 		usage();
-	} ARGEND;
+	} ARGEND
 
 	ret |= cryptfunc(argc, argv, &md5_ops, md, sizeof(md));
 	ret |= fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>");

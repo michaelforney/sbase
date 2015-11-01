@@ -35,7 +35,7 @@ main(int argc, char *argv[])
 		break;
 	default:
 		usage();
-	} ARGEND;
+	} ARGEND
 
 	if (!cflag) {
 		if ((p = getenv("COLUMNS")))

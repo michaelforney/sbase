@@ -226,7 +226,7 @@ main(int argc, char *argv[])
 		break;
 	default:
 		usage();
-	} ARGEND;
+	} ARGEND
 
 	do {
 		argsz = 0; i = 0; a = 0;

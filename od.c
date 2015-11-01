@@ -258,7 +258,7 @@ main(int argc, char *argv[])
 		break;
 	default:
 		usage();
-	} ARGEND;
+	} ARGEND
 
 	/* line length is lcm of type lengths and >= 16 by doubling */
 	TAILQ_FOREACH(t, &head, entry)

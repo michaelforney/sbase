@@ -146,7 +146,7 @@ main(int argc, char *argv[])
 		break;
 	default:
 		usage();
-	} ARGEND;
+	} ARGEND
 
 	tablistlen = parselist(tl);
 

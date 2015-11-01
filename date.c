@@ -31,7 +31,7 @@ main(int argc, char *argv[])
 		break;
 	default:
 		usage();
-	} ARGEND;
+	} ARGEND
 
 	if (argc) {
 		if (argc != 1 || argv[0][0] != '+')

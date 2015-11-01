@@ -189,7 +189,7 @@ main(int argc, char *argv[])
 		break;
 	default:
 		usage();
-	} ARGEND;
+	} ARGEND
 
 	if (!argc || argc > 2 || (argc == 1 && dflag == sflag))
 		usage();

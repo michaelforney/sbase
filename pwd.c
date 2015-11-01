@@ -40,7 +40,7 @@ main(int argc, char *argv[])
 		break;
 	default:
 		usage();
-	} ARGEND;
+	} ARGEND
 
 	if (!getcwd(cwd, sizeof(cwd)))
 		eprintf("getcwd:");

@@ -65,7 +65,7 @@ main(int argc, char *argv[])
 		break;
 	default:
 		usage();
-	} ARGEND;
+	} ARGEND
 
 	openlog(tag ? tag : getlogin(), logflags, 0);
 

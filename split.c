@@ -73,7 +73,7 @@ main(int argc, char *argv[])
 		break;
 	default:
 		usage();
-	} ARGEND;
+	} ARGEND
 
 	if (*argv)
 		file = *argv++;

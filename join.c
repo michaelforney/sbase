@@ -511,7 +511,7 @@ main(int argc, char *argv[])
 		break;
 	default:
 		usage();
-	} ARGEND;
+	} ARGEND
 
 	if (sep)
 		seplen = unescape(sep);

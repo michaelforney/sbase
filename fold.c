@@ -90,7 +90,7 @@ main(int argc, char *argv[])
 		break;
 	default:
 		usage();
-	} ARGEND;
+	} ARGEND
 
 	if (!argc) {
 		fold(stdin, "<stdin>");

@@ -291,7 +291,7 @@ main(int argc, char *argv[])
 		break;
 	default:
 		usage();
-	} ARGEND;
+	} ARGEND
 
 	/* -b shall only apply to custom key definitions */
 	if (TAILQ_EMPTY(&kdhead) && global_flags)

@@ -182,7 +182,7 @@ main(int argc, char *argv[])
 		break;
 	default:
 		usage();
-	} ARGEND;
+	} ARGEND
 
 	if (nmons == 0) {
 		if (argc == 1) {

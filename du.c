@@ -89,7 +89,7 @@ main(int argc, char *argv[])
 		break;
 	default:
 		usage();
-	} ARGEND;
+	} ARGEND
 
 	if ((aflag && sflag) || (dflag && sflag))
 		usage();

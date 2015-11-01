@@ -38,7 +38,7 @@ main(int argc, char *argv[])
 		break;
 	default:
 		usage();
-	} ARGEND;
+	} ARGEND
 
 	if (uname(&u) < 0)
 		eprintf("uname:");

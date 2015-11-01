@@ -98,7 +98,7 @@ main(int argc, char *argv[])
 		break;
 	default:
 		usage();
-	} ARGEND;
+	} ARGEND
 
 	switch (argc) {
 	case 3:

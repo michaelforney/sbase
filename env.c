@@ -30,7 +30,7 @@ main(int argc, char *argv[])
 		break;
 	default:
 		usage();
-	} ARGEND;
+	} ARGEND
 
 	for (; *argv && strchr(*argv, '='); argc--, argv++)
 		putenv(*argv);
