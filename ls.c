@@ -21,7 +21,7 @@ struct entry {
 	uid_t   uid;
 	gid_t   gid;
 	off_t   size;
-	time_t  t;
+	struct timespec t;
 	dev_t   dev;
 	dev_t   rdev;
 	ino_t   ino, tino;
@@ -71,11 +71,11 @@ mkent(struct entry *ent, char *path, int dostat, int follow)
 	ent->gid   = st.st_gid;
 	ent->size  = st.st_size;
 	if (cflag)
-		ent->t = st.st_ctime;
+		ent->t = st.st_ctim;
 	else if (uflag)
-		ent->t = st.st_atime;
+		ent->t = st.st_atim;
 	else
-		ent->t = st.st_mtime;
+		ent->t = st.st_mtim;
 	ent->dev   = st.st_dev;
 	ent->rdev  = st.st_rdev;
 	ent->ino   = st.st_ino;
@@ -187,12 +187,12 @@ output(const struct entry *ent)
 	else
 		snprintf(grname, sizeof(grname), "%d", ent->gid);
 
-	if (time(NULL) > ent->t + (180 * 24 * 60 * 60)) /* 6 months ago? */
+	if (time(NULL) > ent->t.tv_sec + (180 * 24 * 60 * 60)) /* 6 months ago? */
 		fmt = "%b %d  %Y";
 	else
 		fmt = "%b %d %H:%M";
 
-	strftime(buf, sizeof(buf), fmt, localtime(&ent->t));
+	strftime(buf, sizeof(buf), fmt, localtime(&ent->t.tv_sec));
 	printf("%s %4ld %-8.8s %-8.8s ", mode, (long)ent->nlink, pwname, grname);
 
 	if (S_ISBLK(ent->mode) || S_ISCHR(ent->mode))
@@ -226,7 +226,8 @@ entcmp(const void *va, const void *vb)
 		cmp = b->size - a->size;
 		break;
 	case 't':
-		cmp = b->t - a->t;
+		if (!(cmp = b->t.tv_sec - a->t.tv_sec))
+			cmp = b->t.tv_nsec - a->t.tv_nsec;
 		break;
 	}
 
