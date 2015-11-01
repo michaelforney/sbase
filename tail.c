@@ -18,7 +18,7 @@ dropinit(FILE *fp, const char *str, size_t n)
 {
 	Rune r;
 	char *buf = NULL;
-	size_t size = 0, i = 0;
+	size_t size = 0, i = 1;
 	ssize_t len;
 
 	if (mode == 'n') {
