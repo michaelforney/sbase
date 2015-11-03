@@ -8,6 +8,7 @@
 .Nm
 .Op Fl A Ar addrformat
 .Op Fl E | e
+.Op Fl j Ar skip
 .Op Fl t Ar outputformat...
 .Op Fl v
 .Op Ar file ...
@@ -33,6 +34,10 @@ Force Little Endian
 or Big Endian
 .Fl ( E )
 system-independently.
+.It Fl j Ar skip
+Ignore the first
+.Ar skip
+bytes of input.
 .It Fl t Ar outputformat
 .Ar outputformat
 is a list of a|c|d|o|u|x followed by a digit or C|S|I|L and sets

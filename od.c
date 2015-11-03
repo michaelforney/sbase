@@ -176,8 +176,8 @@ lcm(unsigned int a, unsigned int b)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-A addressformat] [-E | -e] [-t outputformat] "
-	        "[-v] [file ...]\n", argv0);
+	eprintf("usage: %s [-A addressformat] [-E | -e] [-j skip] "
+	        "[-t outputformat] [-v] [file ...]\n", argv0);
 }
 
 int
