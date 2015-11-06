@@ -22,8 +22,7 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	case 'i':
-		if (environ)
-			*environ = NULL;
+		*environ = NULL;
 		break;
 	case 'u':
 		unsetenv(EARGF(usage()));
@@ -42,7 +41,7 @@ main(int argc, char *argv[])
 		_exit(126 + (savederrno == ENOENT));
 	}
 
-	for (; environ && *environ; environ++)
+	for (; *environ; environ++)
 		puts(*environ);
 
 	return fshut(stdout, "<stdout>");
