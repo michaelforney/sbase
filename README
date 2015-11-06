@@ -38,7 +38,7 @@ The following tools are implemented:
 =* x flock       .
 #*|o fold        .
 =*|o getconf     (-v)
-=* o grep        .
+=*|o grep        .
 =*|o head        .
 =*|x hostname    .
 =* o join        .
@@ -81,7 +81,7 @@ The following tools are implemented:
 =*|x tar         .
 =*|o tee         .
 =*|o test        .
-=* x tftp        .
+=*|x tftp        .
 =*|o time        .
 =*|o touch       .
 #*|o tr          .
