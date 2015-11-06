@@ -1,11 +1,14 @@
 /* See LICENSE file for copyright and license details. */
+#include <sys/types.h>
 #include <sys/wait.h>
 
 #include <errno.h>
+#include <limits.h>
 #include <signal.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <ctype.h>
 #include <string.h>
 #include <syslog.h>
 #include <time.h>
@@ -15,11 +18,16 @@
 #include "util.h"
 
 struct field {
-	/* [low, high] */
-	long low;
-	long high;
-	/* for every `div' units */
-	long div;
+	enum {
+		ERROR,
+		WILDCARD,
+		NUMBER,
+		RANGE,
+		REPEAT,
+		LIST
+	} type;
+	long *val;
+	int len;
 };
 
 struct ctabentry {
@@ -112,7 +120,7 @@ runjob(char *cmd)
 		loginfo("run: %s pid: %d at %s",
 			cmd, getpid(), ctime(&t));
 		execl("/bin/sh", "/bin/sh", "-c", cmd, (char *)NULL);
-		logwarn("error: failed to execute job: %s time: %s",
+		logerr("error: failed to execute job: %s time: %s",
 		       cmd, ctime(&t));
 		_exit(1);
 	default:
@@ -194,25 +202,39 @@ matchentry(struct ctabentry *cte, struct tm *tm)
 		{ .f = &cte->wday, .tm = tm->tm_wday, .len = 7  },
 	};
 	size_t i;
+	int j;
 
 	for (i = 0; i < LEN(matchtbl); i++) {
-		if (matchtbl[i].f->high == -1) {
-			if (matchtbl[i].f->low == -1) {
-				continue;
-			} else if (matchtbl[i].f->div > 0) {
-				if (matchtbl[i].tm > 0) {
-					if (matchtbl[i].tm % matchtbl[i].f->div == 0)
-						continue;
-				} else {
-					if (matchtbl[i].len % matchtbl[i].f->div == 0)
-						continue;
-				}
-			} else if (matchtbl[i].f->low == matchtbl[i].tm) {
-				continue;
-			}
-		} else if (matchtbl[i].f->low <= matchtbl[i].tm &&
-				matchtbl[i].f->high >= matchtbl[i].tm) {
+		switch (matchtbl[i].f->type) {
+		case WILDCARD:
 			continue;
+		case NUMBER:
+			if (matchtbl[i].f->val[0] == matchtbl[i].tm)
+				continue;
+			break;
+		case RANGE:
+			if (matchtbl[i].f->val[0] <= matchtbl[i].tm)
+				if (matchtbl[i].f->val[1] >= matchtbl[i].tm)
+					continue;
+			break;
+		case REPEAT:
+			if (matchtbl[i].tm > 0) {
+				if (matchtbl[i].tm % matchtbl[i].f->val[0] == 0)
+					continue;
+			} else {
+				if (matchtbl[i].len % matchtbl[i].f->val[0] == 0)
+					continue;
+			}
+			break;
+		case LIST:
+			for (j = 0; j < matchtbl[i].f->len; j++)
+				if (matchtbl[i].f->val[j] == matchtbl[i].tm)
+					break;
+			if (j < matchtbl[i].f->len)
+				continue;
+			break;
+		default:
+			break;
 		}
 		break;
 	}
@@ -224,56 +246,117 @@ matchentry(struct ctabentry *cte, struct tm *tm)
 static int
 parsefield(const char *field, long low, long high, struct field *f)
 {
-	long min, max, div;
+	int i;
 	char *e1, *e2;
+	const char *p;
 
-	if (strcmp(field, "*") == 0) {
-		f->low = -1;
-		f->high = -1;
-		return 0;
-	}
+	p = field;
+	while (isdigit(*p))
+		p++;
 
-	div = -1;
-	max = -1;
-	min = strtol(field, &e1, 10);
+	f->type = ERROR;
 
-	switch (e1[0]) {
-	case '-':
-		e1++;
-		errno = 0;
-		max = strtol(e1, &e2, 10);
-		if (e2[0] != '\0' || errno != 0)
-			return -1;
-		break;
+	switch (*p) {
 	case '*':
-		e1++;
-		if (e1[0] != '/')
-			return -1;
-		e1++;
-		errno = 0;
-		div = strtol(e1, &e2, 10);
-		if (e2[0] != '\0' || errno != 0)
-			return -1;
+		if (strcmp(field, "*") == 0) {
+			f->val = NULL;
+			f->len = 0;
+			f->type = WILDCARD;
+		} else if (strncmp(field, "*/", 2) == 0) {
+			f->val = emalloc(sizeof(*f->val));
+			f->len = 1;
+
+			errno = 0;
+			f->val[0] = strtol(field + 2, &e1, 10);
+			if (e1[0] != '\0' || errno != 0 || f->val[0] == 0)
+				break;
+
+			f->type = REPEAT;
+		}
 		break;
 	case '\0':
+		f->val = emalloc(sizeof(*f->val));
+		f->len = 1;
+
+		errno = 0;
+		f->val[0] = strtol(field, &e1, 10);
+		if (e1[0] != '\0' || errno != 0)
+			break;
+
+		f->type = NUMBER;
+		break;
+	case '-':
+		f->val = emalloc(2 * sizeof(*f->val));
+		f->len = 2;
+
+		errno = 0;
+		f->val[0] = strtol(field, &e1, 10);
+		if (e1[0] != '-' || errno != 0)
+			break;
+
+		errno = 0;
+		f->val[1] = strtol(e1 + 1, &e2, 10);
+		if (e2[0] != '\0' || errno != 0)
+			break;
+
+		f->type = RANGE;
+		break;
+	case ',':
+		for (i = 1; isdigit(*p) || *p == ','; p++)
+			if (*p == ',')
+				i++;
+		f->val = emalloc(i * sizeof(*f->val));
+		f->len = i;
+
+		errno = 0;
+		f->val[0] = strtol(field, &e1, 10);
+		if (f->val[0] < low || f->val[0] > high)
+			break;
+
+		for (i = 1; *e1 == ',' && errno == 0; i++) {
+			errno = 0;
+			f->val[i] = strtol(e1 + 1, &e2, 10);
+			e1 = e2;
+		}
+		if (e1[0] != '\0' || errno != 0)
+			break;
+
+		f->type = LIST;
 		break;
 	default:
 		return -1;
 	}
 
-	if (min < low || min > high)
-		return -1;
-	if (max != -1)
-		if (max < low || max > high)
-			return -1;
-	if (div != -1)
-		if (div < low || div > high)
-			return -1;
+	for (i = 0; i < f->len; i++)
+		if (f->val[i] < low || f->val[i] > high)
+			f->type = ERROR;
 
-	f->low = min;
-	f->high = max;
-	f->div = div;
+	if (f->type == ERROR) {
+		free(f->val);
+		return -1;
+	}
+
 	return 0;
+}
+
+static void
+freecte(struct ctabentry *cte, int nfields)
+{
+	switch (nfields) {
+	case 6:
+		free(cte->cmd);
+	case 5:
+		free(cte->wday.val);
+	case 4:
+		free(cte->mon.val);
+	case 3:
+		free(cte->mday.val);
+	case 2:
+		free(cte->hour.val);
+	case 1:
+		free(cte->min.val);
+	}
+	free(cte);
 }
 
 static void
@@ -284,8 +367,7 @@ unloadentries(void)
 	for (cte = TAILQ_FIRST(&ctabhead); cte; cte = tmp) {
 		tmp = TAILQ_NEXT(cte, entry);
 		TAILQ_REMOVE(&ctabhead, cte, entry);
-		free(cte->cmd);
-		free(cte);
+		freecte(cte, 6);
 	}
 }
 
@@ -298,69 +380,62 @@ loadentries(void)
 	int r = 0, y;
 	size_t size = 0;
 	ssize_t len;
+	struct fieldlimits {
+		char *name;
+		long min;
+		long max;
+		struct field *f;
+	} flim[] = {
+		{ "min",  0, 59, NULL },
+		{ "hour", 0, 23, NULL },
+		{ "mday", 1, 31, NULL },
+		{ "mon",  1, 12, NULL },
+		{ "wday", 0, 6,  NULL }
+	};
+	size_t x;
 
 	if ((fp = fopen(config, "r")) == NULL) {
 		logerr("error: can't open %s: %s\n", config, strerror(errno));
 		return -1;
 	}
 
-	for (y = 0; (len = getline(&line, &size, fp)) > 0; y++) {
+	for (y = 0; (len = getline(&line, &size, fp)) != -1; y++) {
 		p = line;
 		if (line[0] == '#' || line[0] == '\n' || line[0] == '\0')
 			continue;
 
 		cte = emalloc(sizeof(*cte));
+		flim[0].f = &cte->min;
+		flim[1].f = &cte->hour;
+		flim[2].f = &cte->mday;
+		flim[3].f = &cte->mon;
+		flim[4].f = &cte->wday;
 
-		col = strsep(&p, "\t");
-		if (!col || parsefield(col, 0, 59, &cte->min) < 0) {
-			logerr("error: failed to parse `min' field on line %d\n",
-			       y + 1);
-			free(cte);
-			r = -1;
-			break;
+		for (x = 0; x < LEN(flim); x++) {
+			do
+				col = strsep(&p, "\t\n ");
+			while (col && col[0] == '\0');
+
+			if (!col || parsefield(col, flim[x].min, flim[x].max, flim[x].f) < 0) {
+				logerr("error: failed to parse `%s' field on line %d\n",
+						flim[x].name, y + 1);
+				freecte(cte, x);
+				r = -1;
+				break;
+			}
 		}
 
-		col = strsep(&p, "\t");
-		if (!col || parsefield(col, 0, 23, &cte->hour) < 0) {
-			logerr("error: failed to parse `hour' field on line %d\n",
-			       y + 1);
-			free(cte);
-			r = -1;
+		if (r == -1)
 			break;
-		}
-
-		col = strsep(&p, "\t");
-		if (!col || parsefield(col, 1, 31, &cte->mday) < 0) {
-			logerr("error: failed to parse `mday' field on line %d\n",
-			       y + 1);
-			free(cte);
-			r = -1;
-			break;
-		}
-
-		col = strsep(&p, "\t");
-		if (!col || parsefield(col, 1, 12, &cte->mon) < 0) {
-			logerr("error: failed to parse `mon' field on line %d\n",
-			       y + 1);
-			free(cte);
-			r = -1;
-			break;
-		}
-
-		col = strsep(&p, "\t");
-		if (!col || parsefield(col, 0, 6, &cte->wday) < 0) {
-			logerr("error: failed to parse `wday' field on line %d\n",
-			       y + 1);
-			free(cte);
-			r = -1;
-			break;
-		}
 
 		col = strsep(&p, "\n");
-		if (!col) {
+		if (col)
+			while (col[0] == '\t' || col[0] == ' ')
+				col++;
+		if (!col || col[0] == '\0') {
 			logerr("error: missing `cmd' field on line %d\n",
 			       y + 1);
-			free(cte);
+			freecte(cte, 5);
 			r = -1;
 			break;
 		}
