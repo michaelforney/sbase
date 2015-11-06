@@ -25,7 +25,8 @@ main(int argc, char *argv[])
 		*environ = NULL;
 		break;
 	case 'u':
-		unsetenv(EARGF(usage()));
+		if (unsetenv(EARGF(usage())) < 0)
+			eprintf("unsetenv:");
 		break;
 	default:
 		usage();
