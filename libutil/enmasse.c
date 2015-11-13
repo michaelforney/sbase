@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include "../util.h"
@@ -10,11 +11,12 @@
 void
 enmasse(int argc, char *argv[], int (*fn)(const char *, const char *, int))
 {
+	struct stat st;
 	char buf[PATH_MAX], *dir;
 	int i, len;
 	size_t dlen;
 
-	if (argc == 2) {
+	if (argc == 2 && !(stat(argv[1], &st) == 0 && S_ISDIR(st.st_mode))) {
 		fnck(argv[0], argv[1], fn, 0);
 		return;
 	} else {
