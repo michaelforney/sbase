@@ -21,7 +21,7 @@ mv(const char *s1, const char *s2, int depth)
 		cp_aflag = cp_rflag = cp_pflag = 1;
 		cp_follow = 'P';
 		cp(s1, s2, depth);
-		rm(s1, NULL, NULL, &r);
+		recurse(s1, NULL, &r);
 		return (mv_status = cp_status || rm_status);
 	}
 	mv_status = 1;
