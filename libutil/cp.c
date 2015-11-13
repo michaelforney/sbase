@@ -152,7 +152,7 @@ cp(const char *s1, const char *s2, int depth)
 	}
 
 	if (cp_aflag || cp_pflag) {
-		/* timestamp and owner*/
+		/* timestamp and owner */
 		if (!S_ISLNK(st.st_mode)) {
 			times[0] = st.st_atim;
 			times[1] = st.st_mtim;
