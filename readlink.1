@@ -1,4 +1,4 @@
-.Dd 2015-10-08
+.Dd 2015-11-16
 .Dt READLINK 1
 .Os sbase
 .Sh NAME
@@ -6,7 +6,7 @@
 .Nd print symbolic link target or canonical file name
 .Sh SYNOPSIS
 .Nm
-.Op Fl e | Fl f | Fl m
+.Op Fl f
 .Op Fl n
 .Ar path
 .Sh DESCRIPTION
@@ -19,12 +19,11 @@ If not,
 exits with a non-zero return value.
 .Sh OPTIONS
 .Bl -tag -width Ds
-.It Fl e | Fl f | Fl m
+.It Fl f
 Canonicalize
-.Ar name ,
+.Ar path ,
 which needn't be a symlink,
 by recursively following every symlink in its path components.
-All | All but the last | No path components must exist.
 .It Fl n
 Do not print the terminating newline.
 .El
