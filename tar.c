@@ -270,7 +270,7 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 	case RESERVED:
 		if ((mode = strtol(h->mode, &p, 8)) < 0 || *p != '\0')
 			eprintf("strtol %s: invalid number\n", h->mode);
-		fd = open(fname, O_WRONLY | O_TRUNC | O_CREAT, 0644);
+		fd = open(fname, O_WRONLY | O_TRUNC | O_CREAT, 0600);
 		if (fd < 0)
 			eprintf("open %s:", fname);
 		if (fchmod(fd, mode) < 0)
