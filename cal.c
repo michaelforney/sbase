@@ -4,12 +4,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "util.h"
 
 enum { JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC };
 enum caltype { JULIAN, GREGORIAN };
 enum { TRANS_YEAR = 1752, TRANS_MONTH = SEP, TRANS_DAY = 2 };
+
+static struct tm *ltime;
 
 static int
 isleap(size_t year, enum caltype cal)
@@ -56,6 +59,7 @@ printgrid(size_t year, int month, int fday, int line)
 {
 	enum caltype cal;
 	int offset, dom, d = 0, trans; /* are we in the transition from Julian to Gregorian? */
+	int today = 0;
 
 	cal = (year < TRANS_YEAR || (year == TRANS_YEAR && month <= TRANS_MONTH)) ? JULIAN : GREGORIAN;
 	trans = (year == TRANS_YEAR && month == TRANS_MONTH);
@@ -72,8 +76,13 @@ printgrid(size_t year, int month, int fday, int line)
 		if (trans && !(line == 2 && fday == 3))
 			dom += 11;
 	}
+	if (ltime && year == ltime->tm_year + 1900 && month == ltime->tm_mon)
+		today = ltime->tm_mday;
 	for (; d < 7 && dom <= monthlength(year, month, cal); ++d, ++dom) {
-		printf("%2d ", dom);
+		if (dom == today)
+			printf("\x1b[7m%2d\x1b[0m ", dom); /* highlight today's date */
+		else
+			printf("%2d ", dom);
 		if (trans && dom == TRANS_DAY)
 			dom += 11;
 	}
@@ -136,7 +145,6 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	struct tm *ltime;
 	time_t now;
 	size_t year, ncols, nmons;
 	int fday, month;
@@ -146,6 +154,9 @@ main(int argc, char *argv[])
 	year  = ltime->tm_year + 1900;
 	month = ltime->tm_mon + 1;
 	fday  = 0;
+
+	if (!isatty(STDOUT_FILENO))
+		ltime = NULL; /* don't highlight today's date */
 
 	ncols = 3;
 	nmons = 0;
