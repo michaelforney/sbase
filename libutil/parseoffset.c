@@ -52,7 +52,7 @@ parseoffset(const char *str)
 	}
 
 	/* prevent overflow */
-	if (res > (SIZE_MAX / scale)) {
+	if (res > (SSIZE_MAX / scale)) {
 		weprintf("parseoffset %s: out of range\n", str);
 		return -1;
 	}
