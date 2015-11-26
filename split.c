@@ -48,7 +48,7 @@ int
 main(int argc, char *argv[])
 {
 	FILE *in = stdin, *out = NULL;
-	size_t size = 1000, n;
+	off_t size = 1000, n;
 	int ret = 0, ch, plen, slen = 2, always = 0;
 	char name[NAME_MAX + 1], *prefix = "x", *file = NULL;
 
@@ -69,7 +69,7 @@ main(int argc, char *argv[])
 		break;
 	case 'l':
 		always = 0;
-		size = estrtonum(EARGF(usage()), 1, MIN(LLONG_MAX, SIZE_MAX));
+		size = estrtonum(EARGF(usage()), 1, MIN(LLONG_MAX, SSIZE_MAX));
 		break;
 	default:
 		usage();
