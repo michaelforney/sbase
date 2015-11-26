@@ -36,7 +36,7 @@ main(int argc, char *argv[])
 	if ((ticks = sysconf(_SC_CLK_TCK)) <= 0)
 		eprintf("sysconf _SC_CLK_TCK:");
 
-	if ((r0 = times(&tms)) < 0)
+	if ((r0 = times(&tms)) == (clock_t)-1)
 		eprintf("times:");
 
 	switch ((pid = fork())) {
@@ -52,7 +52,7 @@ main(int argc, char *argv[])
 	}
 	waitpid(pid, &status, 0);
 
-	if ((r1 = times(&tms)) < 0)
+	if ((r1 = times(&tms)) == (clock_t)-1)
 		eprintf("times:");
 
 	if (WIFSIGNALED(status)) {

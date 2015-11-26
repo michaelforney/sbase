@@ -25,7 +25,7 @@ printpath(off_t n, const char *path)
 	if (hflag)
 		printf("%s\t%s\n", humansize(n * blksize), path);
 	else
-		printf("%ju\t%s\n", n, path);
+		printf("%jd\t%s\n", (intmax_t)n, path);
 }
 
 static off_t
