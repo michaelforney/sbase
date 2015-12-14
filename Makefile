@@ -188,6 +188,11 @@ $(LIBUTIL): $(LIBUTILOBJ)
 	$(AR) rc $@ $?
 	$(RANLIB) $@
 
+getconf.c: confstr_l.h limits_l.h sysconf_l.h pathconf_l.h
+
+confstr_l.h limits_l.h sysconf_l.h pathconf_l.h: getconf.sh
+	./getconf.sh
+
 install: all
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
 	cp -f $(BIN) $(DESTDIR)$(PREFIX)/bin
@@ -239,6 +244,7 @@ sbase-box-install: sbase-box
 
 clean:
 	rm -f $(BIN) $(OBJ) $(LIB) sbase-box sbase-$(VERSION).tar.gz
+	rm -f confstr_l.h limits_l.h sysconf_l.h pathconf_l.h
 
 .PHONY:
 	all install uninstall dist sbase-box sbase-box-install clean
