@@ -264,7 +264,6 @@ relink(int to1, int from1, int from2, int to2)
 static void
 undo(void)
 {
-	int i;
 	struct link *p;
 
 	if (udata.nr == 0)
@@ -863,7 +862,7 @@ static void
 getrhs(int delim)
 {
 	int c;
-	size_t n, siz, cap;
+	size_t siz, cap;
 	static char *s;
 
 	free(s);
