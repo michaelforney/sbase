@@ -33,34 +33,34 @@ struct undo {
 	} *vec;
 };
 
-char *prompt = "*";
-regex_t *pattern;
-regmatch_t matchs[10];
-char *lastre;
+static char *prompt = "*";
+static regex_t *pattern;
+static regmatch_t matchs[10];
+static char *lastre;
 
-int optverbose, optprompt, exstatus, optdiag = 1;
-int marks['z' - 'a'];
-int nlines, line1, line2;
-int curln, lastln, ocurln;
-jmp_buf savesp;
-char *lasterr;
-size_t idxsize, lastidx;
-struct hline *zero;
-char *text;
-char savfname[FILENAME_MAX];
-char tmpname[FILENAME_MAX];
-size_t sizetxt, memtxt;
-int scratch;
-int pflag, modflag, uflag, gflag;
-size_t csize;
-char *cmdline;
-char *ocmdline;
-size_t cmdsiz, cmdcap;
-int repidx;
-char *rhs;
-char *lastmatch;
-struct undo udata;
-int newcmd;
+static int optverbose, optprompt, exstatus, optdiag = 1;
+static int marks['z' - 'a'];
+static int nlines, line1, line2;
+static int curln, lastln, ocurln;
+static jmp_buf savesp;
+static char *lasterr;
+static size_t idxsize, lastidx;
+static struct hline *zero;
+static char *text;
+static char savfname[FILENAME_MAX];
+static char tmpname[FILENAME_MAX];
+static size_t sizetxt, memtxt;
+static int scratch;
+static int pflag, modflag, uflag, gflag;
+static size_t csize;
+static char *cmdline;
+static char *ocmdline;
+static size_t cmdsiz, cmdcap;
+static int repidx;
+static char *rhs;
+static char *lastmatch;
+static struct undo udata;
+static int newcmd;
 
 static void
 error(char *msg)
