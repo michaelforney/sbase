@@ -561,11 +561,12 @@ static void
 dowrite(char *fname, int trunc)
 {
 	FILE *fp;
-	int i;
+	int i, line;
 
 	if (!(fp = fopen(fname, (trunc) ? "w" : "a")))
 		error("input/output error");
 
+	line = curln;
 	for (i = line1; i <= line2; ++i)
 		fputs(gettxt(i), fp);
 
@@ -574,6 +575,7 @@ dowrite(char *fname, int trunc)
 		error("input/output error");
 	strcpy(savfname, fname);
 	modflag = 0;
+	curln = line;
 }
 
 static void
