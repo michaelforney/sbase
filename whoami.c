@@ -7,13 +7,13 @@
 #include "util.h"
 
 static void
-usage (void)
+usage(void)
 {
 	eprintf("usage: %s\n", argv0);
 }
 
 int
-main (int argc, char *argv[])
+main(int argc, char *argv[])
 {
 	uid_t uid;
 	struct passwd *pw;
