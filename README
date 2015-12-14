@@ -30,6 +30,7 @@ The following tools are implemented:
 =*|o dirname     .
 =*|o du          .
 =*|o echo        .
+   o ed          .
 =*|o env         .
 #*|o expand      .
 #*|o expr        .

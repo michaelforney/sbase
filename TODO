@@ -7,7 +7,7 @@ at
 awk
 bc
 diff
-ed
+ed manpage
 install
 patch
 pathchk

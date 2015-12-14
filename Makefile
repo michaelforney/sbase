@@ -92,6 +92,7 @@ BIN =\
 	dirname\
 	du\
 	echo\
+	ed\
 	env\
 	expand\
 	expr\
