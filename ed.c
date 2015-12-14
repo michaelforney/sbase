@@ -62,6 +62,9 @@ static char *lastmatch;
 static struct undo udata;
 static int newcmd;
 
+
+static void undo(void);
+
 static void
 error(char *msg)
 {
@@ -80,6 +83,9 @@ error(char *msg)
 			/* nothing */;
 	}
 
+	if (!newcmd)
+		undo();
+	curln = ocurln;
 	longjmp(savesp, 1);
 }
 
