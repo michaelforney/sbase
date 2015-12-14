@@ -157,6 +157,7 @@ BIN =\
 	uuencode\
 	wc\
 	which\
+	whoami\
 	xargs\
 	yes
 
