@@ -409,6 +409,7 @@ search(int way)
 	} while (i != curln);
 
 	error("invalid address");
+	return -1; /* not reached */
 }
 
 static void
@@ -439,6 +440,7 @@ getnum(void)
 
 invalid:
 	error("invalid address");
+	return -1; /* not reached */
 }
 
 static int
@@ -513,6 +515,7 @@ address(int *line)
 
 invalid:
 	error("invalid address");
+	return -1; /* not reached */
 }
 
 static void
@@ -716,6 +719,7 @@ getfname(void)
 		*bp = '\0';
 		return fname;
 	}
+	return NULL; /* not reached */
 }
 
 static void
@@ -753,7 +757,7 @@ move(int where)
 {
 	int before, after, lto, lfrom;
 
-	if (!line1 || where >= line1 && where <= line2)
+	if (!line1 || (where >= line1 && where <= line2))
 		error("incorrect address");
 
 	before = getindex(prevln(line1));
@@ -813,7 +817,7 @@ copy(int where)
 {
 	int i;
 
-	if (!line1 || where >= line1 && where <= line2)
+	if (!line1 || (where >= line1 && where <= line2))
 		error("incorrect address");
 	curln = where;
 
@@ -929,7 +933,7 @@ addpost(char **s, size_t *cap, size_t *siz)
 {
 	char c, *p;
 
-	for (p = lastmatch + matchs[0].rm_eo; c = *p; ++p)
+	for (p = lastmatch + matchs[0].rm_eo; (c = *p); ++p)
 		*s = addchar(c, *s, cap, siz);
 	*s = addchar('\0', *s, cap, siz);
 }
@@ -940,7 +944,7 @@ addsub(char **s, size_t *cap, size_t *siz)
 	char *end, *q, *p, c;
 	int sub;
 
-	for (p = rhs; c = *p; ++p) {
+	for (p = rhs; (c = *p); ++p) {
 		switch (c) {
 		case '&':
 			sub = 0;
