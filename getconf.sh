@@ -8,7 +8,7 @@ ifdef()
 }
 
 
-(cat <<!
+cat <<! | ifdef confstr_l.h
 PATH                           _CS_PATH
 POSIX_V7_ILP32_OFF32_CFLAGS    _CS_POSIX_V7_ILP32_OFF32_CFLAGS
 POSIX_V7_ILP32_OFF32_LDFLAGS   _CS_POSIX_V7_ILP32_OFF32_LDFLAGS
@@ -27,9 +27,8 @@ POSIX_V7_THREADS_LDFLAGS       _CS_POSIX_V7_THREADS_LDFLAGS
 POSIX_V7_WIDTH_RESTRICTED_ENVS _CS_POSIX_V7_WIDTH_RESTRICTED_ENVS
 V7_ENV                         _CS_V7_ENV
 !
-) | ifdef confstr_l.h
 
-(cat <<!
+cat <<! | ifdef limits_l.h
 _POSIX_CLOCKRES_MIN                 _POSIX_CLOCKRES_MIN
 _POSIX_AIO_LISTIO_MAX               _POSIX_AIO_LISTIO_MAX
 _POSIX_AIO_MAX                      _POSIX_AIO_MAX
@@ -74,9 +73,8 @@ _POSIX2_EXPR_NEST_MAX               _POSIX2_EXPR_NEST_MAX
 _POSIX2_LINE_MAX                    _POSIX2_LINE_MAX
 _POSIX2_RE_DUP_MAX                  _POSIX2_RE_DUP_MAX
 !
-) | ifdef limits_l.h
 
-(cat <<!
+cat <<! | ifdef sysconf_l.h
 AIO_LISTIO_MAX                    _SC_AIO_LISTIO_MAX
 AIO_MAX                           _SC_AIO_MAX
 AIO_PRIO_DELTA_MAX                _SC_AIO_PRIO_DELTA_MAX
@@ -196,9 +194,8 @@ _XOPEN_UNIX                       _SC_XOPEN_UNIX
 _XOPEN_UUCP                       _SC_XOPEN_UUCP
 _XOPEN_VERSION                    _SC_XOPEN_VERSION
 !
-) | ifdef sysconf_l.h
 
-(cat <<!
+cat <<! | ifdef pathconf_l.h
 FILESIZEBITS                _PC_FILESIZEBITS
 LINK_MAX                    _PC_LINK_MAX
 MAX_CANON                   _PC_MAX_CANON
@@ -221,4 +218,3 @@ _POSIX_PRIO_IO              _PC_PRIO_IO
 _POSIX_SYNC_IO              _PC_SYNC_IO
 _POSIX_TIMESTAMP_RESOLUTION _PC_TIMESTAMP_RESOLUTION
 !
-) | ifdef pathconf_l.h
