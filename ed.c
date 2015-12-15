@@ -1191,8 +1191,8 @@ repeat:
 			goto unexpected;
 		if (modflag)
 			goto modified;
-		setscratch();
 		strcpy(savfname, getfname());
+		setscratch();
 		deflines(curln, curln);
 		doread(savfname);
 		clearundo();
