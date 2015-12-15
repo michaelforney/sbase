@@ -32,7 +32,7 @@ static const struct var limits_l[] = {
 void
 usage(void)
 {
-	eprintf("usage: %s -v spec arc arco\n", argv0);
+	eprintf("usage: %s [-v spec] var [path]\n", argv0);
 }
 
 int
