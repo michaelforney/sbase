@@ -215,6 +215,7 @@ dist: clean
 sbase-box: $(LIB) $(SRC)
 	mkdir -p build
 	cp $(HDR) build
+	cp confstr_l.h limits_l.h sysconf_l.h pathconf_l.h build
 	for f in $(SRC); do sed "s/^main(/$${f%.c}_&/" < $$f > build/$$f; done
 	echo '#include <libgen.h>'                                                                            > build/$@.c
 	echo '#include <stdio.h>'                                                                            >> build/$@.c
