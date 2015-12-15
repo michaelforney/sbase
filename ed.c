@@ -13,6 +13,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "arg.h"
+
 #define REGEXSIZE  100
 #define LINESIZE    80
 #define NUMLINES    32
@@ -1332,27 +1334,20 @@ sighup(int dummy)
 int
 main(int argc, char *argv[])
 {
-	char *p;
+	ARGBEGIN {
+	case 'p':
+		prompt = EARGF(usage());
+		optprompt = 1;
+		break;
+	case 's':
+		optdiag = 0;
+		break;
+	default:
+		usage();
+	} ARGEND
 
-	while (*++argv) {
-		if (argv[0][0] != '-')
-			break;
-		for (p = argv[0] + 1; *p; ++p) {
-			switch (*p) {
-			case 's':
-				optdiag = 0;
-				break;
-			case 'p':
-				if (!*++argv)
-					usage();
-				prompt = *argv;
-				optprompt = 1;
-				break;
-			default:
-				usage();
-			}
-		}
-	}
+	if (argc > 1)
+		usage();
 
 	signal(SIGINT, sigintr);
 	signal(SIGHUP, sighup);
