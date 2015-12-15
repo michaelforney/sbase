@@ -7,6 +7,14 @@
 
 #include "util.h"
 
+#ifndef PRIO_MIN
+#define PRIO_MIN -NZERO
+#endif
+
+#ifndef PRIO_MAX
+#define PRIO_MAX (NZERO-1)
+#endif
+
 static int
 renice(int which, int who, long adj)
 {
