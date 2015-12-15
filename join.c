@@ -263,7 +263,7 @@ addtospan(struct span *sp, FILE *fp, int reset)
 	char *newl = NULL;
 	size_t len, size = 0;
 
-	if ((len = getline(&newl, &size, fp)) == -1) {
+	if ((len = getline(&newl, &size, fp)) == (size_t)-1) {
 		if (ferror(fp))
 			eprintf("getline:");
 		else
