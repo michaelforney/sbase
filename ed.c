@@ -890,6 +890,10 @@ getrhs(int delim)
 	s = NULL;
 	siz = cap = 0;
 	while ((c = input()) != '\n' && c != EOF && c != delim) {
+		if (c == '\\') {
+			if ((c = input()) == '&' || isdigit(c))
+				s = addchar(c, s, &siz, &cap);
+		}
 		s = addchar(c, s, &siz, &cap);
 	}
 	s = addchar('\0', s, &siz, &cap);
