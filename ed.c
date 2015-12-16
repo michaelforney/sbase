@@ -991,10 +991,10 @@ subline(int num, int nth)
 
 	siz = 0;
 	for (m = match(num); m; m = rematch(num)) {
+		addpre(&s, &cap, &siz);
 		if (--nth > 0)
 			continue;
 		changed = 1;
-		addpre(&s, &cap, &siz);
 		addsub(&s, &cap, &siz);
 		if (nth == 0)
 			break;
