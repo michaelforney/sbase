@@ -1304,7 +1304,7 @@ doglobal(void)
 		}
 		docmd();
 	}
-	discard();   /* cover the case of not matchingc anything */
+	discard();   /* cover the case of not matching anything */
 }
 
 static void
