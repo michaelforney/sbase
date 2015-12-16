@@ -1343,6 +1343,22 @@ sighup(int dummy)
 	quit();
 }
 
+static void
+edit(void)
+{
+	setjmp(savesp);
+	for (;;) {
+		newcmd = 1;
+		ocurln = curln;
+		cmdsiz = 0;
+		repidx = -1;
+		if (optprompt)
+			fputs(prompt, stdout);
+		getlst();
+		chkglobal() ? doglobal() : docmd();
+	}
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -1373,16 +1389,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	for (;;) {
-		newcmd = 1;
-		ocurln = curln;
-		cmdsiz = 0;
-		repidx = -1;
-		if (optprompt)
-			fputs(prompt, stdout);
-		getlst();
-		chkglobal() ? doglobal() : docmd();
-	}
+	edit();
 
 	/* not reached */
 	return 0;
