@@ -65,28 +65,35 @@ static struct undo udata;
 static int newcmd;
 
 
+
+static void
+discard(void)
+{
+	int c;
+
+	/* discard until end of line */
+	if (repidx < 0  &&
+	    ((cmdsiz > 0 && cmdline[cmdsiz-1] != '\n') || cmdsiz == 0)) {
+		while ((c = getchar()) != '\n' && c != EOF)
+			/* nothing */;
+	}
+}
+
 static void undo(void);
 
 static void
 error(char *msg)
 {
-	int c;
-
 	exstatus = 1;
 	lasterr = msg;
 	fputs("?\n", stderr);
 
 	if (optverbose)
 		fprintf(stderr, "%s\n", msg);
-
-	/* discard until end of line */
-	if (repidx < 0 && cmdsiz > 0 && cmdline[cmdsiz-1] != '\n') {
-		while ((c = getchar()) != '\n' && c != EOF)
-			/* nothing */;
-	}
-
 	if (!newcmd)
 		undo();
+
+	discard();
 	curln = ocurln;
 	longjmp(savesp, 1);
 }
@@ -1293,6 +1300,7 @@ doglobal(void)
 		}
 		docmd();
 	}
+	discard();   /* cover the case of not matchingc anything */
 }
 
 static void
