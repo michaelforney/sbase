@@ -47,7 +47,7 @@ weprintf(const char *fmt, ...)
 void
 xvprintf(const char *fmt, va_list ap)
 {
-	if (strncmp(fmt, "usage", strlen("usage")))
+	if (argv0 && strncmp(fmt, "usage", strlen("usage")))
 		fprintf(stderr, "%s: ", argv0);
 
 	vfprintf(stderr, fmt, ap);
