@@ -8,7 +8,7 @@
 
 char *argv0;
 
-static void venprintf(int, const char *, va_list);
+static void xvprintf(const char *, va_list);
 
 void
 eprintf(const char *fmt, ...)
@@ -16,8 +16,10 @@ eprintf(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	venprintf(1, fmt, ap);
+	xvprintf(fmt, ap);
 	va_end(ap);
+
+	exit(1);
 }
 
 void
@@ -26,22 +28,8 @@ enprintf(int status, const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	venprintf(status, fmt, ap);
+	xvprintf(fmt, ap);
 	va_end(ap);
-}
-
-void
-venprintf(int status, const char *fmt, va_list ap)
-{
-	if (strncmp(fmt, "usage", strlen("usage")))
-		fprintf(stderr, "%s: ", argv0);
-
-	vfprintf(stderr, fmt, ap);
-
-	if (fmt[0] && fmt[strlen(fmt)-1] == ':') {
-		fputc(' ', stderr);
-		perror(NULL);
-	}
 
 	exit(status);
 }
@@ -51,12 +39,18 @@ weprintf(const char *fmt, ...)
 {
 	va_list ap;
 
+	va_start(ap, fmt);
+	xvprintf(fmt, ap);
+	va_end(ap);
+}
+
+void
+xvprintf(const char *fmt, va_list ap)
+{
 	if (strncmp(fmt, "usage", strlen("usage")))
 		fprintf(stderr, "%s: ", argv0);
 
-	va_start(ap, fmt);
 	vfprintf(stderr, fmt, ap);
-	va_end(ap);
 
 	if (fmt[0] && fmt[strlen(fmt)-1] == ':') {
 		fputc(' ', stderr);
