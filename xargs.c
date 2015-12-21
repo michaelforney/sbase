@@ -188,7 +188,8 @@ spawn(void)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-rtx] [-E eofstr] [-n num] [-s num] [cmd [arg ...]]\n", argv0);
+	eprintf("usage: %s [-rtx] [-E eofstr] [-n num] [-s num] "
+	        "[cmd [arg ...]]\n", argv0);
 }
 
 int

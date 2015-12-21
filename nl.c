@@ -94,7 +94,7 @@ usage(void)
 {
 	eprintf("usage: %s [-p] [-b type] [-d delim] [-f type]\n"
 	        "       [-h type] [-i num] [-l num] [-n format]\n"
-		"       [-s sep] [-v num] [-w num] [file]\n", argv0);
+	        "       [-s sep] [-v num] [-w num] [file]\n", argv0);
 }
 
 static char

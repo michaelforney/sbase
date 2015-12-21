@@ -40,7 +40,8 @@ chownpwgr(const char *path, struct stat *st, void *data, struct recursor *r)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-h] [-R [-H | -L | -P]] [owner][:[group]] file ...\n", argv0);
+	eprintf("usage: %s [-h] [-R [-H | -L | -P]] [owner][:[group]] "
+	        "file ...\n", argv0);
 }
 
 int

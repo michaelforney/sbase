@@ -992,7 +992,7 @@ find(char *path, struct findhist *hist)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-H|-L] path... [expression...]\n", argv0);
+	eprintf("usage: %s [-H | -L] path ... [expression ...]\n", argv0);
 }
 
 int

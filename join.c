@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "arg.h"
 #include "text.h"
 #include "utf.h"
 #include "util.h"

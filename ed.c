@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "arg.h"
+#include "util.h"
 
 #define REGEXSIZE  100
 #define LINESIZE    80
@@ -1310,8 +1310,7 @@ doglobal(void)
 static void
 usage(void)
 {
-	fputs("ed [-s][-p][file]\n", stderr);
-	exit(1);
+	eprintf("usage: %s [-s] [-p] [file]\n", argv0);
 }
 
 static void

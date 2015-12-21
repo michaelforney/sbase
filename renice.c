@@ -37,7 +37,7 @@ renice(int which, int who, long adj)
 static void
 usage(void)
 {
-	eprintf("renice -n num [-g | -p | -u] id ...\n");
+	eprintf("usage: %s -n num [-g | -p | -u] id ...\n", argv0);
 }
 
 int

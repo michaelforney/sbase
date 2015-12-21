@@ -9,7 +9,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "arg.h"
 #include "util.h"
 
 static int aflag;

@@ -37,7 +37,7 @@ chgrp(const char *path, struct stat *st, void *data, struct recursor *r)
 static void
 usage(void)
 {
-	eprintf("usage: chgrp [-h] [-R [-H | -L | -P]] group file ...\n");
+	eprintf("usage: %s [-h] [-R [-H | -L | -P]] group file ...\n", argv0);
 }
 
 int

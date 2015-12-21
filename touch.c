@@ -111,7 +111,8 @@ parsetime(char *str, time_t current)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-acm] [-d time | -r ref_file | -t time | -T time] file ...\n", argv0);
+	eprintf("usage: %s [-acm] [-d time | -r ref_file | -t time | -T time] "
+	        "file ...\n", argv0);
 }
 
 int

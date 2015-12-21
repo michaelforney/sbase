@@ -490,8 +490,10 @@ xt(int argc, char *argv[], int mode)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-C dir] [-J | -Z | -a | -j | -z] -x [-m | -t] [-f file] [file ...]\n"
-		"       %s [-C dir] [-J | -Z | -a | -j | -z] [-h] -c path ... [-f file]\n", argv0, argv0);
+	eprintf("usage: %s [-C dir] [-J | -Z | -a | -j | -z] -x [-m | -t] "
+	        "[-f file] [file ...]\n"
+	        "       %s [-C dir] [-J | -Z | -a | -j | -z] [-h] -c path ... "
+	        "[-f file]\n", argv0, argv0);
 }
 
 int

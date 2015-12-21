@@ -166,7 +166,8 @@ end:
 static void
 usage(void)
 {
-	enprintf(Error, "usage: %s [-EFHchilnqsvwx] [-e pattern] [-f file] [pattern] [file ...]\n", argv0);
+	enprintf(Error, "usage: %s [-EFHchilnqsvwx] [-e pattern] [-f file] "
+	         "[pattern] [file ...]\n", argv0);
 }
 
 int
