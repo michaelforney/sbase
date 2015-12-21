@@ -67,7 +67,8 @@ main(int argc, char *argv[])
 	default:
 		break;
 	}
-	waitpid(pid, &status, 0);
+	if (waitpid(pid, &status, 0) < 0)
+		eprintf("waitpid:");
 
 	if (close(fd) < 0)
 		eprintf("close:");
