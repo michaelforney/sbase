@@ -11,15 +11,23 @@
 .Fl R
 .Op Fl H | L | P
 .Oc
-.Op Ar owner Op Ar :group
+.Ar owner Ns Op Pf : Op Ar group
+.Op Ar file ...
+.Nm
+.Op Fl h
+.Oo
+.Fl R
+.Op Fl H | L | P
+.Oc
+.Pf : Ar group
 .Op Ar file ...
 .Sh DESCRIPTION
 .Nm
-sets the user or group id of each
+sets the user and/or group id of each
 .Ar file
 to the uid of
 .Ar owner
-or the gid of
+and/or the gid of
 .Ar group
 respectively.
 .Sh OPTIONS
