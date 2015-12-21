@@ -140,7 +140,7 @@ next:
 			}
 		}
 
-	apply:
+apply:
 		/* apply */
 		switch (op) {
 		case '=':
