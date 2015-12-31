@@ -282,7 +282,7 @@ undo(void)
 	struct link *p;
 
 	if (udata.nr == 0)
-		error("nothing to undo");
+		return;
 	for (p = &udata.vec[udata.nr-1]; udata.nr--; --p) {
 		zero[p->from1].next = p->to1;
 		zero[p->from2].prev = p->to2;
@@ -1101,6 +1101,8 @@ repeat:
 		if (nlines > 0)
 			goto bad_address;
 		chkprint(1);
+		if (udata.nr == 0)
+			error("nothing to undo");
 		undo();
 		break;
 	case 's':
