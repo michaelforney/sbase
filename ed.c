@@ -247,6 +247,7 @@ clearundo(void)
 	free(udata.vec);
 	udata.vec = NULL;
 	newcmd = udata.nr = udata.cap = 0;
+	modflag = 0;
 }
 
 static void
@@ -342,7 +343,6 @@ setscratch()
 		error("input/output error in scratch file");
 	relink(k, k, k, k);
 	clearundo();
-	modflag = 0;
 }
 
 static void
@@ -1211,7 +1211,6 @@ repeat:
 		deflines(curln, curln);
 		doread(savfname);
 		clearundo();
-		modflag = 0;
 		break;
 	default:
 		error("unknown command");
