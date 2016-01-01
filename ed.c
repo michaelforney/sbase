@@ -609,8 +609,8 @@ doread(char *fname)
 
 	if (fp)
 		fclose(fp);
-	if (!(fp = fopen(fname, "r")))
-		error("input/output error");
+	if ((fp = fopen(fname, "r")) == NULL)
+		error("cannot open input file");
 
 	curln = line2;
 	for (cnt = 0; (n = getline(&s, &len, fp)) > 0; cnt += (size_t)n) {
