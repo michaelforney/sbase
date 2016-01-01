@@ -623,7 +623,8 @@ doread(char *fname)
 		}
 		inject(s);
 	}
-	printf("%zu\n", cnt);
+	if (optdiag)
+		printf("%zu\n", cnt);
 
 	aux = fp;
 	fp = NULL;
