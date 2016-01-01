@@ -702,7 +702,7 @@ chkprint(int flag)
 }
 
 static char *
-getfname(void)
+getfname(char comm)
 {
 	int c;
 	char *bp;
@@ -721,6 +721,8 @@ getfname(void)
 		error("file name too long");
 	} else {
 		*bp = '\0';
+		if (savfname[0] == '\0' || comm == 'e' || comm == 'f')
+			strcpy(savfname, fname);
 		return fname;
 	}
 	return NULL; /* not reached */
@@ -1015,7 +1017,7 @@ subst(int nth)
 static void
 docmd(void)
 {
-	char *s, cmd;
+	char cmd;
 	int rep = 0, c, line3, num, trunc;
 
 repeat:
@@ -1073,13 +1075,13 @@ repeat:
 		trunc = 1;
 	case 'W':
 		deflines(nextln(0), lastln);
-		dowrite(getfname(), trunc);
+		dowrite(getfname(cmd), trunc);
 		break;
 	case 'r':
 		if (nlines > 1)
 			goto bad_address;
 		deflines(lastln, lastln);
-		doread(getfname());
+		doread(getfname(cmd));
 		break;
 	case 'd':
 		chkprint(1);
@@ -1190,10 +1192,11 @@ repeat:
 	case 'f':
 		if (nlines > 0)
 			goto unexpected;
-		if (!strcmp(s = getfname(), savfname))
-			puts(savfname);
+		if (back(input()) != '\n')
+			getfname(cmd);
 		else
-			strcpy(savfname, s);
+			puts(savfname);
+		chkprint(0);
 		break;
 	case 'E':
 		modflag = 0;
@@ -1202,7 +1205,7 @@ repeat:
 			goto unexpected;
 		if (modflag)
 			goto modified;
-		strcpy(savfname, getfname());
+		getfname(cmd);
 		setscratch();
 		deflines(curln, curln);
 		doread(savfname);
