@@ -322,7 +322,7 @@ clearbuf()
 	free(zero);
 	zero = NULL;
 	scratch = csize = idxsize = lastidx = curln = lastln = 0;
-	lastln = curln = 0;
+	modflag = lastln = curln = 0;
 }
 
 static void
