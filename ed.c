@@ -871,7 +871,8 @@ execsh(void)
 	if (repl)
 		puts(cmd);
 	system(cmd);
-	puts("!");
+	if (optdiag)
+		puts("!");
 }
 
 static void
