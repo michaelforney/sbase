@@ -329,15 +329,17 @@ static void
 setscratch()
 {
 	int k;
+	char *dir;
 
 	clearbuf();
 	clearundo();
-	strcpy(tmpname, "ed.XXXXXX");
+	if ((dir = getenv("TMPDIR")) == NULL)
+		dir = "/tmp/";
+	if (strlen(dir) + sizeof("ed.XXXXXX") > FILENAME_MAX)
+		error("incorrect scratch file name");
+	strcat(strcpy(tmpname, dir), "ed.XXXXX");
 	if ((scratch = mkstemp(tmpname)) < 0) {
-		/* try /tmp if cwd is not writable */
-		strcpy(tmpname, "/tmp/ed.XXXXXX");
-		if ((scratch = mkstemp(tmpname)) < 0)
-			error("failed to create scratch file");
+		error("failed to create scratch file");
 	}
 	if ((k = makeline("", NULL)))
 		error("input/output error in scratch file");
