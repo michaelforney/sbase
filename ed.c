@@ -629,12 +629,6 @@ doread(char *fname)
 	fp = NULL;
 	if (fclose(aux))
 		error("input/output error");
-
-	if (savfname[0] == '\0') {
-		modflag = 0;
-		clearundo();
-		strcpy(savfname, fname);
-	}
 }
 
 static void
@@ -1359,6 +1353,23 @@ edit(void)
 	}
 }
 
+static void
+init(char *fname)
+{
+	size_t len;
+
+	if (setjmp(savesp))
+		return;
+	setscratch();
+	if (!fname)
+		return;
+	if ((len = strlen(fname)) >= FILENAME_MAX || len == 0)
+		error("incorrect filename");
+	memcpy(savfname, fname, len);
+	doread(fname);
+	clearundo();
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -1380,15 +1391,8 @@ main(int argc, char *argv[])
 	signal(SIGINT, sigintr);
 	signal(SIGHUP, sighup);
 	signal(SIGQUIT, SIG_IGN);
-	if (!setjmp(savesp)) {
-		setscratch();
-		if (*argv) {
-			if (strlen(*argv) >= FILENAME_MAX)
-				error("file name too long");
-			doread(*argv);
-		}
-	}
 
+	init(*argv);
 	edit();
 
 	/* not reached */
