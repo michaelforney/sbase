@@ -335,12 +335,12 @@ setscratch()
 	clearundo();
 	if ((dir = getenv("TMPDIR")) == NULL)
 		dir = "/tmp/";
-	if (strlen(dir) + sizeof("ed.XXXXXX") > FILENAME_MAX)
-		error("incorrect scratch file name");
-	strcat(strcpy(tmpname, dir), "ed.XXXXX");
-	if ((scratch = mkstemp(tmpname)) < 0) {
+	if (strlcpy(tmpname, dir, sizeof(tmpname)) >= sizeof(tmpname))
+		error("scratch file name too long");
+	if (strlcat(tmpname, "ed.XXXXXX", sizeof(tmpname)) >= sizeof(tmpname))
+		error("scratch file name too long");
+	if ((scratch = mkstemp(tmpname)) < 0)
 		error("failed to create scratch file");
-	}
 	if ((k = makeline("", NULL)))
 		error("input/output error in scratch file");
 	relink(k, k, k, k);
