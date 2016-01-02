@@ -328,17 +328,17 @@ clearbuf()
 static void
 setscratch()
 {
-	int k;
+	int r, k;
 	char *dir;
 
 	clearbuf();
 	clearundo();
 	if ((dir = getenv("TMPDIR")) == NULL)
-		dir = "/tmp/";
-	if (strlcpy(tmpname, dir, sizeof(tmpname)) >= sizeof(tmpname))
-		error("scratch file name too long");
-	if (strlcat(tmpname, "ed.XXXXXX", sizeof(tmpname)) >= sizeof(tmpname))
-		error("scratch file name too long");
+		dir = "/tmp";
+	r = snprintf(tmpname, sizeof(tmpname), "%s/%s",
+	             dir, "ed.XXXXXX");
+	if (r < 0 || (size_t)r >= sizeof(tmpname))
+		error("scratch filename too long");
 	if ((scratch = mkstemp(tmpname)) < 0)
 		error("failed to create scratch file");
 	if ((k = makeline("", NULL)))
