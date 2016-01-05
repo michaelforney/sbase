@@ -183,10 +183,13 @@ main(int argc, char *argv[])
 	ARGBEGIN {
 	case 'E':
 		Eflag = 1;
+		Fflag = 0;
 		flags |= REG_EXTENDED;
 		break;
 	case 'F':
 		Fflag = 1;
+		Eflag = 0;
+		flags &= ~REG_EXTENDED;
 		break;
 	case 'H':
 		Hflag = 1;
