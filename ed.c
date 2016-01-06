@@ -167,20 +167,20 @@ makeline(char *s, int *off)
 	}
 	lp = zero + lastidx;
 
-	while ((c = *s) && *s != '\n')
-		++s;
-	if (c == '\n')
-		++s;
-	len = s - begin;
+	if (!s) {
+		lp->seek = -1;
+		len = 0;
+	} else {
+		while ((c = *s++) != '\n')
+			/* nothing */;
+		len = s - begin;
+		if ((lp->seek = lseek(scratch, 0, SEEK_END)) < 0 ||
+		    write(scratch, begin, len) < 0) {
+			error("input/output error");
+		}
+	}
 	if (off)
 		*off = len;
-
-	if (len > 0)
-	if ((lp->seek = lseek(scratch, 0, SEEK_END)) < 0 ||
-	    write(scratch, begin, len) < 0) {
-		error("input/output error");
-	}
-
 	++lastidx;
 	return lp - zero;
 }
@@ -208,8 +208,11 @@ gettxt(int line)
 	char *p;
 
 	lp = zero + getindex(line);
-	off = lp->seek;
 	sizetxt = 0;
+	off = lp->seek;
+
+	if (off == (off_t) -1)
+		return text = addchar('\0', text, &memtxt, &sizetxt);
 
 repeat:
 	if (!csize || off < lasto || off - lasto >= csize) {
@@ -339,7 +342,7 @@ setscratch()
 		error("scratch filename too long");
 	if ((scratch = mkstemp(tmpname)) < 0)
 		error("failed to create scratch file");
-	if ((k = makeline("", NULL)))
+	if ((k = makeline(NULL, NULL)))
 		error("input/output error in scratch file");
 	relink(k, k, k, k);
 	clearundo();
