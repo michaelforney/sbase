@@ -1005,7 +1005,7 @@ subline(int num, int nth)
 	static size_t siz, cap;
 
 	i = changed = siz = 0;
-	for (m = match(num); m; m = rematch(num)) {
+	for (m = match(num); m && *lastmatch != '\n'; m = rematch(num)) {
 		addpre(&s, &cap, &siz);
 		changed |= addsub(&s, &cap, &siz, nth, ++i);
 	}
