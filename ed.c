@@ -957,11 +957,19 @@ addpost(char **s, size_t *cap, size_t *siz)
 	*s = addchar('\0', *s, cap, siz);
 }
 
-static void
-addsub(char **s, size_t *cap, size_t *siz)
+static int
+addsub(char **s, size_t *cap, size_t *siz, int nth, int nmatch)
 {
 	char *end, *q, *p, c;
 	int sub;
+
+	if (nth != nmatch && nth != -1) {
+		q   = lastmatch + matchs[0].rm_so;
+		end = lastmatch + matchs[0].rm_eo;
+		while (q < end)
+			*s = addchar(*q++, *s, cap, siz);
+		return 0;
+	}
 
 	for (p = rhs; (c = *p); ++p) {
 		switch (c) {
@@ -970,7 +978,7 @@ addsub(char **s, size_t *cap, size_t *siz)
 			goto copy_match;
 		case '\\':
 			if ((c = *++p) == '\0')
-				return;
+				return 1;
 			if (!isdigit(c))
 				goto copy_char;
 			sub = c - '0';
@@ -986,24 +994,20 @@ addsub(char **s, size_t *cap, size_t *siz)
 			break;
 		}
 	}
+	return 1;
 }
 
 static void
 subline(int num, int nth)
 {
-	int m, changed;
+	int i, m, changed;
 	static char *s;
 	static size_t siz, cap;
 
-	siz = 0;
+	i = changed = siz = 0;
 	for (m = match(num); m; m = rematch(num)) {
 		addpre(&s, &cap, &siz);
-		if (--nth > 0)
-			continue;
-		changed = 1;
-		addsub(&s, &cap, &siz);
-		if (nth == 0)
-			break;
+		changed |= addsub(&s, &cap, &siz, nth, ++i);
 	}
 	if (!changed)
 		return;
