@@ -404,8 +404,13 @@ match(int num)
 static int
 rematch(int num)
 {
-	lastmatch += matchs[0].rm_eo;
-	return !regexec(pattern, lastmatch, 10, matchs, 0);
+	regoff_t off = matchs[0].rm_eo;
+
+	if (!regexec(pattern, lastmatch + off, 10, matchs, 0)) {
+		lastmatch += off;
+		return 1;
+	}
+	return 0;
 }
 
 static int
