@@ -64,8 +64,6 @@ static char *lastmatch;
 static struct undo udata;
 static int newcmd;
 
-
-
 static void
 discard(void)
 {
