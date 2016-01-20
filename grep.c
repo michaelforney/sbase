@@ -50,7 +50,7 @@ addpattern(const char *pattern, size_t patlen)
 	/* a null BRE/ERE matches every line */
 	if (!Fflag)
 		if (pattern[0] == '\0')
-			pattern = ".";
+			pattern = "^";
 
 	if (!Fflag && xflag) {
 		tmp = enmalloc(Error, patlen + 3);
