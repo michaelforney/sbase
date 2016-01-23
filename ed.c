@@ -63,6 +63,7 @@ static char *rhs;
 static char *lastmatch;
 static struct undo udata;
 static int newcmd;
+int eol, bol;
 
 static void
 discard(void)
@@ -358,11 +359,15 @@ compile(int delim)
 	if (!isgraph(delim))
 		error("invalid pattern delimiter");
 
-	bracket = siz = 0;
+	eol = bol = bracket = siz = 0;
 	for (n = 0;; ++n) {
 		if ((c = input()) == delim && !bracket)
 			break;
-		if (c == '\n' || c == EOF) {
+		if (c == '^') {
+			bol = 1;
+		} else if (c == '$') {
+			eol = 1;
+		} else if (c == '\n' || c == EOF) {
 			back(c);
 			break;
 		}
@@ -1005,9 +1010,11 @@ subline(int num, int nth)
 	static size_t siz, cap;
 
 	i = changed = siz = 0;
-	for (m = match(num); m && *lastmatch != '\n'; m = rematch(num)) {
+	for (m = match(num); m; m = rematch(num)) {
 		addpre(&s, &cap, &siz);
 		changed |= addsub(&s, &cap, &siz, nth, ++i);
+		if (eol || bol)
+			break;
 	}
 	if (!changed)
 		return;
