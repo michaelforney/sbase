@@ -120,6 +120,7 @@ BIN =\
 	nl\
 	nohup\
 	od\
+	pathchk\
 	paste\
 	printenv\
 	printf\
