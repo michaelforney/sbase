@@ -8,27 +8,12 @@
 #include <sys/stat.h>
 
 #include "util.h"
-#include "arg.h"
 
 #define PORTABLE_CHARACTER_SET "0123456789._-qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
 /* If your system supports more other characters, but not all non-NUL characters, define SYSTEM_CHARACTER_SET. */
 
-#ifndef PATH_MAX
-# define PATH_MAX SIZE_MAX
-#endif
-#ifndef NAME_MAX
-# define NAME_MAX SIZE_MAX
-#endif
-
 static int most = 0;
 static int extra = 0;
-
-static void
-usage(void)
-{
-	fprintf(stderr, "usage: %s [-pP] filename...\n", argv0);
-	exit(1);
-}
 
 static int
 pathchk(char *filename)
@@ -40,13 +25,13 @@ pathchk(char *filename)
 
 	/* Empty? */
 	if (extra && !*filename) {
-		fprintf(stderr, "%s: empty filename\n", argv0);
+		weprintf("%s: empty filename\n", argv0);
 		return 1;
 	}
 
 	/* Leading hyphen? */
 	if (extra && ((*filename == '-') || strstr(filename, "/-"))) {
-		fprintf(stderr, "%s: %s: leading '-' in component of filename\n", argv0, filename);
+		weprintf("%s: %s: leading '-' in component of filename\n", argv0, filename);
 		return 1;
 	}
 
@@ -60,9 +45,9 @@ pathchk(char *filename)
 		character_set = "/"PORTABLE_CHARACTER_SET;
 	if (character_set && *(invalid = filename + strspn(filename, character_set))) {
 		for (invalid_end = invalid + 1; *invalid_end & 0x80; invalid_end++);
-		fprintf(stderr, "%s: %s: ", argv0, filename);
+		weprintf("%s: %s: ", argv0, filename);
 		*invalid_end = 0;
-		fprintf(stderr, "nonportable character '%s'\n", invalid);
+		weprintf("nonportable character '%s'\n", invalid);
 		return 1;
 	}
 
@@ -70,15 +55,15 @@ pathchk(char *filename)
 	if (lstat(filename, &_attr) && errno != ENOENT) {
 		/* lstat rather than stat, so that if filename is a bad symlink, but
 		 * all parents are OK, no error will be detected. */
-		fprintf(stderr, "%s: %s: %s\n", argv0, filename, strerror(errno));
+		weprintf("%s: %s:", argv0, filename);
 		return 1;
 	}
 
 	/* Too long pathname? */
 	maxlen = most ? _POSIX_PATH_MAX : PATH_MAX;
 	if (strlen(filename) >= maxlen) {
-		fprintf(stderr, "%s: %s: is longer than %zu bytes\n",
-		        argv0, filename, maxlen);
+		weprintf("%s: %s: is longer than %zu bytes\n",
+		         argv0, filename, maxlen);
 		return 1;
 	}
 
@@ -88,13 +73,19 @@ pathchk(char *filename)
 		q = strchr(p, '/');
 		len = q ? (size_t)(q++ - p) : strlen(p);
 		if (len > maxlen) {
-			fprintf(stderr, "%s: %s: includes component longer than %zu bytes\n",
-			        argv0, filename, maxlen);
+			weprintf("%s: %s: includes component longer than %zu bytes\n",
+			         argv0, filename, maxlen);
 			return 1;
 		}
 	}
 
 	return 0;
+}
+
+static void
+usage(void)
+{
+	eprintf("usage: %s [-pP] filename...\n", argv0);
 }
 
 int
