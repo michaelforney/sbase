@@ -21,7 +21,7 @@ pathchk(char *filename)
 	char *invalid, *invalid_end, *p, *q;
 	const char *character_set;
 	size_t len, maxlen;
-	struct stat _attr;
+	struct stat st;
 
 	/* Empty? */
 	if (extra && !*filename) {
@@ -52,7 +52,7 @@ pathchk(char *filename)
 	}
 
 	/* Symlink error? Non-searchable directory? */
-	if (lstat(filename, &_attr) && errno != ENOENT) {
+	if (lstat(filename, &st) && errno != ENOENT) {
 		/* lstat rather than stat, so that if filename is a bad symlink, but
 		 * all parents are OK, no error will be detected. */
 		weprintf("%s: %s:", argv0, filename);
