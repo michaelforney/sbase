@@ -103,6 +103,7 @@ BIN =\
 	getconf\
 	grep\
 	head\
+	install.out\
 	join\
 	hostname\
 	kill\
@@ -166,8 +167,8 @@ BIN =\
 LIBUTFOBJ = $(LIBUTFSRC:.c=.o)
 LIBUTILOBJ = $(LIBUTILSRC:.c=.o)
 OBJ = $(BIN:=.o) $(LIBUTFOBJ) $(LIBUTILOBJ)
-SRC = $(BIN:=.c)
-MAN = $(BIN:=.1)
+SRC = $(foreach F,$(BIN:.out=),$(F:=.c))
+MAN = $(foreach F,$(BIN:.out=),$(F:=.1))
 
 all: $(BIN)
 
@@ -177,6 +178,9 @@ $(OBJ): $(HDR) config.mk
 
 .o:
 	$(CC) $(LDFLAGS) -o $@ $< $(LIB)
+
+install.out: install.o
+	$(CC) $(LDFLAGS) -o $@ $^ $(LIB)
 
 .c.o:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
@@ -197,13 +201,14 @@ confstr_l.h limits_l.h sysconf_l.h pathconf_l.h: getconf.sh
 install: all
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
 	cp -f $(BIN) $(DESTDIR)$(PREFIX)/bin
-	cd $(DESTDIR)$(PREFIX)/bin && ln -f test [ && chmod 755 $(BIN)
+	mv -f $(DESTDIR)$(PREFIX)/bin/install.out $(DESTDIR)$(PREFIX)/bin/install
+	cd $(DESTDIR)$(PREFIX)/bin && ln -f test [ && chmod 755 $(BIN:.out=)
 	mkdir -p $(DESTDIR)$(MANPREFIX)/man1
 	for m in $(MAN); do sed "s/^\.Os sbase/.Os sbase $(VERSION)/g" < "$$m" > $(DESTDIR)$(MANPREFIX)/man1/"$$m"; done
 	cd $(DESTDIR)$(MANPREFIX)/man1 && chmod 644 $(MAN)
 
 uninstall:
-	cd $(DESTDIR)$(PREFIX)/bin && rm -f $(BIN) [
+	cd $(DESTDIR)$(PREFIX)/bin && rm -f $(BIN:.out=) [
 	cd $(DESTDIR)$(MANPREFIX)/man1 && rm -f $(MAN)
 
 dist: clean
@@ -238,7 +243,7 @@ sbase-box-install: sbase-box
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
 	cp -f sbase-box $(DESTDIR)$(PREFIX)/bin
 	chmod 755 $(DESTDIR)$(PREFIX)/bin/sbase-box
-	for f in $(BIN); do ln -sf sbase-box $(DESTDIR)$(PREFIX)/bin/"$$f"; done
+	for f in $(BIN:.out=); do ln -sf sbase-box $(DESTDIR)$(PREFIX)/bin/"$$f"; done
 	ln -sf sbase-box $(DESTDIR)$(PREFIX)/bin/[
 	mkdir -p $(DESTDIR)$(MANPREFIX)/man1
 	for m in $(MAN); do sed "s/^\.Os sbase/.Os sbase $(VERSION)/g" < "$$m" > $(DESTDIR)$(MANPREFIX)/man1/"$$m"; done

@@ -42,6 +42,7 @@ The following tools are implemented:
 =*|o grep        .
 =*|o head        .
 =*|x hostname    .
+=*|x install     .
 =* o join        .
 =*|o kill        .
 =*|o link        .
