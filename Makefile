@@ -203,7 +203,7 @@ install: all
 	cd $(DESTDIR)$(MANPREFIX)/man1 && chmod 644 $(MAN)
 
 uninstall:
-	cd $(DESTDIR)$(PREFIX)/bin && rm -f $(BIN)
+	cd $(DESTDIR)$(PREFIX)/bin && rm -f $(BIN) [
 	cd $(DESTDIR)$(MANPREFIX)/man1 && rm -f $(MAN)
 
 dist: clean
