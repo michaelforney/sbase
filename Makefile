@@ -250,9 +250,12 @@ sbase-box-install: sbase-box
 	cd $(DESTDIR)$(MANPREFIX)/man1 && chmod 644 $(MAN)
 	mv -f $(DESTDIR)$(MANPREFIX)/man1/xinstall.1 $(DESTDIR)$(MANPREFIX)/man1/install.1
 
+sbase-box-uninstall: uninstall
+	cd $(DESTDIR)$(PREFIX)/bin && rm -f sbase-box
+
 clean:
 	rm -f $(BIN) $(OBJ) $(LIB) sbase-box sbase-$(VERSION).tar.gz
 	rm -f confstr_l.h limits_l.h sysconf_l.h pathconf_l.h
 
 .PHONY:
-	all install uninstall dist sbase-box sbase-box-install clean
+	all install uninstall dist sbase-box sbase-box-install sbase-box-uninstall clean
