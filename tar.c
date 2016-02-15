@@ -550,7 +550,7 @@ main(int argc, char *argv[])
 	switch (mode) {
 	case 'c':
 		tarfd = 1;
-		if (file) {
+		if (file && *file != '-') {
 			tarfd = open(file, O_WRONLY | O_TRUNC | O_CREAT, 0644);
 			if (tarfd < 0)
 				eprintf("open %s:", file);
@@ -571,7 +571,7 @@ main(int argc, char *argv[])
 	case 't':
 	case 'x':
 		tarfd = 0;
-		if (file) {
+		if (file && *file != '-') {
 			tarfd = open(file, O_RDONLY);
 			if (tarfd < 0)
 				eprintf("open %s:", file);
