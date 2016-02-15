@@ -103,7 +103,6 @@ BIN =\
 	getconf\
 	grep\
 	head\
-	install.out\
 	join\
 	hostname\
 	kill\
@@ -162,13 +161,14 @@ BIN =\
 	which\
 	whoami\
 	xargs\
+	xinstall\
 	yes
 
 LIBUTFOBJ = $(LIBUTFSRC:.c=.o)
 LIBUTILOBJ = $(LIBUTILSRC:.c=.o)
 OBJ = $(BIN:=.o) $(LIBUTFOBJ) $(LIBUTILOBJ)
-SRC = $(foreach F,$(BIN:.out=),$(F:=.c))
-MAN = $(foreach F,$(BIN:.out=),$(F:=.1))
+SRC = $(BIN:=.c)
+MAN = $(BIN:=.1)
 
 all: $(BIN)
 
@@ -178,9 +178,6 @@ $(OBJ): $(HDR) config.mk
 
 .o:
 	$(CC) $(LDFLAGS) -o $@ $< $(LIB)
-
-install.out: install.o
-	$(CC) $(LDFLAGS) -o $@ $^ $(LIB)
 
 .c.o:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
@@ -201,14 +198,15 @@ confstr_l.h limits_l.h sysconf_l.h pathconf_l.h: getconf.sh
 install: all
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
 	cp -f $(BIN) $(DESTDIR)$(PREFIX)/bin
-	mv -f $(DESTDIR)$(PREFIX)/bin/install.out $(DESTDIR)$(PREFIX)/bin/install
-	cd $(DESTDIR)$(PREFIX)/bin && ln -f test [ && chmod 755 $(BIN:.out=)
+	cd $(DESTDIR)$(PREFIX)/bin && ln -f test [ && chmod 755 $(BIN)
+	mv -f $(DESTDIR)$(PREFIX)/bin/xinstall $(DESTDIR)$(PREFIX)/bin/install
 	mkdir -p $(DESTDIR)$(MANPREFIX)/man1
 	for m in $(MAN); do sed "s/^\.Os sbase/.Os sbase $(VERSION)/g" < "$$m" > $(DESTDIR)$(MANPREFIX)/man1/"$$m"; done
 	cd $(DESTDIR)$(MANPREFIX)/man1 && chmod 644 $(MAN)
+	mv -f $(DESTDIR)$(MANPREFIX)/man1/xinstall.1 $(DESTDIR)$(MANPREFIX)/man1/install.1
 
 uninstall:
-	cd $(DESTDIR)$(PREFIX)/bin && rm -f $(BIN:.out=) [
+	cd $(DESTDIR)$(PREFIX)/bin && rm -f $(BIN) [ xinstall
 	cd $(DESTDIR)$(MANPREFIX)/man1 && rm -f $(MAN)
 
 dist: clean
@@ -231,6 +229,7 @@ sbase-box: $(LIB) $(SRC)
 	for f in $(SRC); do echo "int $${f%.c}_main(int, char **);"; done                                    >> build/$@.c
 	echo 'int main(int argc, char *argv[]) { char *s = basename(argv[0]);'                               >> build/$@.c
 	echo 'if(!strcmp(s,"sbase-box")) { argc--; argv++; s = basename(argv[0]); } if(0) ;'                 >> build/$@.c
+	echo "else if (!strcmp(s, \"install\")) return xinstall_main(argc, argv);"                           >> build/$@.c
 	echo "else if (!strcmp(s, \"[\")) return test_main(argc, argv);"                                     >> build/$@.c
 	for f in $(SRC); do echo "else if(!strcmp(s, \"$${f%.c}\")) return $${f%.c}_main(argc, argv);"; done >> build/$@.c
 	echo 'else { fputs("[ ", stdout);'                                                                   >> build/$@.c
@@ -243,11 +242,13 @@ sbase-box-install: sbase-box
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
 	cp -f sbase-box $(DESTDIR)$(PREFIX)/bin
 	chmod 755 $(DESTDIR)$(PREFIX)/bin/sbase-box
-	for f in $(BIN:.out=); do ln -sf sbase-box $(DESTDIR)$(PREFIX)/bin/"$$f"; done
+	for f in $(BIN); do ln -sf sbase-box $(DESTDIR)$(PREFIX)/bin/"$$f"; done
 	ln -sf sbase-box $(DESTDIR)$(PREFIX)/bin/[
+	mv -f $(DESTDIR)$(PREFIX)/bin/xinstall $(DESTDIR)$(PREFIX)/bin/install
 	mkdir -p $(DESTDIR)$(MANPREFIX)/man1
 	for m in $(MAN); do sed "s/^\.Os sbase/.Os sbase $(VERSION)/g" < "$$m" > $(DESTDIR)$(MANPREFIX)/man1/"$$m"; done
 	cd $(DESTDIR)$(MANPREFIX)/man1 && chmod 644 $(MAN)
+	mv -f $(DESTDIR)$(MANPREFIX)/man1/xinstall.1 $(DESTDIR)$(MANPREFIX)/man1/install.1
 
 clean:
 	rm -f $(BIN) $(OBJ) $(LIB) sbase-box sbase-$(VERSION).tar.gz
