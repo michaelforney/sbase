@@ -325,6 +325,9 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 		close(fd);
 	}
 
+	if (h->type == HARDLINK)
+		return 0;
+
 	times[0].tv_sec = times[1].tv_sec = mtime;
 	times[0].tv_nsec = times[1].tv_nsec = 0;
 	if (!mflag && utimensat(AT_FDCWD, fname, times, AT_SYMLINK_NOFOLLOW) < 0)
