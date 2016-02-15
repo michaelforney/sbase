@@ -206,7 +206,7 @@ install: all
 	mv -f $(DESTDIR)$(MANPREFIX)/man1/xinstall.1 $(DESTDIR)$(MANPREFIX)/man1/install.1
 
 uninstall:
-	cd $(DESTDIR)$(PREFIX)/bin && rm -f $(BIN) [ xinstall
+	cd $(DESTDIR)$(PREFIX)/bin && rm -f $(BIN) [ install
 	cd $(DESTDIR)$(MANPREFIX)/man1 && rm -f $(MAN)
 
 dist: clean
