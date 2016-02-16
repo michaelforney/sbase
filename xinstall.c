@@ -241,11 +241,12 @@ main(int argc, char *argv[])
 		if (stat(argv[argc - 1], &st) < 0) {
 			if (errno != ENOENT)
 				eprintf("stat %s:", argv[argc - 1]);
-			if (tflag || argc > 2) {
-				p = strrchr(argv[argc - 1], '/');
-				*p = '\0';
-				make_dirs(argv[argc - 1], 1);
-				*p = '/';
+			if (tflag || Dflag || argc > 2) {
+				if ((p = strrchr(argv[argc - 1], '/')) != NULL) {
+					*p = '\0';
+					make_dirs(argv[argc - 1], 1);
+					*p = '/';
+				}
 			} else {
 				make_dirs(argv[argc - 1], 1);
 			}
