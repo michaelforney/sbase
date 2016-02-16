@@ -6,7 +6,7 @@
 .Nd sort lines
 .Sh SYNOPSIS
 .Nm
-.Op Fl Cbcmnru
+.Op Fl Cbcdfimnru
 .Op Fl o Ar outfile
 .Op Fl t Ar delim
 .Op Fl k Ar key ...
@@ -35,6 +35,12 @@ The same as
 .Fl C
 except that when disorder is detected, a message is written to stderr
 indicating the location of the disorder.
+.It Fl d
+Skip non-whitespace and non-alphanumeric characters.
+.It Fl f
+Ignore letter case when sorting.
+.It FL i
+Skip non-printable characters.
 .It Fl k Ar key
 Specify a key definition of the form
 .Sm off

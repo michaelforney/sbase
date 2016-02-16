@@ -23,6 +23,9 @@ enum {
 	MOD_STARTB = 1 << 1,
 	MOD_ENDB   = 1 << 2,
 	MOD_R      = 1 << 3,
+	MOD_D      = 1 << 4,
+	MOD_F      = 1 << 5,
+	MOD_I      = 1 << 6,
 };
 
 static TAILQ_HEAD(kdhead, keydef) kdhead = TAILQ_HEAD_INITIALIZER(kdhead);
@@ -116,6 +119,44 @@ columns(char *line, const struct keydef *kd, char **col, size_t *colsiz)
 }
 
 static int
+skipmodcmp(const char *s1, const char *s2, int flags)
+{
+	Rune r1, r2;
+
+	do {
+		s1 += chartorune(&r1, s1);
+		s2 += chartorune(&r2, s2);
+
+		if (flags & MOD_D && flags & MOD_I) {
+			while (*s1 && ((!isblankrune(r1) && !isalnumrune(r1)) ||
+						   (!isprintrune(r1))))
+				s1 += chartorune(&r1, s1);
+			while (*s2 && ((!isblankrune(r2) && !isalnumrune(r2)) ||
+						   (!isprintrune(r2))))
+				s2 += chartorune(&r2, s2);
+		}
+		else if (flags & MOD_D) {
+			while (*s1 && !isblankrune(r1) && !isalnumrune(r1))
+				s1 += chartorune(&r1, s1);
+			while (*s2 && !isblankrune(r2) && !isalnumrune(r2))
+				s2 += chartorune(&r2, s2);
+		}
+		else if (flags & MOD_I) {
+			while (*s1 && !isprintrune(r1))
+				s1 += chartorune(&r1, s1);
+			while (*s2 && !isprintrune(r2))
+				s2 += chartorune(&r2, s2);
+		}
+		if (flags & MOD_F) {
+			r1 = toupperrune(r1);
+			r2 = toupperrune(r2);
+		}
+	} while (r1 && r1 == r2);
+
+	return r1 - r2;
+}
+
+static int
 linecmp(const char **a, const char **b)
 {
 	int res = 0;
@@ -135,6 +176,8 @@ linecmp(const char **a, const char **b)
 			x = strtold(col1, NULL);
 			y = strtold(col2, NULL);
 			res = (x < y) ? -1 : (x > y);
+		} else if (kd->flags & (MOD_D | MOD_F | MOD_I)) {
+			res = skipmodcmp(col1, col2, kd->flags);
 		} else {
 			res = strcmp(col1, col2);
 		}
@@ -177,6 +220,15 @@ parse_flags(char **s, int *flags, int bflag)
 		switch (*((*s)++)) {
 		case 'b':
 			*flags |= bflag;
+			break;
+		case 'd':
+			*flags |= MOD_D;
+			break;
+		case 'f':
+			*flags |= MOD_F;
+			break;
+		case 'i':
+			*flags |= MOD_I;
 			break;
 		case 'n':
 			*flags |= MOD_N;
@@ -240,7 +292,7 @@ addkeydef(char *kdstr, int flags)
 static void
 usage(void)
 {
-	enprintf(2, "usage: %s [-Cbcmnru] [-o outfile] [-t delim] "
+	enprintf(2, "usage: %s [-Cbcdfimnru] [-o outfile] [-t delim] "
 	         "[-k def]... [file ...]\n", argv0);
 }
 
@@ -262,6 +314,15 @@ main(int argc, char *argv[])
 		break;
 	case 'c':
 		cflag = 1;
+		break;
+	case 'd':
+		global_flags |= MOD_D;
+		break;
+	case 'f':
+		global_flags |= MOD_F;
+		break;
+	case 'i':
+		global_flags |= MOD_I;
 		break;
 	case 'k':
 		addkeydef(EARGF(usage()), global_flags);
