@@ -270,7 +270,7 @@ lsdir(const char *path, const struct entry *dir)
 	if (!Uflag)
 		qsort(ents, n, sizeof(*ents), entcmp);
 
-	if (ds > 1 && (path[0] || dir->name[0] != '.'))
+	if (ds++)
 		printf("%s:\n", dir->name);
 	for (i = 0; i < n; i++)
 		output(&ents[i]);
