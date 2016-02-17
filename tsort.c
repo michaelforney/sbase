@@ -17,14 +17,12 @@
 
 struct vertex;
 
-struct edge
-{
+struct edge {
 	struct vertex *to;
 	struct edge *next;
 };
 
-struct vertex
-{
+struct vertex {
 	char *name;
 	struct vertex *next;
 	struct edge edges;
