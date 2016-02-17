@@ -131,7 +131,7 @@ load_graph(FILE *fp)
 	free(line);
 
 	if (from)
-		eprintf("odd number of tokens in input, did you intended to use -l?\n");
+		eprintf("odd number of tokens in input\n");
 }
 
 static int
