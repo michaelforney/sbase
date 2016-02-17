@@ -75,7 +75,7 @@ The following tools are implemented:
 =*|x sha256sum   .
 =*|x sha512sum   .
 =*|o sleep       .
-#*|o sort        (-d, -f, -i)
+#*|o sort        .
 =*|o split       .
 =*|x sponge      .
 #*|o strings     .
