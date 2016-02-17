@@ -89,6 +89,7 @@ The following tools are implemented:
 =*|o touch       .
 #*|o tr          .
 =*|o true        .
+=* o tsort       .
 =*|o tty         .
 =*|o uname       .
 #*|o unexpand    .
