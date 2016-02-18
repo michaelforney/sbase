@@ -31,7 +31,9 @@ If more than one
 .Ar source
 is given
 .Ar dest
-has to be a directory.
+is treated as a directory. Otherwise
+.Ar dest
+is treated as a filename.
 .Nm
 can also change the attributes of the copies.
 .Sh OPTIONS
@@ -43,10 +45,8 @@ Create the directories
 Create missing parent directories to
 .Ar dest .
 If
-.Fl t
-is used, the
 .Ar dest
-itself is also created if missing.
+is to be treated as a directory, it is created too if missing.
 .It Fl g Ar group
 Change the installed files' group to
 .Ar group .

@@ -247,8 +247,6 @@ main(int argc, char *argv[])
 					make_dirs(argv[argc - 1], 1);
 					*p = '/';
 				}
-			} else {
-				make_dirs(argv[argc - 1], 1);
 			}
 		}
 		enmasse(argc, argv, install);
