@@ -32,6 +32,7 @@ static struct {
 	ino_t ino;
 } tree[PATH_MAX];
 
+static int ret   = 0;
 static int Aflag = 0;
 static int aflag = 0;
 static int cflag = 0;
@@ -247,8 +248,11 @@ lsdir(const char *path, const struct entry *dir)
 	size_t i, n = 0;
 	char prefix[PATH_MAX];
 
-	if (!(dp = opendir(dir->name)))
-		eprintf("opendir %s:", dir->name);
+	if (!(dp = opendir(dir->name))) {
+		ret = 1;
+		weprintf("opendir %s:", dir->name);
+		return;
+	}
 	if (chdir(dir->name) < 0)
 		eprintf("chdir %s:", dir->name);
 
@@ -474,5 +478,5 @@ main(int argc, char *argv[])
 		free(dents);
 	}
 
-	return fshut(stdout, "<stdout>");
+	return (fshut(stdout, "<stdout>") | ret);
 }
