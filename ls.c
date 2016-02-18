@@ -333,8 +333,8 @@ ls(const char *path, const struct entry *ent, int listdir)
 	} else if (S_ISDIR(ent->mode) ||
 	    (S_ISLNK(ent->mode) && S_ISDIR(ent->tmode))) {
 		if ((treeind = visit(ent)) < 0) {
-			fprintf(stderr, "%s%s: already visited\n",
-			    path, ent->name);
+			ret = 1;
+			weprintf("%s%s: Already visited\n", path, ent->name);
 			return;
 		}
 
