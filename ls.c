@@ -311,7 +311,7 @@ visit(const struct entry *ent)
 	dev = ent->dev;
 	ino = S_ISLNK(ent->mode) ? ent->tino : ent->ino;
 
-	for (i = 0; tree[i].ino && i < PATH_MAX; ++i) {
+	for (i = 0; i < PATH_MAX && tree[i].ino; ++i) {
 		if (ino == tree[i].ino && dev == tree[i].dev)
 			return -1;
 	}
