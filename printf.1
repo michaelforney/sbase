@@ -18,7 +18,7 @@ until drained.
 .Pp
 .Nm
 interprets the standard escape sequences \e\e, \e', \e", \ea, \eb, \ee,
-\ef, \en, \er, \et, \ev, \exH[H], \eO[OO], the sequence \ec, which
+\ef, \en, \er, \et, \ev, \exH[H], \eO[OOO], the sequence \ec, which
 terminates further output if it's found inside
 .Ar format
 or a %b format string, the format specification %b for an unescaped string and all C
@@ -30,3 +30,5 @@ The
 utility is compliant with the
 .St -p1003.1-2013
 specification.
+.Pp
+The possibility of specifying 4-digit octals is an extension to that specification.
