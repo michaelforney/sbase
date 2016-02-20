@@ -62,7 +62,7 @@ unescape(char *s)
 				q += (s[m] - '0') * factor;
 				factor *= 8;
 			}
-			s[i] = q;
+			s[i] = (q > 255) 255 : q;
 		}
 
 		for (m = i + 1; m <= len - off; m++)
