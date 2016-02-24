@@ -15,12 +15,21 @@ output(const char *str, size_t nc, size_t nl, size_t nw)
 	int noflags = !cmode && !lflag && !wflag;
 	int first = 1;
 
-	if (lflag || noflags)
-		printf("%*.1zu", first ? (first = 0) : 7, nl);
-	if (wflag || noflags)
-		printf("%*.1zu", first ? (first = 0) : 7, nw);
-	if (cmode || noflags)
-		printf("%*.1zu", first ? (first = 0) : 7, nc);
+	if (lflag || noflags) {
+		if (!first)
+			putchar(' ');
+		printf("%*.1zu", first ? (first = 0) : 6, nl);
+	}
+	if (wflag || noflags) {
+		if (!first)
+			putchar(' ');
+		printf("%*.1zu", first ? (first = 0) : 6, nw);
+	}
+	if (cmode || noflags) {
+		if (!first)
+			putchar(' ');
+		printf("%*.1zu", first ? (first = 0) : 6, nc);
+	}
 	if (str)
 		printf(" %s", str);
 	putchar('\n');
