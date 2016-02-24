@@ -63,7 +63,7 @@ add_vertex(char *name)
 	if (vertex)
 		return vertex;
 
-	vertex = ecalloc(1, sizeof(*vertex));
+	vertex = encalloc(2, 1, sizeof(*vertex));
 	vertex->name = name;
 	vertex->next = prev->next;
 	prev->next = vertex;
@@ -81,7 +81,7 @@ add_edge(struct vertex* from, struct vertex* to)
 	if (edge)
 		return edge;
 
-	edge = ecalloc(1, sizeof(*edge));
+	edge = encalloc(2, 1, sizeof(*edge));
 	edge->to = to;
 	edge->next = prev->next;
 	prev->next = edge;
@@ -113,9 +113,9 @@ load_graph(FILE *fp)
 			SKIP(p, name, !isspace);
 			TOKEN_END(p);
 			if (!from) {
-				from = add_vertex(estrdup(name));
+				from = add_vertex(enstrdup(2, name));
 			} else if (strcmp(from->name, name)) {
-				add_edge(from, add_vertex(estrdup(name)));
+				add_edge(from, add_vertex(enstrdup(2, name)));
 				from = 0;
 			} else {
 				from = 0;
@@ -126,7 +126,7 @@ load_graph(FILE *fp)
 	free(line);
 
 	if (from)
-		eprintf("odd number of tokens in input\n");
+		enprintf(2, "odd number of tokens in input\n");
 }
 
 static int
@@ -177,7 +177,7 @@ sort_graph(void)
 static void
 usage(void)
 {
-	eprintf("usage: %s [file]\n", argv0);
+	enprintf(2, "usage: %s [file]\n", argv0);
 }
 
 int
@@ -196,11 +196,11 @@ main(int argc, char *argv[])
 		usage();
 	if (argc && strcmp(*argv, "-"))
 		if (!(fp = fopen(fn = *argv, "r")))
-			eprintf("fopen %s:", *argv);
+			enprintf(2, "fopen %s:", *argv);
 
 	memset(&graph, 0, sizeof(graph));
 	load_graph(fp);
-	efshut(fp, fn);
+	enfshut(2, fp, fn);
 
 	ret = sort_graph();
 
