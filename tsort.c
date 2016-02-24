@@ -6,9 +6,7 @@
 
 #include "util.h"
 
-#define WHITE  0
-#define GREY   1
-#define BLACK  2
+enum { WHITE = 0, GREY, BLACK };
 
 struct vertex;
 
@@ -41,7 +39,7 @@ find_vertex(const char *name, struct vertex **it, struct vertex **prev)
 }
 
 static void
-find_edge(struct vertex* from, const char *to, struct edge **it, struct edge **prev)
+find_edge(struct vertex *from, const char *to, struct edge **it, struct edge **prev)
 {
 	for (*prev = &(from->edges); (*it = (*prev)->next); *prev = *it) {
 		int cmp = strcmp(to, (*it)->to->name);
@@ -72,7 +70,7 @@ add_vertex(char *name)
 }
 
 static struct edge *
-add_edge(struct vertex* from, struct vertex* to)
+add_edge(struct vertex *from, struct vertex* to)
 {
 	struct edge *edge;
 	struct edge *prev;
@@ -104,8 +102,8 @@ load_graph(FILE *fp)
 	struct vertex *from = 0;
 
 	while ((len = getline(&line, &size, fp)) != -1) {
-		if (len && line[len - 1] == '\n')
-			line[len - 1] = 0;
+		if (line[len - 1] == '\n')
+			line[--len] = 0;
 		for (p = line; p;) {
 			SKIP(name, p, isspace);
 			if (!*name)
