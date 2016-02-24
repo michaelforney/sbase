@@ -10,100 +10,102 @@ The following tools are implemented:
 '|'  -> Audited,       'o' -> POSIX 2013 compliant,   'x' -> Non-POSIX,
 '()' -> Petty flag
 
-     UTILITY     MISSING
-     -------     -------
-=*|o basename    .
-=*|o cal         .
-=*|o cat         .
-=*|o chgrp       .
-=*|o chmod       .
-=*|o chown       .
-=*|x chroot      .
-=*|o cksum       .
-=*|o cmp         .
-#*|x cols        .
-=*|o comm        .
-=*|o cp          (-i)
-=*|x cron        .
-#*|o cut         .
-=*|o date        .
-=*|o dirname     .
-=*|o du          .
-=*|o echo        .
-   o ed          .
-=*|o env         .
-#*|o expand      .
-#*|o expr        .
-=*|o false       .
-=    find        .
-=* x flock       .
-#*|o fold        .
-=*|o getconf     (-v)
-=*|o grep        .
-=*|o head        .
-=*|x hostname    .
-=*|x install     .
-=* o join        .
-=*|o kill        .
-=*|o link        .
-=*|o ln          .
-=*|o logger      .
-=*|o logname     .
-#* o ls          (-C, -k, -m, -p, -s, -x)
-=*|x md5sum      .
-=*|o mkdir       .
-=*|o mkfifo      .
-=*|x mktemp      .
-=*|o mv          (-i)
-=*|o nice        .
-#*|o nl          .
-=*|o nohup       .
-=*|o od          .
-#* o pathchk     .
-#*|o paste       .
-=*|x printenv    .
-#*|o printf      .
-=*|o pwd         .
-=*|x readlink    .
-=*|o renice      .
-=*|o rm          (-i)
-=*|o rmdir       .
-#    sed         .
-=*|x seq         .
-=*|x setsid      .
-=*|x sha1sum     .
-=* x sha224sum   .
-=*|x sha256sum   .
-=* x sha238sum   .
-=*|x sha512sum   .
-=*|o sleep       .
-#*|o sort        .
-=*|o split       .
-=*|x sponge      .
-#*|o strings     .
-=*|x sync        .
-=*|o tail        .
-=*|x tar         .
-=*|o tee         .
-=*|o test        .
-=*|x tftp        .
-=*|o time        .
-=*|o touch       .
-#*|o tr          .
-=*|o true        .
-=* o tsort       .
-=*|o tty         .
-=*|o uname       .
-#*|o unexpand    .
-=*|o uniq        .
-=*|o unlink      .
-=*|o uudecode    .
-=*|o uuencode    .
-#*|o wc          .
-=*|x which       .
-=*|x whoami      .
-=*|o xargs       (-p)
-=*|x yes         .
+     UTILITY         MISSING
+     -------         -------
+=*|o basename        .
+=*|o cal             .
+=*|o cat             .
+=*|o chgrp           .
+=*|o chmod           .
+=*|o chown           .
+=*|x chroot          .
+=*|o cksum           .
+=*|o cmp             .
+#*|x cols            .
+=*|o comm            .
+=*|o cp              (-i)
+=*|x cron            .
+#*|o cut             .
+=*|o date            .
+=*|o dirname         .
+=*|o du              .
+=*|o echo            .
+   o ed              .
+=*|o env             .
+#*|o expand          .
+#*|o expr            .
+=*|o false           .
+=    find            .
+=* x flock           .
+#*|o fold            .
+=*|o getconf         (-v)
+=*|o grep            .
+=*|o head            .
+=*|x hostname        .
+=*|x install         .
+=* o join            .
+=*|o kill            .
+=*|o link            .
+=*|o ln              .
+=*|o logger          .
+=*|o logname         .
+#* o ls              (-C, -k, -m, -p, -s, -x)
+=*|x md5sum          .
+=*|o mkdir           .
+=*|o mkfifo          .
+=*|x mktemp          .
+=*|o mv              (-i)
+=*|o nice            .
+#*|o nl              .
+=*|o nohup           .
+=*|o od              .
+#* o pathchk         .
+#*|o paste           .
+=*|x printenv        .
+#*|o printf          .
+=*|o pwd             .
+=*|x readlink        .
+=*|o renice          .
+=*|o rm              (-i)
+=*|o rmdir           .
+#    sed             .
+=*|x seq             .
+=*|x setsid          .
+=*|x sha1sum         .
+=* x sha224sum       .
+=*|x sha256sum       .
+=* x sha238sum       .
+=*|x sha512sum       .
+=* x sha512-224sum   .
+=* x sha512-256sum   .
+=*|o sleep           .
+#*|o sort            .
+=*|o split           .
+=*|x sponge          .
+#*|o strings         .
+=*|x sync            .
+=*|o tail            .
+=*|x tar             .
+=*|o tee             .
+=*|o test            .
+=*|x tftp            .
+=*|o time            .
+=*|o touch           .
+#*|o tr              .
+=*|o true            .
+=* o tsort           .
+=*|o tty             .
+=*|o uname           .
+#*|o unexpand        .
+=*|o uniq            .
+=*|o unlink          .
+=*|o uudecode        .
+=*|o uuencode        .
+#*|o wc              .
+=*|x which           .
+=*|x whoami          .
+=*|o xargs           (-p)
+=*|x yes             .
 
 The  complement of  sbase  is  ubase[1] which  is  Linux-specific  and
 provides all  the non-portable tools.   Together they are  intended to
