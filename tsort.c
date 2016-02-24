@@ -6,11 +6,6 @@
 
 #include "util.h"
 
-#define eprintf(...)  enprintf(2, __VA_ARGS__)
-#define estrdup(...)  enstrdup(2, __VA_ARGS__)
-#define ecalloc(...)  encalloc(2, __VA_ARGS__)
-#define efshut(...)   enfshut(2, __VA_ARGS__)
-
 #define WHITE  0
 #define GREY   1
 #define BLACK  2
