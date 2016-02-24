@@ -127,13 +127,13 @@ sha512_init(void *ctx)
 }
 
 void
-sha512_sum(void *ctx, uint8_t md[SHA512_DIGEST_LENGTH])
+sha512_sum_n(void *ctx, uint8_t *md, int n)
 {
 	struct sha512 *s = ctx;
 	int i;
 
 	pad(s);
-	for (i = 0; i < 8; i++) {
+	for (i = 0; i < n; i++) {
 		md[8*i] = s->h[i] >> 56;
 		md[8*i+1] = s->h[i] >> 48;
 		md[8*i+2] = s->h[i] >> 40;
@@ -143,6 +143,12 @@ sha512_sum(void *ctx, uint8_t md[SHA512_DIGEST_LENGTH])
 		md[8*i+6] = s->h[i] >> 8;
 		md[8*i+7] = s->h[i];
 	}
+}
+
+void
+sha512_sum(void *ctx, uint8_t md[SHA512_DIGEST_LENGTH])
+{
+	sha512_sum_n(ctx, md, 8);
 }
 
 void

@@ -110,18 +110,24 @@ sha256_init(void *ctx)
 }
 
 void
-sha256_sum(void *ctx, uint8_t md[SHA256_DIGEST_LENGTH])
+sha256_sum_n(void *ctx, uint8_t *md, int n)
 {
 	struct sha256 *s = ctx;
 	int i;
 
 	pad(s);
-	for (i = 0; i < 8; i++) {
+	for (i = 0; i < n; i++) {
 		md[4*i] = s->h[i] >> 24;
 		md[4*i+1] = s->h[i] >> 16;
 		md[4*i+2] = s->h[i] >> 8;
 		md[4*i+3] = s->h[i];
 	}
+}
+
+void
+sha256_sum(void *ctx, uint8_t md[SHA256_DIGEST_LENGTH])
+{
+	sha256_sum_n(ctx, md, 8);
 }
 
 void

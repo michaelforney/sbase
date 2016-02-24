@@ -11,7 +11,9 @@ HDR =\
 	md5.h\
 	queue.h\
 	sha1.h\
+	sha224.h\
 	sha256.h\
+	sha384.h\
 	sha512.h\
 	text.h\
 	utf.h\
@@ -62,7 +64,9 @@ LIBUTILSRC =\
 	libutil/recurse.c\
 	libutil/rm.c\
 	libutil/sha1.c\
+	libutil/sha224.c\
 	libutil/sha256.c\
+	libutil/sha384.c\
 	libutil/sha512.c\
 	libutil/strcasestr.c\
 	libutil/strlcat.c\
@@ -133,7 +137,9 @@ BIN =\
 	seq\
 	setsid\
 	sha1sum\
+	sha224sum\
 	sha256sum\
+	sha384sum\
 	sha512sum\
 	sleep\
 	sort\

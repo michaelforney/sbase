@@ -72,7 +72,9 @@ The following tools are implemented:
 =*|x seq         .
 =*|x setsid      .
 =*|x sha1sum     .
+=* x sha224sum   .
 =*|x sha256sum   .
+=* x sha238sum   .
 =*|x sha512sum   .
 =*|o sleep       .
 #*|o sort        .
