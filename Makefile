@@ -75,7 +75,6 @@ LIBUTILSRC =\
 	libutil/strcasestr.c\
 	libutil/strlcat.c\
 	libutil/strlcpy.c\
-	libutil/strmem.c\
 	libutil/strsep.c\
 	libutil/strtonum.c\
 	libutil/unescape.c

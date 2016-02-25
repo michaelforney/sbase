@@ -15,5 +15,8 @@ If you are looking for some work to do on sbase, another option is to
 pick a utility from the list in the README which has missing flags or
 features noted.
 
+What also needs to be implemented is the capability of the tools to
+handle data with NUL-bytes in it.
+
 [0] http://landley.net/toybox/roadmap.html
 [1] http://git.suckless.org/ubase/

@@ -225,7 +225,7 @@ makeline(char *s, size_t len)
 		beg = sp;
 
 		if (sep) {
-			if (!(end = strmem(sp, sep, seplen)))
+			if (!(end = utfutf(sp, sep)))
 				eol = 1;
 
 			if (!eol) {

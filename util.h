@@ -58,8 +58,6 @@ size_t estrlcpy(char *, const char *, size_t);
 #undef strsep
 char *strsep(char **, const char *);
 
-char *strmem(char *, char *, size_t);
-
 /* regex */
 int enregcomp(int, regex_t *, const char *, int);
 int eregcomp(regex_t *, const char *, int);
