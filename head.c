@@ -15,7 +15,7 @@ head(FILE *fp, const char *fname, size_t n)
 
 	while (i < n && (len = getline(&buf, &size, fp)) > 0) {
 		fputs(buf, stdout);
-		i += (len && (buf[len - 1] == '\n'));
+		i += (buf[len - 1] == '\n');
 	}
 	free(buf);
 	if (ferror(fp))
