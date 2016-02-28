@@ -19,12 +19,13 @@ getlines(FILE *fp, struct linebuf *b)
 			b->lines = erealloc(b->lines, b->capacity * sizeof(*b->lines));
 		}
 		linelen = len;
-		b->lines[b->nlines - 1] = memcpy(emalloc(linelen + 1), line, linelen + 1);
+		b->lines[b->nlines - 1].data = memcpy(emalloc(linelen + 1), line, linelen + 1);
+		b->lines[b->nlines - 1].len = linelen;
 	}
 	free(line);
-	if (b->lines && b->nlines && linelen && b->lines[b->nlines - 1][linelen - 1] != '\n') {
-		b->lines[b->nlines - 1] = erealloc(b->lines[b->nlines - 1], linelen + 2);
-		b->lines[b->nlines - 1][linelen] = '\n';
-		b->lines[b->nlines - 1][linelen + 1] = '\0';
+	if (b->lines && b->nlines && linelen && b->lines[b->nlines - 1].data[linelen - 1] != '\n') {
+		b->lines[b->nlines - 1].data = erealloc(b->lines[b->nlines - 1].data, linelen + 2);
+		b->lines[b->nlines - 1].data[linelen] = '\n';
+		b->lines[b->nlines - 1].data[linelen + 1] = '\0';
 	}
 }

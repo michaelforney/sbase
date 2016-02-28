@@ -1,7 +1,12 @@
 /* See LICENSE file for copyright and license details. */
 
+struct linebufline {
+	char *data;
+	size_t len;
+};
+
 struct linebuf {
-	char **lines;
+	struct linebufline *lines;
 	size_t nlines;
 	size_t capacity;
 };

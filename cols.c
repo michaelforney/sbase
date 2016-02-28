@@ -24,7 +24,7 @@ main(int argc, char *argv[])
 	FILE *fp;
 	struct winsize w;
 	struct linebuf b = EMPTY_LINEBUF;
-	size_t chars = 65, maxlen = 0, i, j, k, len, bytes, cols, rows;
+	size_t chars = 65, maxlen = 0, i, j, k, len, cols, rows;
 	int cflag = 0, ret = 0;
 	char *p;
 
@@ -63,10 +63,11 @@ main(int argc, char *argv[])
 	}
 
 	for (i = 0; i < b.nlines; i++) {
-		len = utflen(b.lines[i]);
-		bytes = strlen(b.lines[i]);
-		if (len && bytes && b.lines[i][bytes - 1] == '\n') {
-			b.lines[i][bytes - 1] = '\0';
+		/* TODO: fix libutf to run utflen on a memory chunk
+		 * of given size to also handle embedded NULs */
+		len = utflen(b.lines[i].data);
+		if (len && b.lines[i].data[b.lines[i].len - 1] == '\n') {
+			b.lines[i].data[--(b.lines[i].len)] = '\0';
 			len--;
 		}
 		if (len > maxlen)
@@ -78,8 +79,11 @@ main(int argc, char *argv[])
 
 	for (i = 0; i < rows; i++) {
 		for (j = 0; j < cols && i + j * rows < b.nlines; j++) {
-			len = utflen(b.lines[i + j * rows]);
-			fputs(b.lines[i + j * rows], stdout);
+			/* TODO: fix libutf to run utflen on a memory chunk
+			 * of given size to also handle embedded NULs */
+			len = utflen(b.lines[i + j * rows].data);
+			fwrite(b.lines[i + j * rows].data, 1,
+			       b.lines[i + j * rows].len, stdout);
 			if (j < cols - 1)
 				for (k = len; k < maxlen + 1; k++)
 					putchar(' ');

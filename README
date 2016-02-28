@@ -21,7 +21,7 @@ The following tools are implemented:
 0=*|x chroot          .
 0=*|o cksum           .
 0=*|o cmp             .
- #*|x cols            .
+0#*|x cols            .
  =*|o comm            .
 0=*|o cp              (-i)
 0=*|x cron            .
