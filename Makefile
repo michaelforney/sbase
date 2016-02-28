@@ -58,6 +58,7 @@ LIBUTILSRC =\
 	libutil/getlines.c\
 	libutil/human.c\
 	libutil/md5.c\
+	libutil/memmem.c\
 	libutil/mkdirp.c\
 	libutil/mode.c\
 	libutil/parseoffset.c\

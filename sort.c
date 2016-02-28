@@ -33,119 +33,133 @@ static TAILQ_HEAD(kdhead, keydef) kdhead = TAILQ_HEAD_INITIALIZER(kdhead);
 static int Cflag = 0, cflag = 0, uflag = 0;
 static char *fieldsep = NULL;
 static size_t fieldseplen = 0;
-static char *col1, *col2;
-static size_t col1siz, col2siz;
+static struct linebufline col1, col2;
 
-static char *
-skipblank(char *s)
+static void
+skipblank(struct linebufline *a)
 {
-	while (*s == ' ' || *s == '\t')
-		s++;
-
-	return s;
+	while (a->len && (*(a->data) == ' ' || *(a->data) == '\t')) {
+		a->data++;
+		a->len--;
+	}
 }
 
-static char *
-skipnonblank(char *s)
+static void
+skipnonblank(struct linebufline *a)
 {
-	while (*s && *s != '\n' && *s != ' ' && *s != '\t')
-		s++;
-
-	return s;
+	while (a->len && (*(a->data) != '\n' && *(a->data) != ' ' &&
+	                  *(a->data) != '\t')) {
+		a->data++;
+		a->len--;
+	}
 }
 
-static char *
-skipcolumn(char *s, char *eol, int skip_to_next_col)
+static void
+skipcolumn(struct linebufline *a, int skip_to_next_col)
 {
+	char *s;
+
 	if (fieldsep) {
-		if ((s = strstr(s, fieldsep))) {
-			if (skip_to_next_col)
-				s += fieldseplen;
+		if ((s = memmem(a->data, a->len, fieldsep, fieldseplen))) {
+			if (skip_to_next_col) {
+				a->len = a->len - (s - a->data);
+				a->data = s;
+			}
 		} else {
-			s = eol;
+			a->data += a->len - 1;
+			a->len = 1;
 		}
 	} else {
-		s = skipblank(s);
-		s = skipnonblank(s);
+		skipblank(a);
+		skipnonblank(a);
 	}
-
-	return s;
 }
 
 static size_t
-columns(char *line, const struct keydef *kd, char **col, size_t *colsiz)
+columns(struct linebufline *line, const struct keydef *kd, struct linebufline *col)
 {
 	Rune r;
-	char *start, *end, *eol = strchr(line, '\n');
+	struct linebufline start, end;
 	size_t len, utflen, rlen;
 	int i;
 
-	for (i = 1, start = line; i < kd->start_column; i++)
-		start = skipcolumn(start, eol, 1);
+	start.data = line->data;
+	start.len = line->len;
+	for (i = 1; i < kd->start_column; i++)
+		skipcolumn(&start, 1);
 	if (kd->flags & MOD_STARTB)
-		start = skipblank(start);
-	for (utflen = 0; start < eol && utflen < kd->start_char - 1;) {
-		rlen = chartorune(&r, start);
-		start += rlen;
+		skipblank(&start);
+	for (utflen = 0; start.len > 1 && utflen < kd->start_char - 1;) {
+		rlen = chartorune(&r, start.data);
+		start.data += rlen;
+		start.len -= rlen;
 		utflen++;
 	}
 
+	end.data = line->data;
+	end.len = line->len;
 	if (kd->end_column) {
-		for (i = 1, end = line; i < kd->end_column; i++)
-			end = skipcolumn(end, eol, 1);
+		for (i = 1; i < kd->end_column; i++)
+			skipcolumn(&end, 1);
 		if (kd->flags & MOD_ENDB)
-			end = skipblank(end);
+			skipblank(&end);
 		if (kd->end_char) {
-			for (utflen = 0; end < eol && utflen < kd->end_char;) {
-				rlen = chartorune(&r, end);
-				end += rlen;
+			for (utflen = 0; end.len > 1 && utflen < kd->end_char;) {
+				rlen = chartorune(&r, end.data);
+				end.data += rlen;
+				end.len -= rlen;
 				utflen++;
 			}
 		} else {
-			end = skipcolumn(end, eol, 0);
+			skipcolumn(&end, 0);
 		}
+		printf("end.data = '%s'\n", end.data);
 	} else {
-		end = eol;
+		end.data += end.len - 1;
+		end.len = 1;
 	}
-	len = (start > end) ? 0 : (end - start);
-	if (!*col || *colsiz < len)
-		*col = erealloc(*col, len + 1);
-	memcpy(*col, start, len);
-	(*col)[len] = '\0';
-	if (*colsiz < len)
-		*colsiz = len;
+	len = MAX(0, end.data - start.data);
+	if (!(col->data) || col->len < len)
+		col->data = erealloc(col->data, len + 1);
+	memcpy(col->data, start.data, len);
+	col->data[len] = '\0';
+	if (col->len < len)
+		col->len = len;
 
 	return len;
 }
 
 static int
-skipmodcmp(const char *s1, const char *s2, int flags)
+skipmodcmp(struct linebufline *a, struct linebufline *b, int flags)
 {
 	Rune r1, r2;
+	size_t offa = 0, offb = 0;
 
 	do {
-		s1 += chartorune(&r1, s1);
-		s2 += chartorune(&r2, s2);
+		offa += chartorune(&r1, a->data + offa);
+		offb += chartorune(&r2, b->data + offb);
 
 		if (flags & MOD_D && flags & MOD_I) {
-			while (*s1 && ((!isblankrune(r1) && !isalnumrune(r1)) ||
-						   (!isprintrune(r1))))
-				s1 += chartorune(&r1, s1);
-			while (*s2 && ((!isblankrune(r2) && !isalnumrune(r2)) ||
-						   (!isprintrune(r2))))
-				s2 += chartorune(&r2, s2);
+			while (offa < a->len && ((!isblankrune(r1) &&
+			       !isalnumrune(r1)) || (!isprintrune(r1))))
+				offa += chartorune(&r1, a->data + offa);
+			while (offb < b->len && ((!isblankrune(r2) &&
+			       !isalnumrune(r2)) || (!isprintrune(r2))))
+				offb += chartorune(&r2, b->data + offb);
 		}
 		else if (flags & MOD_D) {
-			while (*s1 && !isblankrune(r1) && !isalnumrune(r1))
-				s1 += chartorune(&r1, s1);
-			while (*s2 && !isblankrune(r2) && !isalnumrune(r2))
-				s2 += chartorune(&r2, s2);
+			while (offa < a->len && !isblankrune(r1) &&
+			       !isalnumrune(r1))
+				offa += chartorune(&r1, a->data + offa);
+			while (offb < b->len && !isblankrune(r2) &&
+			       !isalnumrune(r2))
+				offb += chartorune(&r2, b->data + offb);
 		}
 		else if (flags & MOD_I) {
-			while (*s1 && !isprintrune(r1))
-				s1 += chartorune(&r1, s1);
-			while (*s2 && !isprintrune(r2))
-				s2 += chartorune(&r2, s2);
+			while (offa < a->len && !isprintrune(r1))
+				offa += chartorune(&r1, a->data + offa);
+			while (offb < b->len && !isprintrune(r2))
+				offb += chartorune(&r2, b->data + offb);
 		}
 		if (flags & MOD_F) {
 			r1 = toupperrune(r1);
@@ -157,15 +171,15 @@ skipmodcmp(const char *s1, const char *s2, int flags)
 }
 
 static int
-linecmp(const char **a, const char **b)
+linecmp(struct linebufline *a, struct linebufline *b)
 {
 	int res = 0;
 	long double x, y;
 	struct keydef *kd;
 
 	TAILQ_FOREACH(kd, &kdhead, entry) {
-		columns((char *)*a, kd, &col1, &col1siz);
-		columns((char *)*b, kd, &col2, &col2siz);
+		columns(a, kd, &col1);
+		columns(b, kd, &col2);
 
 		/* if -u is given, don't use default key definition
 		 * unless it is the only one */
@@ -173,13 +187,17 @@ linecmp(const char **a, const char **b)
 		    TAILQ_LAST(&kdhead, kdhead) != TAILQ_FIRST(&kdhead)) {
 			res = 0;
 		} else if (kd->flags & MOD_N) {
-			x = strtold(col1, NULL);
-			y = strtold(col2, NULL);
+			x = strtold(col1.data, NULL);
+			y = strtold(col2.data, NULL);
 			res = (x < y) ? -1 : (x > y);
 		} else if (kd->flags & (MOD_D | MOD_F | MOD_I)) {
-			res = skipmodcmp(col1, col2, kd->flags);
+			res = skipmodcmp(&col1, &col2, kd->flags);
 		} else {
-			res = strcmp(col1, col2);
+			if (!(res = memcmp(col1.data, col2.data,
+			                   MIN(col1.len, col2.len)))) {
+				res += col1.data[MIN(col1.len, col2.len)] -
+				       col2.data[MIN(col1.len, col2.len)];
+			}
 		}
 
 		if (kd->flags & MOD_R)
@@ -194,20 +212,25 @@ linecmp(const char **a, const char **b)
 static int
 check(FILE *fp, const char *fname)
 {
-	static struct { char *buf; size_t size; } prev, cur, tmp;
+	static struct linebufline prev, cur, tmp;
+	static size_t prevsize, cursize, tmpsize;
 
-	if (!prev.buf && getline(&prev.buf, &prev.size, fp) < 0)
+	if (!prev.data && (prev.len = getline(&prev.data, &prevsize, fp)) < 0)
 		eprintf("getline:");
-	while (getline(&cur.buf, &cur.size, fp) > 0) {
-		if (uflag > linecmp((const char **)&cur.buf,
-		                    (const char **)&prev.buf)) {
-			if (!Cflag)
-				weprintf("disorder %s: %s", fname, cur.buf);
+	while ((cur.len = getline(&cur.data, &cursize, fp)) > 0) {
+		if (uflag > linecmp(&cur, &prev)) {
+			if (!Cflag) {
+				weprintf("disorder %s: ", fname);
+				fwrite(cur.data, 1, cur.len, stderr);
+			}
 			return 1;
 		}
 		tmp = cur;
+		tmpsize = cursize;
 		cur = prev;
+		cursize = prevsize;
 		prev = tmp;
+		prevsize = tmpsize;
 	}
 
 	return 0;
@@ -345,7 +368,7 @@ main(int argc, char *argv[])
 		break;
 	case 't':
 		fieldsep = EARGF(usage());
-		fieldseplen = strlen(fieldsep);
+		fieldseplen = unescape(fieldsep);
 		break;
 	case 'u':
 		uflag = 1;
@@ -388,14 +411,14 @@ main(int argc, char *argv[])
 		if (outfile && !(ofp = fopen(outfile, "w")))
 			eprintf("fopen %s:", outfile);
 
-		qsort(linebuf.lines, linebuf.nlines, sizeof *linebuf.lines,
+		qsort(linebuf.lines, linebuf.nlines, sizeof(*linebuf.lines),
 				(int (*)(const void *, const void *))linecmp);
 
 		for (i = 0; i < linebuf.nlines; i++) {
 			if (!uflag || i == 0 ||
-			    linecmp((const char **)&linebuf.lines[i],
-			            (const char **)&linebuf.lines[i - 1])) {
-				fputs(linebuf.lines[i], ofp);
+			    linecmp(&linebuf.lines[i], &linebuf.lines[i - 1])) {
+				fwrite(linebuf.lines[i].data, 1,
+				       linebuf.lines[i].len, ofp);
 			}
 		}
 	}

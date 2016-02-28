@@ -79,7 +79,7 @@ The following tools are implemented:
 0=* x sha512-224sum   .
 0=* x sha512-256sum   .
 0=*|o sleep           .
- #*|o sort            .
+0#*|o sort            .
 0=*|o split           .
 0=*|x sponge          .
 0#*|o strings         .
