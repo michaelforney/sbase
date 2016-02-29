@@ -27,5 +27,6 @@ getlines(FILE *fp, struct linebuf *b)
 		b->lines[b->nlines - 1].data = erealloc(b->lines[b->nlines - 1].data, linelen + 2);
 		b->lines[b->nlines - 1].data[linelen] = '\n';
 		b->lines[b->nlines - 1].data[linelen + 1] = '\0';
+		b->lines[b->nlines - 1].len++;
 	}
 }
