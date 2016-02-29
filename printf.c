@@ -18,7 +18,7 @@ int
 main(int argc, char *argv[])
 {
 	Rune *rarg;
-	size_t i, j, argi, lastargi, formatlen, arglen;
+	size_t i, j, argi, lastargi, formatlen;
 	long long num;
 	double dou;
 	int cooldown = 0, width, precision;
@@ -127,8 +127,7 @@ main(int argc, char *argv[])
 			printf("%*.*s", width, precision, arg);
 			break;
 		case 'd': case 'i': case 'o': case 'u': case 'x': case 'X':
-			arglen = strlen(arg);
-			for (j = 0; j < arglen && isspace(arg[j]); j++);
+			for (j = 0; isspace(arg[j]); j++);
 			if (arg[j] == '\'' || arg[j] == '\"') {
 				arg += j + 1;
 				unescape(arg);
