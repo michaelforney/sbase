@@ -1,5 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 #include <ctype.h>
+#include <errno.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,7 +22,7 @@ main(int argc, char *argv[])
 	size_t i, j, argi, lastargi, formatlen;
 	long long num;
 	double dou;
-	int cooldown = 0, width, precision;
+	int cooldown = 0, width, precision, ret = 0;
 	char *format, *tmp, *arg, *fmt, flag;
 
 	argv0 = argv[0];
@@ -134,8 +135,25 @@ main(int argc, char *argv[])
 				rarg = ereallocarray(NULL, utflen(arg) + 1, sizeof(*rarg));
 				utftorunestr(arg, rarg);
 				num = rarg[0];
+			} else if (arg[0]) {
+				errno = 0;
+				if (format[i] == 'd' || format[i] == 'i')
+					num = strtol(arg, &tmp, 0);
+				else
+					num = strtoul(arg, &tmp, 0);
+
+				if (tmp == arg || *tmp != '\0') {
+					ret = 1;
+					weprintf("%%%c %s: conversion error\n",
+					    format[i], arg);
+				}
+				if (errno == ERANGE) {
+					ret = 1;
+					weprintf("%%%c %s: out of range\n",
+					    format[i], arg);
+				}
 			} else {
-				num = (strlen(arg) > 0) ? estrtonum(arg, LLONG_MIN, LLONG_MAX) : 0;
+					num = 0;
 			}
 			fmt = estrdup(flag ? "%#*.*ll#" : "%*.*ll#");
 			if (flag)
@@ -160,5 +178,5 @@ main(int argc, char *argv[])
 			cooldown = 1;
 	}
 
-	return fshut(stdout, "<stdout>");
+	return fshut(stdout, "<stdout>") | ret;
 }
