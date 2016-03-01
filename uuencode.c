@@ -7,10 +7,9 @@
 #include "util.h"
 
 static unsigned int
-b64e(unsigned char b[2])
+b64e(unsigned char *b)
 {
-	unsigned int o = 0;
-	unsigned int p = b[2] | (b[1] << 8) | (b[0] << 16);
+	unsigned int o, p = b[2] | (b[1] << 8) | (b[0] << 16);
 	const char b64et[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 	o = b64et[p & 0x3f]; p >>= 6;
