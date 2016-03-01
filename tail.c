@@ -23,7 +23,7 @@ dropinit(FILE *fp, const char *str, size_t n)
 
 	if (mode == 'n') {
 		while (i < n && (len = getline(&buf, &size, fp)) > 0)
-			if (buf[len - 1] == '\n')
+			if (len > 0 && buf[len - 1] == '\n')
 				i++;
 	} else {
 		while (i < n && (len = efgetrune(&r, fp, str)))

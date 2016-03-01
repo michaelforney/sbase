@@ -115,8 +115,8 @@ cut(FILE *fp, const char *fname)
 	Range *r;
 
 	while ((len = getline(&buf, &size, fp)) > 0) {
-		if (buf[len - 1] == '\n')
-			buf[--len] = '\0';
+		if (len && buf[len - 1] == '\n')
+			buf[len - 1] = '\0';
 		if (mode == 'f' && !utfutf(buf, delim)) {
 			if (!sflag)
 				puts(buf);

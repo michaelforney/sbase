@@ -169,9 +169,9 @@ uudecode(FILE *fp, FILE *outfp)
 	while ((len = getline(&bufb, &n, fp)) > 0) {
 		p = bufb;
 		/* trim newlines */
-		if (bufb[len - 1] != '\n')
+		if (!len || bufb[len - 1] != '\n')
 			eprintf("no newline found, aborting\n");
-		bufb[--len] = '\0';
+		bufb[len - 1] = '\0';
 
 		/* check for last line */
 		if ((i = DEC(*p)) <= 0)

@@ -441,8 +441,8 @@ read_line(FILE *f, String *s)
 			eprintf("getline:");
 		return EOF;
 	}
-	if (s->str[len] == '\n')
-		s->str[--len] = '\0';
+	if (s->str[--len] == '\n')
+		s->str[len] = '\0';
 	return 0;
 }
 
