@@ -38,7 +38,7 @@ tropen:
 static void
 parseheader(FILE *fp, const char *s, char **header, mode_t *mode, char **fname)
 {
-	char bufs[PATH_MAX + 18]; /* len header + mode + maxname */
+	static char bufs[PATH_MAX + 18]; /* len header + mode + maxname */
 	char *p, *q;
 	size_t n;
 
