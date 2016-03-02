@@ -369,7 +369,8 @@ main(int argc, char *argv[])
 
 	ARGBEGIN {
 	case '1':
-		/* ignore */
+		/* force output to 1 entry per line */
+		qflag = 1;
 		break;
 	case 'A':
 		Aflag = 1;
