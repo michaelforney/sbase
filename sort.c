@@ -113,7 +113,6 @@ columns(struct linebufline *line, const struct keydef *kd, struct linebufline *c
 		} else {
 			skipcolumn(&end, 0);
 		}
-		printf("end.data = '%s'\n", end.data);
 	} else {
 		end.data += end.len - 1;
 		end.len = 1;
