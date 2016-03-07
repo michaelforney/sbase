@@ -40,7 +40,7 @@ The following tools are implemented:
  #*|o fold            .
 0=*|o getconf         (-v)
  =*|o grep            .
- =*|o head            .
+0=*|o head            .
 0=*|x hostname        .
 0=*|x install         .
  =* o join            .
