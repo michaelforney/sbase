@@ -195,8 +195,8 @@ linecmp(struct linebufline *a, struct linebufline *b)
 		} else {
 			if (!(res = memcmp(col1.data, col2.data,
 			                   MIN(col1.len, col2.len)))) {
-				res += col1.data[MIN(col1.len, col2.len)] -
-				       col2.data[MIN(col1.len, col2.len)];
+				res = col1.data[MIN(col1.len, col2.len)] -
+				      col2.data[MIN(col1.len, col2.len)];
 			}
 		}
 
