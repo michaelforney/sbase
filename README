@@ -47,7 +47,7 @@ The following tools are implemented:
 0=*|o kill            .
 0=*|o link            .
 0=*|o ln              .
- =*|o logger          .
+0=*|o logger          .
 0=*|o logname         .
 0#* o ls              (-C, -k, -m, -p, -s, -x)
 0=*|x md5sum          .
