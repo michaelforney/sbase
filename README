@@ -10,8 +10,8 @@ The following tools are implemented:
 '|'  -> Audited,       'o' -> POSIX 2013 compliant,   'x' -> Non-POSIX,
 '0'  -> NUL handling,  '()' -> Petty flag
 
-     UTILITY         MISSING
-     -------         -------
+      UTILITY         MISSING
+      -------         -------
 0=*|o basename        .
 0=*|o cal             .
 0=*|o cat             .
