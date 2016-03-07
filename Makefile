@@ -57,6 +57,7 @@ LIBUTILSRC =\
 	libutil/fshut.c\
 	libutil/getlines.c\
 	libutil/human.c\
+	libutil/linecmp.c\
 	libutil/md5.c\
 	libutil/memmem.c\
 	libutil/mkdirp.c\

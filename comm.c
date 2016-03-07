@@ -9,7 +9,7 @@
 static int show = 0x07;
 
 static void
-printline(int pos, struct linebufline *line)
+printline(int pos, struct line *line)
 {
 	int i;
 
@@ -33,7 +33,7 @@ int
 main(int argc, char *argv[])
 {
 	FILE *fp[2];
-	static struct linebufline line[2];
+	static struct line line[2];
 	size_t linecap[2] = { 0, 0 };
 	ssize_t len;
 	int ret = 0, i, diff = 0, seenline = 0;
@@ -83,10 +83,7 @@ main(int argc, char *argv[])
 				eprintf("getline %s:", argv[!i]);
 			goto end;
 		}
-		if (!(diff = memcmp(line[0].data, line[1].data,
-		                    MIN(line[0].len, line[1].len)))) {
-			diff = (line[0].len > line[1].len);
-		}
+		diff = linecmp(&line[0], &line[1]);
 		LIMIT(diff, -1, 1);
 		seenline = 0;
 		printline((2 - diff) % 3, &line[MAX(0, diff)]);

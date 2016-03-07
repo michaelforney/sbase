@@ -33,10 +33,10 @@ static TAILQ_HEAD(kdhead, keydef) kdhead = TAILQ_HEAD_INITIALIZER(kdhead);
 static int Cflag = 0, cflag = 0, uflag = 0;
 static char *fieldsep = NULL;
 static size_t fieldseplen = 0;
-static struct linebufline col1, col2;
+static struct line col1, col2;
 
 static void
-skipblank(struct linebufline *a)
+skipblank(struct line *a)
 {
 	while (a->len && (*(a->data) == ' ' || *(a->data) == '\t')) {
 		a->data++;
@@ -45,7 +45,7 @@ skipblank(struct linebufline *a)
 }
 
 static void
-skipnonblank(struct linebufline *a)
+skipnonblank(struct line *a)
 {
 	while (a->len && (*(a->data) != '\n' && *(a->data) != ' ' &&
 	                  *(a->data) != '\t')) {
@@ -55,7 +55,7 @@ skipnonblank(struct linebufline *a)
 }
 
 static void
-skipcolumn(struct linebufline *a, int skip_to_next_col)
+skipcolumn(struct line *a, int skip_to_next_col)
 {
 	char *s;
 
@@ -77,10 +77,10 @@ skipcolumn(struct linebufline *a, int skip_to_next_col)
 }
 
 static size_t
-columns(struct linebufline *line, const struct keydef *kd, struct linebufline *col)
+columns(struct line *line, const struct keydef *kd, struct line *col)
 {
 	Rune r;
-	struct linebufline start, end;
+	struct line start, end;
 	size_t len, utflen, rlen;
 	int i;
 
@@ -130,7 +130,7 @@ columns(struct linebufline *line, const struct keydef *kd, struct linebufline *c
 }
 
 static int
-skipmodcmp(struct linebufline *a, struct linebufline *b, int flags)
+skipmodcmp(struct line *a, struct line *b, int flags)
 {
 	Rune r1, r2;
 	size_t offa = 0, offb = 0;
@@ -171,7 +171,7 @@ skipmodcmp(struct linebufline *a, struct linebufline *b, int flags)
 }
 
 static int
-slinecmp(struct linebufline *a, struct linebufline *b)
+slinecmp(struct line *a, struct line *b)
 {
 	int res = 0;
 	long double x, y;
@@ -193,11 +193,7 @@ slinecmp(struct linebufline *a, struct linebufline *b)
 		} else if (kd->flags & (MOD_D | MOD_F | MOD_I)) {
 			res = skipmodcmp(&col1, &col2, kd->flags);
 		} else {
-			if (!(res = memcmp(col1.data, col2.data,
-			                   MIN(col1.len, col2.len)))) {
-				res = col1.data[MIN(col1.len, col2.len)] -
-				      col2.data[MIN(col1.len, col2.len)];
-			}
+			res = linecmp(&col1, &col2);
 		}
 
 		if (kd->flags & MOD_R)
@@ -212,7 +208,7 @@ slinecmp(struct linebufline *a, struct linebufline *b)
 static int
 check(FILE *fp, const char *fname)
 {
-	static struct linebufline prev, cur, tmp;
+	static struct line prev, cur, tmp;
 	static size_t prevsize, cursize, tmpsize;
 
 	if (!prev.data && (prev.len = getline(&prev.data, &prevsize, fp)) < 0)
