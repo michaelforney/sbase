@@ -26,7 +26,7 @@ dropinit(FILE *fp, const char *str, size_t n)
 			if (len > 0 && buf[len - 1] == '\n')
 				i++;
 	} else {
-		while (i < n && (len = efgetrune(&r, fp, str)))
+		while (i < n && efgetrune(&r, fp, str))
 			i++;
 	}
 	free(buf);
@@ -37,8 +37,9 @@ static void
 taketail(FILE *fp, const char *str, size_t n)
 {
 	Rune *r = NULL;
-	char **ring = NULL;
+	struct line *ring = NULL;
 	size_t i, j, *size = NULL;
+	ssize_t len;
 	int seenln = 0;
 
 	if (!n)
@@ -48,8 +49,11 @@ taketail(FILE *fp, const char *str, size_t n)
 		ring = ecalloc(n, sizeof(*ring));
 		size = ecalloc(n, sizeof(*size));
 
-		for (i = j = 0; getline(ring + i, size + i, fp) > 0; seenln = 1)
+		for (i = j = 0; (len = getline(&ring[i].data,
+		     &size[i], fp)) > 0; seenln = 1) {
+			ring[i].len = len;
 			i = j = (i + 1) % n;
+		}
 	} else {
 		r = ecalloc(n, sizeof(*r));
 
@@ -60,9 +64,9 @@ taketail(FILE *fp, const char *str, size_t n)
 		eprintf("%s: read error:", str);
 
 	do {
-		if (seenln && ring && ring[j]) {
-			fputs(ring[j], stdout);
-			free(ring[j]);
+		if (seenln && ring && ring[j].data) {
+			fwrite(ring[j].data, 1, ring[j].len, stdout);
+			free(ring[j].data);
 		} else if (r) {
 			efputrune(&r[j], stdout, "<stdout>");
 		}
@@ -97,7 +101,8 @@ main(int argc, char *argv[])
 	case 'n':
 		mode = ARGC();
 		numstr = EARGF(usage());
-		n = MIN(llabs(estrtonum(numstr, LLONG_MIN + 1, MIN(LLONG_MAX, SIZE_MAX))), SIZE_MAX);
+		n = MIN(llabs(estrtonum(numstr, LLONG_MIN + 1,
+		                        MIN(LLONG_MAX, SIZE_MAX))), SIZE_MAX);
 		if (strchr(numstr, '+'))
 			tail = dropinit;
 		break;

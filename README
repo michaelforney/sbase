@@ -84,7 +84,7 @@ The following tools are implemented:
 0=*|x sponge          .
 0#*|o strings         .
 0=*|x sync            .
- =*|o tail            .
+0=*|o tail            .
 0=*|x tar             .
 0=*|o tee             .
 0=*|o test            .
