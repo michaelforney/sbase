@@ -9,7 +9,6 @@
 #include <unistd.h>
 
 #include "text.h"
-#include "utf.h"
 #include "util.h"
 
 static void
@@ -63,9 +62,10 @@ main(int argc, char *argv[])
 	}
 
 	for (i = 0; i < b.nlines; i++) {
-		/* TODO: fix libutf to run utflen on a memory chunk
-		 * of given size to also handle embedded NULs */
-		len = utflen(b.lines[i].data);
+		for (j = 0, len = 0; j < b.lines[i].len; j++) {
+			if (UTF8_POINT(b.lines[i].data[j]))
+				len++;
+		}
 		if (len && b.lines[i].data[b.lines[i].len - 1] == '\n') {
 			b.lines[i].data[--(b.lines[i].len)] = '\0';
 			len--;
@@ -79,9 +79,10 @@ main(int argc, char *argv[])
 
 	for (i = 0; i < rows; i++) {
 		for (j = 0; j < cols && i + j * rows < b.nlines; j++) {
-			/* TODO: fix libutf to run utflen on a memory chunk
-			 * of given size to also handle embedded NULs */
-			len = utflen(b.lines[i + j * rows].data);
+			for (k = 0, len = 0; k < b.lines[i + j * rows].len; k++) {
+				if (UTF8_POINT(b.lines[i + j * rows].data[k]))
+					len++;
+			}
 			fwrite(b.lines[i + j * rows].data, 1,
 			       b.lines[i + j * rows].len, stdout);
 			if (j < cols - 1)
