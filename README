@@ -25,7 +25,7 @@ The following tools are implemented:
 0=*|o comm            .
 0=*|o cp              (-i)
 0=*|x cron            .
- #*|o cut             .
+0#*|o cut             .
 0=*|o date            .
 0=*|o dirname         .
 0=*|o du              .

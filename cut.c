@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "text.h"
 #include "utf.h"
 #include "util.h"
 
@@ -70,71 +71,78 @@ parselist(char *str)
 }
 
 static size_t
-seek(const char *s, size_t pos, size_t *prev, size_t count)
+seek(struct line *s, size_t pos, size_t *prev, size_t count)
 {
-	const char *t;
-	size_t n = pos - *prev, i;
+	size_t n = pos - *prev, i, j;
 
 	if (mode == 'b') {
-		if ((t = memchr(s, '\0', n)))
-			return t - s;
+		if (n >= s->len)
+			return s->len;
 		if (nflag)
-			while (n && !UTF8_POINT(s[n]))
+			while (n && !UTF8_POINT(s->data[n]))
 				n--;
 		*prev += n;
 		return n;
 	} else if (mode == 'c') {
-		for (n++, t = s; *t; t++)
-			if (UTF8_POINT(*t) && !--n)
+		for (n++, i = 0; i < s->len; i++)
+			if (UTF8_POINT(s->data[i]) && !--n)
 				break;
 	} else {
-		for (t = (count < delimlen + 1) ? s : s + delimlen; n && *t; ) {
-			if (!strncmp(t, delim, delimlen)) {
+		for (i = (count < delimlen + 1) ? 0 : delimlen; n && i < s->len; ) {
+			if ((s->len - i) >= delimlen &&
+			    !memcmp(s->data + i, delim, delimlen)) {
 				if (!--n && count)
 					break;
-				t += delimlen;
+				i += delimlen;
 				continue;
 			}
-			for (i = 1; !fullrune(t, i); i++);
-			t += i;
+			for (j = 1; j + i <= s->len && !fullrune(s->data + i, j); j++);
+			i += j;
 		}
 	}
 	*prev = pos;
 
-	return t - s;
+	return i;
 }
 
 static void
 cut(FILE *fp, const char *fname)
 {
-	static char *buf = NULL;
-	static size_t size = 0;
-	char *s;
+	Range *r;
+	struct line s;
+	static struct line line;
+	static size_t size;
 	size_t i, n, p;
 	ssize_t len;
-	Range *r;
 
-	while ((len = getline(&buf, &size, fp)) > 0) {
-		if (len && buf[len - 1] == '\n')
-			buf[len - 1] = '\0';
-		if (mode == 'f' && !utfutf(buf, delim)) {
-			if (!sflag)
-				puts(buf);
+	while ((len = getline(&line.data, &size, fp)) > 0) {
+		line.len = len;
+		if (line.data[line.len - 1] == '\n')
+			line.data[--line.len] = '\0';
+		if (mode == 'f' && !memmem(line.data, line.len, delim, delimlen)) {
+			if (!sflag) {
+				fwrite(line.data, 1, line.len, stdout);
+				fputc('\n', stdout);
+			}
 			continue;
 		}
-		for (i = 0, p = 1, s = buf, r = list; r; r = r->next, s += n) {
-			s += seek(s, r->min, &p, i);
+		for (i = 0, p = 1, s = line, r = list; r; r = r->next) {
+			n = seek(&s, r->min, &p, i);
+			s.data += n;
+			s.len -= n;
 			i += (mode == 'f') ? delimlen : 1;
-			if (!*s)
+			if (!s.len)
 				break;
 			if (!r->max) {
-				fputs(s, stdout);
+				fwrite(s.data, 1, s.len, stdout);
 				break;
 			}
-			n = seek(s, r->max + 1, &p, i);
+			n = seek(&s, r->max + 1, &p, i);
 			i += (mode == 'f') ? delimlen : 1;
-			if (fwrite(s, 1, n, stdout) != n)
+			if (fwrite(s.data, 1, n, stdout) != n)
 				eprintf("fwrite <stdout>:");
+			s.data += n;
+			s.len -= n;
 		}
 		putchar('\n');
 	}
