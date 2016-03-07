@@ -364,6 +364,8 @@ main(int argc, char *argv[])
 		break;
 	case 't':
 		fieldsep = EARGF(usage());
+		if (!*fieldsep)
+			eprintf("empty delimiter\n");
 		fieldseplen = unescape(fieldsep);
 		break;
 	case 'u':
