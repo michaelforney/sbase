@@ -171,7 +171,7 @@ skipmodcmp(struct linebufline *a, struct linebufline *b, int flags)
 }
 
 static int
-linecmp(struct linebufline *a, struct linebufline *b)
+slinecmp(struct linebufline *a, struct linebufline *b)
 {
 	int res = 0;
 	long double x, y;
@@ -218,7 +218,7 @@ check(FILE *fp, const char *fname)
 	if (!prev.data && (prev.len = getline(&prev.data, &prevsize, fp)) < 0)
 		eprintf("getline:");
 	while ((cur.len = getline(&cur.data, &cursize, fp)) > 0) {
-		if (uflag > linecmp(&cur, &prev)) {
+		if (uflag > slinecmp(&cur, &prev)) {
 			if (!Cflag) {
 				weprintf("disorder %s: ", fname);
 				fwrite(cur.data, 1, cur.len, stderr);
@@ -412,11 +412,11 @@ main(int argc, char *argv[])
 			eprintf("fopen %s:", outfile);
 
 		qsort(linebuf.lines, linebuf.nlines, sizeof(*linebuf.lines),
-				(int (*)(const void *, const void *))linecmp);
+				(int (*)(const void *, const void *))slinecmp);
 
 		for (i = 0; i < linebuf.nlines; i++) {
 			if (!uflag || i == 0 ||
-			    linecmp(&linebuf.lines[i], &linebuf.lines[i - 1])) {
+			    slinecmp(&linebuf.lines[i], &linebuf.lines[i - 1])) {
 				fwrite(linebuf.lines[i].data, 1,
 				       linebuf.lines[i].len, ofp);
 			}

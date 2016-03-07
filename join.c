@@ -26,7 +26,7 @@ struct field {
 	size_t len;
 };
 
-struct line {
+struct jline {
 	char *text;
 	size_t nf;
 	size_t maxf;
@@ -47,7 +47,7 @@ struct outlist {
 struct span {
 	size_t nl;
 	size_t maxl;
-	struct line **lines;
+	struct jline **lines;
 };
 
 static char *sep = NULL;
@@ -84,9 +84,9 @@ prsep(void)
 }
 
 static void
-swaplines(struct line *la, struct line *lb)
+swaplines(struct jline *la, struct jline *lb)
 {
-	struct line tmp;
+	struct jline tmp;
 
 	tmp = *la;
 	*la = *lb;
@@ -94,7 +94,7 @@ swaplines(struct line *la, struct line *lb)
 }
 
 static void
-prjoin(struct line *la, struct line *lb, size_t jfa, size_t jfb)
+prjoin(struct jline *la, struct jline *lb, size_t jfa, size_t jfb)
 {
 	struct spec *sp;
 	struct field *joinfield;
@@ -149,7 +149,7 @@ prjoin(struct line *la, struct line *lb, size_t jfa, size_t jfb)
 }
 
 static void
-prline(struct line *lp)
+prline(struct jline *lp)
 {
 	size_t len = strlen(lp->text);
 
@@ -160,7 +160,7 @@ prline(struct line *lp)
 }
 
 static int
-linecmp(struct line *la, struct line *lb, size_t jfa, size_t jfb)
+jlinecmp(struct jline *la, struct jline *lb, size_t jfa, size_t jfb)
 {
 	int status;
 
@@ -179,7 +179,7 @@ linecmp(struct line *la, struct line *lb, size_t jfa, size_t jfb)
 }
 
 static void
-addfield(struct line *lp, char *sp, size_t len)
+addfield(struct jline *lp, char *sp, size_t len)
 {
 	if (lp->nf >= lp->maxf) {
 		lp->fields = ereallocarray(lp->fields, (GROW * lp->maxf),
@@ -201,10 +201,10 @@ prspanjoin(struct span *spa, struct span *spb, size_t jfa, size_t jfb)
 			prjoin(spa->lines[i], spb->lines[j], jfa, jfb);
 }
 
-static struct line *
+static struct jline *
 makeline(char *s, size_t len)
 {
-	struct line *lp;
+	struct jline *lp;
 	char *sp, *beg, *end;
 	size_t i;
 	int eol = 0;
@@ -212,7 +212,7 @@ makeline(char *s, size_t len)
 	if (s[len-1] == '\n')
 		s[len-1] = '\0';
 
-	lp = ereallocarray(NULL, INIT, sizeof(struct line));
+	lp = ereallocarray(NULL, INIT, sizeof(struct jline));
 	lp->text = s;
 	lp->fields = ereallocarray(NULL, INIT, sizeof(struct field));
 	lp->nf = 0;
@@ -274,7 +274,7 @@ addtospan(struct span *sp, FILE *fp, int reset)
 
 	if (sp->nl >= sp->maxl) {
 		sp->lines = ereallocarray(sp->lines, (GROW * sp->maxl),
-		        sizeof(struct line *));
+		        sizeof(struct jline *));
 		sp->maxl *= GROW;
 	}
 
@@ -288,7 +288,7 @@ initspan(struct span *sp)
 {
 	sp->nl = 0;
 	sp->maxl = INIT;
-	sp->lines = ereallocarray(NULL, INIT, sizeof(struct line *));
+	sp->lines = ereallocarray(NULL, INIT, sizeof(struct jline *));
 }
 
 static void
@@ -385,7 +385,7 @@ join(FILE *fa, FILE *fb, size_t jfa, size_t jfb)
 	addtospan(&spb, fb, RESET);
 
 	while (spa.nl && spb.nl) {
-		if ((cmp = linecmp(spa.lines[0], spb.lines[0], jfa, jfb)) < 0) {
+		if ((cmp = jlinecmp(spa.lines[0], spb.lines[0], jfa, jfb)) < 0) {
 			if (unpairsa)
 				prline(spa.lines[0]);
 			if (!addtospan(&spa, fa, RESET)) {
@@ -419,7 +419,7 @@ join(FILE *fa, FILE *fb, size_t jfa, size_t jfb)
 					spa.nl++;
 					break;
 				}
-			} while (linecmp(spa.lines[spa.nl-1], spb.lines[0], jfa, jfb) == 0);
+			} while (jlinecmp(spa.lines[spa.nl-1], spb.lines[0], jfa, jfb) == 0);
 
 			/* read all consecutive matching lines from b */
 			do {
@@ -428,7 +428,7 @@ join(FILE *fa, FILE *fb, size_t jfa, size_t jfb)
 					spb.nl++;
 					break;
 				}
-			} while (linecmp(spa.lines[0], spb.lines[spb.nl-1], jfa, jfb) == 0);
+			} while (jlinecmp(spa.lines[0], spb.lines[spb.nl-1], jfa, jfb) == 0);
 
 			if (pairs)
 				prspanjoin(&spa, &spb, jfa, jfb);
