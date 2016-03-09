@@ -27,7 +27,7 @@ struct field {
 };
 
 struct jline {
-	char *text;
+	struct line text;
 	size_t nf;
 	size_t maxf;
 	struct field *fields;
@@ -144,18 +144,14 @@ prjoin(struct jline *la, struct jline *lb, size_t jfa, size_t jfb)
 			}
 		}
 	}
-
 	putchar('\n');
 }
 
 static void
 prline(struct jline *lp)
 {
-	size_t len = strlen(lp->text);
-
-	if (fwrite(lp->text, 1, len, stdout) != len)
+	if (fwrite(lp->text.data, 1, lp->text.len, stdout) != lp->text.len)
 		eprintf("fwrite:");
-
 	putchar('\n');
 }
 
@@ -166,12 +162,12 @@ jlinecmp(struct jline *la, struct jline *lb, size_t jfa, size_t jfb)
 
 	/* return FIELD_ERROR if both lines are short */
 	if (jfa >= la->nf) {
-		status = jfb >= lb->nf ? FIELD_ERROR : -1;
+		status = (jfb >= lb->nf) ? FIELD_ERROR : -1;
 	} else if (jfb >= lb->nf) {
 		status = 1;
 	} else {
 		status = memcmp(la->fields[jfa].s, lb->fields[jfb].s,
-		MAX (la->fields[jfa].len, lb->fields[jfb].len));
+		                MAX(la->fields[jfa].len, lb->fields[jfb].len));
 		LIMIT(status, -1, 1);
 	}
 
@@ -205,53 +201,43 @@ static struct jline *
 makeline(char *s, size_t len)
 {
 	struct jline *lp;
-	char *sp, *beg, *end;
-	size_t i;
-	int eol = 0;
+	char *tmp;
+	size_t i, end;
 
-	if (s[len-1] == '\n')
-		s[len-1] = '\0';
+	if (s[len - 1] == '\n')
+		s[--len] = '\0';
 
 	lp = ereallocarray(NULL, INIT, sizeof(struct jline));
-	lp->text = s;
+	lp->text.data = s;
+	lp->text.len = len;
 	lp->fields = ereallocarray(NULL, INIT, sizeof(struct field));
 	lp->nf = 0;
 	lp->maxf = INIT;
 
-	for (sp = lp->text; isblank(*sp); sp++)
+	for (i = 0; i < lp->text.len && isblank(lp->text.data[i]); i++)
 		;
-
-	while (!eol) {
-		beg = sp;
-
+	while (i < lp->text.len) {
 		if (sep) {
-			if (!(end = utfutf(sp, sep)))
-				eol = 1;
-
-			if (!eol) {
-				addfield(lp, beg, end - beg);
-				for (i = 0; i < seplen; i++)
-					end++;
+			if ((lp->text.len - i) < seplen ||
+			    !(tmp = memmem(lp->text.data + i,
+			                   lp->text.len - i, sep, seplen))) {
+				goto eol;
 			}
+			end = tmp - lp->text.data;
+			addfield(lp, lp->text.data + i, end - i);
+			i = end + seplen;
 		} else {
-			for (end = sp; !(isblank(*end)); end++) {
-				if (*end == '\0') {
-					eol = 1;
-					break;
-				}
+			for (end = i; !(isblank(lp->text.data[end])); end++) {
+				if (end + 1 == lp->text.len)
+					goto eol;
 			}
-
-			if (!eol)
-				addfield(lp, beg, end - beg);
-			while (isblank(*++end))
+			addfield(lp, lp->text.data + i, end - i);
+			for (i = end; isblank(lp->text.data[i]); i++)
 				;
 		}
-
-		if (eol)
-			addfield(lp, beg, strlen(sp));
-
-		sp = end;
 	}
+eol:
+	addfield(lp, lp->text.data + i, lp->text.len - i);
 
 	return lp;
 }
@@ -260,9 +246,10 @@ static int
 addtospan(struct span *sp, FILE *fp, int reset)
 {
 	char *newl = NULL;
-	size_t len, size = 0;
+	ssize_t len;
+	size_t size = 0;
 
-	if ((len = getline(&newl, &size, fp)) == (size_t)-1) {
+	if ((len = getline(&newl, &size, fp)) < 0) {
 		if (ferror(fp))
 			eprintf("getline:");
 		else
@@ -298,9 +285,8 @@ freespan(struct span *sp)
 
 	for (i = 0; i < sp->nl; i++) {
 		free(sp->lines[i]->fields);
-		free(sp->lines[i]->text);
+		free(sp->lines[i]->text.data);
 	}
-
 	free(sp->lines);
 }
 

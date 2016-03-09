@@ -43,7 +43,7 @@ The following tools are implemented:
 0=*|o head            .
 0=*|x hostname        .
 0=*|x install         .
- =* o join            .
+0=* o join            .
 0=*|o kill            .
 0=*|o link            .
 0=*|o ln              .
