@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "text.h"
 #include "util.h"
 
 static int    bflag = 0;
@@ -12,26 +13,25 @@ static int    sflag = 0;
 static size_t width = 80;
 
 static void
-foldline(const char *str) {
-	const char *p, *spacesect = NULL;
-	size_t col, off;
+foldline(struct line *l) {
+	size_t i, col, last, spacesect, len;
 
-	for (p = str, col = 0; *p && *p != '\n'; p++) {
-		if (!UTF8_POINT(*p) && !bflag)
+	for (i = 0, last = 0, col = 0, spacesect = 0; i < l->len; i++) {
+		if (!UTF8_POINT(l->data[i]) && !bflag)
 			continue;
 		if (col >= width) {
-			off = (sflag && spacesect) ? spacesect - str : p - str;
-			if (fwrite(str, 1, off, stdout) != off)
+			len = ((sflag && spacesect) ? spacesect : i) - last;
+			if (fwrite(l->data + last, 1, len, stdout) != len)
 				eprintf("fwrite <stdout>:");
 			putchar('\n');
-			spacesect = NULL;
+			last = (sflag && spacesect) ? spacesect : i;
 			col = 0;
-			p = str += off;
+			spacesect = 0;
 		}
-		if (sflag && isspace(*p))
-			spacesect = p + 1;
-		if (!bflag && iscntrl(*p)) {
-			switch(*p) {
+		if (sflag && isspace(l->data[i]))
+			spacesect = i + 1;
+		if (!bflag && iscntrl(l->data[i])) {
+			switch(l->data[i]) {
 			case '\b':
 				col -= (col > 0);
 				break;
@@ -46,20 +46,23 @@ foldline(const char *str) {
 			col++;
 		}
 	}
-	fputs(str, stdout);
+	if (l->len - last)
+		fwrite(l->data + last, 1, l->len - last, stdout);
 }
 
 static void
 fold(FILE *fp, const char *fname)
 {
-	char *buf = NULL;
-	size_t size = 0;
+	static struct line line;
+	static size_t size = 0;
+	ssize_t len;
 
-	while (getline(&buf, &size, fp) > 0)
-		foldline(buf);
+	while ((len = getline(&line.data, &size, fp)) > 0) {
+		line.len = len;
+		foldline(&line);
+	}
 	if (ferror(fp))
 		eprintf("getline %s:", fname);
-	free(buf);
 }
 
 static void
