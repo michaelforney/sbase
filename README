@@ -56,7 +56,7 @@ The following tools are implemented:
 0=*|x mktemp          .
 0=*|o mv              (-i)
 0=*|o nice            .
- #*|o nl              .
+0#*|o nl              .
 0=*|o nohup           .
 0=*|o od              .
 0#* o pathchk         .

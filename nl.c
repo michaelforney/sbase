@@ -13,20 +13,23 @@ static size_t   startnum = 1;
 static size_t   incr = 1;
 static size_t   blines = 1;
 static size_t   delimlen = 2;
+static size_t   seplen = 1;
 static int      width = 6;
 static int      pflag = 0;
 static char     type[] = { 'n', 't', 'n' }; /* footer, body, header */
 static char    *delim = "\\:";
-static char     format[8] = "%*ld%s";
+static char     format[6] = "%*ld";
 static char    *sep = "\t";
 static regex_t  preg[3];
 
 static int
-getsection(char *buf, int *section)
+getsection(struct line *l, int *section)
 {
+	size_t i;
 	int sectionchanged = 0, newsection = *section;
 
-	for (; !strncmp(buf, delim, delimlen); buf += delimlen) {
+	for (i = 0; (l->len - i) >= delimlen &&
+	     !memcmp(l->data + i, delim, delimlen); i += delimlen) {
 		if (!sectionchanged) {
 			sectionchanged = 1;
 			newsection = 0;
@@ -35,7 +38,7 @@ getsection(char *buf, int *section)
 		}
 	}
 
-	if (!buf[0] || buf[0] == '\n')
+	if (!(l->len - i) || l->data[i] == '\n')
 		*section = newsection;
 	else
 		sectionchanged = 0;
@@ -46,15 +49,18 @@ getsection(char *buf, int *section)
 static void
 nl(const char *fname, FILE *fp)
 {
-	size_t number = startnum, size = 0, bl = 1;
+	static struct line line;
+	static size_t size;
+	size_t number = startnum, bl = 1;
+	ssize_t len;
 	int donumber, oldsection, section = 1;
-	char *buf = NULL;
 
-	while (getline(&buf, &size, fp) > 0) {
+	while ((len = getline(&line.data, &size, fp)) > 0) {
+		line.len = len;
 		donumber = 0;
 		oldsection = section;
 
-		if (getsection(buf, &section)) {
+		if (getsection(&line, &section)) {
 			if ((section >= oldsection) && !pflag)
 				number = startnum;
 			continue;
@@ -62,15 +68,15 @@ nl(const char *fname, FILE *fp)
 
 		switch (type[section]) {
 		case 't':
-			if (buf[0] != '\n')
+			if (line.data[0] != '\n')
 				donumber = 1;
 			break;
 		case 'p':
-			if (!regexec(preg + section, buf, 0, NULL, 0))
+			if (!regexec(preg + section, line.data, 0, NULL, 0))
 				donumber = 1;
 			break;
 		case 'a':
-			if (buf[0] == '\n' && bl < blines) {
+			if (line.data[0] == '\n' && bl < blines) {
 				++bl;
 			} else {
 				donumber = 1;
@@ -79,12 +85,13 @@ nl(const char *fname, FILE *fp)
 		}
 
 		if (donumber) {
-			printf(format, width, number, sep);
+			printf(format, width, number);
+			fwrite(sep, 1, seplen, stdout);
 			number += incr;
 		}
-		fputs(buf, stdout);
+		fwrite(line.data, 1, line.len, stdout);
 	}
-	free(buf);
+	free(line.data);
 	if (ferror(fp))
 		eprintf("getline %s:", fname);
 }
@@ -112,18 +119,15 @@ int
 main(int argc, char *argv[])
 {
 	FILE *fp = NULL;
-	size_t l, s;
+	size_t s;
 	int ret = 0;
 	char *d, *formattype, *formatblit;
 
 	ARGBEGIN {
 	case 'd':
-		d = EARGF(usage());
-		l = utflen(d);
-
-		switch (l) {
+		switch (utflen((d = EARGF(usage())))) {
 		case 0:
-			break;
+			eprintf("empty logical page delimiter\n");
 		case 1:
 			s = strlen(d);
 			delim = emalloc(s + 1 + 1);
@@ -167,13 +171,14 @@ main(int argc, char *argv[])
 		}
 
 		estrlcat(format, formatblit, sizeof(format));
-		estrlcat(format, "*ld%s", sizeof(format));
+		estrlcat(format, "*ld", sizeof(format));
 		break;
 	case 'p':
 		pflag = 1;
 		break;
 	case 's':
 		sep = EARGF(usage());
+		seplen = unescape(sep);
 		break;
 	case 'v':
 		startnum = estrtonum(EARGF(usage()), 0, MIN(LLONG_MAX, SIZE_MAX));
