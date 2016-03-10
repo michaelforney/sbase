@@ -104,7 +104,7 @@ The following tools are implemented:
 0#*|o wc              .
 0=*|x which           .
 0=*|x whoami          .
- =*|o xargs           (-p)
+0=*|o xargs           (-p)
 0=*|x yes             .
 
 The  complement of  sbase  is  ubase[1] which  is  Linux-specific  and
