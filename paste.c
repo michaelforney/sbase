@@ -87,7 +87,7 @@ main(int argc, char *argv[])
 {
 	struct fdescr *dsc;
 	Rune *delim;
-	size_t i, len;
+	size_t delimlen, i, len;
 	int seq = 0, ret = 0;
 	char *adelim = "\t";
 
@@ -106,10 +106,10 @@ main(int argc, char *argv[])
 		usage();
 
 	/* populate delimiters */
+	/* TODO: fix libutf to accept sizes */
 	unescape(adelim);
 	delim = ereallocarray(NULL, utflen(adelim) + 1, sizeof(*delim));
-	len = utftorunestr(adelim, delim);
-	if (!len)
+	if (!(delimlen = utftorunestr(adelim, delim)))
 		usage();
 
 	/* populate file list */
