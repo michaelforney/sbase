@@ -97,7 +97,7 @@ The following tools are implemented:
 0=*|o tty             .
 0=*|o uname           .
 0#*|o unexpand        .
- =*|o uniq            .
+0=*|o uniq            .
 0=*|o unlink          .
 0=*|o uudecode        .
 0=*|o uuencode        .

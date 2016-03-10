@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "text.h"
 #include "util.h"
 
 static const char *countfmt = "";
@@ -12,59 +13,60 @@ static int uflag = 0;
 static int fskip = 0;
 static int sskip = 0;
 
-static char *prevline     = NULL;
-static char *prevoffset   = NULL;
+static struct line prevl;
+static ssize_t prevoff    = -1;
 static long prevlinecount = 0;
-static size_t prevlinesiz = 0;
 
-static const char *
-uniqskip(const char *l)
+static size_t
+uniqskip(struct line *l)
 {
-	const char *lo = l;
+	size_t i;
 	int f = fskip, s = sskip;
 
-	for (; f; --f) {
-		while (isblank(*lo))
-			lo++;
-		while (*lo && !isblank(*lo))
-			lo++;
+	for (i = 0; i < l->len && f; --f) {
+		while (isblank(l->data[i]))
+			i++;
+		while (i < l->len && !isblank(l->data[i]))
+			i++;
 	}
-	for (; s && *lo && *lo != '\n'; --s, ++lo);
+	for (; s && i < l->len && l->data[i] != '\n'; --s, i++)
+		;
 
-	return lo;
+	return i;
 }
 
 static void
-uniqline(FILE *ofp, const char *l, size_t len)
+uniqline(FILE *ofp, struct line *l)
 {
-	const char *loffset = l ? uniqskip(l) : l;
+	size_t loff;
 
-	int linesequel = l && prevoffset &&
-	                 !strcmp(loffset, prevoffset);
+	if (l) {
+		loff = uniqskip(l);
 
-	if (linesequel) {
-		++prevlinecount;
-		return;
+		if (prevoff >= 0 && (l->len - loff) == (prevl.len - prevoff) &&
+		    !memcmp(l->data + loff, prevl.data + prevoff, l->len - loff)) {
+			++prevlinecount;
+			return;
+		}
 	}
 
-	if (prevoffset) {
+	if (prevoff >= 0) {
 		if ((prevlinecount == 1 && !dflag) ||
 		    (prevlinecount != 1 && !uflag)) {
 			if (*countfmt)
 				fprintf(ofp, countfmt, prevlinecount);
-			fputs(prevline, ofp);
+			fwrite(prevl.data, 1, prevl.len, ofp);
 		}
-		prevoffset = NULL;
+		prevoff = -1;
 	}
 
 	if (l) {
-		if (!prevline || len >= prevlinesiz) {
-			prevlinesiz = len + 1;
-			prevline = erealloc(prevline, prevlinesiz);
+		if (!prevl.data || l->len >= prevl.len) {
+			prevl.len = l->len;
+			prevl.data = erealloc(prevl.data, prevl.len);
 		}
-		memcpy(prevline, l, len);
-		prevline[len] = '\0';
-		prevoffset = prevline + (loffset - l);
+		memcpy(prevl.data, l->data, prevl.len);
+		prevoff = loff;
 	}
 	prevlinecount = 1;
 }
@@ -72,18 +74,20 @@ uniqline(FILE *ofp, const char *l, size_t len)
 static void
 uniq(FILE *fp, FILE *ofp)
 {
-	char *buf = NULL;
-	size_t size = 0;
+	static struct line line;
+	static size_t size;
 	ssize_t len;
 
-	while ((len = getline(&buf, &size, fp)) > 0)
-		uniqline(ofp, buf, (size_t)len);
+	while ((len = getline(&line.data, &size, fp)) > 0) {
+		line.len = len;
+		uniqline(ofp, &line);
+	}
 }
 
 static void
 uniqfinish(FILE *ofp)
 {
-	uniqline(ofp, NULL, 0);
+	uniqline(ofp, NULL);
 }
 
 static void
