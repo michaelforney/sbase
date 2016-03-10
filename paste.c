@@ -87,7 +87,7 @@ main(int argc, char *argv[])
 {
 	struct fdescr *dsc;
 	Rune *delim;
-	size_t delimlen, i, len;
+	size_t delimlen, i;
 	int seq = 0, ret = 0;
 	char *adelim = "\t";
 
@@ -126,9 +126,9 @@ main(int argc, char *argv[])
 	}
 
 	if (seq) {
-		sequential(dsc, argc, delim, len);
+		sequential(dsc, argc, delim, delimlen);
 	} else {
-		parallel(dsc, argc, delim, len);
+		parallel(dsc, argc, delim, delimlen);
 	}
 
 	for (i = 0; i < argc; i++)
