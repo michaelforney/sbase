@@ -62,9 +62,9 @@ uniqline(FILE *ofp, struct line *l)
 
 	if (l) {
 		if (!prevl.data || l->len >= prevl.len) {
-			prevl.len = l->len;
-			prevl.data = erealloc(prevl.data, prevl.len);
+			prevl.data = erealloc(prevl.data, l->len);
 		}
+		prevl.len = l->len;
 		memcpy(prevl.data, l->data, prevl.len);
 		prevoff = loff;
 	}
