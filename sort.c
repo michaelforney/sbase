@@ -210,10 +210,15 @@ check(FILE *fp, const char *fname)
 {
 	static struct line prev, cur, tmp;
 	static size_t prevsize, cursize, tmpsize;
+	ssize_t len;
 
-	if (!prev.data && (prev.len = getline(&prev.data, &prevsize, fp)) < 0)
-		eprintf("getline:");
-	while ((cur.len = getline(&cur.data, &cursize, fp)) > 0) {
+	if (!prev.data) {
+		if ((len = getline(&prev.data, &prevsize, fp)) < 0)
+			eprintf("getline:");
+		prev.len = len;
+	}
+	while ((len = getline(&cur.data, &cursize, fp)) > 0) {
+		cur.len = len;
 		if (uflag > slinecmp(&cur, &prev)) {
 			if (!Cflag) {
 				weprintf("disorder %s: ", fname);
