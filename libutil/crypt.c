@@ -89,13 +89,16 @@ cryptcheck(int argc, char *argv[], struct crypt_ops *ops, uint8_t *md, size_t sz
 		mdchecklist(stdin, ops, md, sz, &formatsucks, &noread, &nonmatch);
 	} else {
 		for (; *argv; argc--, argv++) {
-			if (!(fp = fopen(*argv, "r"))) {
+			if ((*argv)[0] == '-' && !(*argv)[1]) {
+				fp = stdin;
+			} else if (!(fp = fopen(*argv, "r"))) {
 				weprintf("fopen %s:", *argv);
 				ret = 1;
 				continue;
 			}
 			mdchecklist(fp, ops, md, sz, &formatsucks, &noread, &nonmatch);
-			fclose(fp);
+			if (fp != stdin)
+				fclose(fp);
 		}
 	}
 
