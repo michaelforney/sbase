@@ -7,12 +7,25 @@
 
 #define STOI(s) enstrtonum(2, s, LLONG_MIN, LLONG_MAX)
 
+static int
+mtimecmp(struct stat *buf1, struct stat *buf2)
+{
+	if (buf1->st_mtime < buf2->st_mtime) return -1;
+	if (buf1->st_mtime > buf2->st_mtime) return +1;
+#ifdef st_mtime
+	if (buf1->st_mtim.tv_nsec < buf2->st_mtim.tv_nsec) return -1;
+	if (buf1->st_mtim.tv_nsec > buf2->st_mtim.tv_nsec) return +1;
+#endif
+	return 0;
+}
+
 static int unary_b(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; return S_ISBLK  (buf.st_mode); }
 static int unary_c(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; return S_ISCHR  (buf.st_mode); }
 static int unary_d(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; return S_ISDIR  (buf.st_mode); }
 static int unary_f(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; return S_ISREG  (buf.st_mode); }
 static int unary_g(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; return S_ISGID & buf.st_mode ; }
 static int unary_h(char *s) { struct stat buf; if (lstat(s, &buf)) return 0; return S_ISLNK  (buf.st_mode); }
+static int unary_k(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; return S_ISVTX & buf.st_mode ; }
 static int unary_p(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; return S_ISFIFO (buf.st_mode); }
 static int unary_S(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; return S_ISSOCK (buf.st_mode); }
 static int unary_s(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; return           buf.st_size ; }
@@ -38,6 +51,30 @@ static int binary_ge(char *s1, char *s2) { long long a = STOI(s1), b = STOI(s2);
 static int binary_lt(char *s1, char *s2) { long long a = STOI(s1), b = STOI(s2); return a <  b; }
 static int binary_le(char *s1, char *s2) { long long a = STOI(s1), b = STOI(s2); return a <= b; }
 
+static int
+binary_ef(char *s1, char *s2)
+{
+	struct stat buf1, buf2;
+	if (stat(s1, &buf1) || stat(s2, &buf2)) return 0;
+	return buf1.st_dev == buf2.st_dev && buf1.st_ino == buf2.st_ino;
+}
+
+static int
+binary_ot(char *s1, char *s2)
+{
+	struct stat buf1, buf2;
+	if (stat(s1, &buf1) || stat(s2, &buf2)) return 0;
+	return mtimecmp(&buf1, &buf2) < 0;
+}
+
+static int
+binary_nt(char *s1, char *s2)
+{
+	struct stat buf1, buf2;
+	if (stat(s1, &buf1) || stat(s2, &buf2)) return 0;
+	return mtimecmp(&buf1, &buf2) > 0;
+}
+
 struct test {
 	char *name;
 	int (*func)();
@@ -51,6 +88,7 @@ static struct test unary[] = {
 	{ "-f", unary_f },
 	{ "-g", unary_g },
 	{ "-h", unary_h },
+	{ "-k", unary_k },
 	{ "-L", unary_h },
 	{ "-n", unary_n },
 	{ "-p", unary_p },
@@ -75,6 +113,9 @@ static struct test binary[] = {
 	{ "-ge", binary_ge },
 	{ "-lt", binary_lt },
 	{ "-le", binary_le },
+	{ "-ef", binary_ef },
+	{ "-ot", binary_ot },
+	{ "-nt", binary_nt },
 
 	{ NULL, NULL },
 };
