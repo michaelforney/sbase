@@ -1,11 +1,48 @@
 /* See LICENSE file for copyright and license details. */
 #include <string.h>
 #include <unistd.h>
+#include <ctype.h>
 #include <sys/stat.h>
 
 #include "util.h"
 
-#define STOI(s) enstrtonum(2, s, LLONG_MIN, LLONG_MAX)
+static int
+intcmp(char *a, char *b)
+{
+	char *s;
+	int asign = *a == '-' ? -1 : 1;
+	int bsign = *b == '-' ? -1 : 1;
+	int ret;
+
+	if (*a == '-' || *a == '+') a += 1;
+	if (*b == '-' || *b == '+') b += 1;
+
+	if (!*a || !*b)
+		goto noint;
+	for (s = a; *s; s++)
+		if (!isdigit(*s))
+			goto noint;
+	for (s = b; *s; s++)
+		if (!isdigit(*s))
+			goto noint;
+
+	while (*a == '0') a++;
+	while (*b == '0') b++;
+	asign *= !!*a;
+	bsign *= !!*b;
+
+	if (asign != bsign)
+		return asign < bsign ? -1 : 1;
+	else if (strlen(a) != strlen(b))
+		return asign * (strlen(a) < strlen(b) ? -1 : 1);
+	else
+		return asign * strcmp(a, b);
+
+noint:
+	enprintf(2, "expected integer operands\n");
+
+	return 0; /* not reached */
+}
 
 static int
 mtimecmp(struct stat *buf1, struct stat *buf2)
@@ -44,12 +81,12 @@ static int unary_t(char *s) { int fd = enstrtonum(2, s, 0, INT_MAX); return isat
 static int binary_se(char *s1, char *s2) { return !strcmp(s1, s2); }
 static int binary_sn(char *s1, char *s2) { return  strcmp(s1, s2); }
 
-static int binary_eq(char *s1, char *s2) { long long a = STOI(s1), b = STOI(s2); return a == b; }
-static int binary_ne(char *s1, char *s2) { long long a = STOI(s1), b = STOI(s2); return a != b; }
-static int binary_gt(char *s1, char *s2) { long long a = STOI(s1), b = STOI(s2); return a >  b; }
-static int binary_ge(char *s1, char *s2) { long long a = STOI(s1), b = STOI(s2); return a >= b; }
-static int binary_lt(char *s1, char *s2) { long long a = STOI(s1), b = STOI(s2); return a <  b; }
-static int binary_le(char *s1, char *s2) { long long a = STOI(s1), b = STOI(s2); return a <= b; }
+static int binary_eq(char *s1, char *s2) { return intcmp(s1, s2) == 0; }
+static int binary_ne(char *s1, char *s2) { return intcmp(s1, s2) != 0; }
+static int binary_gt(char *s1, char *s2) { return intcmp(s1, s2) >  0; }
+static int binary_ge(char *s1, char *s2) { return intcmp(s1, s2) >= 0; }
+static int binary_lt(char *s1, char *s2) { return intcmp(s1, s2) <  0; }
+static int binary_le(char *s1, char *s2) { return intcmp(s1, s2) <= 0; }
 
 static int
 binary_ef(char *s1, char *s2)
