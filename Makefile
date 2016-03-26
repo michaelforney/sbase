@@ -137,6 +137,7 @@ BIN =\
 	pwd\
 	readlink\
 	renice\
+	rev\
 	rm\
 	rmdir\
 	sed\
