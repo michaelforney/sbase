@@ -12,7 +12,6 @@ intcmp(char *a, char *b)
 	char *s;
 	int asign = *a == '-' ? -1 : 1;
 	int bsign = *b == '-' ? -1 : 1;
-	int ret;
 
 	if (*a == '-' || *a == '+') a += 1;
 	if (*b == '-' || *b == '+') b += 1;
