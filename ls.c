@@ -118,6 +118,7 @@ output(const struct entry *ent)
 {
 	struct group *gr;
 	struct passwd *pw;
+	struct tm *tm;
 	ssize_t len;
 	size_t l;
 	char *name, *c, *u, *fmt, buf[BUFSIZ],
@@ -194,7 +195,10 @@ output(const struct entry *ent)
 	else
 		fmt = "%b %d %H:%M";
 
-	strftime(buf, sizeof(buf), fmt, localtime(&ent->t.tv_sec));
+	if ((tm = localtime(&ent->t.tv_sec)))
+		strftime(buf, sizeof(buf), fmt, tm);
+	else
+		snprintf(buf, sizeof(buf), "%lld", (long long)(ent->t.tv_sec));
 	printf("%s %4ld %-8.8s %-8.8s ", mode, (long)ent->nlink, pwname, grname);
 
 	if (S_ISBLK(ent->mode) || S_ISCHR(ent->mode))
