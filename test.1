@@ -102,6 +102,17 @@ are (=
 .Op Fl le
 | <
 .Op Fl lt ) .
+.It Ar f1 ( Fl ef | Fl ot | Fl nt ) Ar f2
+True if file
+.Ar f1
+(refer to the same inode as
+.Op Fl ef
+| has an older mtime than
+.Op Fl ot
+| has a newer mtime than
+.Op Fl nt )
+file
+.Ar f2 .
 .El
 .Sh EXIT STATUS
 .Bl -tag -width Ds
