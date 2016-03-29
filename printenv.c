@@ -26,5 +26,5 @@ main(int argc, char *argv[])
 		}
 	}
 
-	return fshut(stdout, "<stdout>") || ret;
+	return fshut(stdout, "<stdout>") ? 2 : ret;
 }
