@@ -1,11 +1,12 @@
 /* See LICENSE file for copyright and license details. */
+#include <sys/stat.h>
+
+#include <errno.h>
+#include <limits.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h>
-#include <stdint.h>
-#include <errno.h>
-#include <sys/stat.h>
 
 #include "util.h"
 
@@ -24,16 +25,12 @@ pathchk(char *filename)
 	struct stat st;
 
 	/* Empty? */
-	if (extra && !*filename) {
-		weprintf("%s: empty filename\n", argv0);
-		return 1;
-	}
+	if (extra && !*filename)
+		eprintf("empty filename\n");
 
 	/* Leading hyphen? */
-	if (extra && ((*filename == '-') || strstr(filename, "/-"))) {
-		weprintf("%s: %s: leading '-' in component of filename\n", argv0, filename);
-		return 1;
-	}
+	if (extra && ((*filename == '-') || strstr(filename, "/-")))
+		eprintf("%s: leading '-' in component of filename\n", filename);
 
 	/* Nonportable character? */
 #ifdef SYSTEM_CHARACTER_SET
@@ -45,38 +42,31 @@ pathchk(char *filename)
 		character_set = "/"PORTABLE_CHARACTER_SET;
 	if (character_set && *(invalid = filename + strspn(filename, character_set))) {
 		for (invalid_end = invalid + 1; *invalid_end & 0x80; invalid_end++);
-		weprintf("%s: %s: ", argv0, filename);
+		p = estrdup(filename);
 		*invalid_end = 0;
-		weprintf("nonportable character '%s'\n", invalid);
-		return 1;
+		eprintf("%s: nonportable character '%s'\n", p, invalid);
 	}
 
 	/* Symlink error? Non-searchable directory? */
 	if (lstat(filename, &st) && errno != ENOENT) {
 		/* lstat rather than stat, so that if filename is a bad symlink, but
 		 * all parents are OK, no error will be detected. */
-		weprintf("%s: %s:", argv0, filename);
-		return 1;
+		eprintf("%s:", filename);
 	}
 
 	/* Too long pathname? */
 	maxlen = most ? _POSIX_PATH_MAX : PATH_MAX;
-	if (strlen(filename) >= maxlen) {
-		weprintf("%s: %s: is longer than %zu bytes\n",
-		         argv0, filename, maxlen);
-		return 1;
-	}
+	if (strlen(filename) >= maxlen)
+		eprintf("%s: is longer than %zu bytes\n", filename, maxlen);
 
 	/* Too long component? */
 	maxlen = most ? _POSIX_NAME_MAX : NAME_MAX;
 	for (p = filename; p; p = q) {
 		q = strchr(p, '/');
 		len = q ? (size_t)(q++ - p) : strlen(p);
-		if (len > maxlen) {
-			weprintf("%s: %s: includes component longer than %zu bytes\n",
-			         argv0, filename, maxlen);
-			return 1;
-		}
+		if (len > maxlen)
+			eprintf("%s: includes component longer than %zu bytes\n",
+			         filename, maxlen);
 	}
 
 	return 0;
