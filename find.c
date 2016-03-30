@@ -1,5 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 #include <dirent.h>
+#include <errno.h>
 #include <fnmatch.h>
 #include <grp.h>
 #include <libgen.h>
@@ -322,24 +323,21 @@ static int
 pri_atime(struct arg *arg)
 {
 	struct narg *n = arg->extra.p;
-	time_t time = (n->n - start.tv_sec) / 86400;
-	return n->cmp(time, n->n);
+	return n->cmp((start.tv_sec - arg->st->st_atime) / 86400, n->n);
 }
 
 static int
 pri_ctime(struct arg *arg)
 {
 	struct narg *n = arg->extra.p;
-	time_t time = (n->n - start.tv_sec) / 86400;
-	return n->cmp(time, n->n);
+	return n->cmp((start.tv_sec - arg->st->st_ctime) / 86400, n->n);
 }
 
 static int
 pri_mtime(struct arg *arg)
 {
 	struct narg *n = arg->extra.p;
-	time_t time = (n->n - start.tv_sec) / 86400;
-	return n->cmp(time, n->n);
+	return n->cmp((start.tv_sec - arg->st->st_mtime) / 86400, n->n);
 }
 
 static int
@@ -397,7 +395,7 @@ pri_exec(struct arg *arg)
 			weprintf("exec %s failed:", *e->argv);
 			_exit(1);
 		}
-		/* FIXME: propper course of action for all waitpid() on EINTR? */
+		/* FIXME: proper course of action for all waitpid() on EINTR? */
 		waitpid(pid, &status, 0);
 		return !!status;
 	}
@@ -969,8 +967,7 @@ find(char *path, struct findhist *hist)
 		return;
 	}
 
-	/* FIXME: check errno to see if we are done or encountered an error? */
-	while ((de = readdir(dir))) {
+	while (errno = 0, (de = readdir(dir))) {
 		size_t pathcap = len + strlen(de->d_name);
 		char pathbuf[pathcap], *p;
 
@@ -983,7 +980,12 @@ find(char *path, struct findhist *hist)
 		estrlcat(pathbuf, de->d_name, pathcap);
 		find(pathbuf, &cur);
 	}
-	closedir(dir); /* check return value? */
+	if (errno) {
+		weprintf("readdir %s:", path);
+		closedir(dir);
+		return;
+	}
+	closedir(dir);
 
 	if (gflags.depth)
 		eval(root, &arg);
