@@ -2,6 +2,7 @@
 #include <sys/stat.h>
 
 #include <ctype.h>
+#include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -71,10 +72,10 @@ static int unary_u(char *s) { struct stat buf; if ( stat(s, &buf)) return 0; ret
 static int unary_n(char *s) { return  *s; }
 static int unary_z(char *s) { return !*s; }
 
-static int unary_e(char *s) { return !access(s, F_OK); }
-static int unary_r(char *s) { return !access(s, R_OK); }
-static int unary_w(char *s) { return !access(s, W_OK); }
-static int unary_x(char *s) { return !access(s, X_OK); }
+static int unary_e(char *s) { return !faccessat(AT_FDCWD, s, F_OK, AT_EACCESS); }
+static int unary_r(char *s) { return !faccessat(AT_FDCWD, s, R_OK, AT_EACCESS); }
+static int unary_w(char *s) { return !faccessat(AT_FDCWD, s, W_OK, AT_EACCESS); }
+static int unary_x(char *s) { return !faccessat(AT_FDCWD, s, X_OK, AT_EACCESS); }
 
 static int unary_t(char *s) { int fd = enstrtonum(2, s, 0, INT_MAX); return isatty(fd); }
 
