@@ -48,7 +48,7 @@ touch(const char *file)
 static time_t
 parsetime(char *str, time_t current)
 {
-	struct tm *cur, t;
+	struct tm *cur, t = { 0 };
 	int zulu = 0;
 	char *format;
 	size_t len = strlen(str);
@@ -59,12 +59,10 @@ parsetime(char *str, time_t current)
 	switch (len) {
 	/* -t flag argument */
 	case 8:
-		t.tm_sec = 0;
 		t.tm_year = cur->tm_year;
 		format = "%m%d%H%M";
 		break;
 	case 10:
-		t.tm_sec = 0;
 		format = "%y%m%d%H%M";
 		break;
 	case 11:
@@ -72,7 +70,6 @@ parsetime(char *str, time_t current)
 		format = "%m%d%H%M.%S";
 		break;
 	case 12:
-		t.tm_sec = 0;
 		format = "%Y%m%d%H%M";
 		break;
 	case 13:
@@ -98,7 +95,7 @@ parsetime(char *str, time_t current)
 	}
 
 	if (!strptime(str, format, &t))
-		weprintf("strptime %s: Invalid date format\n", str);
+		eprintf("strptime %s: Invalid date format\n", str);
 	if (zulu) {
 		t.tm_hour += t.tm_gmtoff / 60;
 		t.tm_gmtoff = 0;
