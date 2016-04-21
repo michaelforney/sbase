@@ -1,5 +1,4 @@
 /* See LICENSE file for copyright and license details. */
-#include <locale.h>
 #include <regex.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -178,8 +177,6 @@ main(int argc, char *argv[])
 	int m, flags = REG_NOSUB, match = NoMatch;
 	FILE *fp;
 	char *arg;
-
-	setlocale(LC_ALL, "");
 
 	SLIST_INIT(&phead);
 
