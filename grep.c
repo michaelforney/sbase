@@ -107,7 +107,7 @@ grep(FILE *fp, const char *str)
 	ssize_t len = 0;
 	long c = 0, n;
 	struct pattern *pnode;
-	int match = NoMatch;
+	int match, result = NoMatch;
 
 	for (n = 1; (len = getline(&buf, &size, fp)) > 0; n++) {
 		/* Remove the trailing newline if one is present. */
@@ -149,7 +149,7 @@ grep(FILE *fp, const char *str)
 				puts(buf);
 				break;
 			}
-			match = Match;
+			result = Match;
 			break;
 		}
 	}
@@ -158,9 +158,9 @@ grep(FILE *fp, const char *str)
 end:
 	if (ferror(fp)) {
 		weprintf("%s: read error:", str);
-		match = Error;
+		result = Error;
 	}
-	return match;
+	return result;
 }
 
 static void
