@@ -114,22 +114,22 @@ grep(FILE *fp, const char *str)
 		if (len && buf[len - 1] == '\n')
 			buf[len - 1] = '\0';
 		SLIST_FOREACH(pnode, &phead, entry) {
-			if (!Fflag) {
-				if (regexec(&pnode->preg, buf, 0, NULL, 0) ^ vflag)
-					continue;
-			} else {
-				if (!xflag) {
-					if ((iflag ? strcasestr : strstr)(buf, pnode->pattern))
+			if (Fflag) {
+				if (xflag) {
+					if (!(iflag ? strcasecmp : strcmp)(buf, pnode->pattern))
 						match = Match;
 					else
 						match = NoMatch;
 				} else {
-					if (!(iflag ? strcasecmp : strcmp)(buf, pnode->pattern))
+					if ((iflag ? strcasestr : strstr)(buf, pnode->pattern))
 						match = Match;
 					else
 						match = NoMatch;
 				}
 				if (match ^ vflag)
+					continue;
+			} else {
+				if (regexec(&pnode->preg, buf, 0, NULL, 0) ^ vflag)
 					continue;
 			}
 			switch (mode) {
