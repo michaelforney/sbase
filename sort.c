@@ -18,6 +18,11 @@ struct keydef {
 	TAILQ_ENTRY(keydef) entry;
 };
 
+struct column {
+	struct line line;
+	size_t cap;
+};
+
 enum {
 	MOD_N      = 1 << 0,
 	MOD_STARTB = 1 << 1,
@@ -33,7 +38,7 @@ static TAILQ_HEAD(kdhead, keydef) kdhead = TAILQ_HEAD_INITIALIZER(kdhead);
 static int Cflag = 0, cflag = 0, uflag = 0;
 static char *fieldsep = NULL;
 static size_t fieldseplen = 0;
-static struct line col1, col2;
+static struct column col1, col2;
 
 static void
 skipblank(struct line *a)
@@ -76,12 +81,12 @@ skipcolumn(struct line *a, int skip_to_next_col)
 	}
 }
 
-static size_t
-columns(struct line *line, const struct keydef *kd, struct line *col)
+static void
+columns(struct line *line, const struct keydef *kd, struct column *col)
 {
 	Rune r;
 	struct line start, end;
-	size_t len, utflen, rlen;
+	size_t utflen, rlen;
 	int i;
 
 	start.data = line->data;
@@ -118,15 +123,13 @@ columns(struct line *line, const struct keydef *kd, struct line *col)
 		end.data += end.len - 1;
 		end.len = 1;
 	}
-	len = MAX(0, end.data - start.data);
-	if (!(col->data) || col->len < len)
-		col->data = erealloc(col->data, len + 1);
-	memcpy(col->data, start.data, len);
-	col->data[len] = '\0';
-	if (col->len < len)
-		col->len = len;
-
-	return len;
+	col->line.len = MAX(0, end.data - start.data);
+	if (!(col->line.data) || col->cap < col->line.len + 1) {
+		free(col->line.data);
+		col->line.data = emalloc(col->line.len + 1);
+	}
+	memcpy(col->line.data, start.data, col->line.len);
+	col->line.data[col->line.len] = '\0';
 }
 
 static int
@@ -187,13 +190,13 @@ slinecmp(struct line *a, struct line *b)
 		    TAILQ_LAST(&kdhead, kdhead) != TAILQ_FIRST(&kdhead)) {
 			res = 0;
 		} else if (kd->flags & MOD_N) {
-			x = strtold(col1.data, NULL);
-			y = strtold(col2.data, NULL);
+			x = strtold(col1.line.data, NULL);
+			y = strtold(col2.line.data, NULL);
 			res = (x < y) ? -1 : (x > y);
 		} else if (kd->flags & (MOD_D | MOD_F | MOD_I)) {
-			res = skipmodcmp(&col1, &col2, kd->flags);
+			res = skipmodcmp(&col1.line, &col2.line, kd->flags);
 		} else {
-			res = linecmp(&col1, &col2);
+			res = linecmp(&col1.line, &col2.line);
 		}
 
 		if (kd->flags & MOD_R)
