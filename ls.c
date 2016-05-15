@@ -53,6 +53,7 @@ static int Uflag = 0;
 static int uflag = 0;
 static int first = 1;
 static char sort = 0;
+static int showdirs;
 
 static void ls(const char *, const struct entry *, int);
 
@@ -277,7 +278,7 @@ lsdir(const char *path, const struct entry *dir)
 	if (!Uflag)
 		qsort(ents, n, sizeof(*ents), entcmp);
 
-	if (path[0] || dir->name[0] != '.')
+	if (path[0] || showdirs)
 		printf("%s:\n", dir->name);
 	for (i = 0; i < n; i++)
 		output(&ents[i]);
@@ -468,6 +469,8 @@ main(int argc, char *argv[])
 				memcpy(&fents[fs - 1], &ent, sizeof(ent));
 			}
 		}
+
+		showdirs = ds > 1 || (ds && fs);
 
 		qsort(fents, fs, sizeof(ent), entcmp);
 		qsort(dents, ds, sizeof(ent), entcmp);
