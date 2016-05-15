@@ -10,15 +10,8 @@ linecmp(struct line *a, struct line *b)
 {
 	int res = 0;
 
-	if (!(res = memcmp(a->data, b->data, MIN(a->len, b->len)))) {
-		if (a->len > b->len) {
-			res = a->data[b->len];
-		} else if (b->len > a->len) {
-			res = -b->data[a->len];
-		} else {
-			res = 0;
-		}
-	}
+	if (!(res = memcmp(a->data, b->data, MIN(a->len, b->len))))
+		res = a->len - b->len;
 
 	return res;
 }
