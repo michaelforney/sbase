@@ -34,20 +34,28 @@ main(int argc, char *argv[])
 	nfps = argc + 1;
 	fps = ecalloc(nfps, sizeof(*fps));
 
-	for (i = 0; i < argc; i++)
-		if (!(fps[i] = fopen(argv[i], aflag ? "a" : "w")))
-			eprintf("fopen %s:", argv[i]);
+	for (i = 0; i < argc; i++) {
+		if (!(fps[i] = fopen(argv[i], aflag ? "a" : "w"))) {
+			weprintf("fopen %s:", argv[i]);
+			ret = 1;
+		}
+	}
 	fps[i] = stdout;
 
 	while ((n = fread(buf, 1, sizeof(buf), stdin))) {
 		for (i = 0; i < nfps; i++) {
-			if (fwrite(buf, 1, n, fps[i]) == n)
-				continue;
-			eprintf("fwrite %s:", (i != argc) ? argv[i] : "<stdout>");
+			if (fps[i] && fwrite(buf, 1, n, fps[i]) != n) {
+				fshut(fps[i], (i != argc) ? argv[i] : "<stdout>");
+				fps[i] = NULL;
+				ret = 1;
+			}
 		}
 	}
 
-	ret |= fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>");
+	ret |= fshut(stdin, "<stdin>");
+	for (i = 0; i < nfps; i++)
+		if (fps[i])
+			ret |= fshut(fps[i], (i != argc) ? argv[i] : "<stdout>");
 
 	return ret;
 }
