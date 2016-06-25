@@ -103,8 +103,10 @@ main(int argc, char *argv[])
 				arg = "";
 				cooldown = 1;
 			}
-		} else
+		} else {
 			putchar('%');
+			continue;
+		}
 
 		switch (format[i]) {
 		case 'b':
