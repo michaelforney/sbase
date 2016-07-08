@@ -196,7 +196,7 @@ main(int argc, char *argv[])
 {
 	FILE *fp;
 	struct type *t;
-	int ret = 0;
+	int ret = 0, len;
 	char *s;
 
 	big_endian = (*(uint16_t *)"\0\xff" == 0xff);
@@ -244,30 +244,28 @@ main(int argc, char *argv[])
 			case 'o':
 			case 'u':
 			case 'x':
-				t = emalloc(sizeof(*t));
-				t->format = *s;
 				/* todo: allow multiple digits */
 				if (*(s+1) > '0' && *(s+1) <= '9') {
-					t->len = *(++s) - '0';
+					len = *(s+1) - '0';
 				} else {
-					switch (*(++s)) {
+					switch (*(s+1)) {
 					case 'C':
-						t->len = sizeof(char);
+						len = sizeof(char);
 						break;
 					case 'S':
-						t->len = sizeof(short);
+						len = sizeof(short);
 						break;
 					case 'I':
-						t->len = sizeof(int);
+						len = sizeof(int);
 						break;
 					case 'L':
-						t->len = sizeof(long);
+						len = sizeof(long);
 						break;
 					default:
-						t->len = 4;
+						len = sizeof(int);
 					}
 				}
-				TAILQ_INSERT_TAIL(&head, t, entry);
+				addtype(*s++, len);
 				break;
 			default:
 				usage();
