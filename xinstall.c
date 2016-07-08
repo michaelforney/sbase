@@ -156,6 +156,9 @@ main(int argc, char *argv[])
 	char *p;
 
 	ARGBEGIN {
+	case 'c':
+		/* no-op for compatibility */
+		break;
 	case 'd':
 		dflag = 1;
 		break;
