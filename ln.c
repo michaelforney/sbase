@@ -77,9 +77,11 @@ main(int argc, char *argv[])
 					continue;
 				}
 			} else if (st.st_dev == tst.st_dev && st.st_ino == tst.st_ino) {
-				weprintf("%s and %s/%s are the same file\n",
-						*argv, targetdir, target);
-				ret = 1;
+				if (!fflag) {
+					weprintf("%s and %s/%s are the same file\n",
+							*argv, targetdir, target);
+					ret = 1;
+				}
 				continue;
 			}
 		}
