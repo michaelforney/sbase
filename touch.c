@@ -21,14 +21,13 @@ touch(const char *file)
 {
 	int fd;
 	struct stat st;
-	int r;
 
-	if ((r = stat(file, &st)) < 0) {
+	if (stat(file, &st) < 0) {
 		if (errno != ENOENT)
 			eprintf("stat %s:", file);
 		if (cflag)
 			return;
-	} else if (!r) {
+	} else {
 		if (!aflag)
 			times[0] = st.st_atim;
 		if (!mflag)
