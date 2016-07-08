@@ -7,14 +7,13 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-#include <utime.h>
 
 #include "util.h"
 
 static int aflag;
 static int cflag;
 static int mflag;
-static struct timespec times[2];
+static struct timespec times[2] = {{.tv_nsec = UTIME_NOW}};
 
 static void
 touch(const char *file)
@@ -28,10 +27,6 @@ touch(const char *file)
 		if (cflag)
 			return;
 	} else {
-		if (!aflag)
-			times[0] = st.st_atim;
-		if (!mflag)
-			times[1] = st.st_mtim;
 		if (utimensat(AT_FDCWD, file, times, 0) < 0)
 			eprintf("utimensat %s:", file);
 		return;
@@ -45,14 +40,18 @@ touch(const char *file)
 }
 
 static time_t
-parsetime(char *str, time_t current)
+parsetime(char *str)
 {
+	time_t now;
 	struct tm *cur, t = { 0 };
 	int zulu = 0;
 	char *format;
 	size_t len = strlen(str);
 
-	cur = localtime(&current);
+	if ((now = time(NULL)) == -1)
+		eprintf("time:");
+	if (!(cur = localtime(&now)))
+		eprintf("localtime:");
 	t.tm_isdst = -1;
 
 	switch (len) {
@@ -116,7 +115,6 @@ main(int argc, char *argv[])
 {
 	struct stat st;
 	char *ref = NULL;
-	clock_gettime(CLOCK_REALTIME, &times[0]);
 
 	ARGBEGIN {
 	case 'a':
@@ -127,7 +125,8 @@ main(int argc, char *argv[])
 		break;
 	case 'd':
 	case 't':
-		times[0].tv_sec = parsetime(EARGF(usage()), times[0].tv_sec);
+		times[0].tv_sec = parsetime(EARGF(usage()));
+		times[0].tv_nsec = 0;
 		break;
 	case 'm':
 		mflag = 1;
@@ -141,6 +140,7 @@ main(int argc, char *argv[])
 		break;
 	case 'T':
 		times[0].tv_sec = estrtonum(EARGF(usage()), 0, LLONG_MAX);
+		times[0].tv_nsec = 0;
 		break;
 	default:
 		usage();
@@ -152,6 +152,10 @@ main(int argc, char *argv[])
 		aflag = mflag = 1;
 	if (!ref)
 		times[1] = times[0];
+	if (!aflag)
+		times[0].tv_nsec = UTIME_OMIT;
+	if (!mflag)
+		times[1].tv_nsec = UTIME_OMIT;
 
 	for (; *argv; argc--, argv++)
 		touch(*argv);
