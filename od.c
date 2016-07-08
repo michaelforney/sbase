@@ -174,10 +174,21 @@ lcm(unsigned int a, unsigned int b)
 }
 
 static void
+addtype(char format, int len)
+{
+	struct type *t;
+
+	t = emalloc(sizeof(*t));
+	t->format = format;
+	t->len = len;
+	TAILQ_INSERT_TAIL(&head, t, entry);
+}
+
+static void
 usage(void)
 {
-	eprintf("usage: %s [-A addressformat] [-E | -e] [-j skip] "
-	        "[-t outputformat] [-v] [file ...]\n", argv0);
+	eprintf("usage: %s [-bdosvx] [-A addressformat] [-E | -e] [-j skip] "
+	        "[-t outputformat] [file ...]\n", argv0);
 }
 
 int
@@ -197,6 +208,12 @@ main(int argc, char *argv[])
 			usage();
 		addr_format = s[0];
 		break;
+	case 'b':
+		addtype('o', 1);
+		break;
+	case 'd':
+		addtype('u', 2);
+		break;
 	case 'E':
 	case 'e':
 		big_endian = (ARGC() == 'E');
@@ -209,21 +226,25 @@ main(int argc, char *argv[])
 		if ((max = parseoffset(EARGF(usage()))) < 0)
 			usage();
 		break;
+	case 'o':
+		addtype('o', 2);
+		break;
+	case 's':
+		addtype('d', 2);
+		break;
 	case 't':
 		s = EARGF(usage());
 		for (; *s; s++) {
-			t = emalloc(sizeof(struct type));
 			switch (*s) {
 			case 'a':
 			case 'c':
-				t->format = *s;
-				t->len = 1;
-				TAILQ_INSERT_TAIL(&head, t, entry);
+				addtype(*s, 1);
 				break;
 			case 'd':
 			case 'o':
 			case 'u':
 			case 'x':
+				t = emalloc(sizeof(*t));
 				t->format = *s;
 				/* todo: allow multiple digits */
 				if (*(s+1) > '0' && *(s+1) <= '9') {
@@ -255,6 +276,9 @@ main(int argc, char *argv[])
 		break;
 	case 'v':
 		/* always set - use uniq(1) to handle duplicate lines */
+		break;
+	case 'x':
+		addtype('x', 2);
 		break;
 	default:
 		usage();

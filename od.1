@@ -6,11 +6,11 @@
 .Nd octal dump
 .Sh SYNOPSIS
 .Nm
+.Op Fl bdosvx
 .Op Fl A Ar addrformat
 .Op Fl E | e
 .Op Fl j Ar skip
 .Op Fl t Ar outputformat...
-.Op Fl v
 .Op Ar file ...
 .Sh DESCRIPTION
 .Nm
@@ -34,10 +34,22 @@ Force Little Endian
 or Big Endian
 .Fl ( E )
 system-independently.
+.It Fl b
+Equivalent to
+.Fl t o1 .
+.It Fl d
+Equivalent to
+.Fl t u2 .
 .It Fl j Ar skip
 Ignore the first
 .Ar skip
 bytes of input.
+.It Fl o
+Equivalent to
+.Fl t o2 .
+.It Fl s
+Equivalent to
+.Fl t d2 .
 .It Fl t Ar outputformat
 .Ar outputformat
 is a list of a|c|d|o|u|x followed by a digit or C|S|I|L and sets
@@ -48,6 +60,9 @@ of \fIC\fRhar, \fIS\fRhort, \fII\fRnteger or \fIL\fRong.
 The default is octal with 4 bytes.
 .It Fl v
 Always set. Write all input data, including duplicate lines.
+.It Fl x
+Equivalent to
+.Fl t x2 .
 .El
 .Sh STANDARDS
 The
