@@ -18,25 +18,20 @@ static struct timespec times[2] = {{.tv_nsec = UTIME_NOW}};
 static void
 touch(const char *file)
 {
-	int fd;
-	struct stat st;
+	int fd, ret;
 
-	if (stat(file, &st) < 0) {
-		if (errno != ENOENT)
-			eprintf("stat %s:", file);
-		if (cflag)
-			return;
-	} else {
-		if (utimensat(AT_FDCWD, file, times, 0) < 0)
-			eprintf("utimensat %s:", file);
+	if (utimensat(AT_FDCWD, file, times, 0) == 0)
 		return;
-	}
-
+	if (errno != ENOENT)
+		eprintf("utimensat %s:", file);
+	if (cflag)
+		return;
 	if ((fd = open(file, O_WRONLY | O_CREAT | O_EXCL, 0666)) < 0)
 		eprintf("open %s:", file);
+	ret = futimens(fd, times);
 	close(fd);
-
-	touch(file);
+	if (ret < 0)
+		eprintf("futimens %s:", file);
 }
 
 static time_t
