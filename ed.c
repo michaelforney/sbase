@@ -478,9 +478,9 @@ linenum(int *line)
 		break;
 	case '\'':
 		skipblank();
-		if (!isalpha(c = input()))
+		if (!islower(c = input()))
 			error("invalid mark character");
-		if (!(ln = marks[c]))
+		if (!(ln = marks[c - 'a']))
 			error("invalid address");
 		break;
 	case '$':
@@ -1191,7 +1191,7 @@ repeat:
 			error("invalid mark character");
 		chkprint(1);
 		deflines(curln, curln);
-		marks[c] = line1;
+		marks[c - 'a'] = line1;
 		break;
 	case 'P':
 		if (nlines > 0)
