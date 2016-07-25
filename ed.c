@@ -900,13 +900,8 @@ getrhs(int delim)
 	free(s);
 	s = NULL;
 	siz = cap = 0;
-	while ((c = input()) != '\n' && c != EOF && c != delim) {
-		if (c == '\\') {
-			if ((c = input()) == '&' || isdigit(c))
-				s = addchar(c, s, &siz, &cap);
-		}
+	while ((c = input()) != '\n' && c != EOF && c != delim)
 		s = addchar(c, s, &siz, &cap);
-	}
 	s = addchar('\0', s, &siz, &cap);
 	if (c == EOF)
 		error("invalid pattern delimiter");
