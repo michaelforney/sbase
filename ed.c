@@ -426,7 +426,7 @@ search(int way)
 	i = curln;
 	do {
 		i = (way == '?') ? prevln(i) : nextln(i);
-		if (match(i))
+		if (i > 0 && match(i))
 			return i;
 	} while (i != curln);
 
