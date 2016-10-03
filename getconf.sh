@@ -6,7 +6,7 @@ ifdef() {
 	echo '};'
 }
 
-cat <<! | ifdef confstr_l
+cat << EOF | ifdef confstr_l
 PATH                           _CS_PATH
 POSIX_V7_ILP32_OFF32_CFLAGS    _CS_POSIX_V7_ILP32_OFF32_CFLAGS
 POSIX_V7_ILP32_OFF32_LDFLAGS   _CS_POSIX_V7_ILP32_OFF32_LDFLAGS
@@ -24,9 +24,9 @@ POSIX_V7_THREADS_CFLAGS        _CS_POSIX_V7_THREADS_CFLAGS
 POSIX_V7_THREADS_LDFLAGS       _CS_POSIX_V7_THREADS_LDFLAGS
 POSIX_V7_WIDTH_RESTRICTED_ENVS _CS_POSIX_V7_WIDTH_RESTRICTED_ENVS
 V7_ENV                         _CS_V7_ENV
-!
+EOF
 
-cat <<! | ifdef limits_l
+cat << EOF | ifdef limits_l
 _POSIX_CLOCKRES_MIN                 _POSIX_CLOCKRES_MIN
 _POSIX_AIO_LISTIO_MAX               _POSIX_AIO_LISTIO_MAX
 _POSIX_AIO_MAX                      _POSIX_AIO_MAX
@@ -70,9 +70,9 @@ _POSIX2_COLL_WEIGHTS_MAX            _POSIX2_COLL_WEIGHTS_MAX
 _POSIX2_EXPR_NEST_MAX               _POSIX2_EXPR_NEST_MAX
 _POSIX2_LINE_MAX                    _POSIX2_LINE_MAX
 _POSIX2_RE_DUP_MAX                  _POSIX2_RE_DUP_MAX
-!
+EOF
 
-cat <<! | ifdef sysconf_l
+cat << EOF | ifdef sysconf_l
 AIO_LISTIO_MAX                    _SC_AIO_LISTIO_MAX
 AIO_MAX                           _SC_AIO_MAX
 AIO_PRIO_DELTA_MAX                _SC_AIO_PRIO_DELTA_MAX
@@ -191,9 +191,9 @@ _XOPEN_STREAMS                    _SC_XOPEN_STREAMS
 _XOPEN_UNIX                       _SC_XOPEN_UNIX
 _XOPEN_UUCP                       _SC_XOPEN_UUCP
 _XOPEN_VERSION                    _SC_XOPEN_VERSION
-!
+EOF
 
-cat <<! | ifdef pathconf_l
+cat << EOF | ifdef pathconf_l
 FILESIZEBITS                _PC_FILESIZEBITS
 LINK_MAX                    _PC_LINK_MAX
 MAX_CANON                   _PC_MAX_CANON
@@ -215,4 +215,4 @@ _POSIX_ASYNC_IO             _PC_ASYNC_IO
 _POSIX_PRIO_IO              _PC_PRIO_IO
 _POSIX_SYNC_IO              _PC_SYNC_IO
 _POSIX_TIMESTAMP_RESOLUTION _PC_TIMESTAMP_RESOLUTION
-!
+EOF
