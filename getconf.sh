@@ -1,14 +1,12 @@
 #!/bin/sh
 
-ifdef()
-{
- awk '{printf("#ifdef %s\n"\
-              "\t{\"%s\",\t%s},\n"\
-              "#endif\n", $2, $1, $2)}' > $1
+ifdef() {
+	printf 'static const struct var %s[] = {\n' "$1"
+	awk '{printf("#ifdef %s\n\t{\"%s\",\t%s},\n#endif\n", $2, $1, $2)}'
+	echo '};'
 }
 
-
-cat <<! | ifdef confstr_l.h
+cat <<! | ifdef confstr_l
 PATH                           _CS_PATH
 POSIX_V7_ILP32_OFF32_CFLAGS    _CS_POSIX_V7_ILP32_OFF32_CFLAGS
 POSIX_V7_ILP32_OFF32_LDFLAGS   _CS_POSIX_V7_ILP32_OFF32_LDFLAGS
@@ -28,7 +26,7 @@ POSIX_V7_WIDTH_RESTRICTED_ENVS _CS_POSIX_V7_WIDTH_RESTRICTED_ENVS
 V7_ENV                         _CS_V7_ENV
 !
 
-cat <<! | ifdef limits_l.h
+cat <<! | ifdef limits_l
 _POSIX_CLOCKRES_MIN                 _POSIX_CLOCKRES_MIN
 _POSIX_AIO_LISTIO_MAX               _POSIX_AIO_LISTIO_MAX
 _POSIX_AIO_MAX                      _POSIX_AIO_MAX
@@ -74,7 +72,7 @@ _POSIX2_LINE_MAX                    _POSIX2_LINE_MAX
 _POSIX2_RE_DUP_MAX                  _POSIX2_RE_DUP_MAX
 !
 
-cat <<! | ifdef sysconf_l.h
+cat <<! | ifdef sysconf_l
 AIO_LISTIO_MAX                    _SC_AIO_LISTIO_MAX
 AIO_MAX                           _SC_AIO_MAX
 AIO_PRIO_DELTA_MAX                _SC_AIO_PRIO_DELTA_MAX
@@ -195,7 +193,7 @@ _XOPEN_UUCP                       _SC_XOPEN_UUCP
 _XOPEN_VERSION                    _SC_XOPEN_VERSION
 !
 
-cat <<! | ifdef pathconf_l.h
+cat <<! | ifdef pathconf_l
 FILESIZEBITS                _PC_FILESIZEBITS
 LINK_MAX                    _PC_LINK_MAX
 MAX_CANON                   _PC_MAX_CANON

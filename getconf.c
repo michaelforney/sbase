@@ -12,22 +12,7 @@ struct var {
 	long v;
 };
 
-static const struct var pathconf_l[] = {
-#include "pathconf_l.h"
-};
-
-static const struct var sysconf_l[] = {
-#include "sysconf_l.h"
-};
-
-static const struct var confstr_l[] = {
-#include "confstr_l.h"
-};
-
-static const struct var limits_l[] = {
-#include "limits_l.h"
-};
-
+#include "getconf.h"
 
 void
 usage(void)

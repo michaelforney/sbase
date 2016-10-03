@@ -205,10 +205,10 @@ $(LIBUTIL): $(LIBUTILOBJ)
 	$(AR) rc $@ $?
 	$(RANLIB) $@
 
-getconf.c: confstr_l.h limits_l.h sysconf_l.h pathconf_l.h
+getconf.o: getconf.h
 
-confstr_l.h limits_l.h sysconf_l.h pathconf_l.h: getconf.sh
-	./getconf.sh
+getconf.h: getconf.sh
+	./getconf.sh > $@
 
 install: all
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
@@ -234,7 +234,7 @@ dist: clean
 sbase-box: $(LIB) $(SRC)
 	mkdir -p build
 	cp $(HDR) build
-	cp confstr_l.h limits_l.h sysconf_l.h pathconf_l.h build
+	cp getconf.h build
 	for f in $(SRC); do sed "s/^main(/$$(echo "$${f%.c}" | sed s/-/_/g)_&/" < $$f > build/$$f; done
 	echo '#include <libgen.h>'                                                                                                     > build/$@.c
 	echo '#include <stdio.h>'                                                                                                     >> build/$@.c
@@ -270,7 +270,7 @@ sbase-box-uninstall: uninstall
 
 clean:
 	rm -f $(BIN) $(OBJ) $(LIB) sbase-box sbase-$(VERSION).tar.gz
-	rm -f confstr_l.h limits_l.h sysconf_l.h pathconf_l.h
+	rm -f getconf.h
 
 .PHONY:
 	all install uninstall dist sbase-box sbase-box-install sbase-box-uninstall clean
