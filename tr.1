@@ -1,4 +1,4 @@
-.Dd 2015-10-08
+.Dd 2016-10-05
 .Dt TR 1
 .Os sbase
 .Sh NAME
@@ -49,7 +49,9 @@ Resolve to
 .Sy c .
 .El
 .Sh TRANSLATION
-If no options are specified,
+If
+.Fl d
+is not set,
 .Nm
 translates from
 .Ar set1
@@ -60,7 +62,10 @@ by index or character class.
 If
 .Ar set2
 is shorter than
-.Ar set1 ,
+.Ar set1
+or
+.Ar set1
+is a character class,
 overflowing characters translate to the last character in
 .Ar set2 .
 .Sh EXIT STATUS
