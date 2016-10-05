@@ -215,7 +215,7 @@ read:
 		if (set1[i].start <= r && r <= set1[i].end) {
 			if (dflag) {
 				if (cflag)
-					continue;
+					goto write;
 				else
 					goto read;
 			}
