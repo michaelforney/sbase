@@ -229,7 +229,14 @@ static struct {
 static int
 pri_name(struct arg *arg)
 {
-	return !fnmatch((char *)arg->extra.p, basename(arg->path), 0);
+	int ret;
+	char *path;
+
+	path = estrdup(arg->path);
+	ret = !fnmatch((char *)arg->extra.p, basename(path), 0);
+	free(path);
+
+	return ret;
 }
 
 static int
