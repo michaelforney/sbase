@@ -248,8 +248,12 @@ read:
 		}
 	}
 	if (set1check && set1check(r)) {
-		if (dflag && !cflag)
-			goto read;
+		if (dflag) {
+			if (cflag)
+				goto write;
+			else
+				goto read;
+		}
 		if (set2check) {
 			if (set2check == islowerrune)
 				r = tolowerrune(r);
@@ -258,6 +262,7 @@ read:
 		} else {
 			r = set2[set2ranges - 1].end;
 		}
+		goto write;
 	}
 	if (!dflag && cflag) {
 		if (set2check) {
