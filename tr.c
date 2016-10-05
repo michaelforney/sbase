@@ -172,7 +172,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	Rune r = 0, lastrune = 0;
+	Rune r, lastrune = 0;
 	size_t off1, off2, i, m;
 	int ret = 0;
 
@@ -197,9 +197,9 @@ main(int argc, char *argv[])
 	if (argc == 2)
 		set2ranges = makeset(argv[1], &set2, &set2check);
 
-	if (!dflag) {
+	if (!dflag || (argc == 2 && sflag)) {
 		/* sanity checks as we are translating */
-		if (!set2ranges && !set2check)
+		if (!sflag && !set2ranges && !set2check)
 			eprintf("cannot map to an empty set.\n");
 		if (set2check && set2check != islowerrune &&
 		    set2check != isupperrune) {
@@ -211,6 +211,8 @@ read:
 		ret |= fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>");
 		return ret;
 	}
+	if (argc == 1 && sflag)
+		goto write;
 	for (i = 0, off1 = 0; i < set1ranges; i++, off1 += rangelen(set1[i])) {
 		if (set1[i].start <= r && r <= set1[i].end) {
 			if (dflag) {
@@ -278,7 +280,15 @@ read:
 	if (dflag && cflag)
 		goto read;
 write:
-	if (sflag && r == lastrune) {
+	if (argc == 1 && sflag && r == lastrune) {
+		if (set1check && set1check(r))
+			goto read;
+		for (i = 0; i < set1ranges; i++) {
+			if (set1[i].start <= r && r <= set1[i].end)
+				goto read;
+		}
+	}
+	if (argc == 2 && sflag && r == lastrune) {
 		if (set2check && set2check(r))
 			goto read;
 		for (i = 0; i < set2ranges; i++) {
@@ -286,7 +296,7 @@ write:
 				goto read;
 		}
 	}
-	lastrune = r;
 	efputrune(&r, stdout, "<stdout>");
+	lastrune = r;
 	goto read;
 }
