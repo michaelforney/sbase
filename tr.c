@@ -119,7 +119,7 @@ nextbrack:
 			}
 
 			/* REPEAT  [_*n] (only allowed in set2) */
-			if (j - i > 2 && rstr[i + 2] == '*' && set1ranges > 0) {
+			if (j - i > 2 && rstr[i + 2] == '*') {
 				/* check if right side of '*' is a number */
 				q = 0;
 				factor = 1;
@@ -138,7 +138,7 @@ nextbrack:
 				}
 				(*set)[setranges].start = rstr[i + 1];
 				(*set)[setranges].end   = rstr[i + 1];
-				(*set)[setranges].quant = q ? q : setlen(set1, set1ranges);
+				(*set)[setranges].quant = q ? q : setlen(set1, MAX(set1ranges, 1));
 				setranges++;
 				i = j;
 				continue;
@@ -196,69 +196,79 @@ main(int argc, char *argv[])
 	set1ranges = makeset(argv[0], &set1, &set1check);
 	if (argc == 2)
 		set2ranges = makeset(argv[1], &set2, &set2check);
-	if (dflag == sflag && !set2ranges && !set2check)
-		eprintf("set2 must be non-empty.\n");
-	if (argc == 2 && !set2check != !set1check)
-		eprintf("can't mix classes with non-classes.\n");
-	if (set2check && set2check != islowerrune && set2check != isupperrune)
-		eprintf("set2 can only be the 'lower' or 'upper' class.\n");
-	if (set2check && cflag && !dflag)
-		eprintf("set2 can't be imaged to from a complement.\n");
+
+	if (!dflag) {
+		/* sanity checks as we are translating */
+		if (!set2ranges && !set2check)
+			eprintf("cannot map to an empty set.\n");
+		if (set2check && set2check != islowerrune &&
+		    set2check != isupperrune) {
+			eprintf("can only map to 'lower' and 'upper' class.\n");
+		}
+	}
 read:
 	if (!efgetrune(&r, stdin, "<stdin>")) {
 		ret |= fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>");
 		return ret;
 	}
-	off1 = off2 = 0;
-	for (i = 0; i < set1ranges; i++) {
+	for (i = 0, off1 = 0; i < set1ranges; i++, off1 += rangelen(set1[i])) {
 		if (set1[i].start <= r && r <= set1[i].end) {
 			if (dflag) {
-				if (!cflag)
-					goto read;
+				if (cflag)
+					continue;
 				else
-					goto write;
+					goto read;
 			}
 			if (cflag)
 				goto write;
-			for (m = 0; m < i; m++)
-				off1 += rangelen(set1[m]);
-			off1 += r - set1[m].start;
-			if (off1 > setlen(set2, set2ranges) - 1) {
-				r = set2[set2ranges - 1].end;
-				goto write;
-			}
-			for (m = 0; m < set2ranges; m++) {
-				if (off2 + rangelen(set2[m]) > off1) {
-					m++;
-					break;
-				}
-				off2 += rangelen(set2[m]);
-			}
-			m--;
-			r = set2[m].start + (off1 - off2) / set2[m].quant;
 
-			if (sflag && (r == lastrune))
-				goto read;
+			/* map r to set2 */
+			if (set2check) {
+				if (set2check == islowerrune)
+					r = tolowerrune(r);
+				else
+					r = toupperrune(r);
+			} else {
+				off1 += r - set1[i].start;
+				if (off1 > setlen(set2, set2ranges) - 1) {
+					r = set2[set2ranges - 1].end;
+					goto write;
+				}
+				for (m = 0, off2 = 0; m < set2ranges; m++) {
+					if (off2 + rangelen(set2[m]) > off1) {
+						m++;
+						break;
+					}
+					off2 += rangelen(set2[m]);
+				}
+				m--;
+				r = set2[m].start + (off1 - off2) / set2[m].quant;
+			}
 			goto write;
 		}
 	}
 	if (set1check && set1check(r)) {
-		if (dflag) {
-			if (!cflag)
-				goto read;
+		if (dflag && !cflag)
+			goto read;
+		if (set2check) {
+			if (set2check == islowerrune)
+				r = tolowerrune(r);
 			else
-				goto write;
+				r = toupperrune(r);
+		} else {
+			r = set2[set2ranges - 1].end;
 		}
-		if (set1check == isupperrune && set2check == islowerrune)
-			r = tolowerrune(r);
-		else if (set1check == islowerrune && set2check == isupperrune)
-			r = toupperrune(r);
-		else if (set2ranges > 0)
-			r = cflag ? r : set2[set2ranges - 1].end;
-		else
-			eprintf("Misaligned character classes.\n");
-	} else if (cflag && set2ranges > 0) {
-		r = set2[set2ranges - 1].end;
+	}
+	if (!dflag && cflag) {
+		if (set2check) {
+			if (set2check == islowerrune)
+				r = tolowerrune(r);
+			else
+				r = toupperrune(r);
+		} else {
+			r = set2[set2ranges - 1].end;
+		}
+		goto write;
 	}
 	if (dflag && cflag)
 		goto read;
