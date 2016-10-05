@@ -113,6 +113,27 @@ indicator(mode_t mode)
 	return "";
 }
 
+static char *
+makeprint(char *name)
+{
+	char *c, *u, *print = emalloc(strlen(name) + 1);
+	Rune r;
+	size_t l;
+
+	for (c = print, u = name; *u; u += l) {
+		l = chartorune(&r, u);
+		if (isprintrune(r)) {
+			memcpy(c, u, l);
+			c += l;
+		} else {
+			*c++ = '?';
+		}
+	}
+	*c = '\0';
+
+	return print;
+}
+
 static void
 output(const struct entry *ent)
 {
@@ -120,28 +141,9 @@ output(const struct entry *ent)
 	struct passwd *pw;
 	struct tm *tm;
 	ssize_t len;
-	size_t l;
-	char *name, *c, *u, *fmt, buf[BUFSIZ],
-	     pwname[_SC_LOGIN_NAME_MAX], grname[_SC_LOGIN_NAME_MAX],
-	     mode[] = "----------";
-	Rune r;
-
-	if (qflag) {
-		name = emalloc(strlen(ent->name) + 1);
-
-		for (c = name, u = ent->name; *u; u += l) {
-			l = chartorune(&r, u);
-			if (isprintrune(r)) {
-				memcpy(c, u, l);
-				c += l;
-			} else {
-				*c++ = '?';
-			}
-		}
-		*c = '\0';
-	} else {
-		name = ent->name;
-	}
+	char *fmt, buf[BUFSIZ], pwname[_SC_LOGIN_NAME_MAX],
+	     grname[_SC_LOGIN_NAME_MAX], mode[] = "----------",
+	     *name = qflag ? makeprint(ent->name) : ent->name;
 
 	if (iflag)
 		printf("%lu ", (unsigned long)ent->ino);
@@ -250,12 +252,11 @@ lsdir(const char *path, const struct entry *dir)
 	struct entry *ent, *ents = NULL;
 	struct dirent *d;
 	size_t i, n = 0;
-	char prefix[PATH_MAX];
+	char prefix[PATH_MAX], *name;
 
 	if (!(dp = opendir(dir->name))) {
 		ret = 1;
 		weprintf("opendir %s%s:", path, dir->name);
-		return;
 	}
 	if (chdir(dir->name) < 0)
 		eprintf("chdir %s:", dir->name);
@@ -278,8 +279,12 @@ lsdir(const char *path, const struct entry *dir)
 	if (!Uflag)
 		qsort(ents, n, sizeof(*ents), entcmp);
 
-	if (path[0] || showdirs)
-		printf("%s%s:\n", path, dir->name);
+	if (path[0] || showdirs) {
+		name = qflag ? makeprint(dir->name) : dir->name;
+		printf("%s%s:\n", path, name);
+		if (qflag)
+			free(name);
+	}
 	for (i = 0; i < n; i++)
 		output(&ents[i]);
 
