@@ -207,7 +207,7 @@ output(const struct entry *ent)
 		printf("%10s ", humansize(ent->size));
 	else
 		printf("%10lu ", (unsigned long)ent->size);
-	printf("%s %s%s", buf, ent->name, indicator(ent->mode));
+	printf("%s %s%s", buf, name, indicator(ent->mode));
 	if (S_ISLNK(ent->mode)) {
 		if ((len = readlink(ent->name, buf, sizeof(buf) - 1)) < 0)
 			eprintf("readlink %s:", ent->name);
