@@ -213,7 +213,7 @@ read:
 	for (i = 0; i < set1ranges; i++) {
 		if (set1[i].start <= r && r <= set1[i].end) {
 			if (dflag) {
-				if (!cflag || (sflag && r == lastrune))
+				if (!cflag)
 					goto read;
 				else
 					goto write;
@@ -244,13 +244,7 @@ read:
 	}
 	if (set1check && set1check(r)) {
 		if (dflag) {
-			if (!cflag || (sflag && r == lastrune))
-				goto read;
-			else
-				goto write;
-		}
-		if (sflag) {
-			if (r == lastrune)
+			if (!cflag)
 				goto read;
 			else
 				goto write;
@@ -268,9 +262,15 @@ read:
 	}
 	if (dflag && cflag)
 		goto read;
-	if (dflag && sflag && r == lastrune)
-		goto read;
 write:
+	if (sflag && r == lastrune) {
+		if (set2check && set2check(r))
+			goto read;
+		for (i = 0; i < set2ranges; i++) {
+			if (set2[i].start <= r && r <= set2[i].end)
+				goto read;
+		}
+	}
 	lastrune = r;
 	efputrune(&r, stdout, "<stdout>");
 	goto read;
