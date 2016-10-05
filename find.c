@@ -777,13 +777,16 @@ find_op(char *name)
 static void
 parse(int argc, char **argv)
 {
-	struct tok infix[2 * argc + 1], *stack[argc], *tok, *rpn, *out, **top;
+	struct tok *tok, *rpn, *out, **top, *infix, **stack;
 	struct op_info *op;
 	struct pri_info *pri;
 	char **arg;
 	int lasttype = -1;
 	size_t ntok = 0;
 	struct tok and = { .u.oinfo = find_op("-a"), .type = AND };
+
+	infix = ereallocarray(NULL, 2 * argc + 1, sizeof(*infix));
+	stack = ereallocarray(NULL, argc, sizeof(*stack));
 
 	gflags.print = 1;
 
@@ -894,6 +897,9 @@ parse(int argc, char **argv)
 
 	toks = rpn;
 	root = *top;
+
+	free(infix);
+	free(stack);
 }
 
 /* for a primary, run and return result
@@ -932,8 +938,11 @@ find(char *path, struct findhist *hist)
 	DIR *dir;
 	struct dirent *de;
 	struct findhist *f, cur;
-	size_t len = strlen(path) + 2; /* null and '/' */
+	size_t namelen, pathcap = 0, len;
 	struct arg arg = { path, &st, { NULL } };
+	char *p, *pathbuf = NULL;
+
+	len = strlen(path) + 2; /* \0 and '/' */
 
 	if ((gflags.l || (gflags.h && !hist) ? stat(path, &st) : lstat(path, &st)) < 0) {
 		weprintf("failed to stat %s:", path);
@@ -975,18 +984,20 @@ find(char *path, struct findhist *hist)
 	}
 
 	while (errno = 0, (de = readdir(dir))) {
-		size_t pathcap = len + strlen(de->d_name);
-		char pathbuf[pathcap], *p;
-
 		if (!strcmp(de->d_name, ".") || !strcmp(de->d_name, ".."))
 			continue;
-
+		namelen = strlen(de->d_name);
+		if (len + namelen > pathcap) {
+			pathcap = len + namelen;
+			pathbuf = erealloc(pathbuf, pathcap);
+		}
 		p = pathbuf + estrlcpy(pathbuf, path, pathcap);
 		if (*--p != '/')
 			estrlcat(pathbuf, "/", pathcap);
 		estrlcat(pathbuf, de->d_name, pathcap);
 		find(pathbuf, &cur);
 	}
+	free(pathbuf);
 	if (errno) {
 		weprintf("readdir %s:", path);
 		closedir(dir);
