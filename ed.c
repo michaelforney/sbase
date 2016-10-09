@@ -1169,9 +1169,8 @@ repeat:
 	case 'j':
 		chkprint(1);
 		deflines(curln, curln+1);
-		if (!line1)
-			goto bad_address;
-		join();
+		if (line1 != line2 && curln != 0)
+	      		join();
 		break;
 	case 'z':
 		if (nlines > 1)
