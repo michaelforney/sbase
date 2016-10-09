@@ -192,7 +192,9 @@ getindex(int line)
 	struct hline *lp;
 	int n;
 
-	for (n = 0, lp = zero; n != line; ++n)
+	if (line == -1)
+		line = 0;
+	for (n = 0, lp = zero; n != line; n++)
 		lp = zero + lp->next;
 
 	return lp - zero;
@@ -806,9 +808,11 @@ join(void)
 	static char *s;
 
 	free(s);
-	for (s = NULL, i = line1; i <= line2; i = nextln(i)) {
+	for (s = NULL, i = line1;; i = nextln(i)) {
 		for (t = gettxt(i); (c = *t) != '\n'; ++t)
 			s = addchar(*t, s, &cap, &len);
+		if (i == line2)
+			break;
 	}
 
 	s = addchar('\n', s, &cap, &len);
