@@ -299,13 +299,17 @@ undo(void)
 }
 
 static void
-inject(char *s)
+inject(char *s, int j)
 {
 	int off, k, begin, end;
 
-	begin = getindex(curln);
-	end = getindex(nextln(curln));
-
+	if (j) {
+		begin = getindex(curln-1);
+		end = getindex(nextln(curln-1));
+	} else {
+		begin = getindex(curln);
+		end = getindex(nextln(curln));
+	}
 	while (*s) {
 		k = makeline(s, &off);
 		s += off;
@@ -636,7 +640,7 @@ doread(char *fname)
 			s[n-1] = '\n';
 			s[n] = '\0';
 		}
-		inject(s);
+		inject(s, 0);
 	}
 	if (optdiag)
 		printf("%zu\n", cnt);
@@ -753,7 +757,7 @@ append(int num)
 	while (getline(&s, &len, stdin) > 0) {
 		if (*s == '.' && s[1] == '\n')
 			break;
-		inject(s);
+		inject(s, 0);
 	}
 	free(s);
 }
@@ -818,7 +822,7 @@ join(void)
 	s = addchar('\n', s, &cap, &len);
 	s = addchar('\0', s, &cap, &len);
 	delete(line1, line2);
-	inject(s);
+	inject(s, 1);
 	free(s);
 }
 
@@ -845,7 +849,7 @@ copy(int where)
 	curln = where;
 
 	for (i = line1; i <= line2; ++i)
-		inject(gettxt(i));
+		inject(gettxt(i), 0);
 }
 
 static void
@@ -1020,7 +1024,7 @@ subline(int num, int nth)
 	addpost(&s, &cap, &siz);
 	delete(num, num);
 	curln = prevln(num);
-	inject(s);
+	inject(s, 0);
 }
 
 static void
