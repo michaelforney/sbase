@@ -19,7 +19,7 @@ int
 main(int argc, char *argv[])
 {
 	Rune *rarg;
-	size_t i, j, argi, lastargi, formatlen;
+	size_t i, j, argi, lastargi, formatlen, blen;
 	long long num;
 	double dou;
 	int cooldown = 0, width, precision, ret = 0;
@@ -112,12 +112,12 @@ main(int argc, char *argv[])
 		case 'b':
 			if ((tmp = strstr(arg, "\\c"))) {
 				*tmp = 0;
-				unescape(arg);
-				fputs(arg, stdout);
+				blen = unescape(arg);
+				fwrite(arg, sizeof(*arg), blen, stdout);
 				return 0;
 			}
-			unescape(arg);
-			fputs(arg, stdout);
+			blen = unescape(arg);
+			fwrite(arg, sizeof(*arg), blen, stdout);
 			break;
 		case 'c':
 			unescape(arg);
