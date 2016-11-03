@@ -1143,7 +1143,7 @@ repeat:
 		chkprint(1);
 		deflines(curln, curln);
 		if (!line1)
-			goto bad_address;
+			line1++;
 		append(prevln(line1));
 		break;
 	case 'a':
