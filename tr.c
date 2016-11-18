@@ -213,7 +213,7 @@ read:
 	}
 	if (argc == 1 && sflag)
 		goto write;
-	for (i = 0, off1 = 0; i < set1ranges; i++, off1 += rangelen(set1[i])) {
+	for (i = 0, off1 = 0; i < set1ranges; off1 += rangelen(set1[i]), i++) {
 		if (set1[i].start <= r && r <= set1[i].end) {
 			if (dflag) {
 				if (cflag)
