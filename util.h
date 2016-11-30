@@ -64,6 +64,7 @@ int eregcomp(regex_t *, const char *, int);
 
 /* io */
 ssize_t writeall(int, const void *, size_t);
+int concat(int, const char *, int, const char *);
 
 /* misc */
 void enmasse(int, char **, int (*)(const char *, const char *, int));

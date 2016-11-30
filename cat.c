@@ -1,20 +1,9 @@
 /* See LICENSE file for copyright and license details. */
-#include <stdio.h>
+#include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
 
-#include "text.h"
 #include "util.h"
-
-static void
-uconcat(FILE *fp1, const char *s1, FILE *fp2, const char *s2)
-{
-	int c;
-
-	setbuf(fp2, NULL);
-	while ((c = getc(fp1)) != EOF)
-		putc(c, fp2);
-}
 
 static void
 usage(void)
@@ -25,37 +14,39 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	FILE *fp;
-	int ret = 0;
-	void (*cat)(FILE *, const char *, FILE *, const char *) = &concat;
+	int fd, ret = 0;
 
 	ARGBEGIN {
 	case 'u':
-		cat = &uconcat;
 		break;
 	default:
 		usage();
 	} ARGEND
 
 	if (!argc) {
-		cat(stdin, "<stdin>", stdout, "<stdout>");
+		if (concat(0, "<stdin>", 1, "<stdout>") < 0)
+			ret = 1;
 	} else {
 		for (; *argv; argc--, argv++) {
 			if (!strcmp(*argv, "-")) {
 				*argv = "<stdin>";
-				fp = stdin;
-			} else if (!(fp = fopen(*argv, "r"))) {
-				weprintf("fopen %s:", *argv);
+				fd = 0;
+			} else if ((fd = open(*argv, O_RDONLY)) < 0) {
+				weprintf("open %s:", *argv);
 				ret = 1;
 				continue;
 			}
-			cat(fp, *argv, stdout, "<stdout>");
-			if (fp != stdin && fshut(fp, *argv))
+			switch (concat(fd, *argv, 1, "<stdout>")) {
+			case -1:
 				ret = 1;
+				break;
+			case -2:
+				return 1;  /* exit on write error */
+			}
+			if (fd != 0)
+				close(fd);
 		}
 	}
-
-	ret |= fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>");
 
 	return ret;
 }

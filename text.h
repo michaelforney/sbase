@@ -13,5 +13,4 @@ struct linebuf {
 #define EMPTY_LINEBUF {NULL, 0, 0,}
 void getlines(FILE *, struct linebuf *);
 
-void concat(FILE *, const char *, FILE *, const char *);
 int linecmp(struct line *, struct line *);
