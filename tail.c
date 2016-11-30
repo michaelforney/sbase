@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <sys/inotify.h>
 #include <sys/stat.h>
 
 #include <fcntl.h>
@@ -152,9 +153,10 @@ main(int argc, char *argv[])
 	struct stat st1, st2;
 	int fd;
 	size_t n = 10;
-	int fflag = 0, ret = 0, newline = 0, many = 0;
+	int fflag = 0, ret = 0, newline = 0, many = 0, ifd;
 	char *numstr;
 	int (*tail)(int, const char *, size_t) = taketail;
+	struct inotify_event ev;
 
 	ARGBEGIN {
 	case 'f':
@@ -209,9 +211,15 @@ main(int argc, char *argv[])
 					close(fd);
 				continue;
 			}
+			if ((ifd = inotify_init()) < 0)
+				eprintf("inotify_init:");
+			if (inotify_add_watch(ifd, *argv, IN_MODIFY) < 0)
+				eprintf("inotify_add_watch:");
 			for (;;) {
 				if (concat(fd, *argv, 1, "<stdout>") < 0)
 					exit(1);
+				if (read(ifd, &ev, sizeof(ev)) < 0)
+					eprintf("read <inotify>:");
 				if (fstat(fd, &st2) < 0)
 					eprintf("fstat %s:", *argv);
 				if (st2.st_size < st1.st_size) {
@@ -220,7 +228,6 @@ main(int argc, char *argv[])
 						eprintf("lseek:");
 				}
 				st1 = st2;
-				sleep(1);
 			}
 		}
 	}
