@@ -1,8 +1,10 @@
 /* See LICENSE file for copyright and license details. */
+#include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "queue.h"
 #include "util.h"
@@ -124,20 +126,23 @@ once:
 	}
 }
 
-static void
-od(FILE *fp, char *fname, int last)
+static int
+od(int fd, char *fname, int last)
 {
 	static unsigned char *line;
 	static size_t lineoff;
 	static off_t addr;
 	unsigned char buf[BUFSIZ];
-	size_t i, n, size = sizeof(buf);
+	size_t i, size = sizeof(buf);
+	ssize_t n;
 
 	while (skip - addr > 0) {
-		n = fread(buf, 1, MIN(skip - addr, sizeof(buf)), fp);
+		n = read(fd, buf, MIN(skip - addr, sizeof(buf)));
+		if (n < 0)
+			weprintf("read %s:", fname);
+		if (n <= 0)
+			return n;
 		addr += n;
-		if (feof(fp) || ferror(fp))
-			return;
 	}
 	if (!line)
 		line = emalloc(linelen);
@@ -145,7 +150,7 @@ od(FILE *fp, char *fname, int last)
 	for (;;) {
 		if (max >= 0)
 			size = MIN(max - (addr - skip), size);
-		if (!(n = fread(buf, 1, size, fp)))
+		if ((n = read(fd, buf, size)) <= 0)
 			break;
 		for (i = 0; i < n; i++, addr++) {
 			line[lineoff++] = buf[i];
@@ -155,10 +160,15 @@ od(FILE *fp, char *fname, int last)
 			}
 		}
 	}
+	if (n < 0) {
+		weprintf("read %s:", fname);
+		return n;
+	}
 	if (lineoff && last)
 		printline(line, lineoff, addr - lineoff);
 	if (last)
 		printline((unsigned char *)"", 0, addr);
+	return 0;
 }
 
 static int
@@ -196,7 +206,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	FILE *fp;
+	int fd;
 	struct type *t;
 	int ret = 0, len;
 	char *s;
@@ -293,25 +303,26 @@ main(int argc, char *argv[])
 		linelen *= 2;
 
 	if (!argc) {
-		od(stdin, "<stdin>", 1);
+		if (od(0, "<stdin>", 1) < 0)
+			ret = 1;
 	} else {
 		for (; *argv; argc--, argv++) {
 			if (!strcmp(*argv, "-")) {
 				*argv = "<stdin>";
-				fp = stdin;
-			} else if (!(fp = fopen(*argv, "r"))) {
-				weprintf("fopen %s:", *argv);
+				fd = 0;
+			} else if ((fd = open(*argv, O_RDONLY)) < 0) {
+				weprintf("open %s:", *argv);
 				ret = 1;
 				continue;
 			}
-			od(fp, *argv, (!*(argv + 1)));
-			if (fp != stdin && fshut(fp, *argv))
+			if (od(fd, *argv, (!*(argv + 1))) < 0)
 				ret = 1;
+			if (fd != 0)
+				close(fd);
 		}
 	}
 
-	ret |= fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>") |
-	       fshut(stderr, "<stderr>");
+	ret |= fshut(stdout, "<stdout>") | fshut(stderr, "<stderr>");
 
 	return ret;
 }
