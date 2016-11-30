@@ -12,7 +12,6 @@
 #include <utime.h>
 
 #include "../fs.h"
-#include "../text.h"
 #include "../util.h"
 
 int cp_aflag  = 0;
@@ -27,7 +26,7 @@ int
 cp(const char *s1, const char *s2, int depth)
 {
 	DIR *dp;
-	FILE *f1, *f2;
+	int f1, f2;
 	struct dirent *d;
 	struct stat st;
 	struct timespec times[2];
@@ -112,43 +111,34 @@ cp(const char *s1, const char *s2, int depth)
 			return 0;
 		}
 	} else {
-		if (!(f1 = fopen(s1, "r"))) {
-			weprintf("fopen %s:", s1);
+		if ((f1 = open(s1, O_RDONLY)) < 0) {
+			weprintf("open %s:", s1);
 			cp_status = 1;
 			return 0;
 		}
-		if (!(f2 = fopen(s2, "w"))) {
-			if (cp_fflag) {
-				if (unlink(s2) < 0 && errno != ENOENT) {
-					weprintf("unlink %s:", s2);
-					cp_status = 1;
-					return 0;
-				} else if (!(f2 = fopen(s2, "w"))) {
-					weprintf("fopen %s:", s2);
-					cp_status = 1;
-					return 0;
-				}
-			} else {
-				weprintf("fopen %s:", s2);
+		if ((f2 = creat(s2, st.st_mode)) < 0 && cp_fflag) {
+			if (unlink(s2) < 0 && errno != ENOENT) {
+				weprintf("unlink %s:", s2);
 				cp_status = 1;
 				return 0;
 			}
+			f2 = creat(s2, st.st_mode);
 		}
-		concat(f1, s1, f2, s2);
+		if (f2 < 0) {
+			weprintf("creat %s:", s2);
+			cp_status = 1;
+			return 0;
+		}
+		if (concat(f1, s1, f2, s2) < 0) {
+			cp_status = 1;
+			return 0;
+		}
 
 		/* preserve permissions by default */
-		fchmod(fileno(f2), st.st_mode);
+		fchmod(f2, st.st_mode);
 
-		if (fclose(f2) == EOF) {
-			weprintf("fclose %s:", s2);
-			cp_status = 1;
-			return 0;
-		}
-		if (fclose(f1) == EOF) {
-			weprintf("fclose %s:", s1);
-			cp_status = 1;
-			return 0;
-		}
+		close(f1);
+		close(f2);
 	}
 
 	if (cp_aflag || cp_pflag) {

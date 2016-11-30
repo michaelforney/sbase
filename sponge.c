@@ -1,7 +1,8 @@
 /* See LICENSE file for copyright and license details. */
-#include <stdio.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <unistd.h>
 
-#include "text.h"
 #include "util.h"
 
 static void
@@ -13,24 +14,26 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	FILE *fp, *tmpfp;
-	int ret = 0;
+	char tmp[] = "/tmp/sponge-XXXXXX";
+	int fd, tmpfd;
 
 	argv0 = argv[0], argc--, argv++;
 
 	if (argc != 1)
 		usage();
 
-	if (!(tmpfp = tmpfile()))
-		eprintf("tmpfile:");
-	concat(stdin, "<stdin>", tmpfp, "<tmpfile>");
-	rewind(tmpfp);
+	if ((tmpfd = mkstemp(tmp)) < 0)
+		eprintf("mkstemp:");
+	unlink(tmp);
+	if (concat(0, "<stdin>", tmpfd, "<tmpfile>") < 0)
+		return 1;
+	if (lseek(tmpfd, 0, SEEK_SET) < 0)
+		eprintf("lseek:");
 
-	if (!(fp = fopen(argv[0], "w")))
-		eprintf("fopen %s:", argv[0]);
-	concat(tmpfp, "<tmpfile>", fp, argv[0]);
+	if ((fd = creat(argv[0], 0666)) < 0)
+		eprintf("creat %s:", argv[0]);
+	if (concat(tmpfd, "<tmpfile>", fd, argv[0]) < 0)
+		return 1;
 
-	ret |= fshut(fp, argv[0]) | fshut(tmpfp, "<tmpfile>");
-
-	return ret;
+	return 0;
 }
