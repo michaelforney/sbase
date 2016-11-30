@@ -1,8 +1,10 @@
 /* See LICENSE file for copyright and license details. */
+#include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "../crypt.h"
 #include "../text.h"
@@ -41,7 +43,7 @@ static void
 mdchecklist(FILE *listfp, struct crypt_ops *ops, uint8_t *md, size_t sz,
             int *formatsucks, int *noread, int *nonmatch)
 {
-	FILE *fp;
+	int fd;
 	size_t bufsiz = 0;
 	int r;
 	char *line = NULL, *file, *p;
@@ -59,12 +61,12 @@ mdchecklist(FILE *listfp, struct crypt_ops *ops, uint8_t *md, size_t sz,
 		file += 2;
 		for (p = file; *p && *p != '\n' && *p != '\r'; p++); /* strip newline */
 		*p = '\0';
-		if (!(fp = fopen(file, "r"))) {
-			weprintf("fopen %s:", file);
+		if ((fd = open(file, O_RDONLY)) < 0) {
+			weprintf("open %s:", file);
 			(*noread)++;
 			continue;
 		}
-		if (cryptsum(ops, fp, file, md)) {
+		if (cryptsum(ops, fd, file, md)) {
 			(*noread)++;
 			continue;
 		}
@@ -77,7 +79,7 @@ mdchecklist(FILE *listfp, struct crypt_ops *ops, uint8_t *md, size_t sz,
 		} else {
 			(*formatsucks)++;
 		}
-		fclose(fp);
+		close(fd);
 	}
 	free(line);
 }
@@ -124,11 +126,11 @@ cryptcheck(int argc, char *argv[], struct crypt_ops *ops, uint8_t *md, size_t sz
 int
 cryptmain(int argc, char *argv[], struct crypt_ops *ops, uint8_t *md, size_t sz)
 {
-	FILE *fp;
+	int fd;
 	int ret = 0;
 
 	if (argc == 0) {
-		if (cryptsum(ops, stdin, "<stdin>", md))
+		if (cryptsum(ops, 0, "<stdin>", md))
 			ret = 1;
 		else
 			mdprint(md, "<stdin>", sz);
@@ -136,18 +138,18 @@ cryptmain(int argc, char *argv[], struct crypt_ops *ops, uint8_t *md, size_t sz)
 		for (; *argv; argc--, argv++) {
 			if ((*argv)[0] == '-' && !(*argv)[1]) {
 				*argv = "<stdin>";
-				fp = stdin;
-			} else if (!(fp = fopen(*argv, "r"))) {
-				weprintf("fopen %s:", *argv);
+				fd = 0;
+			} else if ((fd = open(*argv, O_RDONLY)) < 0) {
+				weprintf("open %s:", *argv);
 				ret = 1;
 				continue;
 			}
-			if (cryptsum(ops, fp, *argv, md))
+			if (cryptsum(ops, fd, *argv, md))
 				ret = 1;
 			else
 				mdprint(md, *argv, sz);
-			if (fp != stdin && fshut(fp, *argv))
-				ret = 1;
+			if (fd != 0)
+				close(fd);
 		}
 	}
 
@@ -155,16 +157,15 @@ cryptmain(int argc, char *argv[], struct crypt_ops *ops, uint8_t *md, size_t sz)
 }
 
 int
-cryptsum(struct crypt_ops *ops, FILE *fp, const char *f,
-	 uint8_t *md)
+cryptsum(struct crypt_ops *ops, int fd, const char *f, uint8_t *md)
 {
 	uint8_t buf[BUFSIZ];
-	size_t n;
+	ssize_t n;
 
 	ops->init(ops->s);
-	while ((n = fread(buf, 1, sizeof(buf), fp)) > 0)
+	while ((n = read(fd, buf, sizeof(buf))) > 0)
 		ops->update(ops->s, buf, n);
-	if (ferror(fp)) {
+	if (n < 0) {
 		weprintf("%s: read error:", f);
 		return 1;
 	}
