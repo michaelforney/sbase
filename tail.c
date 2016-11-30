@@ -1,80 +1,125 @@
 /* See LICENSE file for copyright and license details. */
 #include <sys/stat.h>
 
+#include <fcntl.h>
+#include <unistd.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
-#include "text.h"
 #include "utf.h"
 #include "util.h"
 
 static char mode = 'n';
 
-static void
-dropinit(FILE *fp, const char *str, size_t n)
+static int
+dropinit(int fd, const char *fname, size_t count)
 {
 	Rune r;
-	char *buf = NULL;
-	size_t size = 0, i = 1;
-	ssize_t len;
+	char buf[BUFSIZ], *p;
+	ssize_t n;
+	int nr;
 
-	if (mode == 'n') {
-		while (i < n && (len = getline(&buf, &size, fp)) > 0)
-			if (len > 0 && buf[len - 1] == '\n')
-				i++;
-	} else {
-		while (i < n && efgetrune(&r, fp, str))
-			i++;
+	if (count < 2)
+		goto copy;
+	count--;  /* numbering starts at 1 */
+	while (count && (n = read(fd, buf, sizeof(buf))) > 0) {
+		if (mode == 'n') {
+			for (p = buf; count && n > 0; p++, n--) {
+				if (*p == '\n')
+					count--;
+			}
+		} else {
+			for (p = buf; count && n > 0; p += nr, n -= nr, count--) {
+				nr = charntorune(&r, p, n);
+				if (!nr) {
+					/* we don't have a full rune, move
+					 * remaining data to beginning and read
+					 * again */
+					memmove(buf, p, n);
+					break;
+				}
+			}
+		}
 	}
-	free(buf);
-	concat(fp, str, stdout, "<stdout>");
+	if (count) {
+		if (n < 0)
+			weprintf("read %s:", fname);
+		if (n <= 0)
+			return n;
+	}
+
+	/* write the rest of the buffer */
+	if (writeall(1, p, n) < 0)
+		eprintf("write:");
+copy:
+	switch (concat(fd, fname, 1, "<stdout>")) {
+	case -1:  /* read error */
+		return -1;
+	case -2:  /* write error */
+		exit(1);
+	default:
+		return 0;
+	}
 }
 
-static void
-taketail(FILE *fp, const char *str, size_t n)
+static int
+taketail(int fd, const char *fname, size_t count)
 {
-	Rune *r = NULL;
-	struct line *ring = NULL;
-	size_t i, j, *size = NULL;
-	ssize_t len;
-	int seenln = 0;
+	static char *buf = NULL;
+	static size_t size = 0;
+	char *p;
+	size_t len = 0, left;
+	ssize_t n;
 
-	if (!n)
-		return;
-
-	if (mode == 'n') {
-		ring = ecalloc(n, sizeof(*ring));
-		size = ecalloc(n, sizeof(*size));
-
-		for (i = j = 0; (len = getline(&ring[i].data,
-		     &size[i], fp)) > 0; seenln = 1) {
-			ring[i].len = len;
-			i = j = (i + 1) % n;
+	if (!count)
+		return 0;
+	for (;;) {
+		if (len + BUFSIZ > size) {
+			/* make sure we have at least BUFSIZ to read */
+			size += 2 * BUFSIZ;
+			buf = erealloc(buf, size);
 		}
-	} else {
-		r = ecalloc(n, sizeof(*r));
-
-		for (i = j = 0; efgetrune(&r[i], fp, str); )
-			i = j = (i + 1) % n;
+		n = read(fd, buf + len, size - len);
+		if (n < 0) {
+			weprintf("read %s:", fname);
+			return -1;
+		}
+		if (n == 0)
+			break;
+		len += n;
+		if (mode == 'n') {
+			/* ignore the last character; if it is a newline, it
+			 * ends the last line */
+			for (p = buf + len - 2, left = count; p >= buf; p--) {
+				if (*p != '\n')
+					continue;
+				left--;
+				if (!left) {
+					p++;
+					break;
+				}
+			}
+		} else {
+			for (p = buf + len - 1, left = count; p >= buf; p--) {
+				/* skip utf-8 continuation bytes */
+				if ((*p & 0xc0) == 0x80)
+					continue;
+				left--;
+				if (!left)
+					break;
+			}
+		}
+		if (p > buf) {
+			len -= p - buf;
+			memmove(buf, p, len);
+		}
 	}
-	if (ferror(fp))
-		eprintf("%s: read error:", str);
-
-	do {
-		if (seenln && ring && ring[j].data) {
-			fwrite(ring[j].data, 1, ring[j].len, stdout);
-			free(ring[j].data);
-		} else if (r) {
-			efputrune(&r[j], stdout, "<stdout>");
-		}
-	} while ((j = (j + 1) % n) != i);
-
-	free(ring);
-	free(size);
-	free(r);
+	if (writeall(1, buf, len) < 0)
+		eprintf("write:");
+	return 0;
 }
 
 static void
@@ -87,11 +132,11 @@ int
 main(int argc, char *argv[])
 {
 	struct stat st1, st2;
-	FILE *fp;
-	size_t tmpsize, n = 10;
+	int fd;
+	size_t n = 10;
 	int fflag = 0, ret = 0, newline = 0, many = 0;
-	char *numstr, *tmp;
-	void (*tail)(FILE *, const char *, size_t) = taketail;
+	char *numstr;
+	int (*tail)(int, const char *, size_t) = taketail;
 
 	ARGBEGIN {
 	case 'f':
@@ -113,17 +158,18 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND
 
-	if (!argc)
-		tail(stdin, "<stdin>", n);
-	else {
+	if (!argc) {
+		if (tail(0, "<stdin>", n) < 0)
+			ret = 1;
+	} else {
 		if ((many = argc > 1) && fflag)
 			usage();
 		for (newline = 0; *argv; argc--, argv++) {
 			if (!strcmp(*argv, "-")) {
 				*argv = "<stdin>";
-				fp = stdin;
-			} else if (!(fp = fopen(*argv, "r"))) {
-				weprintf("fopen %s:", *argv);
+				fd = 0;
+			} else if ((fd = open(*argv, O_RDONLY)) < 0) {
+				weprintf("open %s:", *argv);
 				ret = 1;
 				continue;
 			}
@@ -134,27 +180,26 @@ main(int argc, char *argv[])
 			if (!(S_ISFIFO(st1.st_mode) || S_ISREG(st1.st_mode)))
 				fflag = 0;
 			newline = 1;
-			tail(fp, *argv, n);
+			if (tail(fd, *argv, n) < 0) {
+				ret = 1;
+				fflag = 0;
+			}
 
 			if (!fflag) {
-				if (fp != stdin && fshut(fp, *argv))
-					ret = 1;
+				if (fd != 0)
+					close(fd);
 				continue;
 			}
-			for (tmp = NULL, tmpsize = 0;;) {
-				while (getline(&tmp, &tmpsize, fp) > 0) {
-					fputs(tmp, stdout);
-					fflush(stdout);
-				}
-				if (ferror(fp))
-					eprintf("readline %s:", *argv);
-				clearerr(fp);
+			for (;;) {
+				if (concat(fd, *argv, 1, "<stdout>") < 0)
+					exit(1);
 				/* ignore error in case file was removed, we continue
 				 * tracking the existing open file descriptor */
 				if (!stat(*argv, &st2)) {
 					if (st2.st_size < st1.st_size) {
 						fprintf(stderr, "%s: file truncated\n", *argv);
-						rewind(fp);
+						if (lseek(fd, SEEK_SET, 0) < 0)
+							eprintf("lseek:");
 					}
 					st1 = st2;
 				}
@@ -162,8 +207,6 @@ main(int argc, char *argv[])
 			}
 		}
 	}
-
-	ret |= fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>");
 
 	return ret;
 }
