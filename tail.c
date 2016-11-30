@@ -20,6 +20,7 @@ dropinit(FILE *fp, const char *str, size_t n)
 	char *buf = NULL;
 	size_t size = 0, i = 1;
 	ssize_t len;
+	int c;
 
 	if (mode == 'n') {
 		while (i < n && (len = getline(&buf, &size, fp)) > 0)
@@ -30,7 +31,10 @@ dropinit(FILE *fp, const char *str, size_t n)
 			i++;
 	}
 	free(buf);
-	concat(fp, str, stdout, "<stdout>");
+	while ((c = fgetc(fp)) != EOF) {
+		if (fputc(c, stdout) == EOF)
+			break;
+	}
 }
 
 static void
@@ -88,9 +92,9 @@ main(int argc, char *argv[])
 {
 	struct stat st1, st2;
 	FILE *fp;
-	size_t tmpsize, n = 10;
-	int fflag = 0, ret = 0, newline = 0, many = 0;
-	char *numstr, *tmp;
+	size_t n = 10;
+	int fflag = 0, ret = 0, newline = 0, many = 0, c;
+	char *numstr;
 	void (*tail)(FILE *, const char *, size_t) = taketail;
 
 	ARGBEGIN {
@@ -141,13 +145,13 @@ main(int argc, char *argv[])
 					ret = 1;
 				continue;
 			}
-			for (tmp = NULL, tmpsize = 0;;) {
-				while (getline(&tmp, &tmpsize, fp) > 0) {
-					fputs(tmp, stdout);
-					fflush(stdout);
+			for (;;) {
+				while ((c = fgetc(fp)) != EOF) {
+					if (fputc(c, stdout) == EOF)
+						eprintf("fputc <stdout>:");
 				}
 				if (ferror(fp))
-					eprintf("readline %s:", *argv);
+					eprintf("fgetc %s:", *argv);
 				clearerr(fp);
 				/* ignore error in case file was removed, we continue
 				 * tracking the existing open file descriptor */
