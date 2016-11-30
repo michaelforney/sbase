@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <sys/inotify.h>
 #include <sys/stat.h>
 
 #include <stdint.h>
@@ -93,9 +94,10 @@ main(int argc, char *argv[])
 	struct stat st1, st2;
 	FILE *fp;
 	size_t n = 10;
-	int fflag = 0, ret = 0, newline = 0, many = 0, c;
+	int fflag = 0, ret = 0, newline = 0, many = 0, c, ifd;
 	char *numstr;
 	void (*tail)(FILE *, const char *, size_t) = taketail;
+	struct inotify_event ev;
 
 	ARGBEGIN {
 	case 'f':
@@ -145,6 +147,10 @@ main(int argc, char *argv[])
 					ret = 1;
 				continue;
 			}
+			if ((ifd = inotify_init()) < 0)
+				eprintf("inotify_init:");
+			if (inotify_add_watch(ifd, *argv, IN_MODIFY) < 0)
+				eprintf("inotify_add_watch:");
 			for (;;) {
 				while ((c = fgetc(fp)) != EOF) {
 					if (fputc(c, stdout) == EOF)
@@ -153,6 +159,8 @@ main(int argc, char *argv[])
 				if (ferror(fp))
 					eprintf("fgetc %s:", *argv);
 				clearerr(fp);
+				if (read(ifd, &ev, sizeof(ev)) < 0)
+					eprintf("read <inotify>:");
 				if (fstat(fileno(fp), &st2) < 0)
 					eprintf("fstat:");
 				if (st2.st_size < st1.st_size) {
@@ -160,7 +168,6 @@ main(int argc, char *argv[])
 					rewind(fp);
 				}
 				st1 = st2;
-				sleep(1);
 			}
 		}
 	}
