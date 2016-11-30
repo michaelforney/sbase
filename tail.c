@@ -133,7 +133,7 @@ main(int argc, char *argv[])
 			}
 			if (many)
 				printf("%s==> %s <==\n", newline ? "\n" : "", *argv);
-			if (stat(*argv, &st1) < 0)
+			if (fstat(fileno(fp), &st1) < 0)
 				eprintf("stat %s:", *argv);
 			if (!(S_ISFIFO(st1.st_mode) || S_ISREG(st1.st_mode)))
 				fflag = 0;
@@ -153,15 +153,13 @@ main(int argc, char *argv[])
 				if (ferror(fp))
 					eprintf("fgetc %s:", *argv);
 				clearerr(fp);
-				/* ignore error in case file was removed, we continue
-				 * tracking the existing open file descriptor */
-				if (!stat(*argv, &st2)) {
-					if (st2.st_size < st1.st_size) {
-						fprintf(stderr, "%s: file truncated\n", *argv);
-						rewind(fp);
-					}
-					st1 = st2;
+				if (fstat(fileno(fp), &st2) < 0)
+					eprintf("fstat:");
+				if (st2.st_size < st1.st_size) {
+					fprintf(stderr, "%s: file truncated\n", *argv);
+					rewind(fp);
 				}
+				st1 = st2;
 				sleep(1);
 			}
 		}
