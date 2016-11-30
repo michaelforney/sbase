@@ -62,6 +62,9 @@ char *strsep(char **, const char *);
 int enregcomp(int, regex_t *, const char *, int);
 int eregcomp(regex_t *, const char *, int);
 
+/* io */
+ssize_t writeall(int, const void *, size_t);
+
 /* misc */
 void enmasse(int, char **, int (*)(const char *, const char *, int));
 void fnck(const char *, const char *, int (*)(const char *, const char *, int), int);
