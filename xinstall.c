@@ -215,11 +215,8 @@ main(int argc, char *argv[])
 		owner = getuid();
 	}
 
-	if (mflag) {
+	if (mflag)
 		mode = parsemode(mflag, mode, 0);
-		if (mode < 0)
-			return 1;
-	}
 
 	if (tflag) {
 		memmove(argv - 1, argv, argc);
