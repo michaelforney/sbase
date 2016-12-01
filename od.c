@@ -129,23 +129,25 @@ od(FILE *fp, char *fname, int last)
 {
 	static unsigned char *line;
 	static size_t lineoff;
-	size_t i;
-	unsigned char buf[BUFSIZ];
 	static off_t addr;
-	size_t buflen;
+	unsigned char buf[BUFSIZ];
+	size_t i, n, size = sizeof(buf);
 
 	while (skip - addr > 0) {
-		buflen = fread(buf, 1, MIN(skip - addr, BUFSIZ), fp);
-		addr += buflen;
+		n = fread(buf, 1, MIN(skip - addr, sizeof(buf)), fp);
+		addr += n;
 		if (feof(fp) || ferror(fp))
 			return;
 	}
 	if (!line)
 		line = emalloc(linelen);
 
-	while ((buflen = fread(buf, 1, max >= 0 ?
-	                       max - (addr - skip) : BUFSIZ, fp))) {
-		for (i = 0; i < buflen; i++, addr++) {
+	for (;;) {
+		if (max >= 0)
+			size = MIN(max - (addr - skip), size);
+		if (!(n = fread(buf, 1, size, fp)))
+			break;
+		for (i = 0; i < n; i++, addr++) {
 			line[lineoff++] = buf[i];
 			if (lineoff == linelen) {
 				printline(line, lineoff, addr - lineoff + 1);
