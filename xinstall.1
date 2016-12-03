@@ -1,4 +1,4 @@
-.Dd 2016-02-12
+.Dd 2016-24-27
 .Dt INSTALL 1
 .Os sbase
 .Sh NAME
@@ -12,7 +12,7 @@
 .Po
 .Fl d Ar dir ...
 |
-.Op Fl sD
+.Op Fl D
 .Po
 .Fl t Ar dest
 .Ar source ...
@@ -62,10 +62,6 @@ is copied with
 Change the installed files' owner to
 .Ar owner .
 This may be a user name or a user identifier.
-.It Fl s
-Remove unnecessary symbols using
-.Xr strip 1 .
-Failure to strip a file does not imply failure to install the file.
 .It Fl t Ar dest
 Copy files into the directory
 .Ar dest .
@@ -79,8 +75,7 @@ notation is used, the base mode is 0000.
 .Xr chmod 1 ,
 .Xr chown 1 ,
 .Xr cp 1 ,
-.Xr mkdir 1 ,
-.Xr strip 1
+.Xr mkdir 1
 .Sh STANDARDS
 The
 .Nm
