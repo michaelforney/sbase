@@ -119,7 +119,8 @@ install(const char *s1, const char *s2, int depth)
 		}
 		concat(f1, s1, f2, s2);
 
-		fchmod(fileno(f2), mode);
+		if (fchmod(fileno(f2), mode) < 0)
+			eprintf("fchmod %s:", s2);
 
 		if (fclose(f2) == EOF)
 			eprintf("fclose %s:", s2);
