@@ -26,12 +26,23 @@ dropinit(int fd, const char *fname, size_t count)
 		goto copy;
 	count--;  /* numbering starts at 1 */
 	while (count && (n = read(fd, buf, sizeof(buf))) > 0) {
-		if (mode == 'n') {
+		switch (mode) {
+		case 'n':  /* lines */
 			for (p = buf; count && n > 0; p++, n--) {
 				if (*p == '\n')
 					count--;
 			}
-		} else {
+			break;
+		case 'c':  /* bytes */
+			if (count > n) {
+				count -= n;
+			} else {
+				p = buf + count;
+				n -= count;
+				count = 0;
+			}
+			break;
+		case 'm':  /* runes */
 			for (p = buf; count && n > 0; p += nr, n -= nr, count--) {
 				nr = charntorune(&r, p, n);
 				if (!nr) {
@@ -42,6 +53,7 @@ dropinit(int fd, const char *fname, size_t count)
 					break;
 				}
 			}
+			break;
 		}
 	}
 	if (count) {
@@ -90,7 +102,8 @@ taketail(int fd, const char *fname, size_t count)
 		if (n == 0)
 			break;
 		len += n;
-		if (mode == 'n') {
+		switch (mode) {
+		case 'n':  /* lines */
 			/* ignore the last character; if it is a newline, it
 			 * ends the last line */
 			for (p = buf + len - 2, left = count; p >= buf; p--) {
@@ -102,7 +115,11 @@ taketail(int fd, const char *fname, size_t count)
 					break;
 				}
 			}
-		} else {
+			break;
+		case 'c':  /* bytes */
+			p = count < len ? buf + len - count : buf;
+			break;
+		case 'm':  /* runes */
 			for (p = buf + len - 1, left = count; p >= buf; p--) {
 				/* skip utf-8 continuation bytes */
 				if ((*p & 0xc0) == 0x80)
@@ -111,6 +128,7 @@ taketail(int fd, const char *fname, size_t count)
 				if (!left)
 					break;
 			}
+			break;
 		}
 		if (p > buf) {
 			len -= p - buf;
@@ -125,7 +143,7 @@ taketail(int fd, const char *fname, size_t count)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-f] [-c num | -n num | -num] [file ...]\n", argv0);
+	eprintf("usage: %s [-f] [-c num | -m num | -n num | -num] [file ...]\n", argv0);
 }
 
 int
@@ -143,6 +161,7 @@ main(int argc, char *argv[])
 		fflag = 1;
 		break;
 	case 'c':
+	case 'm':
 	case 'n':
 		mode = ARGC();
 		numstr = EARGF(usage());

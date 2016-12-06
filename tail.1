@@ -7,7 +7,7 @@
 .Sh SYNOPSIS
 .Nm
 .Op Fl f
-.Op Fl c Ar num | Fl n Ar num | Fl Ns Ar num
+.Op Fl c Ar num | Fl m Ar num | Fl n Ar num | Fl Ns Ar num
 .Op Ar file ...
 .Sh DESCRIPTION
 .Nm
@@ -20,10 +20,10 @@ is given,
 reads from stdin.
 .Sh OPTIONS
 .Bl -tag -width Ds
-.It Fl c Ar num | Fl n Ar num | Fl Ns Ar num
+.It Fl c Ar num | Fl m Ar num | Fl n Ar num | Fl Ns Ar num
 Display final
 .Ar num
-characters | lines |
+bytes | characters | lines |
 lines. If
 .Ar num
 begins with '+'
