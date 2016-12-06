@@ -64,7 +64,10 @@ mdchecklist(FILE *listfp, struct crypt_ops *ops, uint8_t *md, size_t sz,
 			(*noread)++;
 			continue;
 		}
-		cryptsum(ops, fp, file, md);
+		if (cryptsum(ops, fp, file, md)) {
+			(*noread)++;
+			continue;
+		}
 		r = mdcheckline(line, md, sz);
 		if (r == 1) {
 			printf("%s: OK\n", file);
@@ -125,8 +128,10 @@ cryptmain(int argc, char *argv[], struct crypt_ops *ops, uint8_t *md, size_t sz)
 	int ret = 0;
 
 	if (argc == 0) {
-		cryptsum(ops, stdin, "<stdin>", md);
-		mdprint(md, "<stdin>", sz);
+		if (cryptsum(ops, stdin, "<stdin>", md))
+			ret = 1;
+		else
+			mdprint(md, "<stdin>", sz);
 	} else {
 		for (; *argv; argc--, argv++) {
 			if ((*argv)[0] == '-' && !(*argv)[1]) {
@@ -137,11 +142,10 @@ cryptmain(int argc, char *argv[], struct crypt_ops *ops, uint8_t *md, size_t sz)
 				ret = 1;
 				continue;
 			}
-			if (cryptsum(ops, fp, *argv, md)) {
+			if (cryptsum(ops, fp, *argv, md))
 				ret = 1;
-			} else {
+			else
 				mdprint(md, *argv, sz);
-			}
 			if (fp != stdin && fshut(fp, *argv))
 				ret = 1;
 		}
