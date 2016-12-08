@@ -6,7 +6,7 @@
 int
 concat(int f1, const char *s1, int f2, const char *s2)
 {
-	char buf[BUFSIZ];
+	char buf[8192];
 	ssize_t n;
 
 	while ((n = read(f1, buf, sizeof(buf))) > 0) {
