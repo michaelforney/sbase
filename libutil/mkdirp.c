@@ -7,7 +7,7 @@
 #include "../util.h"
 
 int
-mkdirp(const char *path)
+mkdirp(const char *path, mode_t mode, mode_t pmode)
 {
 	char tmp[PATH_MAX], *p;
 	struct stat st;
@@ -25,13 +25,13 @@ mkdirp(const char *path)
 		if (*p != '/')
 			continue;
 		*p = '\0';
-		if (mkdir(tmp, S_IRWXU | S_IRWXG | S_IRWXO) < 0 && errno != EEXIST) {
+		if (mkdir(tmp, pmode) < 0 && errno != EEXIST) {
 			weprintf("mkdir %s:", tmp);
 			return -1;
 		}
 		*p = '/';
 	}
-	if (mkdir(tmp, S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
+	if (mkdir(tmp, mode) < 0) {
 		weprintf("mkdir %s:", tmp);
 		return -1;
 	}

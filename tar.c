@@ -262,7 +262,7 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 		weprintf("remove %s:", fname);
 
 	tmp = estrdup(fname);
-	mkdirp(dirname(tmp));
+	mkdirp(dirname(tmp), 0777, 0777);
 	free(tmp);
 
 	switch (h->type) {
