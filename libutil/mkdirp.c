@@ -10,6 +10,15 @@ int
 mkdirp(const char *path)
 {
 	char tmp[PATH_MAX], *p;
+	struct stat st;
+
+	if (stat(path, &st) == 0) {
+		if ((st.st_mode & S_IFMT) == S_IFDIR)
+			return 0;
+		errno = ENOTDIR;
+		weprintf("%s:", path);
+		return -1;
+	}
 
 	estrlcpy(tmp, path, sizeof(tmp));
 	for (p = tmp + (tmp[0] == '/'); *p; p++) {
@@ -22,7 +31,7 @@ mkdirp(const char *path)
 		}
 		*p = '/';
 	}
-	if (mkdir(tmp, S_IRWXU | S_IRWXG | S_IRWXO) < 0 && errno != EEXIST) {
+	if (mkdir(tmp, S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
 		weprintf("mkdir %s:", tmp);
 		return -1;
 	}
