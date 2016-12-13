@@ -370,7 +370,7 @@ c(const char *path, struct stat *st, void *data, struct recursor *r)
 	if (vflag)
 		puts(path);
 
-	if (st && S_ISDIR(st->st_mode))
+	if (S_ISDIR(st->st_mode))
 		recurse(path, NULL, r);
 }
 
