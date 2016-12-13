@@ -38,10 +38,9 @@ main(int argc, char *argv[])
 		if (pflag) {
 			if (mkdirp(*argv) < 0)
 				ret = 1;
-		} else if (mkdir(*argv, S_IRWXU | S_IRWXG | S_IRWXO) < 0 &&
-		           errno != EEXIST) {
-				weprintf("mkdir %s:", *argv);
-				ret = 1;
+		} else if (mkdir(*argv, S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
+			weprintf("mkdir %s:", *argv);
+			ret = 1;
 		}
 		if (mflag && chmod(*argv, mode) < 0) {
 			weprintf("chmod %s:", *argv);
