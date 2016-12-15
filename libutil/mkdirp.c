@@ -13,7 +13,7 @@ mkdirp(const char *path, mode_t mode, mode_t pmode)
 	struct stat st;
 
 	if (stat(path, &st) == 0) {
-		if ((st.st_mode & S_IFMT) == S_IFDIR)
+		if (S_ISDIR(st.st_mode))
 			return 0;
 		errno = ENOTDIR;
 		weprintf("%s:", path);
