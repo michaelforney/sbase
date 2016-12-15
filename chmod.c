@@ -13,11 +13,11 @@ chmodr(const char *path, struct stat *st, void *data, struct recursor *r)
 {
 	mode_t m;
 
-	m = parsemode(modestr, st ? st->st_mode : 0, mask);
+	m = parsemode(modestr, st->st_mode, mask);
 	if (chmod(path, m) < 0) {
 		weprintf("chmod %s:", path);
 		ret = 1;
-	} else if (st && S_ISDIR(st->st_mode)) {
+	} else if (S_ISDIR(st->st_mode)) {
 		recurse(path, NULL, r);
 	}
 }
