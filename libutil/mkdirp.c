@@ -10,6 +10,15 @@ int
 mkdirp(const char *path)
 {
 	char tmp[PATH_MAX], *p;
+	struct stat st;
+
+	if (stat(path, &st) == 0) {
+		if (S_ISDIR(st.st_mode))
+			return 0;
+		errno = ENOTDIR;
+		weprintf("%s:", path);
+		return -1;
+	}
 
 	estrlcpy(tmp, path, sizeof(tmp));
 	for (p = tmp + (tmp[0] == '/'); *p; p++) {
