@@ -17,7 +17,7 @@ chmodr(const char *path, struct stat *st, void *data, struct recursor *r)
 	if (chmod(path, m) < 0) {
 		weprintf("chmod %s:", path);
 		ret = 1;
-	} else if (S_ISDIR(st->st_mode)) {
+	} else if (r->depth && S_ISDIR(st->st_mode)) {
 		recurse(path, NULL, r);
 	}
 }

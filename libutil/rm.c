@@ -14,7 +14,8 @@ void
 rm(const char *path, struct stat *st, void *data, struct recursor *r)
 {
 	if (!r->maxdepth && S_ISDIR(st->st_mode)) {
-		recurse(path, NULL, r);
+		if (r->depth)
+			recurse(path, NULL, r);
 
 		if (rmdir(path) < 0) {
 			if (!(r->flags & SILENT))
