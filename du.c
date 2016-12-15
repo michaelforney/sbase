@@ -35,16 +35,19 @@ nblks(blkcnt_t blocks)
 }
 
 static void
-du(const char *path, struct stat *st, void *total, struct recursor *r)
+du(const char *path, struct stat *st, void *data, struct recursor *r)
 {
-	off_t subtotal = 0;
+	off_t *total = data, subtotal;
 
+	subtotal = nblks(st->st_blocks);
 	if (S_ISDIR(st->st_mode))
 		recurse(path, &subtotal, r);
-	*((off_t *)total) += subtotal + nblks(st->st_blocks);
+	*total += subtotal;
 
-	if (!sflag && r->depth <= maxdepth && r->depth && (S_ISDIR(st->st_mode) || aflag))
-		printpath(subtotal + nblks(st->st_blocks), path);
+	if (!r->depth)
+		printpath(*total, path);
+	else if (!sflag && r->depth <= maxdepth && (S_ISDIR(st->st_mode) || aflag))
+		printpath(subtotal, path);
 }
 
 static void
@@ -102,12 +105,10 @@ main(int argc, char *argv[])
 
 	if (!argc) {
 		recurse(".", &n, &r);
-		printpath(n, ".");
 	} else {
 		for (; *argv; argc--, argv++) {
 			n = 0;
 			recurse(*argv, &n, &r);
-			printpath(n, *argv);
 		}
 	}
 
