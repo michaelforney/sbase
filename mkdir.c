@@ -15,17 +15,18 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	mode_t mode = 0, mask;
-	int pflag = 0, mflag = 0, ret = 0;
+	mode_t mode, mask;
+	int pflag = 0, ret = 0;
+
+	mask = umask(0);
+	mode = 0777 & ~mask;
 
 	ARGBEGIN {
 	case 'p':
 		pflag = 1;
 		break;
 	case 'm':
-		mflag = 1;
-		mask = getumask();
-		mode = parsemode(EARGF(usage()), mode, mask);
+		mode = parsemode(EARGF(usage()), 0777, mask);
 		break;
 	default:
 		usage();
@@ -36,14 +37,10 @@ main(int argc, char *argv[])
 
 	for (; *argv; argc--, argv++) {
 		if (pflag) {
-			if (mkdirp(*argv) < 0)
+			if (mkdirp(*argv, mode, 0777 & (~mask | 0300)) < 0)
 				ret = 1;
-		} else if (mkdir(*argv, S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
+		} else if (mkdir(*argv, mode) < 0) {
 			weprintf("mkdir %s:", *argv);
-			ret = 1;
-		}
-		if (mflag && chmod(*argv, mode) < 0) {
-			weprintf("chmod %s:", *argv);
 			ret = 1;
 		}
 	}
