@@ -31,7 +31,7 @@ mkdirp(const char *path, mode_t mode, mode_t pmode)
 		}
 		*p = '/';
 	}
-	if (mkdir(tmp, mode) < 0) {
+	if (mkdir(tmp, mode) < 0 && errno != EEXIST) {
 		weprintf("mkdir %s:", tmp);
 		return -1;
 	}
