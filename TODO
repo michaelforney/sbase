@@ -18,5 +18,8 @@ features noted.
 What also needs to be implemented is the capability of the tools to
 handle data with NUL-bytes in it.
 
+The return values of mdcheckline() in crypt.c need to be fixed (0 -> success,
+1 -> error).
+
 [0] http://landley.net/toybox/roadmap.html
 [1] http://git.suckless.org/ubase/
