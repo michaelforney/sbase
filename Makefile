@@ -223,7 +223,7 @@ install: all
 
 uninstall:
 	cd $(DESTDIR)$(PREFIX)/bin && rm -f $(BIN) [ install
-	cd $(DESTDIR)$(MANPREFIX)/man1 && rm -f $(MAN)
+	cd $(DESTDIR)$(MANPREFIX)/man1 && rm -f $(MAN) install.1
 
 dist: clean
 	mkdir -p sbase-$(VERSION)
