@@ -219,7 +219,7 @@ main(int argc, char *argv[])
 		mode = parsemode(mflag, mode, 0);
 
 	if (tflag) {
-		memmove(argv - 1, argv, argc);
+		argv = memmove(argv - 1, argv, argc * sizeof(*argv));
 		argv[argc++] = tflag;
 	}
 	if (tflag || argc > 2) {
