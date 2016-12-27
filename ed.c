@@ -322,7 +322,7 @@ inject(char *s, int j)
 }
 
 static void
-clearbuf()
+clearbuf(void)
 {
 	if (scratch)
 		close(scratch);
@@ -334,7 +334,7 @@ clearbuf()
 }
 
 static void
-setscratch()
+setscratch(void)
 {
 	int r, k;
 	char *dir;
@@ -421,6 +421,7 @@ rematch(int num)
 		lastmatch += off;
 		return 1;
 	}
+
 	return 0;
 }
 
@@ -547,7 +548,7 @@ invalid:
 }
 
 static void
-getlst()
+getlst(void)
 {
 	int ln, c;
 
@@ -595,7 +596,7 @@ deflines(int def1, int def2)
 }
 
 static void
-dowrite(char *fname, int trunc)
+dowrite(const char *fname, int trunc)
 {
 	FILE *fp;
 	int i, line;
@@ -610,13 +611,14 @@ dowrite(char *fname, int trunc)
 	curln = line2;
 	if (fclose(fp))
 		error("input/output error");
-	strcpy(savfname, fname);
+	if (strlcpy(savfname, fname, sizeof(savfname)) >= sizeof(savfname))
+		error("file name too long");
 	modflag = 0;
 	curln = line;
 }
 
 static void
-doread(char *fname)
+doread(const char *fname)
 {
 	size_t cnt;
 	ssize_t n;
@@ -741,9 +743,11 @@ getfname(char comm)
 	} else {
 		*bp = '\0';
 		if (savfname[0] == '\0' || comm == 'e' || comm == 'f')
-			strcpy(savfname, fname);
+			if (strlcpy(savfname, fname, sizeof(savfname)) >= sizeof(savfname))
+				error("file name too long");
 		return fname;
 	}
+
 	return NULL; /* not reached */
 }
 
