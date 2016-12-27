@@ -1,3 +1,4 @@
+/* See LICENSE file for copyright and license details. */
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -23,10 +24,8 @@ parsemode(const char *str, mode_t mode, mode_t mask)
 
 	octal = strtol(str, &end, 8);
 	if (*end == '\0') {
-		if (octal < 0 || octal > 07777) {
+		if (octal < 0 || octal > 07777)
 			eprintf("%s: invalid mode\n", str);
-			return -1;
-		}
 		mode = 0;
 		if (octal & 04000) mode |= S_ISUID;
 		if (octal & 02000) mode |= S_ISGID;
@@ -78,7 +77,6 @@ next:
 			break;
 		default:
 			eprintf("%s: invalid mode\n", str);
-			return -1;
 		}
 
 		perm = 0;

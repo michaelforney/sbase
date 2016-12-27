@@ -69,7 +69,7 @@ nextline:
 				putchar('\n');
 			else
 				efputrune(&d, stdout, "<stdout>");
-				last++;
+			last++;
 		}
 	}
 	if (last != -1)

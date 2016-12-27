@@ -192,7 +192,9 @@ getindex(int line)
 	struct hline *lp;
 	int n;
 
-	for (n = 0, lp = zero; n != line; ++n)
+	if (line == -1)
+		line = 0;
+	for (n = 0, lp = zero; n != line; n++)
 		lp = zero + lp->next;
 
 	return lp - zero;
@@ -297,13 +299,17 @@ undo(void)
 }
 
 static void
-inject(char *s)
+inject(char *s, int j)
 {
 	int off, k, begin, end;
 
-	begin = getindex(curln);
-	end = getindex(nextln(curln));
-
+	if (j) {
+		begin = getindex(curln-1);
+		end = getindex(nextln(curln-1));
+	} else {
+		begin = getindex(curln);
+		end = getindex(nextln(curln));
+	}
 	while (*s) {
 		k = makeline(s, &off);
 		s += off;
@@ -316,7 +322,7 @@ inject(char *s)
 }
 
 static void
-clearbuf()
+clearbuf(void)
 {
 	if (scratch)
 		close(scratch);
@@ -328,7 +334,7 @@ clearbuf()
 }
 
 static void
-setscratch()
+setscratch(void)
 {
 	int r, k;
 	char *dir;
@@ -415,6 +421,7 @@ rematch(int num)
 		lastmatch += off;
 		return 1;
 	}
+
 	return 0;
 }
 
@@ -426,7 +433,7 @@ search(int way)
 	i = curln;
 	do {
 		i = (way == '?') ? prevln(i) : nextln(i);
-		if (match(i))
+		if (i > 0 && match(i))
 			return i;
 	} while (i != curln);
 
@@ -541,7 +548,7 @@ invalid:
 }
 
 static void
-getlst()
+getlst(void)
 {
 	int ln, c;
 
@@ -589,7 +596,7 @@ deflines(int def1, int def2)
 }
 
 static void
-dowrite(char *fname, int trunc)
+dowrite(const char *fname, int trunc)
 {
 	FILE *fp;
 	int i, line;
@@ -604,13 +611,14 @@ dowrite(char *fname, int trunc)
 	curln = line2;
 	if (fclose(fp))
 		error("input/output error");
-	strcpy(savfname, fname);
+	if (strlcpy(savfname, fname, sizeof(savfname)) >= sizeof(savfname))
+		error("file name too long");
 	modflag = 0;
 	curln = line;
 }
 
 static void
-doread(char *fname)
+doread(const char *fname)
 {
 	size_t cnt;
 	ssize_t n;
@@ -634,7 +642,7 @@ doread(char *fname)
 			s[n-1] = '\n';
 			s[n] = '\0';
 		}
-		inject(s);
+		inject(s, 0);
 	}
 	if (optdiag)
 		printf("%zu\n", cnt);
@@ -735,9 +743,11 @@ getfname(char comm)
 	} else {
 		*bp = '\0';
 		if (savfname[0] == '\0' || comm == 'e' || comm == 'f')
-			strcpy(savfname, fname);
+			if (strlcpy(savfname, fname, sizeof(savfname)) >= sizeof(savfname))
+				error("file name too long");
 		return fname;
 	}
+
 	return NULL; /* not reached */
 }
 
@@ -751,7 +761,7 @@ append(int num)
 	while (getline(&s, &len, stdin) > 0) {
 		if (*s == '.' && s[1] == '\n')
 			break;
-		inject(s);
+		inject(s, 0);
 	}
 	free(s);
 }
@@ -803,18 +813,19 @@ join(void)
 	int i;
 	char *t, c;
 	size_t len = 0, cap = 0;
-	static char *s;
+	char *s;
 
-	free(s);
-	for (s = NULL, i = line1; i <= line2; i = nextln(i)) {
+	for (s = NULL, i = line1;; i = nextln(i)) {
 		for (t = gettxt(i); (c = *t) != '\n'; ++t)
 			s = addchar(*t, s, &cap, &len);
+		if (i == line2)
+			break;
 	}
 
 	s = addchar('\n', s, &cap, &len);
 	s = addchar('\0', s, &cap, &len);
 	delete(line1, line2);
-	inject(s);
+	inject(s, 1);
 	free(s);
 }
 
@@ -841,7 +852,7 @@ copy(int where)
 	curln = where;
 
 	for (i = line1; i <= line2; ++i)
-		inject(gettxt(i));
+		inject(gettxt(i), 0);
 }
 
 static void
@@ -900,13 +911,8 @@ getrhs(int delim)
 	free(s);
 	s = NULL;
 	siz = cap = 0;
-	while ((c = input()) != '\n' && c != EOF && c != delim) {
-		if (c == '\\') {
-			if ((c = input()) == '&' || isdigit(c))
-				s = addchar(c, s, &siz, &cap);
-		}
+	while ((c = input()) != '\n' && c != EOF && c != delim)
 		s = addchar(c, s, &siz, &cap);
-	}
 	s = addchar('\0', s, &siz, &cap);
 	if (c == EOF)
 		error("invalid pattern delimiter");
@@ -1021,7 +1027,7 @@ subline(int num, int nth)
 	addpost(&s, &cap, &siz);
 	delete(num, num);
 	curln = prevln(num);
-	inject(s);
+	inject(s, 0);
 }
 
 static void
@@ -1170,9 +1176,8 @@ repeat:
 	case 'j':
 		chkprint(1);
 		deflines(curln, curln+1);
-		if (!line1)
-			goto bad_address;
-		join();
+		if (line1 != line2 && curln != 0)
+	      		join();
 		break;
 	case 'z':
 		if (nlines > 1)

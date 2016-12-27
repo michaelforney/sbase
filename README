@@ -66,6 +66,7 @@ The following tools are implemented:
 0=*|o pwd             .
 0=*|x readlink        .
 0=*|o renice          .
+0#* x rev             .
 0=*|o rm              (-i)
 0=*|o rmdir           .
  #    sed             .

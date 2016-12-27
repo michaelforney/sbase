@@ -23,10 +23,6 @@ HDR =\
 
 LIBUTF = libutf.a
 LIBUTFSRC =\
-	libutf/rune.c\
-	libutf/runetype.c\
-	libutf/utf.c\
-	libutf/utftorunestr.c\
 	libutf/fgetrune.c\
 	libutf/fputrune.c\
 	libutf/isalnumrune.c\
@@ -41,7 +37,11 @@ LIBUTFSRC =\
 	libutf/istitlerune.c\
 	libutf/isxdigitrune.c\
 	libutf/lowerrune.c\
-	libutf/upperrune.c
+	libutf/rune.c\
+	libutf/runetype.c\
+	libutf/upperrune.c\
+	libutf/utf.c\
+	libutf/utftorunestr.c
 
 LIBUTIL = libutil.a
 LIBUTILSRC =\
@@ -114,8 +114,8 @@ BIN =\
 	getconf\
 	grep\
 	head\
-	join\
 	hostname\
+	join\
 	kill\
 	link\
 	ln\
@@ -131,13 +131,14 @@ BIN =\
 	nl\
 	nohup\
 	od\
-	pathchk\
 	paste\
+	pathchk\
 	printenv\
 	printf\
 	pwd\
 	readlink\
 	renice\
+	rev\
 	rm\
 	rmdir\
 	sed\
@@ -223,7 +224,7 @@ install: all
 
 uninstall:
 	cd $(DESTDIR)$(PREFIX)/bin && rm -f $(BIN) [ install
-	cd $(DESTDIR)$(MANPREFIX)/man1 && rm -f $(MAN)
+	cd $(DESTDIR)$(MANPREFIX)/man1 && rm -f $(MAN) install.1
 
 dist: clean
 	mkdir -p sbase-$(VERSION)
@@ -273,5 +274,4 @@ clean:
 	rm -f $(BIN) $(OBJ) $(LIB) sbase-box sbase-$(VERSION).tar.gz
 	rm -f getconf.h
 
-.PHONY:
-	all install uninstall dist sbase-box sbase-box-install sbase-box-uninstall clean
+.PHONY: all install uninstall dist sbase-box sbase-box-install sbase-box-uninstall clean

@@ -13,7 +13,6 @@
 #include "util.h"
 
 static int Dflag = 0;
-static int sflag = 0;
 static gid_t group;
 static uid_t owner;
 static mode_t mode = 0755;
@@ -39,22 +38,6 @@ make_dirs(char *dir, int was_missing)
 		*p = '/';
 	}
 	make_dir(dir, was_missing);
-}
-
-static void
-strip(const char *filename)
-{
-	pid_t pid = fork();
-	switch (pid) {
-	case -1:
-		eprintf("fork:");
-	case 0:
-		execlp("strip", "strip", "--", filename, (char *)0);
-		eprintf("exec: strip:");
-	default:
-		waitpid(pid, NULL, 0);
-		break;
-	}
 }
 
 static int
@@ -125,9 +108,6 @@ install(const char *s1, const char *s2, int depth)
 
 		close(f1);
 		close(f2);
-
-		if (sflag)
-			strip(s2);
 	}
 
 	if (lchown(s2, owner, group) < 0)
@@ -139,7 +119,7 @@ install(const char *s1, const char *s2, int depth)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-g group] [-o owner] [-m mode] (-d dir ... | [-Ds] (-t dest source ... | source ... dest))\n", argv0);
+	eprintf("usage: %s [-g group] [-o owner] [-m mode] (-d dir ... | [-D] (-t dest source ... | source ... dest))\n", argv0);
 }
 
 int
@@ -166,7 +146,7 @@ main(int argc, char *argv[])
 		Dflag = 1;
 		break;
 	case 's':
-		sflag = 1;
+		/* no-op for compatibility */
 		break;
 	case 'g':
 		gflag = EARGF(usage());
@@ -184,7 +164,7 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND
 
-	if (argc < 1 + (!tflag & !dflag) || dflag & (Dflag | sflag | !!tflag))
+	if (argc < 1 + (!tflag & !dflag) || dflag & (Dflag | !!tflag))
 		usage();
 
 	if (gflag) {
@@ -215,14 +195,11 @@ main(int argc, char *argv[])
 		owner = getuid();
 	}
 
-	if (mflag) {
+	if (mflag)
 		mode = parsemode(mflag, mode, 0);
-		if (mode < 0)
-			return 1;
-	}
 
 	if (tflag) {
-		memmove(argv - 1, argv, argc);
+		argv = memmove(argv - 1, argv, argc * sizeof(*argv));
 		argv[argc++] = tflag;
 	}
 	if (tflag || argc > 2) {
