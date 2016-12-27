@@ -152,14 +152,16 @@ cp(const char *s1, const char *s2, int depth)
 	}
 
 	if (cp_aflag || cp_pflag) {
-		/* timestamp and owner */
+		/* atime and mtime */
+		times[0] = st.st_atim;
+		times[1] = st.st_mtim;
+		if (utimensat(AT_FDCWD, s2, times, AT_SYMLINK_NOFOLLOW) < 0) {
+			weprintf("utimensat %s:", s2);
+			cp_status = 1;
+		}
+
+		/* owner */
 		if (!S_ISLNK(st.st_mode)) {
-			times[0] = st.st_atim;
-			times[1] = st.st_mtim;
-			if (utimensat(AT_FDCWD, s2, times, 0) < 0) {
-				weprintf("utimensat %s:", s2);
-				cp_status = 1;
-			}
 			if (chown(s2, st.st_uid, st.st_gid) < 0) {
 				weprintf("chown %s:", s2);
 				cp_status = 1;
