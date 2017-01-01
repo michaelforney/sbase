@@ -113,25 +113,20 @@ indicator(mode_t mode)
 	return "";
 }
 
-static char *
-makeprint(char *name)
+static void
+printname(const char *name)
 {
-	char *c, *u, *print = emalloc(strlen(name) + 1);
+	const char *c;
 	Rune r;
 	size_t l;
 
-	for (c = print, u = name; *u; u += l) {
-		l = chartorune(&r, u);
-		if (isprintrune(r)) {
-			memcpy(c, u, l);
-			c += l;
-		} else {
-			*c++ = '?';
-		}
+	for (c = name; *c; c += l) {
+		l = chartorune(&r, c);
+		if (!qflag || isprintrune(r))
+			fwrite(c, 1, l, stdout);
+		else
+			putchar('?');
 	}
-	*c = '\0';
-
-	return print;
 }
 
 static void
@@ -142,14 +137,14 @@ output(const struct entry *ent)
 	struct tm *tm;
 	ssize_t len;
 	char *fmt, buf[BUFSIZ], pwname[_SC_LOGIN_NAME_MAX],
-	     grname[_SC_LOGIN_NAME_MAX], mode[] = "----------",
-	     *name = qflag ? makeprint(ent->name) : ent->name;
+	     grname[_SC_LOGIN_NAME_MAX], mode[] = "----------";
 
 	if (iflag)
 		printf("%lu ", (unsigned long)ent->ino);
 	if (!lflag) {
-		printf("%s%s\n", name, indicator(ent->mode));
-		goto cleanup;
+		printname(ent->name);
+		puts(indicator(ent->mode));
+		return;
 	}
 	if (S_ISREG(ent->mode))
 		mode[0] = '-';
@@ -209,7 +204,9 @@ output(const struct entry *ent)
 		printf("%10s ", humansize(ent->size));
 	else
 		printf("%10lu ", (unsigned long)ent->size);
-	printf("%s %s%s", buf, name, indicator(ent->mode));
+	printf("%s ", buf);
+	printname(ent->name);
+	fputs(indicator(ent->mode), stdout);
 	if (S_ISLNK(ent->mode)) {
 		if ((len = readlink(ent->name, buf, sizeof(buf) - 1)) < 0)
 			eprintf("readlink %s:", ent->name);
@@ -217,10 +214,6 @@ output(const struct entry *ent)
 		printf(" -> %s%s", buf, indicator(ent->tmode));
 	}
 	putchar('\n');
-
-cleanup:
-	if (qflag)
-		free(name);
 }
 
 static int
@@ -252,7 +245,7 @@ lsdir(const char *path, const struct entry *dir)
 	struct entry *ent, *ents = NULL;
 	struct dirent *d;
 	size_t i, n = 0;
-	char prefix[PATH_MAX], *name;
+	char prefix[PATH_MAX];
 
 	if (!(dp = opendir(dir->name))) {
 		ret = 1;
@@ -280,10 +273,9 @@ lsdir(const char *path, const struct entry *dir)
 		qsort(ents, n, sizeof(*ents), entcmp);
 
 	if (path[0] || showdirs) {
-		name = qflag ? makeprint(dir->name) : dir->name;
-		printf("%s%s:\n", path, name);
-		if (qflag)
-			free(name);
+		fputs(path, stdout);
+		printname(dir->name);
+		puts(":");
 	}
 	for (i = 0; i < n; i++)
 		output(&ents[i]);
