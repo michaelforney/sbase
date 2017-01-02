@@ -1,7 +1,9 @@
 /* See LICENSE file for copyright and license details. */
+#include <fcntl.h>
 #include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "util.h"
 
@@ -61,19 +63,20 @@ static const unsigned long crctab[] = {         0x00000000,
 };
 
 static void
-cksum(FILE *fp, const char *s)
+cksum(int fd, const char *s)
 {
-	size_t len = 0, i, n;
+	ssize_t n;
+	size_t len = 0, i;
 	uint32_t ck = 0;
 	unsigned char buf[BUFSIZ];
 
-	while ((n = fread(buf, 1, sizeof(buf), fp))) {
+	while ((n = read(fd, buf, sizeof(buf))) > 0) {
 		for (i = 0; i < n; i++)
 			ck = (ck << 8) ^ crctab[(ck >> 24) ^ buf[i]];
 		len += n;
 	}
-	if (ferror(fp)) {
-		weprintf("fread %s:", s ? s : "<stdin>");
+	if (n < 0) {
+		weprintf("read %s:", s ? s : "<stdin>");
 		ret = 1;
 		return;
 	}
@@ -92,29 +95,29 @@ cksum(FILE *fp, const char *s)
 int
 main(int argc, char *argv[])
 {
-	FILE *fp;
+	int fd;
 
 	argv0 = argv[0], argc--, argv++;
 
 	if (!argc) {
-		cksum(stdin, NULL);
+		cksum(0, NULL);
 	} else {
 		for (; *argv; argc--, argv++) {
 			if (!strcmp(*argv, "-")) {
 				*argv = "<stdin>";
-				fp = stdin;
-			} else if (!(fp = fopen(*argv, "r"))) {
-				weprintf("fopen %s:", *argv);
+				fd = 0;
+			} else if ((fd = open(*argv, O_RDONLY)) < 0) {
+				weprintf("open %s:", *argv);
 				ret = 1;
 				continue;
 			}
-			cksum(fp, *argv);
-			if (fp != stdin && fshut(fp, *argv))
-				ret = 1;
+			cksum(fd, *argv);
+			if (fd != 0)
+				close(fd);
 		}
 	}
 
-	ret |= fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>");
+	ret |= fshut(stdout, "<stdout>");
 
 	return ret;
 }
