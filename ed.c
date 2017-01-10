@@ -813,8 +813,9 @@ join(void)
 	int i;
 	char *t, c;
 	size_t len = 0, cap = 0;
-	char *s;
+	static char *s;
 
+	free(s);
 	for (s = NULL, i = line1;; i = nextln(i)) {
 		for (t = gettxt(i); (c = *t) != '\n'; ++t)
 			s = addchar(*t, s, &cap, &len);
