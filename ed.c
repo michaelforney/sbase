@@ -611,8 +611,7 @@ dowrite(const char *fname, int trunc)
 	curln = line2;
 	if (fclose(fp))
 		error("input/output error");
-	if (strcpy(savfname, fname, sizeof(savfname)) >= sizeof(savfname))
-		error("file name too long");
+	strcpy(savfname, fname);
 	modflag = 0;
 	curln = line;
 }
