@@ -33,6 +33,9 @@ main(int argc, char *argv[])
 		/* ignore */
 		EARGF(usage());
 		break;
+	default:
+		usage();
+		break;
 	} ARGEND
 
 	if (argc == 1) {

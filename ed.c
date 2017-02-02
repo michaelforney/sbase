@@ -611,8 +611,7 @@ dowrite(const char *fname, int trunc)
 	curln = line2;
 	if (fclose(fp))
 		error("input/output error");
-	if (strlcpy(savfname, fname, sizeof(savfname)) >= sizeof(savfname))
-		error("file name too long");
+	strcpy(savfname, fname);
 	modflag = 0;
 	curln = line;
 }
@@ -743,8 +742,7 @@ getfname(char comm)
 	} else {
 		*bp = '\0';
 		if (savfname[0] == '\0' || comm == 'e' || comm == 'f')
-			if (strlcpy(savfname, fname, sizeof(savfname)) >= sizeof(savfname))
-				error("file name too long");
+			strcpy(savfname, fname);
 		return fname;
 	}
 
@@ -813,8 +811,9 @@ join(void)
 	int i;
 	char *t, c;
 	size_t len = 0, cap = 0;
-	char *s;
+	static char *s;
 
+	free(s);
 	for (s = NULL, i = line1;; i = nextln(i)) {
 		for (t = gettxt(i); (c = *t) != '\n'; ++t)
 			s = addchar(*t, s, &cap, &len);
@@ -1143,7 +1142,7 @@ repeat:
 		chkprint(1);
 		deflines(curln, curln);
 		if (!line1)
-			goto bad_address;
+			line1++;
 		append(prevln(line1));
 		break;
 	case 'a':
