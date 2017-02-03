@@ -404,30 +404,38 @@ sanitize(struct header *h)
 static void
 chktar(struct header *h)
 {
-	char tmp[8], *err;
-	char *p = (char *)h;
+	char tmp[8], *err, *p = (char *)h;
+	const char *reason;
 	long s1, s2, i;
 
-	if (h->prefix[0] == '\0' && h->name[0] == '\0')
+	if (h->prefix[0] == '\0' && h->name[0] == '\0') {
+		reason = "empty filename";
 		goto bad;
-	if (h->magic[0] && strncmp("ustar", h->magic, 5))
+	}
+	if (h->magic[0] && strncmp("ustar", h->magic, 5)) {
+		reason = "not ustar format";
 		goto bad;
+	}
 	memcpy(tmp, h->chksum, sizeof(tmp));
 	for (i = 0; i < sizeof(tmp); i++)
 		if (tmp[i] == ' ')
 			tmp[i] = '\0';
 	s1 = strtol(tmp, &err, 8);
-	if (s1 < 0 || *err != '\0')
+	if (s1 < 0 || *err != '\0') {
+		reason = "invalid checksum";
 		goto bad;
+	}
 	memset(h->chksum, ' ', sizeof(h->chksum));
 	for (i = 0, s2 = 0; i < sizeof(*h); i++)
 		s2 += (unsigned char)p[i];
-	if (s1 != s2)
+	if (s1 != s2) {
+		reason = "incorrect checksum";
 		goto bad;
+	}
 	memcpy(h->chksum, tmp, sizeof(h->chksum));
 	return;
 bad:
-	eprintf("malformed tar archive\n");
+	eprintf("malformed tar archive: %s\n", reason);
 }
 
 static void
