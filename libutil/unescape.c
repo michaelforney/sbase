@@ -35,7 +35,7 @@ unescape(char *s)
 				    (s[m] < 'a' && s[m] > 'f'))
 					break;
 			if (m == i + 2)
-				eprintf("%s: invalid escape sequence '\\%c'\n", argv0, s[i + 1]);
+				eprintf("invalid escape sequence '\\%c'\n", s[i + 1]);
 			off += m - i - 1;
 			for (--m, q = 0, factor = 1; m > i + 1; m--) {
 				if (s[m] >= '0' && s[m] <= '9')
@@ -49,14 +49,14 @@ unescape(char *s)
 			s[i] = q;
 			break;
 		case '\0':
-			eprintf("%s: null escape sequence\n", argv0);
+			eprintf("null escape sequence\n");
 		default:
 			/* "\O[OOO]" octal escape */
 			for (m = i + 1; m < i + 1 + 4 && m < len; m++)
 				if (s[m] < '0' || s[m] > '7')
 					break;
 			if (m == i + 1)
-				eprintf("%s: invalid escape sequence '\\%c'\n", argv0, s[i + 1]);
+				eprintf("invalid escape sequence '\\%c'\n", s[i + 1]);
 			off += m - i - 1;
 			for (--m, q = 0, factor = 1; m > i; m--) {
 				q += (s[m] - '0') * factor;
