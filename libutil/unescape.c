@@ -1,74 +1,57 @@
 /* See LICENSE file for copyright and license details. */
+#include <ctype.h>
 #include <string.h>
 
 #include "../util.h"
 
+#define is_odigit(c)  ('0' <= c && c <= '7')
+
 size_t
 unescape(char *s)
 {
-	size_t len, i, off, m, factor, q;
+	static const char escapes[256] = {
+		['"'] = '"',
+		['\''] = '\'',
+		['\\'] = '\\',
+		['a'] = '\a',
+		['b'] = '\b',
+		['E'] = 033,
+		['e'] = 033,
+		['f'] = '\f',
+		['n'] = '\n',
+		['r'] = '\r',
+		['t'] = '\t',
+		['v'] = '\v'
+	};
+	size_t m, q;
+	char *r, *w;
 
-	len = strlen(s);
-
-	for (i = 0; i < len; i++) {
-		if (s[i] != '\\')
+	for (r = w = s; *r;) {
+		if (*r != '\\') {
+			*w++ = *r++;
 			continue;
-		off = 0;
-
-		switch (s[i + 1]) {
-		case '\\': s[i] = '\\'; off++; break;
-		case '\'': s[i] = '\'', off++; break;
-		case '"':  s[i] =  '"', off++; break;
-		case 'a':  s[i] = '\a'; off++; break;
-		case 'b':  s[i] = '\b'; off++; break;
-		case 'e':  s[i] =  033; off++; break;
-		case 'f':  s[i] = '\f'; off++; break;
-		case 'n':  s[i] = '\n'; off++; break;
-		case 'r':  s[i] = '\r'; off++; break;
-		case 't':  s[i] = '\t'; off++; break;
-		case 'v':  s[i] = '\v'; off++; break;
-		case 'x':
-			/* "\xH[H]" hexadecimal escape */
-			for (m = i + 2; m < i + 1 + 3 && m < len; m++)
-				if ((s[m] < '0' && s[m] > '9') &&
-				    (s[m] < 'A' && s[m] > 'F') &&
-				    (s[m] < 'a' && s[m] > 'f'))
-					break;
-			if (m == i + 2)
-				eprintf("%s: invalid escape sequence '\\%c'\n", argv0, s[i + 1]);
-			off += m - i - 1;
-			for (--m, q = 0, factor = 1; m > i + 1; m--) {
-				if (s[m] >= '0' && s[m] <= '9')
-					q += (s[m] - '0') * factor;
-				else if (s[m] >= 'A' && s[m] <= 'F')
-					q += ((s[m] - 'A') + 10) * factor;
-				else if (s[m] >= 'a' && s[m] <= 'f')
-					q += ((s[m] - 'a') + 10) * factor;
-				factor *= 16;
-			}
-			s[i] = q;
-			break;
-		case '\0':
-			eprintf("%s: null escape sequence\n", argv0);
-		default:
-			/* "\O[OOO]" octal escape */
-			for (m = i + 1; m < i + 1 + 4 && m < len; m++)
-				if (s[m] < '0' || s[m] > '7')
-					break;
-			if (m == i + 1)
-				eprintf("%s: invalid escape sequence '\\%c'\n", argv0, s[i + 1]);
-			off += m - i - 1;
-			for (--m, q = 0, factor = 1; m > i; m--) {
-				q += (s[m] - '0') * factor;
-				factor *= 8;
-			}
-			s[i] = (q > 255) ? 255 : q;
 		}
-
-		for (m = i + 1; m <= len - off; m++)
-			s[m] = s[m + off];
-		len -= off;
+		r++;
+		if (!*r) {
+			eprintf("null escape sequence\n");
+		} else if (escapes[(unsigned char)*r]) {
+			*w++ = escapes[(unsigned char)*r++];
+		} else if (is_odigit(*r)) {
+			for (q = 0, m = 4; m && is_odigit(*r); m--, r++)
+				q = q * 8 + (*r - '0');
+			*w++ = MIN(q, 255);
+		} else if (*r == 'x' && isxdigit(r[1])) {
+			r++;
+			for (q = 0, m = 2; m && isxdigit(*r); m--, r++)
+				if (isdigit(*r))
+					q = q * 16 + (*r - '0');
+				else
+					q = q * 16 + (tolower(*r) - 'a' + 10);
+			*w++ = q;
+		} else {
+			eprintf("invalid escape sequence '\\%c'\n", *r);
+		}
 	}
 
-	return len;
+	return w - s;
 }
