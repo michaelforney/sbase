@@ -115,47 +115,50 @@ binary_nt(char *s1, char *s2)
 
 struct test {
 	char *name;
-	int (*func)();
+	union {
+		int (*u)(char *);
+		int (*b)(char *, char *);
+	} func;
 };
 
 static struct test unary[] = {
-	{ "-b", unary_b },
-	{ "-c", unary_c },
-	{ "-d", unary_d },
-	{ "-e", unary_e },
-	{ "-f", unary_f },
-	{ "-g", unary_g },
-	{ "-h", unary_h },
-	{ "-k", unary_k },
-	{ "-L", unary_h },
-	{ "-n", unary_n },
-	{ "-p", unary_p },
-	{ "-r", unary_r },
-	{ "-S", unary_S },
-	{ "-s", unary_s },
-	{ "-t", unary_t },
-	{ "-u", unary_u },
-	{ "-w", unary_w },
-	{ "-x", unary_x },
-	{ "-z", unary_z },
+	{ "-b", { .u = unary_b } },
+	{ "-c", { .u = unary_c } },
+	{ "-d", { .u = unary_d } },
+	{ "-e", { .u = unary_e } },
+	{ "-f", { .u = unary_f } },
+	{ "-g", { .u = unary_g } },
+	{ "-h", { .u = unary_h } },
+	{ "-k", { .u = unary_k } },
+	{ "-L", { .u = unary_h } },
+	{ "-n", { .u = unary_n } },
+	{ "-p", { .u = unary_p } },
+	{ "-r", { .u = unary_r } },
+	{ "-S", { .u = unary_S } },
+	{ "-s", { .u = unary_s } },
+	{ "-t", { .u = unary_t } },
+	{ "-u", { .u = unary_u } },
+	{ "-w", { .u = unary_w } },
+	{ "-x", { .u = unary_x } },
+	{ "-z", { .u = unary_z } },
 
-	{ NULL, NULL },
+	{ NULL },
 };
 
 static struct test binary[] = {
-	{ "="  , binary_se },
-	{ "!=" , binary_sn },
-	{ "-eq", binary_eq },
-	{ "-ne", binary_ne },
-	{ "-gt", binary_gt },
-	{ "-ge", binary_ge },
-	{ "-lt", binary_lt },
-	{ "-le", binary_le },
-	{ "-ef", binary_ef },
-	{ "-ot", binary_ot },
-	{ "-nt", binary_nt },
+	{ "="  , { .b = binary_se } },
+	{ "!=" , { .b = binary_sn } },
+	{ "-eq", { .b = binary_eq } },
+	{ "-ne", { .b = binary_ne } },
+	{ "-gt", { .b = binary_gt } },
+	{ "-ge", { .b = binary_ge } },
+	{ "-lt", { .b = binary_lt } },
+	{ "-le", { .b = binary_le } },
+	{ "-ef", { .b = binary_ef } },
+	{ "-ot", { .b = binary_ot } },
+	{ "-nt", { .b = binary_nt } },
 
-	{ NULL, NULL },
+	{ NULL },
 };
 
 static struct test *
@@ -191,7 +194,7 @@ twoarg(char *argv[])
 		return !onearg(argv + 1);
 
 	if ((t = find_test(unary, *argv)))
-		return t->func(argv[1]);
+		return t->func.u(argv[1]);
 
 	enprintf(2, "bad unary test %s\n", argv[0]);
 
@@ -204,7 +207,7 @@ threearg(char *argv[])
 	struct test *t = find_test(binary, argv[1]);
 
 	if (t)
-		return t->func(argv[0], argv[2]);
+		return t->func.b(argv[0], argv[2]);
 
 	if (!strcmp(argv[0], "!"))
 		return !twoarg(argv + 1);
