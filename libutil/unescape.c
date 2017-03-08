@@ -52,6 +52,7 @@ unescape(char *s)
 			eprintf("invalid escape sequence '\\%c'\n", *r);
 		}
 	}
+	*w = '\0';
 
 	return w - s;
 }
