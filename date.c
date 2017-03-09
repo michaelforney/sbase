@@ -49,6 +49,8 @@ setdate(const char *s, struct tm *now)
 	date.tm_mday = datefield(s, 2);
 	date.tm_hour = datefield(s, 4);
 	date.tm_min = datefield(s, 6);
+	date.tm_sec = 0;
+	date.tm_isdst = -1;
 
 	ts.tv_sec = mktime(&date);
 	if (ts.tv_sec == (time_t)-1)
