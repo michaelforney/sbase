@@ -139,9 +139,6 @@ cp(const char *s1, const char *s2, int depth)
 			return 0;
 		}
 
-		/* preserve permissions by default */
-		fchmod(f2, st.st_mode);
-
 		close(f1);
 		close(f2);
 	}
@@ -155,12 +152,16 @@ cp(const char *s1, const char *s2, int depth)
 			cp_status = 1;
 		}
 
-		/* owner */
+		/* owner and mode */
 		if (!S_ISLNK(st.st_mode)) {
 			if (chown(s2, st.st_uid, st.st_gid) < 0) {
 				weprintf("chown %s:", s2);
 				cp_status = 1;
-				return 0;
+				st.st_mode &= ~(S_ISUID | S_ISGID);
+			}
+			if (chmod(s2, st.st_mode) < 0) {
+				weprintf("chmod %s:", s2);
+				cp_status = 1;
 			}
 		} else {
 			if (lchown(s2, st.st_uid, st.st_gid) < 0) {
