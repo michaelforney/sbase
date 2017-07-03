@@ -78,6 +78,7 @@ cp(const char *s1, const char *s2, int depth)
 		if (mkdir(s2, st.st_mode) < 0 && errno != EEXIST) {
 			weprintf("mkdir %s:", s2);
 			cp_status = 1;
+			closedir(dp);
 			return 0;
 		}
 
@@ -120,6 +121,7 @@ cp(const char *s1, const char *s2, int depth)
 			if (unlink(s2) < 0 && errno != ENOENT) {
 				weprintf("unlink %s:", s2);
 				cp_status = 1;
+				close(f1);
 				return 0;
 			}
 			f2 = creat(s2, st.st_mode);
@@ -127,10 +129,13 @@ cp(const char *s1, const char *s2, int depth)
 		if (f2 < 0) {
 			weprintf("creat %s:", s2);
 			cp_status = 1;
+			close(f1);
 			return 0;
 		}
 		if (concat(f1, s1, f2, s2) < 0) {
 			cp_status = 1;
+			close(f1);
+			close(f2);
 			return 0;
 		}
 
