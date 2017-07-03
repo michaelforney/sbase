@@ -2,6 +2,7 @@
 #include <grp.h>
 #include <pwd.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,7 +11,6 @@
 #include <sys/wait.h>
 
 #include "util.h"
-#include "text.h"
 
 static int Dflag = 0;
 static gid_t group;
@@ -44,7 +44,7 @@ static int
 install(const char *s1, const char *s2, int depth)
 {
 	DIR *dp;
-	FILE *f1, *f2;
+	int f1, f2;
 	struct dirent *d;
 	struct stat st;
 	ssize_t r;
@@ -92,23 +92,22 @@ install(const char *s1, const char *s2, int depth)
 		else if (mknod(s2, (st.st_mode & ~07777) | mode, st.st_rdev) < 0)
 			eprintf("mknod %s:", s2);
 	} else {
-		if (!(f1 = fopen(s1, "r")))
-			eprintf("fopen %s:", s1);
-		if (!(f2 = fopen(s2, "w"))) {
+		if ((f1 = open(s1, O_RDONLY)) < 0)
+			eprintf("open %s:", s1);
+		if ((f2 = creat(s2, 0600)) < 0) {
 			if (unlink(s2) < 0 && errno != ENOENT)
 				eprintf("unlink %s:", s2);
-			else if (!(f2 = fopen(s2, "w")))
-				eprintf("fopen %s:", s2);
+			if ((f2 = creat(s2, 0600)) < 0)
+				eprintf("creat %s:", s2);
 		}
-		concat(f1, s1, f2, s2);
+		if (concat(f1, s1, f2, s2) < 0)
+			exit(1);
 
-		if (fchmod(fileno(f2), mode) < 0)
+		if (fchmod(f2, mode) < 0)
 			eprintf("fchmod %s:", s2);
 
-		if (fclose(f2) == EOF)
-			eprintf("fclose %s:", s2);
-		if (fclose(f1) == EOF)
-			eprintf("fclose %s:", s1);
+		close(f1);
+		close(f2);
 	}
 
 	if (lchown(s2, owner, group) < 0)
