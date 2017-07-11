@@ -258,7 +258,7 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 
 	if (!mflag && ((mtime = strtol(h->mtime, &p, 8)) < 0 || *p != '\0'))
 		eprintf("strtol %s: invalid number\n", h->mtime);
-	if (remove(fname) < 0 && errno != ENOENT)
+	if (remove(fname) < 0 && errno != ENOENT && errno != ENOTEMPTY)
 		weprintf("remove %s:", fname);
 
 	tmp = estrdup(fname);
@@ -319,9 +319,15 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 		eprintf("strtol %s: invalid number\n", h->gid);
 
 	if (fd != -1) {
-		for (; l > 0; l -= BLKSIZ)
-			if (eread(tarfd, b, BLKSIZ) > 0)
-				ewrite(fd, b, MIN(l, BLKSIZ));
+		for (; l > 0; l -= BLKSIZ) {
+			if (eread(tarfd, b, BLKSIZ) != BLKSIZ) {
+				close(fd);
+				remove(fname);
+				eprintf("unexpected end of file reading %s.\n",
+					fname);
+			}
+			ewrite(fd, b, MIN(l, BLKSIZ));
+		}
 		close(fd);
 	}
 
@@ -348,11 +354,11 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 static void
 skipblk(ssize_t l)
 {
-	char b[BLKSIZ];
-
-	for (; l > 0; l -= BLKSIZ)
-		if (!eread(tarfd, b, BLKSIZ))
-			break;
+	// Ceiling to BLKSIZ boundary
+	int ceilsize = (l + (BLKSIZ-1)) & ~(BLKSIZ-1);
+	if (lseek(tarfd, ceilsize, SEEK_CUR) == -1) {
+		eprintf("unexpected end of file.\n");
+	}
 }
 
 static int
