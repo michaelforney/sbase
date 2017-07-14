@@ -69,6 +69,10 @@ main(int argc, char *argv[])
 	time_t t;
 	char buf[BUFSIZ], *fmt = "%c", *tz = "local";
 
+	t = time(NULL);
+	if (t == (time_t)-1)
+		eprintf("time failed:");
+
 	ARGBEGIN {
 	case 'd':
 		t = estrtonum(EARGF(usage()), 0, LLONG_MAX);
@@ -81,9 +85,6 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND
 
-	t = time(NULL);
-	if (t == (time_t)-1)
-		eprintf("time failed:");
 	if (!(now = tztime(&t)))
 		eprintf("%stime failed\n", tz);
 
