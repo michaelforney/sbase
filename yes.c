@@ -8,7 +8,7 @@ main(int argc, char *argv[])
 {
 	char **p;
 
-	argv0 = argv[0], argc--, argv++;
+	argv0 = *argv, argv0 ? (argc--, argv++) : (void *)0;
 
 	for (p = argv; ; p = (*p && *(p + 1)) ? p + 1 : argv) {
 		fputs(*p ? *p : "y", stdout);

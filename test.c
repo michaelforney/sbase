@@ -234,9 +234,9 @@ main(int argc, char *argv[])
 	int (*narg[])(char *[]) = { noarg, onearg, twoarg, threearg, fourarg };
 	size_t len;
 
-	argv0 = argv[0], argc--, argv++;
+	argv0 = *argv, argv0 ? (argc--, argv++) : (void *)0;
 
-	len = strlen(argv0);
+	len = argv0 ? strlen(argv0) : 0;
 	if (len && argv0[--len] == '[' && (!len || argv0[--len] == '/') && strcmp(argv[--argc], "]"))
 		enprintf(2, "no matching ]\n");
 

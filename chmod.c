@@ -35,7 +35,7 @@ main(int argc, char *argv[])
 	                      .follow = 'P', .flags = 0 };
 	size_t i;
 
-	argv0 = argv[0], argc--, argv++;
+	argv0 = *argv, argv0 ? (argc--, argv++) : (void *)0;
 
 	for (; *argv && (*argv)[0] == '-'; argc--, argv++) {
 		if (!(*argv)[1])
