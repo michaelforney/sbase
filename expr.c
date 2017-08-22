@@ -257,7 +257,7 @@ main(int argc, char *argv[])
 {
 	int ret;
 
-	argv0 = argv[0], argc--, argv++;
+	argv0 = *argv, argv0 ? (argc--, argv++) : (void *)0;
 
 	ret = !parse(argv, argc);
 

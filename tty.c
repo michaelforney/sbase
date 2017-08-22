@@ -15,7 +15,7 @@ main(int argc, char *argv[])
 {
 	char *tty;
 
-	argv0 = argv[0], argc--, argv++;
+	argv0 = *argv, argv0 ? (argc--, argv++) : (void *)0;
 
 	if (argc)
 		usage();

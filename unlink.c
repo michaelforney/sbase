@@ -12,7 +12,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	argv0 = argv[0], argc--, argv++;
+	argv0 = *argv, argv0 ? (argc--, argv++) : (void *)0;
 
 	if (argc != 1)
 		usage();

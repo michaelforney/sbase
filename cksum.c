@@ -97,7 +97,7 @@ main(int argc, char *argv[])
 {
 	int fd;
 
-	argv0 = argv[0], argc--, argv++;
+	argv0 = *argv, argv0 ? (argc--, argv++) : (void *)0;
 
 	if (!argc) {
 		cksum(0, NULL);
