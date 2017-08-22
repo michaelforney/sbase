@@ -250,6 +250,7 @@ lsdir(const char *path, const struct entry *dir)
 	if (!(dp = opendir(dir->name))) {
 		ret = 1;
 		weprintf("opendir %s%s:", path, dir->name);
+		return;
 	}
 	if (chdir(dir->name) < 0)
 		eprintf("chdir %s:", dir->name);
