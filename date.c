@@ -15,9 +15,8 @@ int
 main(int argc, char *argv[])
 {
 	struct tm *now;
-	struct tm *(*tztime)(const time_t *) = localtime;
 	time_t t;
-	char buf[BUFSIZ], *fmt = "%c", *tz = "local";
+	char buf[BUFSIZ], *fmt = "%c";
 
 	t = time(NULL);
 
@@ -26,8 +25,8 @@ main(int argc, char *argv[])
 		t = estrtonum(EARGF(usage()), 0, LLONG_MAX);
 		break;
 	case 'u':
-		tztime = gmtime;
-		tz = "gm";
+		if (setenv("TZ", "UTC0", 1) < 0)
+			eprintf("setenv:");
 		break;
 	default:
 		usage();
@@ -39,8 +38,8 @@ main(int argc, char *argv[])
 		else
 			fmt = &argv[0][1];
 	}
-	if (!(now = tztime(&t)))
-		eprintf("%stime failed\n", tz);
+	if (!(now = localtime(&t)))
+		eprintf("localtime:");
 
 	strftime(buf, sizeof(buf), fmt, now);
 	puts(buf);
