@@ -102,7 +102,5 @@ main(int argc, char *argv[])
 		usage();
 	}
 
-	puts("undefined");
-
-	return 1;
+	eprintf("invalid variable: %s\n", argv[0]);
 }
