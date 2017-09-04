@@ -51,7 +51,7 @@ main(int argc, char *argv[])
 			} else {
 				printf("%ld\n", res);
 			}
-			return 0;
+			return fshut(stdout, "<stdout>");
 		}
 		/* confstr */
 		for (i = 0; i < LEN(confstr_l); i++) {
@@ -74,14 +74,14 @@ main(int argc, char *argv[])
 				}
 				free(str);
 			}
-			return 0;
+			return fshut(stdout, "<stdout>");
 		}
 		/* limits */
 		for (i = 0; i < LEN(limits_l); i++) {
 			if (strcmp(argv[0], limits_l[i].k))
 				continue;
 			printf("%ld\n", limits_l[i].v);
-			return 0;
+			return fshut(stdout, "<stdout>");
 		}
 	} else if (argc == 2) {
 		/* pathconf */
@@ -96,7 +96,7 @@ main(int argc, char *argv[])
 			} else {
 				printf("%ld\n", res);
 			}
-			return 0;
+			return fshut(stdout, "<stdout>");
 		}
 	} else {
 		usage();
