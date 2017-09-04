@@ -1,7 +1,7 @@
 /* See LICENSE file for copyright and license details. */
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
 #include <time.h>
 
@@ -53,7 +53,7 @@ setdate(const char *s, struct tm *now)
 	date.tm_isdst = -1;
 
 	ts.tv_sec = mktime(&date);
-	if (ts.tv_sec == (time_t)-1)
+	if (ts.tv_sec == -1)
 		eprintf("mktime:");
 	ts.tv_nsec = 0;
 
@@ -65,29 +65,27 @@ int
 main(int argc, char *argv[])
 {
 	struct tm *now;
-	struct tm *(*tztime)(const time_t *) = localtime;
 	time_t t;
-	char buf[BUFSIZ], *fmt = "%c", *tz = "local";
+	char buf[BUFSIZ], *fmt = "%c";
 
 	t = time(NULL);
-	if (t == (time_t)-1)
-		eprintf("time failed:");
+	if (t == -1)
+		eprintf("time:");
 
 	ARGBEGIN {
 	case 'd':
 		t = estrtonum(EARGF(usage()), 0, LLONG_MAX);
 		break;
 	case 'u':
-		tztime = gmtime;
-		tz = "gm";
+		if (setenv("TZ", "UTC0", 1) < 0)
+			eprintf("setenv:");
 		break;
 	default:
 		usage();
 	} ARGEND
 
-	if (!(now = tztime(&t)))
-		eprintf("%stime failed\n", tz);
-
+	if (!(now = localtime(&t)))
+		eprintf("localtime:");
 	if (argc) {
 		if (argc != 1)
 			usage();
