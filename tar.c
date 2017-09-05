@@ -16,6 +16,10 @@
 #include "util.h"
 
 #define BLKSIZ 512
+// Amount of data to transfer at a time when copying to or from the tar file.
+// Makes a dramatic different when read and/or write caching is missing.
+// Must be a power of 2.
+#define COPY_CHUNK_SIZE 8192
 
 enum Type {
 	REG       = '0',
@@ -236,10 +240,13 @@ archive(const char *path)
 	ewrite(tarfd, b, BLKSIZ);
 
 	if (fd != -1) {
-		while ((l = eread(fd, b, BLKSIZ)) > 0) {
-			if (l < BLKSIZ)
-				memset(b + l, 0, BLKSIZ - l);
-			ewrite(tarfd, b, BLKSIZ);
+		char chunk[COPY_CHUNK_SIZE];
+		while ((l = eread(fd, chunk, COPY_CHUNK_SIZE)) > 0) {
+			// Ceiling to BLKSIZ boundary
+			int ceilsize = (l + (BLKSIZ-1)) & ~(BLKSIZ-1);
+			if (l < ceilsize)
+				memset(chunk + l, 0, ceilsize - l);
+			ewrite(tarfd, chunk, ceilsize);
 		}
 		close(fd);
 	}
@@ -250,7 +257,7 @@ archive(const char *path)
 static int
 unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 {
-	char lname[101], *tmp, *p;
+	char lname[101], *p;
 	long mode, major, minor, type, mtime, uid, gid;
 	struct header *h = (struct header *)b;
 	int fd = -1;
@@ -258,12 +265,17 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 
 	if (!mflag && ((mtime = strtol(h->mtime, &p, 8)) < 0 || *p != '\0'))
 		eprintf("strtol %s: invalid number\n", h->mtime);
-	if (remove(fname) < 0 && errno != ENOENT)
+	if (remove(fname) < 0 && errno != ENOENT && errno != ENOTEMPTY)
 		weprintf("remove %s:", fname);
 
-	tmp = estrdup(fname);
-	mkdirp(dirname(tmp), 0777, 0777);
-	free(tmp);
+	// tar files normally create the directory chain. This is a fallback
+	// for noncompliant tar files. Don't do this for DIRECTORY entries
+        // because permissions need to be handled for those.
+	if (h->type != DIRECTORY) {
+		char* tmp = estrdup(fname);
+		mkdirp(dirname(tmp), 0x777, 0x777);
+		free(tmp);
+	}
 
 	switch (h->type) {
 	case REG:
@@ -319,9 +331,24 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 		eprintf("strtol %s: invalid number\n", h->gid);
 
 	if (fd != -1) {
-		for (; l > 0; l -= BLKSIZ)
-			if (eread(tarfd, b, BLKSIZ) > 0)
-				ewrite(fd, b, MIN(l, BLKSIZ));
+		// Ceiling to BLKSIZ boundary
+		int readsize = (l + (BLKSIZ-1)) & ~(BLKSIZ-1);
+		char chunk[COPY_CHUNK_SIZE];
+		int lastread = 0;
+
+		for (; readsize > 0; l -= lastread, readsize -= lastread) {
+			int chunk_size = MIN(readsize, COPY_CHUNK_SIZE);
+			// Short reads are legal, so don't expect to read
+			// everything that was requested.
+			lastread = eread(tarfd, chunk, chunk_size);
+			if (lastread == 0) {
+				close(fd);
+				remove(fname);
+				eprintf("unexpected end of file reading %s.\n",
+					fname);
+			}
+			ewrite(fd, chunk, MIN(l, lastread));
+		}
 		close(fd);
 	}
 
@@ -331,7 +358,7 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 	times[0].tv_sec = times[1].tv_sec = mtime;
 	times[0].tv_nsec = times[1].tv_nsec = 0;
 	if (!mflag && utimensat(AT_FDCWD, fname, times, AT_SYMLINK_NOFOLLOW) < 0)
-		weprintf("utimensat %s:\n", fname);
+		weprintf("utimensat %s (errno %d):\n", fname, errno);
 	if (h->type == SYMLINK) {
 		if (!getuid() && lchown(fname, uid, gid))
 			weprintf("lchown %s:\n", fname);
@@ -349,10 +376,25 @@ static void
 skipblk(ssize_t l)
 {
 	char b[BLKSIZ];
+	int lastread = 0;
 
-	for (; l > 0; l -= BLKSIZ)
-		if (!eread(tarfd, b, BLKSIZ))
-			break;
+	// Ceiling to the next BLKSIZ boundary
+	int ceilsize = (l + (BLKSIZ-1)) & ~(BLKSIZ-1);
+	off_t offset = lseek(tarfd, ceilsize, SEEK_CUR);
+	if (offset >= ceilsize)
+		return;
+	if (errno != ESPIPE) {
+		eprintf("unexpected end of file.\n");
+	}
+
+        // This is a pipe, socket or FIFO. Fall back to a sequential read.
+        for (; ceilsize > 0; ceilsize -= lastread) {
+                int chunk_size = MIN(ceilsize, BLKSIZ);
+                lastread = eread(tarfd, b, chunk_size);
+                if (lastread == 0) {
+                        eprintf("unexpected end of file %d.\n", errno);
+                }
+	}
 }
 
 static int
@@ -404,9 +446,10 @@ sanitize(struct header *h)
 static void
 chktar(struct header *h)
 {
-	char tmp[8], *err, *p = (char *)h;
-	const char *reason;
+	char tmp[8], *err;
+	char *p = (char *)h;
 	long s1, s2, i;
+	const char *reason;
 
 	if (h->prefix[0] == '\0' && h->name[0] == '\0') {
 		reason = "empty filename";
