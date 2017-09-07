@@ -97,6 +97,7 @@ main(int argc, char *argv[])
 		break;
 	case 'd':
 		adelim = EARGF(usage());
+		unescape(adelim);
 		break;
 	default:
 		usage();
@@ -107,7 +108,6 @@ main(int argc, char *argv[])
 
 	/* populate delimiters */
 	/* TODO: fix libutf to accept sizes */
-	unescape(adelim);
 	delim = ereallocarray(NULL, utflen(adelim) + 1, sizeof(*delim));
 	if (!(delimlen = utftorunestr(adelim, delim)))
 		usage();
