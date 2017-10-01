@@ -84,32 +84,25 @@ static void
 runjob(char *cmd)
 {
 	struct jobentry *je;
-	time_t t;
 	pid_t pid;
-
-	t = time(NULL);
 
 	/* If command is already running, skip it */
 	TAILQ_FOREACH(je, &jobhead, entry) {
 		if (strcmp(je->cmd, cmd) == 0) {
-			loginfo("already running %s pid: %d at %s",
-				je->cmd, je->pid, ctime(&t));
+			loginfo("already running %s pid: %d\n", je->cmd, je->pid);
 			return;
 		}
 	}
 
 	switch ((pid = fork())) {
 	case -1:
-		logerr("error: failed to fork job: %s time: %s",
-		       cmd, ctime(&t));
+		logerr("error: failed to fork job: %s\n", cmd);
 		return;
 	case 0:
 		setsid();
-		loginfo("run: %s pid: %d at %s",
-			cmd, getpid(), ctime(&t));
+		loginfo("run: %s pid: %d\n", cmd, getpid());
 		execl("/bin/sh", "/bin/sh", "-c", cmd, (char *)NULL);
-		logerr("error: failed to execute job: %s time: %s",
-		       cmd, ctime(&t));
+		logerr("error: failed to execute job: %s\n", cmd);
 		_exit(1);
 	default:
 		je = emalloc(sizeof(*je));
@@ -124,10 +117,7 @@ waitjob(void)
 {
 	struct jobentry *je, *tmp;
 	int status;
-	time_t t;
 	pid_t pid;
-
-	t = time(NULL);
 
 	while ((pid = waitpid(-1, &status, WNOHANG | WUNTRACED)) > 0) {
 		je = NULL;
@@ -143,14 +133,14 @@ waitjob(void)
 			free(je);
 		}
 		if (WIFEXITED(status) == 1)
-			loginfo("complete: pid: %d returned: %d time: %s",
-				pid, WEXITSTATUS(status), ctime(&t));
+			loginfo("complete: pid: %d returned: %d\n",
+			        pid, WEXITSTATUS(status));
 		else if (WIFSIGNALED(status) == 1)
-			loginfo("complete: pid: %d terminated by signal: %s time: %s",
-				pid, strsignal(WTERMSIG(status)), ctime(&t));
+			loginfo("complete: pid: %d terminated by signal: %s\n",
+			        pid, strsignal(WTERMSIG(status)));
 		else if (WIFSTOPPED(status) == 1)
-			loginfo("complete: pid: %d stopped by signal: %s time: %s",
-				pid, strsignal(WSTOPSIG(status)), ctime(&t));
+			loginfo("complete: pid: %d stopped by signal: %s\n",
+			        pid, strsignal(WSTOPSIG(status)));
 	}
 }
 
@@ -406,7 +396,7 @@ loadentries(void)
 
 			if (!col || parsefield(col, flim[x].min, flim[x].max, flim[x].f) < 0) {
 				logerr("error: failed to parse `%s' field on line %d\n",
-						flim[x].name, y + 1);
+				       flim[x].name, y + 1);
 				freecte(cte, x);
 				r = -1;
 				break;
