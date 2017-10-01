@@ -46,11 +46,14 @@ struct jobentry {
 	TAILQ_ENTRY(jobentry) entry;
 };
 
+TAILQ_HEAD(ctablist, ctabentry);
+TAILQ_HEAD(joblist, jobentry);
+
 static sig_atomic_t chldreap;
 static sig_atomic_t reload;
 static sig_atomic_t quit;
-static TAILQ_HEAD(, ctabentry) ctabhead = TAILQ_HEAD_INITIALIZER(ctabhead);
-static TAILQ_HEAD(, jobentry) jobhead = TAILQ_HEAD_INITIALIZER(jobhead);
+static struct ctablist ctabhead = TAILQ_HEAD_INITIALIZER(ctabhead);
+static struct joblist jobhead = TAILQ_HEAD_INITIALIZER(jobhead);
 static char *config = "/etc/crontab";
 
 static void
@@ -307,13 +310,13 @@ freecte(struct ctabentry *cte, int nfields)
 }
 
 static void
-unloadentries(void)
+unloadentries(struct ctablist *ctab)
 {
 	struct ctabentry *cte, *tmp;
 
-	for (cte = TAILQ_FIRST(&ctabhead); cte; cte = tmp) {
+	for (cte = TAILQ_FIRST(ctab); cte; cte = tmp) {
 		tmp = TAILQ_NEXT(cte, entry);
-		TAILQ_REMOVE(&ctabhead, cte, entry);
+		TAILQ_REMOVE(ctab, cte, entry);
 		freecte(cte, 6);
 	}
 }
@@ -321,6 +324,7 @@ unloadentries(void)
 static int
 loadentries(void)
 {
+	struct ctablist newctab = TAILQ_HEAD_INITIALIZER(newctab);
 	struct ctabentry *cte;
 	FILE *fp;
 	char *line = NULL, *p, *col;
@@ -386,24 +390,20 @@ loadentries(void)
 		}
 		cte->cmd = estrdup(col);
 
-		TAILQ_INSERT_TAIL(&ctabhead, cte, entry);
+		TAILQ_INSERT_TAIL(&newctab, cte, entry);
 	}
 
-	if (r < 0)
-		unloadentries();
+	if (r < 0) {
+		unloadentries(&newctab);
+	} else {
+		unloadentries(&ctabhead);
+		ctabhead = newctab;
+	}
 
 	free(line);
 	fclose(fp);
 
 	return r;
-}
-
-static void
-reloadentries(void)
-{
-	unloadentries();
-	if (loadentries() < 0)
-		weprintf("discarding old crontab entries\n");
 }
 
 static void
@@ -463,14 +463,14 @@ main(int argc, char *argv[])
 		sleep(60 - t % 60);
 
 		if (quit == 1) {
-			unloadentries();
 			/* Don't wait or kill forked processes, just exit */
 			break;
 		}
 
 		if (reload == 1 || chldreap == 1) {
 			if (reload == 1) {
-				reloadentries();
+				if (loadentries() < 0)
+					weprintf("failed to load new crontab entries\n");
 				reload = 0;
 			}
 			if (chldreap == 1) {
