@@ -12,6 +12,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <spawn.h>
 
 #include "queue.h"
 #include "util.h"
@@ -57,6 +58,9 @@ runjob(char *cmd)
 {
 	struct jobentry *je;
 	pid_t pid;
+	int err;
+	char *const args[] = { "/bin/sh", "-c", cmd, NULL };
+	extern char **environ;
 
 	/* If command is already running, skip it */
 	TAILQ_FOREACH(je, &jobhead, entry) {
@@ -66,22 +70,15 @@ runjob(char *cmd)
 		}
 	}
 
-	switch ((pid = fork())) {
-	case -1:
-		weprintf("fork job %s:", cmd);
+	if ((err = posix_spawn(&pid, args[0], NULL, NULL, args, environ))) {
+		weprintf("posix_spawn %s:", cmd);
 		return;
-	case 0:
-		setsid();
-		printf("run: %s pid: %d\n", cmd, getpid());
-		execl("/bin/sh", "/bin/sh", "-c", cmd, (char *)NULL);
-		weprintf("execl %s:", cmd);
-		_exit(1);
-	default:
-		je = emalloc(sizeof(*je));
-		je->cmd = estrdup(cmd);
-		je->pid = pid;
-		TAILQ_INSERT_TAIL(&jobhead, je, entry);
 	}
+	printf("run: %s pid: %d\n", cmd, pid);
+	je = emalloc(sizeof(*je));
+	je->cmd = estrdup(cmd);
+	je->pid = pid;
+	TAILQ_INSERT_TAIL(&jobhead, je, entry);
 }
 
 static void
