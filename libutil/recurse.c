@@ -54,18 +54,17 @@ recurse(const char *path, void *data, struct recursor *r)
 		if (h->ino == st.st_ino && h->dev == st.st_dev)
 			return;
 
-	if (!(dp = opendir(path))) {
-		if (!(r->flags & SILENT)) {
-			weprintf("opendir %s:", path);
-			recurse_status = 1;
-		}
-		return;
-	}
-
 	if (!r->depth && (r->flags & DIRFIRST))
 		(r->fn)(path, &st, data, r);
 
 	if (!r->maxdepth || r->depth + 1 < r->maxdepth) {
+		if (!(dp = opendir(path))) {
+			if (!(r->flags & SILENT)) {
+				weprintf("opendir %s:", path);
+				recurse_status = 1;
+			}
+			return;
+		}
 		while ((d = readdir(dp))) {
 			if (r->follow == 'H') {
 				statf_name = "lstat";
@@ -90,6 +89,7 @@ recurse(const char *path, void *data, struct recursor *r)
 				r->depth--;
 			}
 		}
+		closedir(dp);
 	}
 
 	if (!r->depth) {
@@ -102,6 +102,4 @@ recurse(const char *path, void *data, struct recursor *r)
 			free(h);
 		}
 	}
-
-	closedir(dp);
 }

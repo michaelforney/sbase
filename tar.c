@@ -331,15 +331,15 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 	times[0].tv_sec = times[1].tv_sec = mtime;
 	times[0].tv_nsec = times[1].tv_nsec = 0;
 	if (!mflag && utimensat(AT_FDCWD, fname, times, AT_SYMLINK_NOFOLLOW) < 0)
-		weprintf("utimensat %s:\n", fname);
+		weprintf("utimensat %s:", fname);
 	if (h->type == SYMLINK) {
 		if (!getuid() && lchown(fname, uid, gid))
-			weprintf("lchown %s:\n", fname);
+			weprintf("lchown %s:", fname);
 	} else {
 		if (!getuid() && chown(fname, uid, gid))
-			weprintf("chown %s:\n", fname);
+			weprintf("chown %s:", fname);
 		if (chmod(fname, mode) < 0)
-			eprintf("fchmod %s:\n", fname);
+			eprintf("fchmod %s:", fname);
 	}
 
 	return 0;

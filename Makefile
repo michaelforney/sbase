@@ -233,7 +233,7 @@ dist: clean
 	gzip sbase-$(VERSION).tar
 	rm -rf sbase-$(VERSION)
 
-sbase-box: $(LIB) $(SRC)
+sbase-box: $(LIB) $(SRC) getconf.h
 	mkdir -p build
 	cp $(HDR) build
 	cp getconf.h build
