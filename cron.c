@@ -10,7 +10,6 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
-#include <syslog.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -52,18 +51,13 @@ static sig_atomic_t quit;
 static TAILQ_HEAD(, ctabentry) ctabhead = TAILQ_HEAD_INITIALIZER(ctabhead);
 static TAILQ_HEAD(, jobentry) jobhead = TAILQ_HEAD_INITIALIZER(jobhead);
 static char *config = "/etc/crontab";
-static char *pidfile = "/var/run/crond.pid";
-static int nflag;
 
 static void
 loginfo(const char *fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
-	if (nflag == 0)
-		vsyslog(LOG_INFO, fmt, ap);
-	else
-		vfprintf(stdout, fmt, ap);
+	vfprintf(stdout, fmt, ap);
 	fflush(stdout);
 	va_end(ap);
 }
@@ -73,10 +67,7 @@ logwarn(const char *fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
-	if (nflag == 0)
-		vsyslog(LOG_WARNING, fmt, ap);
-	else
-		vfprintf(stderr, fmt, ap);
+	vfprintf(stderr, fmt, ap);
 	va_end(ap);
 }
 
@@ -85,10 +76,7 @@ logerr(const char *fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
-	if (nflag == 0)
-		vsyslog(LOG_ERR, fmt, ap);
-	else
-		vfprintf(stderr, fmt, ap);
+	vfprintf(stderr, fmt, ap);
 	va_end(ap);
 }
 
@@ -480,22 +468,18 @@ sighandler(int sig)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-f file] [-n]\n", argv0);
+	eprintf("usage: %s [-f file]\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
-	FILE *fp;
 	struct ctabentry *cte;
 	time_t t;
 	struct tm *tm;
 	struct sigaction sa;
 
 	ARGBEGIN {
-	case 'n':
-		nflag = 1;
-		break;
 	case 'f':
 		config = EARGF(usage());
 		break;
@@ -505,18 +489,6 @@ main(int argc, char *argv[])
 
 	if (argc > 0)
 		usage();
-
-	if (nflag == 0) {
-		openlog(argv[0], LOG_CONS | LOG_PID, LOG_CRON);
-		if (daemon(1, 0) < 0) {
-			logerr("error: failed to daemonize %s\n", strerror(errno));
-			return 1;
-		}
-		if ((fp = fopen(pidfile, "w"))) {
-			fprintf(fp, "%d\n", getpid());
-			fclose(fp);
-		}
-	}
 
 	sa.sa_handler = sighandler;
 	sigfillset(&sa.sa_mask);
@@ -532,8 +504,6 @@ main(int argc, char *argv[])
 		sleep(60 - t % 60);
 
 		if (quit == 1) {
-			if (nflag == 0)
-				unlink(pidfile);
 			unloadentries();
 			/* Don't wait or kill forked processes, just exit */
 			break;
@@ -558,9 +528,6 @@ main(int argc, char *argv[])
 				runjob(cte->cmd);
 		}
 	}
-
-	if (nflag == 0)
-		closelog();
 
 	return 0;
 }
