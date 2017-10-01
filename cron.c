@@ -53,34 +53,6 @@ static TAILQ_HEAD(, jobentry) jobhead = TAILQ_HEAD_INITIALIZER(jobhead);
 static char *config = "/etc/crontab";
 
 static void
-loginfo(const char *fmt, ...)
-{
-	va_list ap;
-	va_start(ap, fmt);
-	vfprintf(stdout, fmt, ap);
-	fflush(stdout);
-	va_end(ap);
-}
-
-static void
-logwarn(const char *fmt, ...)
-{
-	va_list ap;
-	va_start(ap, fmt);
-	vfprintf(stderr, fmt, ap);
-	va_end(ap);
-}
-
-static void
-logerr(const char *fmt, ...)
-{
-	va_list ap;
-	va_start(ap, fmt);
-	vfprintf(stderr, fmt, ap);
-	va_end(ap);
-}
-
-static void
 runjob(char *cmd)
 {
 	struct jobentry *je;
@@ -89,20 +61,20 @@ runjob(char *cmd)
 	/* If command is already running, skip it */
 	TAILQ_FOREACH(je, &jobhead, entry) {
 		if (strcmp(je->cmd, cmd) == 0) {
-			loginfo("already running %s pid: %d\n", je->cmd, je->pid);
+			printf("already running %s pid: %d\n", je->cmd, je->pid);
 			return;
 		}
 	}
 
 	switch ((pid = fork())) {
 	case -1:
-		logerr("error: failed to fork job: %s\n", cmd);
+		weprintf("fork job %s:", cmd);
 		return;
 	case 0:
 		setsid();
-		loginfo("run: %s pid: %d\n", cmd, getpid());
+		printf("run: %s pid: %d\n", cmd, getpid());
 		execl("/bin/sh", "/bin/sh", "-c", cmd, (char *)NULL);
-		logerr("error: failed to execute job: %s\n", cmd);
+		weprintf("execl %s:", cmd);
 		_exit(1);
 	default:
 		je = emalloc(sizeof(*je));
@@ -133,14 +105,14 @@ waitjob(void)
 			free(je);
 		}
 		if (WIFEXITED(status) == 1)
-			loginfo("complete: pid: %d returned: %d\n",
-			        pid, WEXITSTATUS(status));
+			printf("complete: pid: %d returned: %d\n",
+			       pid, WEXITSTATUS(status));
 		else if (WIFSIGNALED(status) == 1)
-			loginfo("complete: pid: %d terminated by signal: %s\n",
-			        pid, strsignal(WTERMSIG(status)));
+			printf("complete: pid: %d terminated by signal: %s\n",
+			       pid, strsignal(WTERMSIG(status)));
 		else if (WIFSTOPPED(status) == 1)
-			loginfo("complete: pid: %d stopped by signal: %s\n",
-			        pid, strsignal(WSTOPSIG(status)));
+			printf("complete: pid: %d stopped by signal: %s\n",
+			       pid, strsignal(WSTOPSIG(status)));
 	}
 }
 
@@ -373,7 +345,7 @@ loadentries(void)
 	size_t x;
 
 	if ((fp = fopen(config, "r")) == NULL) {
-		logerr("error: can't open %s: %s\n", config, strerror(errno));
+		weprintf("fopen %s:", config);
 		return -1;
 	}
 
@@ -395,8 +367,7 @@ loadentries(void)
 			while (col && col[0] == '\0');
 
 			if (!col || parsefield(col, flim[x].min, flim[x].max, flim[x].f) < 0) {
-				logerr("error: failed to parse `%s' field on line %d\n",
-				       flim[x].name, y + 1);
+				weprintf("failed to parse field on line %d: %s\n", y + 1, flim[x].name);
 				freecte(cte, x);
 				r = -1;
 				break;
@@ -411,8 +382,7 @@ loadentries(void)
 			while (col[0] == '\t' || col[0] == ' ')
 				col++;
 		if (!col || col[0] == '\0') {
-			logerr("error: missing `cmd' field on line %d\n",
-			       y + 1);
+			weprintf("missing `cmd` field on line %d\n", y + 1);
 			freecte(cte, 5);
 			r = -1;
 			break;
@@ -436,7 +406,7 @@ reloadentries(void)
 {
 	unloadentries();
 	if (loadentries() < 0)
-		logwarn("warning: discarding old crontab entries\n");
+		weprintf("discarding old crontab entries\n");
 }
 
 static void
@@ -486,6 +456,8 @@ main(int argc, char *argv[])
 	sigaction(SIGCHLD, &sa, NULL);
 	sigaction(SIGHUP, &sa, NULL);
 	sigaction(SIGTERM, &sa, NULL);
+
+	setvbuf(stdout, NULL, _IOLBF, 0);
 
 	loadentries();
 
