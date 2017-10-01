@@ -32,7 +32,7 @@ int
 main(int argc, char *argv[])
 {
 	struct recursor r = { .fn = chmodr, .hist = NULL, .depth = 0, .maxdepth = 1,
-	                      .follow = 'P', .flags = 0 };
+	                      .follow = 'P', .flags = DIRFIRST };
 	size_t i;
 
 	argv0 = *argv, argv0 ? (argc--, argv++) : (void *)0;
