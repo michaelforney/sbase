@@ -85,7 +85,7 @@ makeset(char *str, struct range **set, int (**check)(Rune))
 		if (rstr[i] == '[') {
 			j = i;
 nextbrack:
-			if (j == len)
+			if (j >= len)
 				goto literal;
 			for (m = j; m < len; m++)
 				if (rstr[m] == ']') {
