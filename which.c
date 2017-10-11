@@ -21,6 +21,15 @@ which(const char *path, const char *name)
 	struct stat st;
 	int dirfd, found = 0;
 
+	if (strchr(name, '/')) {
+		if (!fstatat(AT_FDCWD, name, &st, 0) &&
+		    S_ISREG(st.st_mode) &&
+		    !access(name, X_OK)) {
+			puts(name);
+			return 1;
+		}
+	}
+
 	ptr = p = enstrdup(3, path);
 	len = strlen(p);
 	for (i = 0; i < len + 1; i++) {
@@ -80,7 +89,7 @@ main(int argc, char *argv[])
 		if (which(path, *argv)) {
 			found = 1;
 		} else {
-			weprintf("%s: command not found.\n", *argv);
+			weprintf("%s: not an external command\n", *argv);
 			foundall = 0;
 		}
 	}
