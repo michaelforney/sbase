@@ -29,8 +29,8 @@ which(const char *path, const char *name)
 		ptr[i] = '\0';
 		if ((dirfd = open(p, O_RDONLY, 0)) >= 0) {
 			if (!fstatat(dirfd, name, &st, 0) &&
-		            S_ISREG(st.st_mode) &&
-		            !faccessat(dirfd, name, X_OK, 0)) {
+			    S_ISREG(st.st_mode) &&
+			    !faccessat(dirfd, name, X_OK, 0)) {
 				found = 1;
 				fputs(p, stdout);
 				if (i && ptr[i - 1] != '/')
