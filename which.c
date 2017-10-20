@@ -31,10 +31,10 @@ which(const char *path, const char *name)
 	int dirfd, found = 0;
 
 	if (strchr(name, '/')) {
-		if (canexec(AT_FDCWD, name)) {
+		found = canexec(AT_FDCWD, name);
+		if (found)
 			puts(name);
-			return 1;
-		}
+		return found;
 	}
 
 	ptr = p = enstrdup(3, path);
