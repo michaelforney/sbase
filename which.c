@@ -14,17 +14,24 @@
 static int aflag;
 
 static int
+canexec(int fd, const char *name)
+{
+	struct stat st;
+
+	if (fstatat(fd, name, &st, 0) < 0 || !S_ISREG(st.st_mode))
+		return 0;
+	return faccessat(fd, name, X_OK, 0) == 0;
+}
+
+static int
 which(const char *path, const char *name)
 {
 	char *ptr, *p;
 	size_t i, len;
-	struct stat st;
 	int dirfd, found = 0;
 
 	if (strchr(name, '/')) {
-		if (!fstatat(AT_FDCWD, name, &st, 0) &&
-		    S_ISREG(st.st_mode) &&
-		    !access(name, X_OK)) {
+		if (canexec(AT_FDCWD, name)) {
 			puts(name);
 			return 1;
 		}
@@ -37,9 +44,7 @@ which(const char *path, const char *name)
 			continue;
 		ptr[i] = '\0';
 		if ((dirfd = open(p, O_RDONLY, 0)) >= 0) {
-			if (!fstatat(dirfd, name, &st, 0) &&
-			    S_ISREG(st.st_mode) &&
-			    !faccessat(dirfd, name, X_OK, 0)) {
+			if (canexec(dirfd, name)) {
 				found = 1;
 				fputs(p, stdout);
 				if (i && ptr[i - 1] != '/')
