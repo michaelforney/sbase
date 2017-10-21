@@ -50,12 +50,10 @@ which(const char *path, const char *name)
 				if (i && ptr[i - 1] != '/')
 					fputc('/', stdout);
 				puts(name);
-				if (!aflag) {
-					close(dirfd);
-					break;
-				}
 			}
 			close(dirfd);
+			if (!aflag && found)
+				break;
 		}
 		p = ptr + i + 1;
 	}
