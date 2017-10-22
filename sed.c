@@ -551,6 +551,7 @@ find_delim(char *s, Rune delim, int do_brackets)
 		                                             r == '.'  ||
 		                                             r == '=') ) { state  = CLASS_INSIDE    ; c = r;    }
 		else if (state == INSIDE_OPENING         &&  r == ']'  ) { state  = OUTSIDE         ;           }
+		else if (state == INSIDE_OPENING                       ) { state  = BRACKETS_INSIDE ;           }
 		else if (state == BRACKETS_INSIDE        &&  r == '['  ) { state  = INSIDE_OPENING  ;           }
 		else if (state == BRACKETS_INSIDE        &&  r == ']'  ) { state  = OUTSIDE         ;           }
 		else if (state == OUTSIDE                &&  escape    ) { escape = 0               ;           }
