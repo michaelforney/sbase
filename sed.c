@@ -355,7 +355,9 @@ leprintf(char *s)
 static void
 usage(void)
 {
-	eprintf("USAGE\n");
+	eprintf("usage: sed [-nrE] script [file ...]\n"
+	        "       sed [-nrE] -e script [-e script] ... [-f scriptfile] ... [file ...]\n"
+	        "       sed [-nrE] [-e script] ... -f scriptfile [-f scriptfile] ... [file ...]\n");
 }
 
 /* Differences from POSIX
