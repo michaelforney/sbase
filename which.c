@@ -14,12 +14,28 @@
 static int aflag;
 
 static int
+canexec(int fd, const char *name)
+{
+	struct stat st;
+
+	if (fstatat(fd, name, &st, 0) < 0 || !S_ISREG(st.st_mode))
+		return 0;
+	return faccessat(fd, name, X_OK, 0) == 0;
+}
+
+static int
 which(const char *path, const char *name)
 {
 	char *ptr, *p;
 	size_t i, len;
-	struct stat st;
 	int dirfd, found = 0;
+
+	if (strchr(name, '/')) {
+		found = canexec(AT_FDCWD, name);
+		if (found)
+			puts(name);
+		return found;
+	}
 
 	ptr = p = enstrdup(3, path);
 	len = strlen(p);
@@ -28,20 +44,16 @@ which(const char *path, const char *name)
 			continue;
 		ptr[i] = '\0';
 		if ((dirfd = open(p, O_RDONLY, 0)) >= 0) {
-			if (!fstatat(dirfd, name, &st, 0) &&
-		            S_ISREG(st.st_mode) &&
-		            !faccessat(dirfd, name, X_OK, 0)) {
+			if (canexec(dirfd, name)) {
 				found = 1;
 				fputs(p, stdout);
 				if (i && ptr[i - 1] != '/')
 					fputc('/', stdout);
 				puts(name);
-				if (!aflag) {
-					close(dirfd);
-					break;
-				}
 			}
 			close(dirfd);
+			if (!aflag && found)
+				break;
 		}
 		p = ptr + i + 1;
 	}
@@ -80,7 +92,7 @@ main(int argc, char *argv[])
 		if (which(path, *argv)) {
 			found = 1;
 		} else {
-			weprintf("%s: command not found.\n", *argv);
+			weprintf("%s: not an external command\n", *argv);
 			foundall = 0;
 		}
 	}

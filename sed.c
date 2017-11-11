@@ -355,7 +355,9 @@ leprintf(char *s)
 static void
 usage(void)
 {
-	eprintf("USAGE\n");
+	eprintf("usage: sed [-nrE] script [file ...]\n"
+	        "       sed [-nrE] -e script [-e script] ... [-f scriptfile] ... [file ...]\n"
+	        "       sed [-nrE] [-e script] ... -f scriptfile [-f scriptfile] ... [file ...]\n");
 }
 
 /* Differences from POSIX
@@ -549,6 +551,7 @@ find_delim(char *s, Rune delim, int do_brackets)
 		                                             r == '.'  ||
 		                                             r == '=') ) { state  = CLASS_INSIDE    ; c = r;    }
 		else if (state == INSIDE_OPENING         &&  r == ']'  ) { state  = OUTSIDE         ;           }
+		else if (state == INSIDE_OPENING                       ) { state  = BRACKETS_INSIDE ;           }
 		else if (state == BRACKETS_INSIDE        &&  r == '['  ) { state  = INSIDE_OPENING  ;           }
 		else if (state == BRACKETS_INSIDE        &&  r == ']'  ) { state  = OUTSIDE         ;           }
 		else if (state == OUTSIDE                &&  escape    ) { escape = 0               ;           }
