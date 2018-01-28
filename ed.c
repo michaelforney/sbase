@@ -1374,8 +1374,10 @@ edit(void)
 		ocurln = curln;
 		cmdsiz = 0;
 		repidx = -1;
-		if (optprompt)
+		if (optprompt) {
 			fputs(prompt, stdout);
+			fflush(stdout);
+		}
 		getlst();
 		chkglobal() ? doglobal() : docmd();
 	}
