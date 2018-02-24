@@ -85,10 +85,10 @@ error(char *msg)
 {
 	exstatus = 1;
 	lasterr = msg;
-	fputs("?\n", stderr);
+	puts("?");
 
 	if (optverbose)
-		fprintf(stderr, "%s\n", msg);
+		puts(msg);
 	if (!newcmd)
 		undo();
 
@@ -703,7 +703,7 @@ static void
 dohelp(void)
 {
 	if (lasterr)
-		fprintf(stderr, "%s\n", lasterr);
+		puts(lasterr);
 }
 
 static void
@@ -1374,8 +1374,10 @@ edit(void)
 		ocurln = curln;
 		cmdsiz = 0;
 		repidx = -1;
-		if (optprompt)
+		if (optprompt) {
 			fputs(prompt, stdout);
+			fflush(stdout);
+		}
 		getlst();
 		chkglobal() ? doglobal() : docmd();
 	}
