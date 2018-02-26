@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <ctype.h>
 #include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -69,6 +70,8 @@ printchunk(const unsigned char *s, unsigned char format, size_t len)
 	case 'c':
 		if (strchr("\a\b\t\n\v\f\r\0", *s)) {
 			printf(" %3s", escdict[*s]);
+		} else if (!isprint(*s)) {
+			printf(" %3o", *s);
 		} else {
 			printf(" %3c", *s);
 		}
