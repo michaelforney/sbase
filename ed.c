@@ -888,8 +888,8 @@ static void
 execsh(void)
 {
 	static String cmd;
-	char c, *p;
-	int repl = 0;
+	char *p;
+	int c, repl = 0;
 
 	skipblank();
 	if ((c = input()) != '!') {
