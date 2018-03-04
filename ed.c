@@ -854,14 +854,19 @@ scroll(int num)
 static void
 copy(int where)
 {
-	int i;
 
 	if (!line1)
 		error("incorrect address");
 	curln = where;
 
-	for (i = line1; i <= line2; ++i)
-		inject(gettxt(i), AFTER);
+	while (line1 <= line2) {
+		inject(gettxt(line1), AFTER);
+		if (line2 >= curln)
+			line2 = nextln(line2);
+		line1 = nextln(line1);
+		if (line1 >= curln)
+			line1 = nextln(line1);
+	}
 }
 
 static void
