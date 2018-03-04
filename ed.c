@@ -119,7 +119,7 @@ prevln(int line)
 }
 
 static char *
-addchar_(char c, String *s)
+addchar(char c, String *s)
 {
 	size_t cap = s->cap, siz = s->siz;
 	char *t = s->str;
@@ -135,21 +135,6 @@ addchar_(char c, String *s)
 	return t;
 }
 
-static char *
-addchar(char c, char *t, size_t *capacity, size_t *size)
-{
-	size_t cap = *capacity, siz = *size;
-
-	if (siz >= cap &&
-	    (cap > SIZE_MAX - LINESIZE ||
-	     (t = realloc(t, cap += LINESIZE)) == NULL))
-			error("out of memory");
-	t[siz++] = c;
-	*size = siz;
-	*capacity = cap;
-	return t;
-}
-
 static int
 input(void)
 {
@@ -159,7 +144,7 @@ input(void)
 		return ocmdline[repidx++];
 
 	if ((c = getchar()) != EOF)
-		addchar_(c, &cmdline);
+		addchar(c, &cmdline);
 	return c;
 }
 
@@ -239,7 +224,7 @@ gettxt(int line)
 	off = lp->seek;
 
 	if (off == (off_t) -1)
-		return addchar_('\0', &text);
+		return addchar('\0', &text);
 
 repeat:
 	if (!csize || off < lasto || off - lasto >= csize) {
@@ -253,13 +238,13 @@ repeat:
 	}
 	for (p = buf + off - lasto; p < buf + csize && *p != '\n'; ++p) {
 		++off;
-		addchar_(*p, &text);
+		addchar(*p, &text);
 	}
 	if (csize && p == buf + csize)
 		goto repeat;
 
-	addchar_('\n', &text);
-	addchar_('\0', &text);
+	addchar('\n', &text);
+	addchar('\0', &text);
 	return text.str;
 }
 
@@ -402,21 +387,21 @@ compile(int delim)
 		}
 
 		if (c == '\\') {
-			addchar_(c, &lastre);
+			addchar(c, &lastre);
 			c = input();
 		} else if (c == '[') {
 			bracket = 1;
 		} else if (c == ']') {
 			bracket = 0;
 		}
-		addchar_(c, &lastre);
+		addchar(c, &lastre);
 	}
 	if (n == 0) {
 		if (!pattern)
 			error("no previous pattern");
 		return;
 	}
-	addchar_('\0', &lastre);
+	addchar('\0', &lastre);
 
 	if (pattern)
 		regfree(pattern);
@@ -839,13 +824,13 @@ join(void)
 	s.siz = s.cap = 0;
 	for (i = line1;; i = nextln(i)) {
 		for (t = gettxt(i); (c = *t) != '\n'; ++t)
-			addchar_(*t, &s);
+			addchar(*t, &s);
 		if (i == line2)
 			break;
 	}
 
-	addchar_('\n', &s);
-	addchar_('\0', &s);
+	addchar('\n', &s);
+	addchar('\0', &s);
 	delete(line1, line2);
 	inject(s.str, 1);
 	free(s.str);
@@ -908,12 +893,12 @@ execsh(void)
 				error("no current filename");
 			repl = 1;
 			for (p = savfname; *p; ++p)
-				addchar_(*p, &cmd);
+				addchar(*p, &cmd);
 		} else {
-			addchar_(c, &cmd);
+			addchar(c, &cmd);
 		}
 	}
-	addchar_('\0', &cmd);
+	addchar('\0', &cmd);
 
 	if (repl)
 		puts(cmd.str);
@@ -932,8 +917,8 @@ getrhs(int delim)
 	s.str = NULL;
 	s.siz = s.cap = 0;
 	while ((c = input()) != '\n' && c != EOF && c != delim)
-		addchar_(c, &s);
-	addchar_('\0', &s);
+		addchar(c, &s);
+	addchar('\0', &s);
 	if (c == EOF)
 		error("invalid pattern delimiter");
 	if (c == '\n') {
@@ -975,7 +960,7 @@ addpre(String *s)
 	char *p;
 
 	for (p = lastmatch; p < lastmatch + matchs[0].rm_so; ++p)
-		addchar_(*p, s);
+		addchar(*p, s);
 }
 
 static void
@@ -984,8 +969,8 @@ addpost(String *s)
 	char c, *p;
 
 	for (p = lastmatch + matchs[0].rm_eo; (c = *p); ++p)
-		addchar_(c, s);
-	addchar_('\0', s);
+		addchar(c, s);
+	addchar('\0', s);
 }
 
 static int
@@ -998,7 +983,7 @@ addsub(String *s, int nth, int nmatch)
 		q   = lastmatch + matchs[0].rm_so;
 		end = lastmatch + matchs[0].rm_eo;
 		while (q < end)
-			addchar_(*q++, s);
+			addchar(*q++, s);
 		return 0;
 	}
 
@@ -1017,11 +1002,11 @@ addsub(String *s, int nth, int nmatch)
 			q   = lastmatch + matchs[sub].rm_so;
 			end = lastmatch + matchs[sub].rm_eo;
 			while (q < end)
-				addchar_(*q++, s);
+				addchar(*q++, s);
 			break;
 		default:
 		copy_char:
-			addchar_(c, s);
+			addchar(c, s);
 			break;
 		}
 	}
@@ -1278,7 +1263,7 @@ save_last_cmd:
 	if (rep)
 		return;
 	free(ocmdline);
-	addchar_('\0', &cmdline);
+	addchar('\0', &cmdline);
 	if ((ocmdline = strdup(cmdline.str)) == NULL)
 		error("out of memory");
 }
