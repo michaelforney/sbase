@@ -54,10 +54,9 @@ static jmp_buf savesp;
 static char *lasterr;
 static size_t idxsize, lastidx;
 static struct hline *zero;
-static char *text;
+static String text;
 static char savfname[FILENAME_MAX];
 static char tmpname[FILENAME_MAX];
-static size_t sizetxt, memtxt;
 static int scratch;
 static int pflag, modflag, uflag, gflag;
 static size_t csize;
@@ -236,11 +235,11 @@ gettxt(int line)
 	char *p;
 
 	lp = zero + getindex(line);
-	sizetxt = 0;
+	text.siz = 0;
 	off = lp->seek;
 
 	if (off == (off_t) -1)
-		return text = addchar('\0', text, &memtxt, &sizetxt);
+		return addchar_('\0', &text);
 
 repeat:
 	if (!csize || off < lasto || off - lasto >= csize) {
@@ -254,14 +253,14 @@ repeat:
 	}
 	for (p = buf + off - lasto; p < buf + csize && *p != '\n'; ++p) {
 		++off;
-		text = addchar(*p, text, &memtxt, &sizetxt);
+		addchar_(*p, &text);
 	}
 	if (csize && p == buf + csize)
 		goto repeat;
 
-	text = addchar('\n', text, &memtxt, &sizetxt);
-	text = addchar('\0', text, &memtxt, &sizetxt);
-	return text;
+	addchar_('\n', &text);
+	addchar_('\0', &text);
+	return text.str;
 }
 
 static void
