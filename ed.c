@@ -19,6 +19,8 @@
 #define LINESIZE    80
 #define NUMLINES    32
 #define CACHESIZ  4096
+#define AFTER     0
+#define BEFORE    1
 
 typedef struct {
 	char *str;
@@ -308,11 +310,11 @@ undo(void)
 }
 
 static void
-inject(char *s, int j)
+inject(char *s, int where)
 {
 	int off, k, begin, end;
 
-	if (j) {
+	if (where == BEFORE) {
 		begin = getindex(curln-1);
 		end = getindex(nextln(curln-1));
 	} else {
@@ -649,7 +651,7 @@ doread(const char *fname)
 			s[n-1] = '\n';
 			s[n] = '\0';
 		}
-		inject(s, 0);
+		inject(s, AFTER);
 	}
 	if (optdiag)
 		printf("%zu\n", cnt);
@@ -767,7 +769,7 @@ append(int num)
 	while (getline(&s, &len, stdin) > 0) {
 		if (*s == '.' && s[1] == '\n')
 			break;
-		inject(s, 0);
+		inject(s, AFTER);
 	}
 	free(s);
 }
@@ -832,7 +834,7 @@ join(void)
 	addchar('\n', &s);
 	addchar('\0', &s);
 	delete(line1, line2);
-	inject(s.str, 1);
+	inject(s.str, BEFORE);
 	free(s.str);
 }
 
@@ -854,12 +856,12 @@ copy(int where)
 {
 	int i;
 
-	if (!line1 || (where >= line1 && where <= line2))
+	if (!line1)
 		error("incorrect address");
 	curln = where;
 
 	for (i = line1; i <= line2; ++i)
-		inject(gettxt(i), 0);
+		inject(gettxt(i), AFTER);
 }
 
 static void
@@ -1031,7 +1033,7 @@ subline(int num, int nth)
 	addpost(&s);
 	delete(num, num);
 	curln = prevln(num);
-	inject(s.str, 0);
+	inject(s.str, AFTER);
 }
 
 static void
