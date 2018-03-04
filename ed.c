@@ -887,38 +887,37 @@ quit(void)
 static void
 execsh(void)
 {
-	static char *cmd;
-	static size_t siz, cap;
+	static String cmd;
 	char c, *p;
 	int repl = 0;
 
 	skipblank();
 	if ((c = input()) != '!') {
 		back(c);
-		siz = 0;
-	} else if (cmd) {
-		--siz;
+		cmd.siz = 0;
+	} else if (cmd.siz) {
+		--cmd.siz;
 		repl = 1;
 	} else {
 		error("no previous command");
 	}
 
 	while ((c = input()) != EOF && c != '\n') {
-		if (c == '%' && (siz == 0 || cmd[siz - 1] != '\\')) {
+		if (c == '%' && (cmd.siz == 0 || cmd.str[cmd.siz - 1] != '\\')) {
 			if (savfname[0] == '\0')
 				error("no current filename");
 			repl = 1;
 			for (p = savfname; *p; ++p)
-				cmd = addchar(*p, cmd, &cap, &siz);
+				addchar_(*p, &cmd);
 		} else {
-			cmd = addchar(c, cmd, &cap, &siz);
+			addchar_(c, &cmd);
 		}
 	}
-	cmd = addchar('\0', cmd, &cap, &siz);
+	addchar_('\0', &cmd);
 
 	if (repl)
-		puts(cmd);
-	system(cmd);
+		puts(cmd.str);
+	system(cmd.str);
 	if (optdiag)
 		puts("!");
 }
