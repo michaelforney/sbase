@@ -1368,7 +1368,6 @@ sighup(int dummy)
 static void
 edit(void)
 {
-	setjmp(savesp);
 	for (;;) {
 		newcmd = 1;
 		ocurln = curln;
@@ -1388,8 +1387,6 @@ init(char *fname)
 {
 	size_t len;
 
-	if (setjmp(savesp))
-		return;
 	setscratch();
 	if (!fname)
 		return;
@@ -1418,11 +1415,12 @@ main(int argc, char *argv[])
 	if (argc > 1)
 		usage();
 
-	signal(SIGINT, sigintr);
-	signal(SIGHUP, sighup);
-	signal(SIGQUIT, SIG_IGN);
-
-	init(*argv);
+	if (!setjmp(savesp)) {
+		signal(SIGINT, sigintr);
+		signal(SIGHUP, sighup);
+		signal(SIGQUIT, SIG_IGN);
+		init(*argv);
+	}
 	edit();
 
 	/* not reached */
