@@ -20,6 +20,12 @@
 #define NUMLINES    32
 #define CACHESIZ  4096
 
+typedef struct {
+	char *str;
+	size_t cap;
+	size_t siz;
+} String;
+
 struct hline {
 	off_t seek;
 	char  global;
@@ -109,6 +115,23 @@ prevln(int line)
 {
 	--line;
 	return (line < 0) ? lastln : line;
+}
+
+static char *
+addchar_(char c, String *s)
+{
+	size_t cap = s->cap, siz = s->siz;
+	char *t = s->str;
+
+	if (siz >= cap &&
+	    (cap > SIZE_MAX - LINESIZE ||
+	     (t = realloc(t, cap += LINESIZE)) == NULL))
+			error("out of memory");
+	t[siz++] = c;
+	s->siz = siz;
+	s->cap = cap;
+	s->str = t;
+	return t;
 }
 
 static char *
