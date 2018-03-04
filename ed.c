@@ -44,7 +44,7 @@ struct undo {
 static char *prompt = "*";
 static regex_t *pattern;
 static regmatch_t matchs[10];
-static char *lastre;
+static String lastre;
 
 static int optverbose, optprompt, exstatus, optdiag = 1;
 static int marks['z' - 'a'];
@@ -383,13 +383,12 @@ static void
 compile(int delim)
 {
 	int n, ret, c,bracket;
-	static size_t siz, cap;
 	static char buf[BUFSIZ];
 
 	if (!isgraph(delim))
 		error("invalid pattern delimiter");
 
-	eol = bol = bracket = siz = 0;
+	eol = bol = bracket = lastre.siz = 0;
 	for (n = 0;; ++n) {
 		if ((c = input()) == delim && !bracket)
 			break;
@@ -403,27 +402,27 @@ compile(int delim)
 		}
 
 		if (c == '\\') {
-			lastre = addchar(c, lastre, &cap, &siz);
+			addchar_(c, &lastre);
 			c = input();
 		} else if (c == '[') {
 			bracket = 1;
 		} else if (c == ']') {
 			bracket = 0;
 		}
-		lastre = addchar(c, lastre, &cap, &siz);
+		addchar_(c, &lastre);
 	}
 	if (n == 0) {
 		if (!pattern)
 			error("no previous pattern");
 		return;
 	}
-	lastre = addchar('\0', lastre, &cap, &siz);
+	addchar_('\0', &lastre);
 
 	if (pattern)
 		regfree(pattern);
 	if (!pattern && (!(pattern = malloc(sizeof(*pattern)))))
 		error("out of memory");
-	if ((ret = regcomp(pattern, lastre, REG_NEWLINE))) {
+	if ((ret = regcomp(pattern, lastre.str, REG_NEWLINE))) {
 		regerror(ret, pattern, buf, sizeof(buf));
 		error(buf);
 	}
