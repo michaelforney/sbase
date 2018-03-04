@@ -841,14 +841,20 @@ join(void)
 static void
 scroll(int num)
 {
-	int i;
+	int max, ln, cnt;
 
 	if (!line1 || line1 == lastln)
 		error("incorrect address");
 
-	for (i = line1; i <= line1 + num && i <= lastln; ++i)
-		fputs(gettxt(i), stdout);
-	curln = i;
+	ln = line1;
+	max = line1 + num;
+	if (max > lastln)
+		max = lastln;
+	for (cnt = line1; cnt < max; cnt++) {
+		fputs(gettxt(ln), stdout);
+		ln = nextln(ln);
+	}
+	curln = ln;
 }
 
 static void
