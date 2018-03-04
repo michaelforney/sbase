@@ -833,22 +833,22 @@ join(void)
 {
 	int i;
 	char *t, c;
-	size_t len = 0, cap = 0;
-	static char *s;
+	static String s;
 
-	free(s);
-	for (s = NULL, i = line1;; i = nextln(i)) {
+	free(s.str);
+	s.siz = s.cap = 0;
+	for (i = line1;; i = nextln(i)) {
 		for (t = gettxt(i); (c = *t) != '\n'; ++t)
-			s = addchar(*t, s, &cap, &len);
+			addchar_(*t, &s);
 		if (i == line2)
 			break;
 	}
 
-	s = addchar('\n', s, &cap, &len);
-	s = addchar('\0', s, &cap, &len);
+	addchar_('\n', &s);
+	addchar_('\0', &s);
 	delete(line1, line2);
-	inject(s, 1);
-	free(s);
+	inject(s.str, 1);
+	free(s.str);
 }
 
 static void
