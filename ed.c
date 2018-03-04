@@ -1318,7 +1318,7 @@ chkglobal(void)
 static void
 doglobal(void)
 {
-	int i, k;
+	int cnt, ln, k;
 
 	skipblank();
 	cmdline.siz = 0;
@@ -1326,18 +1326,24 @@ doglobal(void)
 	if (uflag)
 		chkprint(0);
 
-	for (i = 1; i <= lastln; i++) {
-		k = getindex(i);
-		if (!zero[k].global)
-			continue;
-		curln = i;
-		nlines = 0;
-		if (uflag) {
-			line1 = line2 = i;
-			pflag = 0;
-			doprint();
+	ln = line1;
+	for (cnt = 0; cnt < lastln; ) {
+		k = getindex(ln);
+		if (zero[k].global) {
+			zero[k].global = 0;
+			curln = ln;
+			nlines = 0;
+			if (uflag) {
+				line1 = line2 = ln;
+				pflag = 0;
+				doprint();
+			}
+			getlst();
+			docmd();
+		} else {
+			cnt++;
+			ln = nextln(ln);
 		}
-		docmd();
 	}
 	discard();   /* cover the case of not matching anything */
 }
