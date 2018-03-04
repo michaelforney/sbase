@@ -35,7 +35,7 @@ struct hline {
 };
 
 struct undo {
-	int curln;
+	int curln, lastln;
 	size_t nr, cap;
 	struct link {
 		int to1, from1;
@@ -51,7 +51,7 @@ static String lastre;
 static int optverbose, optprompt, exstatus, optdiag = 1;
 static int marks['z' - 'a'];
 static int nlines, line1, line2;
-static int curln, lastln, ocurln;
+static int curln, lastln, ocurln, olastln;
 static jmp_buf savesp;
 static char *lasterr;
 static size_t idxsize, lastidx;
@@ -266,13 +266,14 @@ clearundo(void)
 }
 
 static void
-relink(int to1, int from1, int from2, int to2)
+newundo(int from1, int from2)
 {
 	struct link *p;
 
 	if (newcmd) {
 		clearundo();
 		udata.curln = ocurln;
+		udata.lastln = olastln;
 	}
 	if (udata.nr >= udata.cap) {
 		size_t siz = (udata.cap + 10) * sizeof(struct link);
@@ -286,7 +287,16 @@ relink(int to1, int from1, int from2, int to2)
 	p->to1 = zero[from1].next;
 	p->from2 = from2;
 	p->to2 = zero[from2].prev;
+}
 
+/*
+ * relink: to1   <- from1
+ *         from2 -> to2
+ */
+static void
+relink(int to1, int from1, int from2, int to2)
+{
+	newundo(from1, from2);
 	zero[from1].next = to1;
 	zero[from2].prev = to2;
 	modflag = 1;
@@ -299,7 +309,8 @@ undo(void)
 
 	if (udata.nr == 0)
 		return;
-	for (p = &udata.vec[udata.nr-1]; udata.nr--; --p) {
+	for (p = &udata.vec[udata.nr-1]; udata.nr > 0; --p) {
+		--udata.nr;
 		zero[p->from1].next = p->to1;
 		zero[p->from2].prev = p->to2;
 	}
@@ -307,6 +318,7 @@ undo(void)
 	udata.vec = NULL;
 	udata.cap = 0;
 	curln = udata.curln;
+	lastln = udata.lastln;
 }
 
 static void
@@ -1395,6 +1407,7 @@ edit(void)
 	for (;;) {
 		newcmd = 1;
 		ocurln = curln;
+		olastln = lastln;
 		cmdline.siz = 0;
 		repidx = -1;
 		if (optprompt) {
