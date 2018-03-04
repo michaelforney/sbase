@@ -970,26 +970,26 @@ getnth(void)
 }
 
 static void
-addpre(char **s, size_t *cap, size_t *siz)
+addpre(String *s)
 {
 	char *p;
 
 	for (p = lastmatch; p < lastmatch + matchs[0].rm_so; ++p)
-		*s = addchar(*p, *s, cap, siz);
+		addchar_(*p, s);
 }
 
 static void
-addpost(char **s, size_t *cap, size_t *siz)
+addpost(String *s)
 {
 	char c, *p;
 
 	for (p = lastmatch + matchs[0].rm_eo; (c = *p); ++p)
-		*s = addchar(c, *s, cap, siz);
-	*s = addchar('\0', *s, cap, siz);
+		addchar_(c, s);
+	addchar_('\0', s);
 }
 
 static int
-addsub(char **s, size_t *cap, size_t *siz, int nth, int nmatch)
+addsub(String *s, int nth, int nmatch)
 {
 	char *end, *q, *p, c;
 	int sub;
@@ -998,7 +998,7 @@ addsub(char **s, size_t *cap, size_t *siz, int nth, int nmatch)
 		q   = lastmatch + matchs[0].rm_so;
 		end = lastmatch + matchs[0].rm_eo;
 		while (q < end)
-			*s = addchar(*q++, *s, cap, siz);
+			addchar_(*q++, s);
 		return 0;
 	}
 
@@ -1017,11 +1017,11 @@ addsub(char **s, size_t *cap, size_t *siz, int nth, int nmatch)
 			q   = lastmatch + matchs[sub].rm_so;
 			end = lastmatch + matchs[sub].rm_eo;
 			while (q < end)
-				*s = addchar(*q++, *s, cap, siz);
+				addchar_(*q++, s);
 			break;
 		default:
 		copy_char:
-			*s = addchar(c, *s, cap, siz);
+			addchar_(c, s);
 			break;
 		}
 	}
@@ -1032,22 +1032,21 @@ static void
 subline(int num, int nth)
 {
 	int i, m, changed;
-	static char *s;
-	static size_t siz, cap;
+	static String s;
 
-	i = changed = siz = 0;
+	i = changed = s.siz = 0;
 	for (m = match(num); m; m = rematch(num)) {
-		addpre(&s, &cap, &siz);
-		changed |= addsub(&s, &cap, &siz, nth, ++i);
+		addpre(&s);
+		changed |= addsub(&s, nth, ++i);
 		if (eol || bol)
 			break;
 	}
 	if (!changed)
 		return;
-	addpost(&s, &cap, &siz);
+	addpost(&s);
 	delete(num, num);
 	curln = prevln(num);
-	inject(s, 0);
+	inject(s.str, 0);
 }
 
 static void
