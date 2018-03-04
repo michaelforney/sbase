@@ -926,15 +926,14 @@ static void
 getrhs(int delim)
 {
 	int c;
-	size_t siz, cap;
-	static char *s;
+	static String s;
 
-	free(s);
-	s = NULL;
-	siz = cap = 0;
+	free(s.str);
+	s.str = NULL;
+	s.siz = s.cap = 0;
 	while ((c = input()) != '\n' && c != EOF && c != delim)
-		s = addchar(c, s, &siz, &cap);
-	s = addchar('\0', s, &siz, &cap);
+		addchar_(c, &s);
+	addchar_('\0', &s);
 	if (c == EOF)
 		error("invalid pattern delimiter");
 	if (c == '\n') {
@@ -942,15 +941,15 @@ getrhs(int delim)
 		back(c);
 	}
 
-	if (!strcmp("%", s)) {
-		free(s);
+	if (!strcmp("%", s.str)) {
+		free(s.str);
 		if (!rhs)
 			error("no previous substitution");
 	} else {
 		free(rhs);
-		rhs = s;
+		rhs = s.str;
 	}
-	s = NULL;
+	s.str = NULL;
 }
 
 static int
