@@ -61,9 +61,8 @@ static size_t sizetxt, memtxt;
 static int scratch;
 static int pflag, modflag, uflag, gflag;
 static size_t csize;
-static char *cmdline;
+static String cmdline;
 static char *ocmdline;
-static size_t cmdsiz, cmdcap;
 static int repidx;
 static char *rhs;
 static char *lastmatch;
@@ -76,12 +75,15 @@ discard(void)
 {
 	int c;
 
-	/* discard until end of line */
-	if (repidx < 0  &&
-	    ((cmdsiz > 0 && cmdline[cmdsiz-1] != '\n') || cmdsiz == 0)) {
-		while ((c = getchar()) != '\n' && c != EOF)
-			/* nothing */;
-	}
+	if (repidx >= 0)
+		return;
+
+	/* discard until the end of the line */
+	if (cmdline.siz > 0 && cmdline.str[cmdline.siz-1] == '\n')
+		return;
+
+	while ((c = getchar()) != '\n' && c != EOF)
+		;
 }
 
 static void undo(void);
@@ -158,7 +160,7 @@ input(void)
 		return ocmdline[repidx++];
 
 	if ((c = getchar()) != EOF)
-		cmdline = addchar(c, cmdline, &cmdcap, &cmdsiz);
+		addchar_(c, &cmdline);
 	return c;
 }
 
@@ -170,7 +172,7 @@ back(int c)
 	} else {
 		ungetc(c, stdin);
 		if (c != EOF)
-			--cmdsiz;
+			--cmdline.siz;
 	}
 	return c;
 }
@@ -1085,7 +1087,7 @@ repeat:
 		execsh();
 		break;
 	case EOF:
-		if (cmdsiz == 0)
+		if (cmdline.siz == 0)
 			quit();
 	case '\n':
 		if (gflag && uflag)
@@ -1281,8 +1283,8 @@ save_last_cmd:
 	if (rep)
 		return;
 	free(ocmdline);
-	cmdline = addchar('\0', cmdline, &cmdcap, &cmdsiz);
-	if ((ocmdline = strdup(cmdline)) == NULL)
+	addchar_('\0', &cmdline);
+	if ((ocmdline = strdup(cmdline.str)) == NULL)
 		error("out of memory");
 }
 
@@ -1332,7 +1334,7 @@ doglobal(void)
 	int i, k;
 
 	skipblank();
-	cmdsiz = 0;
+	cmdline.siz = 0;
 	gflag = 1;
 	if (uflag)
 		chkprint(0);
@@ -1394,7 +1396,7 @@ edit(void)
 	for (;;) {
 		newcmd = 1;
 		ocurln = curln;
-		cmdsiz = 0;
+		cmdline.siz = 0;
 		repidx = -1;
 		if (optprompt) {
 			fputs(prompt, stdout);
