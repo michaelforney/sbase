@@ -192,8 +192,10 @@ makeline(char *s, int *off)
 	char c, *begin = s;
 
 	if (lastidx >= idxsize) {
-		if (idxsize > SIZE_MAX - NUMLINES ||
-		    !(lp = realloc(zero, (idxsize + NUMLINES) * sizeof(*lp))))
+		lp = NULL;
+		if (idxsize <= SIZE_MAX - NUMLINES)
+		    lp = realloc(zero, (idxsize + NUMLINES) * sizeof(*lp));
+		if (!lp)
 			error("out of memory");
 		idxsize += NUMLINES;
 		zero = lp;
