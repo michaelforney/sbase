@@ -7,7 +7,7 @@
 static void
 usage(void)
 {
-	eprintf("usage: %s\n", argv0);
+	enprintf(2, "usage: %s\n", argv0);
 }
 
 int
@@ -23,5 +23,6 @@ main(int argc, char *argv[])
 	tty = ttyname(STDIN_FILENO);
 	puts(tty ? tty : "not a tty");
 
-	return fshut(stdout, "<stdout>") || !tty;
+	enfshut(2, stdout, "<stdout>");
+	return !tty;
 }
