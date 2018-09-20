@@ -18,6 +18,16 @@
  *
  *    .
  *    ?radix?;/^$/-s/^/static /
+ * o  cat <<EOF | ed
+ *    0a
+ *       Line
+ *    .
+ *    s/ *//
+ * o cat <<EOF | ed
+ *   0a
+ *   line
+ *   .
+ *   1g/^$/p
  */
 
 #include <sys/stat.h>
