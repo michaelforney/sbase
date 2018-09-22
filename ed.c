@@ -22,7 +22,7 @@
  *    0a
  *       Line
  *    .
- *    s/ *//
+ *    s# *##
  * o cat <<EOF | ed
  *   0a
  *   line
