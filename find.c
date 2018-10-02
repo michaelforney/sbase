@@ -1023,9 +1023,16 @@ main(int argc, char **argv)
 	struct tok *t;
 
 	ARGBEGIN {
-	case 'H': gflags.l = !(gflags.h = 1); break;
-	case 'L': gflags.h = !(gflags.l = 1); break;
-	default : usage();
+	case 'H':
+		gflags.h = 1;
+		gflags.l = 0;
+		break;
+	case 'L':
+		gflags.l = 1;
+		gflags.h = 0;
+		break;
+	default:
+		usage();
 	} ARGEND
 
 	paths = argv;

@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <ctype.h>
 #include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -36,11 +37,12 @@ printaddress(off_t addr)
 }
 
 static void
-printchunk(unsigned char *s, unsigned char format, size_t len)
+printchunk(const unsigned char *s, unsigned char format, size_t len)
 {
 	long long res, basefac;
 	size_t i;
 	char fmt[] = " %#*ll#";
+	unsigned char c;
 
 	const char *namedict[] = {
 		"nul", "soh", "stx", "etx", "eot", "enq", "ack",
@@ -58,16 +60,18 @@ printchunk(unsigned char *s, unsigned char format, size_t len)
 
 	switch (format) {
 	case 'a':
-		*s &= ~128; /* clear high bit as required by standard */
-		if (*s < LEN(namedict) || *s == 127) {
-			printf(" %3s", (*s == 127) ? "del" : namedict[*s]);
+		c = *s & ~128; /* clear high bit as required by standard */
+		if (c < LEN(namedict) || c == 127) {
+			printf(" %3s", (c == 127) ? "del" : namedict[c]);
 		} else {
-			printf(" %3c", *s);
+			printf(" %3c", c);
 		}
 		break;
 	case 'c':
 		if (strchr("\a\b\t\n\v\f\r\0", *s)) {
 			printf(" %3s", escdict[*s]);
+		} else if (!isprint(*s)) {
+			printf(" %3o", *s);
 		} else {
 			printf(" %3c", *s);
 		}
@@ -91,7 +95,7 @@ printchunk(unsigned char *s, unsigned char format, size_t len)
 }
 
 static void
-printline(unsigned char *line, size_t len, off_t addr)
+printline(const unsigned char *line, size_t len, off_t addr)
 {
 	struct type *t = NULL;
 	size_t i;

@@ -1,6 +1,10 @@
 /* See LICENSE file for copyright and license details. */
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <sys/types.h>
+#ifdef __GLIBC__
+#include <sys/sysmacros.h>
+#endif
 
 #include <errno.h>
 #include <fcntl.h>

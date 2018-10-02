@@ -40,6 +40,9 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND
 
+	if (argc)
+		usage();
+
 	if (uname(&u) < 0)
 		eprintf("uname:");
 

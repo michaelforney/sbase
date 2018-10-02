@@ -1,4 +1,35 @@
 /* See LICENSE file for copyright and license details. */
+
+/*
+ * TODO: Multi-line commands don't work in global commands:
+ * o  g/^line/a \
+ *    line1
+ *    .
+ * o  Signal handling is broken
+ * o  cat <<EOF | ed
+ *    0a
+ *    int radix = 16;
+ *    int Pflag;
+ *    int Aflag;
+ *    int vflag;
+ *    int gflag;
+ *    int uflag;
+ *    int arflag;
+ *
+ *    .
+ *    ?radix?;/^$/-s/^/static /
+ * o  cat <<EOF | ed
+ *    0a
+ *       Line
+ *    .
+ *    s# *##
+ * o cat <<EOF | ed
+ *   0a
+ *   line
+ *   .
+ *   1g/^$/p
+ */
+
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <regex.h>
@@ -19,6 +50,14 @@
 #define LINESIZE    80
 #define NUMLINES    32
 #define CACHESIZ  4096
+#define AFTER     0
+#define BEFORE    1
+
+typedef struct {
+	char *str;
+	size_t cap;
+	size_t siz;
+} String;
 
 struct hline {
 	off_t seek;
@@ -27,7 +66,7 @@ struct hline {
 };
 
 struct undo {
-	int curln;
+	int curln, lastln;
 	size_t nr, cap;
 	struct link {
 		int to1, from1;
@@ -38,26 +77,24 @@ struct undo {
 static char *prompt = "*";
 static regex_t *pattern;
 static regmatch_t matchs[10];
-static char *lastre;
+static String lastre;
 
 static int optverbose, optprompt, exstatus, optdiag = 1;
 static int marks['z' - 'a'];
 static int nlines, line1, line2;
-static int curln, lastln, ocurln;
+static int curln, lastln, ocurln, olastln;
 static jmp_buf savesp;
 static char *lasterr;
 static size_t idxsize, lastidx;
 static struct hline *zero;
-static char *text;
+static String text;
 static char savfname[FILENAME_MAX];
 static char tmpname[FILENAME_MAX];
-static size_t sizetxt, memtxt;
 static int scratch;
 static int pflag, modflag, uflag, gflag;
 static size_t csize;
-static char *cmdline;
+static String cmdline;
 static char *ocmdline;
-static size_t cmdsiz, cmdcap;
 static int repidx;
 static char *rhs;
 static char *lastmatch;
@@ -70,12 +107,15 @@ discard(void)
 {
 	int c;
 
-	/* discard until end of line */
-	if (repidx < 0  &&
-	    ((cmdsiz > 0 && cmdline[cmdsiz-1] != '\n') || cmdsiz == 0)) {
-		while ((c = getchar()) != '\n' && c != EOF)
-			/* nothing */;
-	}
+	if (repidx >= 0)
+		return;
+
+	/* discard until the end of the line */
+	if (cmdline.siz > 0 && cmdline.str[cmdline.siz-1] == '\n')
+		return;
+
+	while ((c = getchar()) != '\n' && c != EOF)
+		;
 }
 
 static void undo(void);
@@ -112,17 +152,19 @@ prevln(int line)
 }
 
 static char *
-addchar(char c, char *t, size_t *capacity, size_t *size)
+addchar(char c, String *s)
 {
-	size_t cap = *capacity, siz = *size;
+	size_t cap = s->cap, siz = s->siz;
+	char *t = s->str;
 
 	if (siz >= cap &&
 	    (cap > SIZE_MAX - LINESIZE ||
 	     (t = realloc(t, cap += LINESIZE)) == NULL))
 			error("out of memory");
 	t[siz++] = c;
-	*size = siz;
-	*capacity = cap;
+	s->siz = siz;
+	s->cap = cap;
+	s->str = t;
 	return t;
 }
 
@@ -135,7 +177,7 @@ input(void)
 		return ocmdline[repidx++];
 
 	if ((c = getchar()) != EOF)
-		cmdline = addchar(c, cmdline, &cmdcap, &cmdsiz);
+		addchar(c, &cmdline);
 	return c;
 }
 
@@ -147,7 +189,7 @@ back(int c)
 	} else {
 		ungetc(c, stdin);
 		if (c != EOF)
-			--cmdsiz;
+			--cmdline.siz;
 	}
 	return c;
 }
@@ -160,8 +202,10 @@ makeline(char *s, int *off)
 	char c, *begin = s;
 
 	if (lastidx >= idxsize) {
-		if (idxsize > SIZE_MAX - NUMLINES ||
-		    !(lp = realloc(zero, (idxsize + NUMLINES) * sizeof(*lp))))
+		lp = NULL;
+		if (idxsize <= SIZE_MAX - NUMLINES)
+		    lp = realloc(zero, (idxsize + NUMLINES) * sizeof(*lp));
+		if (!lp)
 			error("out of memory");
 		idxsize += NUMLINES;
 		zero = lp;
@@ -211,11 +255,11 @@ gettxt(int line)
 	char *p;
 
 	lp = zero + getindex(line);
-	sizetxt = 0;
+	text.siz = 0;
 	off = lp->seek;
 
 	if (off == (off_t) -1)
-		return text = addchar('\0', text, &memtxt, &sizetxt);
+		return addchar('\0', &text);
 
 repeat:
 	if (!csize || off < lasto || off - lasto >= csize) {
@@ -229,14 +273,14 @@ repeat:
 	}
 	for (p = buf + off - lasto; p < buf + csize && *p != '\n'; ++p) {
 		++off;
-		text = addchar(*p, text, &memtxt, &sizetxt);
+		addchar(*p, &text);
 	}
 	if (csize && p == buf + csize)
 		goto repeat;
 
-	text = addchar('\n', text, &memtxt, &sizetxt);
-	text = addchar('\0', text, &memtxt, &sizetxt);
-	return text;
+	addchar('\n', &text);
+	addchar('\0', &text);
+	return text.str;
 }
 
 static void
@@ -255,13 +299,14 @@ clearundo(void)
 }
 
 static void
-relink(int to1, int from1, int from2, int to2)
+newundo(int from1, int from2)
 {
 	struct link *p;
 
 	if (newcmd) {
 		clearundo();
 		udata.curln = ocurln;
+		udata.lastln = olastln;
 	}
 	if (udata.nr >= udata.cap) {
 		size_t siz = (udata.cap + 10) * sizeof(struct link);
@@ -275,7 +320,16 @@ relink(int to1, int from1, int from2, int to2)
 	p->to1 = zero[from1].next;
 	p->from2 = from2;
 	p->to2 = zero[from2].prev;
+}
 
+/*
+ * relink: to1   <- from1
+ *         from2 -> to2
+ */
+static void
+relink(int to1, int from1, int from2, int to2)
+{
+	newundo(from1, from2);
 	zero[from1].next = to1;
 	zero[from2].prev = to2;
 	modflag = 1;
@@ -288,7 +342,8 @@ undo(void)
 
 	if (udata.nr == 0)
 		return;
-	for (p = &udata.vec[udata.nr-1]; udata.nr--; --p) {
+	for (p = &udata.vec[udata.nr-1]; udata.nr > 0; --p) {
+		--udata.nr;
 		zero[p->from1].next = p->to1;
 		zero[p->from2].prev = p->to2;
 	}
@@ -296,14 +351,15 @@ undo(void)
 	udata.vec = NULL;
 	udata.cap = 0;
 	curln = udata.curln;
+	lastln = udata.lastln;
 }
 
 static void
-inject(char *s, int j)
+inject(char *s, int where)
 {
 	int off, k, begin, end;
 
-	if (j) {
+	if (where == BEFORE) {
 		begin = getindex(curln-1);
 		end = getindex(nextln(curln-1));
 	} else {
@@ -359,13 +415,12 @@ static void
 compile(int delim)
 {
 	int n, ret, c,bracket;
-	static size_t siz, cap;
 	static char buf[BUFSIZ];
 
 	if (!isgraph(delim))
 		error("invalid pattern delimiter");
 
-	eol = bol = bracket = siz = 0;
+	eol = bol = bracket = lastre.siz = 0;
 	for (n = 0;; ++n) {
 		if ((c = input()) == delim && !bracket)
 			break;
@@ -379,27 +434,27 @@ compile(int delim)
 		}
 
 		if (c == '\\') {
-			lastre = addchar(c, lastre, &cap, &siz);
+			addchar(c, &lastre);
 			c = input();
 		} else if (c == '[') {
 			bracket = 1;
 		} else if (c == ']') {
 			bracket = 0;
 		}
-		lastre = addchar(c, lastre, &cap, &siz);
+		addchar(c, &lastre);
 	}
 	if (n == 0) {
 		if (!pattern)
 			error("no previous pattern");
 		return;
 	}
-	lastre = addchar('\0', lastre, &cap, &siz);
+	addchar('\0', &lastre);
 
 	if (pattern)
 		regfree(pattern);
 	if (!pattern && (!(pattern = malloc(sizeof(*pattern)))))
 		error("out of memory");
-	if ((ret = regcomp(pattern, lastre, REG_NEWLINE))) {
+	if ((ret = regcomp(pattern, lastre.str, REG_NEWLINE))) {
 		regerror(ret, pattern, buf, sizeof(buf));
 		error(buf);
 	}
@@ -641,7 +696,7 @@ doread(const char *fname)
 			s[n-1] = '\n';
 			s[n] = '\0';
 		}
-		inject(s, 0);
+		inject(s, AFTER);
 	}
 	if (optdiag)
 		printf("%zu\n", cnt);
@@ -759,7 +814,7 @@ append(int num)
 	while (getline(&s, &len, stdin) > 0) {
 		if (*s == '.' && s[1] == '\n')
 			break;
-		inject(s, 0);
+		inject(s, AFTER);
 	}
 	free(s);
 }
@@ -810,48 +865,59 @@ join(void)
 {
 	int i;
 	char *t, c;
-	size_t len = 0, cap = 0;
-	static char *s;
+	static String s;
 
-	free(s);
-	for (s = NULL, i = line1;; i = nextln(i)) {
+	free(s.str);
+	s.siz = s.cap = 0;
+	for (i = line1;; i = nextln(i)) {
 		for (t = gettxt(i); (c = *t) != '\n'; ++t)
-			s = addchar(*t, s, &cap, &len);
+			addchar(*t, &s);
 		if (i == line2)
 			break;
 	}
 
-	s = addchar('\n', s, &cap, &len);
-	s = addchar('\0', s, &cap, &len);
+	addchar('\n', &s);
+	addchar('\0', &s);
 	delete(line1, line2);
-	inject(s, 1);
-	free(s);
+	inject(s.str, BEFORE);
+	free(s.str);
 }
 
 static void
 scroll(int num)
 {
-	int i;
+	int max, ln, cnt;
 
 	if (!line1 || line1 == lastln)
 		error("incorrect address");
 
-	for (i = line1; i <= line1 + num && i <= lastln; ++i)
-		fputs(gettxt(i), stdout);
-	curln = i;
+	ln = line1;
+	max = line1 + num;
+	if (max > lastln)
+		max = lastln;
+	for (cnt = line1; cnt < max; cnt++) {
+		fputs(gettxt(ln), stdout);
+		ln = nextln(ln);
+	}
+	curln = ln;
 }
 
 static void
 copy(int where)
 {
-	int i;
 
-	if (!line1 || (where >= line1 && where <= line2))
+	if (!line1)
 		error("incorrect address");
 	curln = where;
 
-	for (i = line1; i <= line2; ++i)
-		inject(gettxt(i), 0);
+	while (line1 <= line2) {
+		inject(gettxt(line1), AFTER);
+		if (line2 >= curln)
+			line2 = nextln(line2);
+		line1 = nextln(line1);
+		if (line1 >= curln)
+			line1 = nextln(line1);
+	}
 }
 
 static void
@@ -864,38 +930,37 @@ quit(void)
 static void
 execsh(void)
 {
-	static char *cmd;
-	static size_t siz, cap;
-	char c, *p;
-	int repl = 0;
+	static String cmd;
+	char *p;
+	int c, repl = 0;
 
 	skipblank();
 	if ((c = input()) != '!') {
 		back(c);
-		siz = 0;
-	} else if (cmd) {
-		--siz;
+		cmd.siz = 0;
+	} else if (cmd.siz) {
+		--cmd.siz;
 		repl = 1;
 	} else {
 		error("no previous command");
 	}
 
 	while ((c = input()) != EOF && c != '\n') {
-		if (c == '%' && (siz == 0 || cmd[siz - 1] != '\\')) {
+		if (c == '%' && (cmd.siz == 0 || cmd.str[cmd.siz - 1] != '\\')) {
 			if (savfname[0] == '\0')
 				error("no current filename");
 			repl = 1;
 			for (p = savfname; *p; ++p)
-				cmd = addchar(*p, cmd, &cap, &siz);
+				addchar(*p, &cmd);
 		} else {
-			cmd = addchar(c, cmd, &cap, &siz);
+			addchar(c, &cmd);
 		}
 	}
-	cmd = addchar('\0', cmd, &cap, &siz);
+	addchar('\0', &cmd);
 
 	if (repl)
-		puts(cmd);
-	system(cmd);
+		puts(cmd.str);
+	system(cmd.str);
 	if (optdiag)
 		puts("!");
 }
@@ -904,15 +969,14 @@ static void
 getrhs(int delim)
 {
 	int c;
-	size_t siz, cap;
-	static char *s;
+	static String s;
 
-	free(s);
-	s = NULL;
-	siz = cap = 0;
+	free(s.str);
+	s.str = NULL;
+	s.siz = s.cap = 0;
 	while ((c = input()) != '\n' && c != EOF && c != delim)
-		s = addchar(c, s, &siz, &cap);
-	s = addchar('\0', s, &siz, &cap);
+		addchar(c, &s);
+	addchar('\0', &s);
 	if (c == EOF)
 		error("invalid pattern delimiter");
 	if (c == '\n') {
@@ -920,15 +984,15 @@ getrhs(int delim)
 		back(c);
 	}
 
-	if (!strcmp("%", s)) {
-		free(s);
+	if (!strcmp("%", s.str)) {
+		free(s.str);
 		if (!rhs)
 			error("no previous substitution");
 	} else {
 		free(rhs);
-		rhs = s;
+		rhs = s.str;
 	}
-	s = NULL;
+	s.str = NULL;
 }
 
 static int
@@ -949,26 +1013,26 @@ getnth(void)
 }
 
 static void
-addpre(char **s, size_t *cap, size_t *siz)
+addpre(String *s)
 {
 	char *p;
 
 	for (p = lastmatch; p < lastmatch + matchs[0].rm_so; ++p)
-		*s = addchar(*p, *s, cap, siz);
+		addchar(*p, s);
 }
 
 static void
-addpost(char **s, size_t *cap, size_t *siz)
+addpost(String *s)
 {
 	char c, *p;
 
 	for (p = lastmatch + matchs[0].rm_eo; (c = *p); ++p)
-		*s = addchar(c, *s, cap, siz);
-	*s = addchar('\0', *s, cap, siz);
+		addchar(c, s);
+	addchar('\0', s);
 }
 
 static int
-addsub(char **s, size_t *cap, size_t *siz, int nth, int nmatch)
+addsub(String *s, int nth, int nmatch)
 {
 	char *end, *q, *p, c;
 	int sub;
@@ -977,7 +1041,7 @@ addsub(char **s, size_t *cap, size_t *siz, int nth, int nmatch)
 		q   = lastmatch + matchs[0].rm_so;
 		end = lastmatch + matchs[0].rm_eo;
 		while (q < end)
-			*s = addchar(*q++, *s, cap, siz);
+			addchar(*q++, s);
 		return 0;
 	}
 
@@ -996,11 +1060,11 @@ addsub(char **s, size_t *cap, size_t *siz, int nth, int nmatch)
 			q   = lastmatch + matchs[sub].rm_so;
 			end = lastmatch + matchs[sub].rm_eo;
 			while (q < end)
-				*s = addchar(*q++, *s, cap, siz);
+				addchar(*q++, s);
 			break;
 		default:
 		copy_char:
-			*s = addchar(c, *s, cap, siz);
+			addchar(c, s);
 			break;
 		}
 	}
@@ -1011,22 +1075,21 @@ static void
 subline(int num, int nth)
 {
 	int i, m, changed;
-	static char *s;
-	static size_t siz, cap;
+	static String s;
 
-	i = changed = siz = 0;
+	i = changed = s.siz = 0;
 	for (m = match(num); m; m = rematch(num)) {
-		addpre(&s, &cap, &siz);
-		changed |= addsub(&s, &cap, &siz, nth, ++i);
+		addpre(&s);
+		changed |= addsub(&s, nth, ++i);
 		if (eol || bol)
 			break;
 	}
 	if (!changed)
 		return;
-	addpost(&s, &cap, &siz);
+	addpost(&s);
 	delete(num, num);
 	curln = prevln(num);
-	inject(s, 0);
+	inject(s.str, AFTER);
 }
 
 static void
@@ -1062,7 +1125,7 @@ repeat:
 		execsh();
 		break;
 	case EOF:
-		if (cmdsiz == 0)
+		if (cmdline.siz == 0)
 			quit();
 	case '\n':
 		if (gflag && uflag)
@@ -1258,8 +1321,8 @@ save_last_cmd:
 	if (rep)
 		return;
 	free(ocmdline);
-	cmdline = addchar('\0', cmdline, &cmdcap, &cmdsiz);
-	if ((ocmdline = strdup(cmdline)) == NULL)
+	addchar('\0', &cmdline);
+	if ((ocmdline = strdup(cmdline.str)) == NULL)
 		error("out of memory");
 }
 
@@ -1306,26 +1369,32 @@ chkglobal(void)
 static void
 doglobal(void)
 {
-	int i, k;
+	int cnt, ln, k;
 
 	skipblank();
-	cmdsiz = 0;
+	cmdline.siz = 0;
 	gflag = 1;
 	if (uflag)
 		chkprint(0);
 
-	for (i = 1; i <= lastln; i++) {
-		k = getindex(i);
-		if (!zero[k].global)
-			continue;
-		curln = i;
-		nlines = 0;
-		if (uflag) {
-			line1 = line2 = i;
-			pflag = 0;
-			doprint();
+	ln = line1;
+	for (cnt = 0; cnt < lastln; ) {
+		k = getindex(ln);
+		if (zero[k].global) {
+			zero[k].global = 0;
+			curln = ln;
+			nlines = 0;
+			if (uflag) {
+				line1 = line2 = ln;
+				pflag = 0;
+				doprint();
+			}
+			getlst();
+			docmd();
+		} else {
+			cnt++;
+			ln = nextln(ln);
 		}
-		docmd();
 	}
 	discard();   /* cover the case of not matching anything */
 }
@@ -1368,11 +1437,11 @@ sighup(int dummy)
 static void
 edit(void)
 {
-	setjmp(savesp);
 	for (;;) {
 		newcmd = 1;
 		ocurln = curln;
-		cmdsiz = 0;
+		olastln = lastln;
+		cmdline.siz = 0;
 		repidx = -1;
 		if (optprompt) {
 			fputs(prompt, stdout);
@@ -1388,8 +1457,6 @@ init(char *fname)
 {
 	size_t len;
 
-	if (setjmp(savesp))
-		return;
 	setscratch();
 	if (!fname)
 		return;
@@ -1418,11 +1485,12 @@ main(int argc, char *argv[])
 	if (argc > 1)
 		usage();
 
-	signal(SIGINT, sigintr);
-	signal(SIGHUP, sighup);
-	signal(SIGQUIT, SIG_IGN);
-
-	init(*argv);
+	if (!setjmp(savesp)) {
+		signal(SIGINT, sigintr);
+		signal(SIGHUP, sighup);
+		signal(SIGQUIT, SIG_IGN);
+		init(*argv);
+	}
 	edit();
 
 	/* not reached */
