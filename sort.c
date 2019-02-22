@@ -177,7 +177,7 @@ static int
 slinecmp(struct line *a, struct line *b)
 {
 	int res = 0;
-	long double x, y;
+	double x, y;
 	struct keydef *kd;
 
 	TAILQ_FOREACH(kd, &kdhead, entry) {
@@ -190,8 +190,8 @@ slinecmp(struct line *a, struct line *b)
 		    TAILQ_LAST(&kdhead, kdhead) != TAILQ_FIRST(&kdhead)) {
 			res = 0;
 		} else if (kd->flags & MOD_N) {
-			x = strtold(col1.line.data, NULL);
-			y = strtold(col2.line.data, NULL);
+			x = strtod(col1.line.data, NULL);
+			y = strtod(col2.line.data, NULL);
 			res = (x < y) ? -1 : (x > y);
 		} else if (kd->flags & (MOD_D | MOD_F | MOD_I)) {
 			res = skipmodcmp(&col1.line, &col2.line, kd->flags);
