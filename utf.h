@@ -32,7 +32,7 @@ enum {
 int runetochar(char *, const Rune *);
 int chartorune(Rune *, const char *);
 int charntorune(Rune *, const char *, size_t);
-int runelen(const Rune);
+int runelen(Rune);
 size_t runenlen(const Rune *, size_t);
 int fullrune(const char *, size_t);
 char *utfecpy(char *, char *, const char *);
