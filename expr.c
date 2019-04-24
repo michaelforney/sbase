@@ -194,8 +194,8 @@ lex(char *s, struct val *v)
 static int
 parse(char *expr[], int numexpr)
 {
-	struct val valhead[numexpr], *valp = valhead, v = { .str = NULL, .num = 0 };
-	int ophead[numexpr], *opp = ophead, type, lasttype = 0;
+	struct val *valhead, *valp, v = { .str = NULL, .num = 0 };
+	int *ophead, *opp, type, lasttype = 0;
 	char prec[] = {
 		[ 0 ] = 0, [VAL] = 0, ['('] = 0, [')'] = 0,
 		['|'] = 1,
@@ -206,6 +206,8 @@ parse(char *expr[], int numexpr)
 		[':'] = 6,
 	};
 
+	valp = valhead = enreallocarray(3, NULL, numexpr, sizeof(*valp));
+	opp = ophead = enreallocarray(3, NULL, numexpr, sizeof(*opp));
 	for (; *expr; expr++) {
 		switch ((type = lex(*expr, &v))) {
 		case VAL:

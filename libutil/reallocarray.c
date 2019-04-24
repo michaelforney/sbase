@@ -41,10 +41,16 @@ reallocarray(void *optr, size_t nmemb, size_t size)
 void *
 ereallocarray(void *optr, size_t nmemb, size_t size)
 {
+	return enreallocarray(1, optr, nmemb, size);
+}
+
+void *
+enreallocarray(int status, void *optr, size_t nmemb, size_t size)
+{
 	void *p;
 
 	if (!(p = reallocarray(optr, nmemb, size)))
-		eprintf("reallocarray: out of memory\n");
+		enprintf(status, "reallocarray: out of memory\n");
 
 	return p;
 }

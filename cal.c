@@ -109,7 +109,7 @@ drawcal(size_t year, int month, size_t ncols, size_t nmons, int fday)
 				cur_month -= 12;
 				cur_year += 1;
 			}
-			printf("   %s %zu    ", smon[cur_month], cur_year);
+			printf("   %s %-4zu    ", smon[cur_month], cur_year);
 			printf("  ");
 		}
 		putchar('\n');

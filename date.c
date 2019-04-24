@@ -66,7 +66,7 @@ main(int argc, char *argv[])
 {
 	struct tm *now;
 	time_t t;
-	char buf[BUFSIZ], *fmt = "%c";
+	char buf[BUFSIZ], *fmt = "%a %b %e %H:%M:%S %Z %Y";
 
 	t = time(NULL);
 	if (t == -1)
