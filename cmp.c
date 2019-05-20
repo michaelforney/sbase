@@ -57,7 +57,7 @@ main(int argc, char *argv[])
 			continue;
 		} else if (b[0] == EOF || b[1] == EOF) {
 			if (!sflag)
-				weprintf("cmp: EOF on %s\n", argv[(b[0] != EOF)]);
+				weprintf("EOF on %s\n", argv[(b[0] != EOF)]);
 			same = 0;
 			break;
 		} else if (!lflag) {
