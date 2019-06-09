@@ -14,7 +14,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	mode_t mode = 0, mask;
+	mode_t mode = 0666, mask;
 	int mflag = 0, ret = 0;
 
 	ARGBEGIN {
