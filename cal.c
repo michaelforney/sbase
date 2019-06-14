@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -93,12 +94,13 @@ printgrid(size_t year, int month, int fday, int line)
 static void
 drawcal(size_t year, int month, size_t ncols, size_t nmons, int fday)
 {
-	char *smon[] = {"  January", " February", "    March", "    April",
-	                "      May", "     June", "     July", "   August",
-	                "September", "  October", " November", " December" };
+	char *smon[] = { "January", "February", "March", "April",
+	                 "May", "June", "July", "August",
+	                 "September", "October", "November", "December" };
 	char *days[] = { "Su", "Mo", "Tu", "We", "Th", "Fr", "Sa", };
 	size_t m, n, col, cur_year, cur_month, dow;
-	int line;
+	int line, pad;
+	char month_year[sizeof("Su Mo Tu We Th Fr Sa")];
 
 	for (m = 0; m < nmons; ) {
 		n = m;
@@ -109,8 +111,9 @@ drawcal(size_t year, int month, size_t ncols, size_t nmons, int fday)
 				cur_month -= 12;
 				cur_year += 1;
 			}
-			printf("   %s %-4zu    ", smon[cur_month], cur_year);
-			printf("  ");
+			snprintf(month_year, sizeof(month_year), "%s %zu", smon[cur_month], cur_year);
+			pad = sizeof(month_year) - 1 - strlen(month_year);
+			printf("%*s%s%*s   ", pad / 2 + pad % 2, "", month_year, pad / 2, "");
 		}
 		putchar('\n');
 		for (col = 0, m = n; m < nmons && col < ncols; ++col, ++m) {

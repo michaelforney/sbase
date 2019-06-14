@@ -370,12 +370,17 @@ compile(char *s, int isfile)
 {
 	FILE *f;
 
-	if (!isfile && !*s) /* empty string script */
-		return;
-
-	f = isfile ? fopen(s, "r") : fmemopen(s, strlen(s), "r");
-	if (!f)
-		eprintf("fopen/fmemopen:");
+	if (isfile) {
+		f = fopen(s, "r");
+		if (!f)
+			eprintf("fopen %s:", s);
+	} else {
+		if (!*s) /* empty string script */
+			return;
+		f = fmemopen(s, strlen(s), "r");
+		if (!f)
+			eprintf("fmemopen:");
+	}
 
 	/* NOTE: get arg functions can't use genbuf */
 	while (read_line(f, &genbuf) != EOF) {

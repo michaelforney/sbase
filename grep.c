@@ -135,6 +135,7 @@ grep(FILE *fp, const char *str)
 			}
 		}
 		if (match != vflag) {
+			result = Match;
 			switch (mode) {
 			case 'c':
 				c++;
@@ -152,7 +153,6 @@ grep(FILE *fp, const char *str)
 				puts(buf);
 				break;
 			}
-			result = Match;
 		}
 	}
 	if (mode == 'c')

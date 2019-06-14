@@ -47,16 +47,20 @@ void weprintf(const char *, ...);
 double estrtod(const char *);
 
 #undef strcasestr
+#define strcasestr xstrcasestr
 char *strcasestr(const char *, const char *);
 
 #undef strlcat
+#define strlcat xstrlcat
 size_t strlcat(char *, const char *, size_t);
 size_t estrlcat(char *, const char *, size_t);
 #undef strlcpy
+#define strlcpy xstrlcpy
 size_t strlcpy(char *, const char *, size_t);
 size_t estrlcpy(char *, const char *, size_t);
 
 #undef strsep
+#define strsep xstrsep
 char *strsep(char **, const char *);
 
 /* regex */
@@ -76,10 +80,12 @@ mode_t parsemode(const char *, mode_t, mode_t);
 off_t parseoffset(const char *);
 void putword(FILE *, const char *);
 #undef strtonum
+#define strtonum xstrtonum
 long long strtonum(const char *, long long, long long, const char **);
 long long enstrtonum(int, const char *, long long, long long);
 long long estrtonum(const char *, long long, long long);
 size_t unescape(char *);
 int mkdirp(const char *, mode_t, mode_t);
 #undef memmem
+#define memmem xmemmem
 void *memmem(const void *, size_t, const void *, size_t);
