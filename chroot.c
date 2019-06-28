@@ -17,7 +17,10 @@ main(int argc, char *argv[])
 	char *shell[] = { "/bin/sh", "-i", NULL }, *aux, *cmd;
 	int savederrno;
 
-	argv0 = *argv, argv0 ? (argc--, argv++) : (void *)0;
+	ARGBEGIN {
+	default:
+		usage();
+	} ARGEND
 
 	if (!argc)
 		usage();

@@ -19,7 +19,10 @@ main(int argc, char *argv[])
 {
 	int fd, savederrno;
 
-	argv0 = *argv, argv0 ? (argc--, argv++) : (void *)0;
+	ARGBEGIN {
+	default:
+		usage();
+	} ARGEND
 
 	if (!argc)
 		usage();
