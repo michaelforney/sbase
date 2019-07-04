@@ -67,13 +67,13 @@ main(int argc, char *argv[])
 		usage();
 
 	errno = 0;
-	if (!(gr = getgrnam(argv[0]))) {
+	if ((gr = getgrnam(argv[0]))) {
+		gid = gr->gr_gid;
+	} else {
 		if (errno)
 			eprintf("getgrnam %s:", argv[0]);
-		else
-			eprintf("getgrnam %s: no such group\n", argv[0]);
+		gid = estrtonum(argv[0], 0, UINT_MAX);
 	}
-	gid = gr->gr_gid;
 
 	for (argc--, argv++; *argv; argc--, argv++)
 		recurse(*argv, NULL, &r);
