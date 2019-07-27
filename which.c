@@ -20,7 +20,7 @@ canexec(int fd, const char *name)
 
 	if (fstatat(fd, name, &st, 0) < 0 || !S_ISREG(st.st_mode))
 		return 0;
-	return faccessat(fd, name, X_OK, 0) == 0;
+	return faccessat(fd, name, X_OK, AT_EACCESS) == 0;
 }
 
 static int
