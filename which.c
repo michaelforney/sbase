@@ -43,7 +43,7 @@ which(const char *path, const char *name)
 		if (ptr[i] != ':' && ptr[i] != '\0')
 			continue;
 		ptr[i] = '\0';
-		if ((dirfd = open(p, O_RDONLY, 0)) >= 0) {
+		if ((dirfd = open(p, O_RDONLY)) >= 0) {
 			if (canexec(dirfd, name)) {
 				found = 1;
 				fputs(p, stdout);
