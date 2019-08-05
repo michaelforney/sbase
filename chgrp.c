@@ -18,7 +18,7 @@ chgrp(const char *path, struct stat *st, void *data, struct recursor *r)
 	char *chownf_name;
 	int (*chownf)(const char *, uid_t, gid_t);
 
-	if (r->follow == 'P' || (r->follow == 'H' && r->depth) || (hflag && !(r->depth))) {
+	if ((r->maxdepth == 0 && r->follow == 'P') || (r->follow == 'H' && r->depth) || (hflag && !(r->depth))) {
 		chownf_name = "lchown";
 		chownf = lchown;
 	} else {
@@ -67,13 +67,13 @@ main(int argc, char *argv[])
 		usage();
 
 	errno = 0;
-	if (!(gr = getgrnam(argv[0]))) {
+	if ((gr = getgrnam(argv[0]))) {
+		gid = gr->gr_gid;
+	} else {
 		if (errno)
 			eprintf("getgrnam %s:", argv[0]);
-		else
-			eprintf("getgrnam %s: no such group\n", argv[0]);
+		gid = estrtonum(argv[0], 0, UINT_MAX);
 	}
-	gid = gr->gr_gid;
 
 	for (argc--, argv++; *argv; argc--, argv++)
 		recurse(*argv, NULL, &r);

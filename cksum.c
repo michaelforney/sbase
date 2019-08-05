@@ -92,12 +92,21 @@ cksum(int fd, const char *s)
 	putchar('\n');
 }
 
+static void
+usage(void)
+{
+	eprintf("usage: %s [file ...]\n", argv0);
+}
+
 int
 main(int argc, char *argv[])
 {
 	int fd;
 
-	argv0 = *argv, argv0 ? (argc--, argv++) : (void *)0;
+	ARGBEGIN {
+	default:
+		usage();
+	} ARGEND
 
 	if (!argc) {
 		cksum(0, NULL);

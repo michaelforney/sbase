@@ -188,7 +188,7 @@ main(int argc, char *argv[])
 	ARGBEGIN {
 	default:
 		usage();
-	} ARGEND;
+	} ARGEND
 
 	if (argc > 1)
 		usage();

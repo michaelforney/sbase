@@ -16,7 +16,10 @@ main(int argc, char *argv[])
 {
 	char host[HOST_NAME_MAX + 1];
 
-	argv0 = *argv, argv0 ? (argc--, argv++) : (void *)0;
+	ARGBEGIN {
+	default:
+		usage();
+	} ARGEND
 
 	if (!argc) {
 		if (gethostname(host, sizeof(host)) < 0)

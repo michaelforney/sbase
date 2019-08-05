@@ -1,8 +1,39 @@
 sbase - suckless unix tools
 ===========================
 
-sbase  is a  collection of  unix  tools that  are inherently  portable
-across UNIX and UNIX-like systems.
+sbase is a collection of unix tools that are inherently portable across
+UNIX and UNIX-like systems.
+
+The complement of sbase is ubase[1] which is Linux-specific and provides
+all the non-portable tools. Together they are intended to form a base
+system similar to busybox but much smaller and suckless.
+
+Building
+--------
+
+To build sbase, simply type make. You may have to fiddle with config.mk
+depending on your system.
+
+You can also build sbase-box, which generates a single binary containing
+all the required tools. You can then symlink the individual tools to
+sbase-box or run: make sbase-box-install
+
+Ideally you will want to statically link sbase. If you are on Linux we
+recommend using musl-libc[2].
+
+Portability
+-----------
+
+sbase has been compiled on a variety of different operating systems,
+including Linux, *BSD, OSX, Haiku, Solaris, SCO OpenServer and others.
+
+Various combinations of operating systems and architectures have also
+been built.
+
+You can build sbase with gcc, clang, tcc, nwcc and pcc.
+
+Status
+------
 
 The following tools are implemented:
 
@@ -107,34 +138,6 @@ The following tools are implemented:
 0=*|x whoami          .
 0=*|o xargs           (-p)
 0=*|x yes             .
-
-The  complement of  sbase  is  ubase[1] which  is  Linux-specific  and
-provides all  the non-portable tools.   Together they are  intended to
-form a base system similar to busybox but much smaller and suckless.
-
-Building
---------
-
-To  build sbase,  simply  type  make.  You  may  have  to fiddle  with
-config.mk depending on your system.
-
-You  can  also  build  sbase-box,  which  generates  a  single  binary
-containing  all  the  required  tools.    You  can  then  symlink  the
-individual tools to sbase-box or run: make sbase-box-install
-
-Ideally you will  want to statically link sbase.  If  you are on Linux
-we recommend using musl-libc[2].
-
-Portability
------------
-
-sbase has been  compiled on a variety of  different operating systems,
-including Linux, *BSD, OSX, Haiku, Solaris, SCO OpenServer and others.
-
-Various combinations of operating  systems and architectures have also
-been built.
-
-You can build sbase with gcc, clang, tcc, nwcc and pcc.
 
 [1] http://git.suckless.org/ubase/
 [2] http://www.musl-libc.org/

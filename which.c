@@ -20,7 +20,7 @@ canexec(int fd, const char *name)
 
 	if (fstatat(fd, name, &st, 0) < 0 || !S_ISREG(st.st_mode))
 		return 0;
-	return faccessat(fd, name, X_OK, 0) == 0;
+	return faccessat(fd, name, X_OK, AT_EACCESS) == 0;
 }
 
 static int
@@ -43,7 +43,7 @@ which(const char *path, const char *name)
 		if (ptr[i] != ':' && ptr[i] != '\0')
 			continue;
 		ptr[i] = '\0';
-		if ((dirfd = open(p, O_RDONLY, 0)) >= 0) {
+		if ((dirfd = open(p, O_RDONLY)) >= 0) {
 			if (canexec(dirfd, name)) {
 				found = 1;
 				fputs(p, stdout);
