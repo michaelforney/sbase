@@ -1,7 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 #include <sys/stat.h>
 #include <sys/types.h>
-#ifdef __GLIBC__
+#ifndef major
 #include <sys/sysmacros.h>
 #endif
 
