@@ -2,6 +2,7 @@
 #include <sys/stat.h>
 
 #include <errno.h>
+#include <fcntl.h>
 #include <grp.h>
 #include <unistd.h>
 
@@ -15,19 +16,13 @@ static int   ret = 0;
 static void
 chgrp(const char *path, struct stat *st, void *data, struct recursor *r)
 {
-	char *chownf_name;
-	int (*chownf)(const char *, uid_t, gid_t);
+	int flags = 0;
 
-	if ((r->maxdepth == 0 && r->follow == 'P') || (r->follow == 'H' && r->depth) || (hflag && !(r->depth))) {
-		chownf_name = "lchown";
-		chownf = lchown;
-	} else {
-		chownf_name = "chown";
-		chownf = chown;
-	}
+	if ((r->maxdepth == 0 && r->follow == 'P') || (r->follow == 'H' && r->depth) || (hflag && !(r->depth)))
+		flags |= AT_SYMLINK_NOFOLLOW;
 
-	if (chownf(path, -1, gid) < 0) {
-		weprintf("%s %s:", chownf_name, path);
+	if (fchownat(AT_FDCWD, path, -1, gid, flags) < 0) {
+		weprintf("chown %s:", path);
 		ret = 1;
 	} else if (S_ISDIR(st->st_mode)) {
 		recurse(path, NULL, r);

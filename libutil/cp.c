@@ -26,24 +26,18 @@ int
 cp(const char *s1, const char *s2, int depth)
 {
 	DIR *dp;
-	int f1, f2;
+	int f1, f2, flags = 0;
 	struct dirent *d;
 	struct stat st;
 	struct timespec times[2];
 	ssize_t r;
-	int (*statf)(const char *, struct stat *);
-	char target[PATH_MAX], ns1[PATH_MAX], ns2[PATH_MAX], *statf_name;
+	char target[PATH_MAX], ns1[PATH_MAX], ns2[PATH_MAX];
 
-	if (cp_follow == 'P' || (cp_follow == 'H' && depth)) {
-		statf_name = "lstat";
-		statf = lstat;
-	} else {
-		statf_name = "stat";
-		statf = stat;
-	}
+	if (cp_follow == 'P' || (cp_follow == 'H' && depth))
+		flags |= AT_SYMLINK_NOFOLLOW;
 
-	if (statf(s1, &st) < 0) {
-		weprintf("%s %s:", statf_name, s1);
+	if (fstatat(AT_FDCWD, s1, &st, flags) < 0) {
+		weprintf("stat %s:", s1);
 		cp_status = 1;
 		return 0;
 	}
