@@ -26,7 +26,7 @@ chgrp(const char *path, struct stat *st, void *data, struct recursor *r)
 		chownf = chown;
 	}
 
-	if (chownf(path, st->st_uid, gid) < 0) {
+	if (chownf(path, -1, gid) < 0) {
 		weprintf("%s %s:", chownf_name, path);
 		ret = 1;
 	} else if (S_ISDIR(st->st_mode)) {
