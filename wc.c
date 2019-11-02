@@ -17,17 +17,17 @@ output(const char *str, size_t nc, size_t nl, size_t nw)
 	if (lflag) {
 		if (!first)
 			putchar(' ');
-		printf("%*.1zu", first ? (first = 0) : 6, nl);
+		printf("%*zu", first ? (first = 0) : 6, nl);
 	}
 	if (wflag) {
 		if (!first)
 			putchar(' ');
-		printf("%*.1zu", first ? (first = 0) : 6, nw);
+		printf("%*zu", first ? (first = 0) : 6, nw);
 	}
 	if (cmode) {
 		if (!first)
 			putchar(' ');
-		printf("%*.1zu", first ? (first = 0) : 6, nc);
+		printf("%*zu", first ? (first = 0) : 6, nc);
 	}
 	if (str)
 		printf(" %s", str);
