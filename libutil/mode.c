@@ -26,20 +26,7 @@ parsemode(const char *str, mode_t mode, mode_t mask)
 	if (*end == '\0') {
 		if (octal < 0 || octal > 07777)
 			eprintf("%s: invalid mode\n", str);
-		mode = 0;
-		if (octal & 04000) mode |= S_ISUID;
-		if (octal & 02000) mode |= S_ISGID;
-		if (octal & 01000) mode |= S_ISVTX;
-		if (octal & 00400) mode |= S_IRUSR;
-		if (octal & 00200) mode |= S_IWUSR;
-		if (octal & 00100) mode |= S_IXUSR;
-		if (octal & 00040) mode |= S_IRGRP;
-		if (octal & 00020) mode |= S_IWGRP;
-		if (octal & 00010) mode |= S_IXGRP;
-		if (octal & 00004) mode |= S_IROTH;
-		if (octal & 00002) mode |= S_IWOTH;
-		if (octal & 00001) mode |= S_IXOTH;
-		return mode;
+		return octal;
 	}
 next:
 	/* first, determine which bits we will be modifying */
