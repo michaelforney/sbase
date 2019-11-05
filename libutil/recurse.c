@@ -40,7 +40,7 @@ recurse(const char *path, void *data, struct recursor *r)
 		return;
 	}
 	if (!S_ISDIR(st.st_mode)) {
-		(r->fn)(path, &st, data, r);
+		r->fn(path, &st, data, r);
 		return;
 	}
 
@@ -55,7 +55,7 @@ recurse(const char *path, void *data, struct recursor *r)
 			return;
 
 	if (!r->depth && (r->flags & DIRFIRST))
-		(r->fn)(path, &st, data, r);
+		r->fn(path, &st, data, r);
 
 	if (!r->maxdepth || r->depth + 1 < r->maxdepth) {
 		if (!(dp = opendir(path))) {
@@ -85,7 +85,7 @@ recurse(const char *path, void *data, struct recursor *r)
 				continue;
 			} else {
 				r->depth++;
-				(r->fn)(subpath, &dst, data, r);
+				r->fn(subpath, &dst, data, r);
 				r->depth--;
 			}
 		}
@@ -94,7 +94,7 @@ recurse(const char *path, void *data, struct recursor *r)
 
 	if (!r->depth) {
 		if (!(r->flags & DIRFIRST))
-			(r->fn)(path, &st, data, r);
+			r->fn(path, &st, data, r);
 
 		for (; r->hist; ) {
 			h = r->hist;

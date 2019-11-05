@@ -13,7 +13,7 @@ chmodr(const char *path, struct stat *st, void *data, struct recursor *r)
 {
 	mode_t m;
 
-	m = parsemode(modestr, st->st_mode, mask);
+	m = parsemode(modestr, st->st_mode & ~S_IFMT, mask);
 	if (chmod(path, m) < 0) {
 		weprintf("chmod %s:", path);
 		ret = 1;

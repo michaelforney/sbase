@@ -12,23 +12,22 @@ static size_t tc = 0, tl = 0, tw = 0;
 static void
 output(const char *str, size_t nc, size_t nl, size_t nw)
 {
-	int noflags = !cmode && !lflag && !wflag;
 	int first = 1;
 
-	if (lflag || noflags) {
+	if (lflag) {
 		if (!first)
 			putchar(' ');
-		printf("%*.1zu", first ? (first = 0) : 6, nl);
+		printf("%*zu", first ? (first = 0) : 6, nl);
 	}
-	if (wflag || noflags) {
+	if (wflag) {
 		if (!first)
 			putchar(' ');
-		printf("%*.1zu", first ? (first = 0) : 6, nw);
+		printf("%*zu", first ? (first = 0) : 6, nw);
 	}
-	if (cmode || noflags) {
+	if (cmode) {
 		if (!first)
 			putchar(' ');
-		printf("%*.1zu", first ? (first = 0) : 6, nc);
+		printf("%*zu", first ? (first = 0) : 6, nc);
 	}
 	if (str)
 		printf(" %s", str);
@@ -43,7 +42,7 @@ wc(FILE *fp, const char *str)
 	size_t nc = 0, nl = 0, nw = 0;
 
 	while ((rlen = efgetrune(&c, fp, str))) {
-		nc += (cmode == 'c' || !cmode) ? rlen : (c != Runeerror);
+		nc += (cmode == 'c') ? rlen : (c != Runeerror);
 		if (c == '\n')
 			nl++;
 		if (!isspacerune(c))
@@ -90,6 +89,12 @@ main(int argc, char *argv[])
 	default:
 		usage();
 	} ARGEND
+
+	if (!lflag && !wflag && !cmode) {
+		cmode = 'c';
+		lflag = 1;
+		wflag = 1;
+	}
 
 	if (!argc) {
 		wc(stdin, NULL);
