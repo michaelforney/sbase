@@ -45,6 +45,9 @@ main(int argc, char *argv[])
 	if (argc < 2)
 		usage();
 
+	if (!cp_follow)
+		cp_follow = cp_rflag ? 'P' : 'L';
+
 	if (argc > 2) {
 		if (stat(argv[argc - 1], &st) < 0)
 			eprintf("stat %s:", argv[argc - 1]);
