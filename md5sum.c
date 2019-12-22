@@ -28,6 +28,10 @@ main(int argc, char *argv[])
 	uint8_t md[MD5_DIGEST_LENGTH];
 
 	ARGBEGIN {
+	case 'b':
+	case 't':
+		/* ignore */
+		break;
 	case 'c':
 		cryptfunc = cryptcheck;
 		break;

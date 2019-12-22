@@ -27,6 +27,10 @@ main(int argc, char *argv[])
 	uint8_t md[SHA256_DIGEST_LENGTH];
 
 	ARGBEGIN {
+	case 'b':
+	case 't':
+		/* ignore */
+		break;
 	case 'c':
 		cryptfunc = cryptcheck;
 		break;
