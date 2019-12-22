@@ -20,7 +20,7 @@ int cp_pflag  = 0;
 int cp_rflag  = 0;
 int cp_vflag  = 0;
 int cp_status = 0;
-int cp_follow = 'L';
+int cp_follow;
 
 int
 cp(const char *s1, const char *s2, int depth)

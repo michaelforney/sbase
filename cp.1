@@ -48,9 +48,12 @@ Dereference
 if it is a symbolic link.
 .It Fl L
 Dereference all symbolic links.
-This is the default.
+This is the default without
+.Fl R .
 .It Fl P
 Preserve symbolic links.
+This is the default with
+.Fl R .
 .It Fl R
 Traverse directories recursively. If this flag is not specified, directories
 are not copied.
