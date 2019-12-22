@@ -14,7 +14,7 @@ chmodr(const char *path, struct stat *st, void *data, struct recursor *r)
 	mode_t m;
 
 	m = parsemode(modestr, st->st_mode, mask);
-	if (chmod(path, m) < 0) {
+	if (!S_ISLNK(st->st_mode) && chmod(path, m) < 0) {
 		weprintf("chmod %s:", path);
 		ret = 1;
 	} else if (S_ISDIR(st->st_mode)) {
@@ -25,14 +25,14 @@ chmodr(const char *path, struct stat *st, void *data, struct recursor *r)
 static void
 usage(void)
 {
-	eprintf("usage: %s [-R [-H | -L | -P]] mode file ...\n", argv0);
+	eprintf("usage: %s [-R] mode file ...\n", argv0);
 }
 
 int
 main(int argc, char *argv[])
 {
 	struct recursor r = { .fn = chmodr, .hist = NULL, .depth = 0, .maxdepth = 1,
-	                      .follow = 'P', .flags = DIRFIRST };
+	                      .follow = 'H', .flags = DIRFIRST };
 	size_t i;
 
 	argv0 = *argv, argv0 ? (argc--, argv++) : (void *)0;
@@ -44,11 +44,6 @@ main(int argc, char *argv[])
 			switch ((*argv)[i]) {
 			case 'R':
 				r.maxdepth = 0;
-				break;
-			case 'H':
-			case 'L':
-			case 'P':
-				r.follow = (*argv)[i];
 				break;
 			case 'r': case 'w': case 'x': case 'X': case 's': case 't':
 				/* -[rwxXst] are valid modes, so we're done */

@@ -1,4 +1,4 @@
-.Dd 2015-10-08
+.Dd 2019-12-21
 .Dt CHMOD 1
 .Os sbase
 .Sh NAME
@@ -6,10 +6,7 @@
 .Nd change file modes
 .Sh SYNOPSIS
 .Nm
-.Oo
-.Fl R
-.Op Fl H | L | P
-.Oc
+.Op Fl R
 .Ar mode
 .Ar file ...
 .Sh DESCRIPTION
@@ -58,19 +55,13 @@ read | write | execute | setuid and setgid | sticky
 .It X
 execute, if directory or at least one execute bit is already set
 .El
+.Pp
+Symbolic links are followed if they are passed as operands, and ignored
+if they are encountered during directory traversal.
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl R
 Change modes recursively.
-.It Fl H
-Dereference
-.Ar file
-if it is a symbolic link.
-.It Fl L
-Dereference all symbolic links.
-.It Fl P
-Preserve symbolic links.
-This is the default.
 .El
 .Sh SEE ALSO
 .Xr chgrp 1 ,
