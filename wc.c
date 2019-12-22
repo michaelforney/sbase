@@ -15,19 +15,19 @@ output(const char *str, size_t nc, size_t nl, size_t nw)
 	int first = 1;
 
 	if (lflag) {
-		if (!first)
-			putchar(' ');
-		printf("%*zu", first ? (first = 0) : 6, nl);
+		first = 0;
+		printf("%zu", nl);
 	}
 	if (wflag) {
 		if (!first)
 			putchar(' ');
-		printf("%*zu", first ? (first = 0) : 6, nw);
+		first = 0;
+		printf("%zu", nw);
 	}
 	if (cmode) {
 		if (!first)
 			putchar(' ');
-		printf("%*zu", first ? (first = 0) : 6, nc);
+		printf("%zu", nc);
 	}
 	if (str)
 		printf(" %s", str);
