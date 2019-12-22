@@ -368,14 +368,14 @@ print(char *fname, ssize_t l, char b[BLKSIZ])
 }
 
 static void
-c(const char *path, struct stat *st, void *data, struct recursor *r)
+c(int dirfd, const char *name, struct stat *st, void *data, struct recursor *r)
 {
-	archive(path);
+	archive(r->path);
 	if (vflag)
-		puts(path);
+		puts(r->path);
 
 	if (S_ISDIR(st->st_mode))
-		recurse(path, NULL, r);
+		recurse(dirfd, name, NULL, r);
 }
 
 static void
@@ -578,7 +578,7 @@ main(int argc, char *argv[])
 		if (chdir(dir) < 0)
 			eprintf("chdir %s:", dir);
 		for (; *argv; argc--, argv++)
-			recurse(*argv, NULL, &r);
+			recurse(AT_FDCWD, *argv, NULL, &r);
 		break;
 	case 't':
 	case 'x':

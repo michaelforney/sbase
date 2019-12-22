@@ -3,6 +3,7 @@
 #include <sys/types.h>
 
 #include <errno.h>
+#include <fcntl.h>
 #include <limits.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -35,19 +36,19 @@ nblks(blkcnt_t blocks)
 }
 
 static void
-du(const char *path, struct stat *st, void *data, struct recursor *r)
+du(int dirfd, const char *path, struct stat *st, void *data, struct recursor *r)
 {
 	off_t *total = data, subtotal;
 
 	subtotal = nblks(st->st_blocks);
 	if (S_ISDIR(st->st_mode))
-		recurse(path, &subtotal, r);
+		recurse(dirfd, path, &subtotal, r);
 	*total += subtotal;
 
 	if (!r->depth)
-		printpath(*total, path);
+		printpath(*total, r->path);
 	else if (!sflag && r->depth <= maxdepth && (S_ISDIR(st->st_mode) || aflag))
-		printpath(subtotal, path);
+		printpath(subtotal, r->path);
 }
 
 static void
@@ -104,11 +105,11 @@ main(int argc, char *argv[])
 		blksize = 1024;
 
 	if (!argc) {
-		recurse(".", &n, &r);
+		recurse(AT_FDCWD, ".", &n, &r);
 	} else {
 		for (; *argv; argc--, argv++) {
 			n = 0;
-			recurse(*argv, &n, &r);
+			recurse(AT_FDCWD, *argv, &n, &r);
 		}
 	}
 

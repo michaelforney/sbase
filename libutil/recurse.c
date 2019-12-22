@@ -16,27 +16,30 @@
 int recurse_status = 0;
 
 void
-recurse(const char *path, void *data, struct recursor *r)
+recurse(int dirfd, const char *name, void *data, struct recursor *r)
 {
 	struct dirent *d;
 	struct history *new, *h;
 	struct stat st, dst;
 	DIR *dp;
-	char subpath[PATH_MAX];
-	int flags = 0;
+	int flags = 0, fd;
+	size_t pathlen = r->pathlen;
+
+	if (dirfd == AT_FDCWD)
+		pathlen = estrlcpy(r->path, name, sizeof(r->path));
 
 	if (r->follow == 'P' || (r->follow == 'H' && r->depth))
 		flags |= AT_SYMLINK_NOFOLLOW;
 
-	if (fstatat(AT_FDCWD, path, &st, flags) < 0) {
+	if (fstatat(dirfd, name, &st, flags) < 0) {
 		if (!(r->flags & SILENT)) {
-			weprintf("stat %s:", path);
+			weprintf("stat %s:", r->path);
 			recurse_status = 1;
 		}
 		return;
 	}
 	if (!S_ISDIR(st.st_mode)) {
-		r->fn(path, &st, data, r);
+		r->fn(dirfd, name, &st, data, r);
 		return;
 	}
 
@@ -51,35 +54,39 @@ recurse(const char *path, void *data, struct recursor *r)
 			return;
 
 	if (!r->depth && (r->flags & DIRFIRST))
-		r->fn(path, &st, data, r);
+		r->fn(dirfd, name, &st, data, r);
 
 	if (!r->maxdepth || r->depth + 1 < r->maxdepth) {
-		if (!(dp = opendir(path))) {
+		fd = openat(dirfd, name, O_RDONLY | O_CLOEXEC | O_DIRECTORY);
+		if (fd < 0) {
+			weprintf("open %s:", r->path);
+			recurse_status = 1;
+		}
+		if (!(dp = fdopendir(fd))) {
 			if (!(r->flags & SILENT)) {
-				weprintf("opendir %s:", path);
+				weprintf("fdopendir:");
 				recurse_status = 1;
 			}
 			return;
 		}
+		if (r->path[pathlen - 1] != '/')
+			pathlen += estrlcpy(r->path + pathlen, "/", sizeof(r->path) - pathlen);
+		if (r->follow == 'H')
+			flags |= AT_SYMLINK_NOFOLLOW;
 		while ((d = readdir(dp))) {
-			if (r->follow == 'H')
-				flags |= AT_SYMLINK_NOFOLLOW;
 			if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
 				continue;
-			estrlcpy(subpath, path, sizeof(subpath));
-			if (path[strlen(path) - 1] != '/')
-				estrlcat(subpath, "/", sizeof(subpath));
-			estrlcat(subpath, d->d_name, sizeof(subpath));
-			if (fstatat(AT_FDCWD, subpath, &dst, flags) < 0) {
+			r->pathlen = pathlen + estrlcpy(r->path + pathlen, d->d_name, sizeof(r->path) - pathlen);
+			if (fstatat(fd, d->d_name, &dst, flags) < 0) {
 				if (!(r->flags & SILENT)) {
-					weprintf("stat %s:", subpath);
+					weprintf("stat %s:", r->path);
 					recurse_status = 1;
 				}
 			} else if ((r->flags & SAMEDEV) && dst.st_dev != st.st_dev) {
 				continue;
 			} else {
 				r->depth++;
-				r->fn(subpath, &dst, data, r);
+				r->fn(fd, d->d_name, &dst, data, r);
 				r->depth--;
 			}
 		}
@@ -88,7 +95,7 @@ recurse(const char *path, void *data, struct recursor *r)
 
 	if (!r->depth) {
 		if (!(r->flags & DIRFIRST))
-			r->fn(path, &st, data, r);
+			r->fn(dirfd, name, &st, data, r);
 
 		while (r->hist) {
 			h = r->hist;
