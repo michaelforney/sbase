@@ -6,10 +6,7 @@
 .Nd change file modes
 .Sh SYNOPSIS
 .Nm
-.Oo
-.Fl R
-.Op Fl H | L | P
-.Oc
+.Op Fl R
 .Ar mode
 .Ar file ...
 .Sh DESCRIPTION
@@ -56,18 +53,13 @@ add | remove | set
 .It r|w|x|s|t
 read | write | execute | setuid and setgid | sticky
 .El
+.Pp
+Symbolic links are followed if they are passed as operands, and ignored
+if they are encountered during directory traversal.
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl R
 Change modes recursively.
-.It Fl H
-Dereference
-.Ar file
-if it is a symbolic link.
-.It Fl L
-Dereference all symbolic links.
-.It Fl P
-Preserve symbolic links. This is the default.
 .El
 .Sh SEE ALSO
 .Xr chgrp 1 ,
