@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <limits.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -9,7 +10,9 @@ struct history {
 };
 
 struct recursor {
-	void (*fn)(const char *, struct stat *st, void *, struct recursor *);
+	void (*fn)(int, const char *, struct stat *, void *, struct recursor *);
+	char path[PATH_MAX];
+	size_t pathlen;
 	struct history *hist;
 	int depth;
 	int maxdepth;
@@ -37,7 +40,7 @@ extern int rm_status;
 
 extern int recurse_status;
 
-void recurse(const char *, void *, struct recursor *);
+void recurse(int, const char *, void *, struct recursor *);
 
 int cp(const char *, const char *, int);
-void rm(const char *, struct stat *st, void *, struct recursor *);
+void rm(int, const char *, struct stat *st, void *, struct recursor *);

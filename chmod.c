@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <fcntl.h>
 #include <sys/stat.h>
 
 #include "fs.h"
@@ -9,16 +10,16 @@ static mode_t mask    = 0;
 static int    ret     = 0;
 
 static void
-chmodr(const char *path, struct stat *st, void *data, struct recursor *r)
+chmodr(int dirfd, const char *name, struct stat *st, void *data, struct recursor *r)
 {
 	mode_t m;
 
 	m = parsemode(modestr, st->st_mode & ~S_IFMT, mask);
-	if (!S_ISLNK(st->st_mode) && chmod(path, m) < 0) {
-		weprintf("chmod %s:", path);
+	if (!S_ISLNK(st->st_mode) && fchmodat(dirfd, name, m, 0) < 0) {
+		weprintf("chmod %s:", r->path);
 		ret = 1;
 	} else if (r->depth && S_ISDIR(st->st_mode)) {
-		recurse(path, NULL, r);
+		recurse(dirfd, name, NULL, r);
 	}
 }
 
@@ -71,7 +72,7 @@ done:
 		usage();
 
 	for (--argc, ++argv; *argv; argc--, argv++)
-		recurse(*argv, NULL, &r);
+		recurse(AT_FDCWD, *argv, NULL, &r);
 
 	return ret || recurse_status;
 }

@@ -14,18 +14,17 @@ static gid_t gid = -1;
 static int   ret = 0;
 
 static void
-chgrp(const char *path, struct stat *st, void *data, struct recursor *r)
+chgrp(int dirfd, const char *name, struct stat *st, void *data, struct recursor *r)
 {
 	int flags = 0;
 
 	if ((r->maxdepth == 0 && r->follow == 'P') || (r->follow == 'H' && r->depth) || (hflag && !(r->depth)))
 		flags |= AT_SYMLINK_NOFOLLOW;
-
-	if (fchownat(AT_FDCWD, path, -1, gid, flags) < 0) {
-		weprintf("chown %s:", path);
+	if (fchownat(dirfd, name, -1, gid, flags) < 0) {
+		weprintf("chown %s:", r->path);
 		ret = 1;
 	} else if (r->depth && S_ISDIR(st->st_mode)) {
-		recurse(path, NULL, r);
+		recurse(dirfd, name, NULL, r);
 	}
 }
 
@@ -71,7 +70,7 @@ main(int argc, char *argv[])
 	}
 
 	for (argc--, argv++; *argv; argc--, argv++)
-		recurse(*argv, NULL, &r);
+		recurse(AT_FDCWD, *argv, NULL, &r);
 
 	return ret || recurse_status;
 }
