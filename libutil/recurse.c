@@ -96,7 +96,7 @@ recurse(const char *path, void *data, struct recursor *r)
 		if (!(r->flags & DIRFIRST))
 			r->fn(path, &st, data, r);
 
-		for (; r->hist; ) {
+		while (r->hist) {
 			h = r->hist;
 			r->hist = r->hist->prev;
 			free(h);
