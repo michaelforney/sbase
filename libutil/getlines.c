@@ -16,7 +16,7 @@ getlines(FILE *fp, struct linebuf *b)
 	while ((len = getline(&line, &size, fp)) > 0) {
 		if (++b->nlines > b->capacity) {
 			b->capacity += 512;
-			b->lines = erealloc(b->lines, b->capacity * sizeof(*b->lines));
+			b->lines = ereallocarray(b->lines, b->capacity, sizeof(*b->lines));
 		}
 		linelen = len;
 		b->lines[b->nlines - 1].data = memcpy(emalloc(linelen + 1), line, linelen + 1);
