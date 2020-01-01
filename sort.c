@@ -66,11 +66,10 @@ skipcolumn(struct line *a, int skip_to_next_col)
 
 	if (fieldsep) {
 		if ((s = memmem(a->data, a->len, fieldsep, fieldseplen))) {
-			if (skip_to_next_col) {
+			if (skip_to_next_col)
 				s += fieldseplen;
-				a->len -= s - a->data;
-				a->data = s;
-			}
+			a->len -= s - a->data;
+			a->data = s;
 		} else {
 			a->data += a->len - 1;
 			a->len = 1;
