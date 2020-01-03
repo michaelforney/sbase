@@ -385,7 +385,8 @@ main(int argc, char *argv[])
 	/* -b shall only apply to custom key definitions */
 	if (TAILQ_EMPTY(&kdhead) && global_flags)
 		addkeydef("1", global_flags & ~(MOD_STARTB | MOD_ENDB));
-	addkeydef("1", global_flags & MOD_R);
+	if (TAILQ_EMPTY(&kdhead) || (!Cflag && !cflag))
+		addkeydef("1", global_flags & MOD_R);
 
 	if (!argc) {
 		if (Cflag || cflag) {
