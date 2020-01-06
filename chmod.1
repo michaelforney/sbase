@@ -47,7 +47,7 @@ If
 .Ar mode
 is
 .Em symbolic
-"[ugoa]*[+-=][rwxst]*"
+"[ugoa]*[+-=][rwxXst]*"
 .Bl -tag -width Ds
 .It u|g|o|a
 owner | group | other (non-group) | everyone
@@ -55,6 +55,8 @@ owner | group | other (non-group) | everyone
 add | remove | set
 .It r|w|x|s|t
 read | write | execute | setuid and setgid | sticky
+.It X
+execute, if directory or at least one execute bit is already set
 .El
 .Sh OPTIONS
 .Bl -tag -width Ds

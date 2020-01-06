@@ -13,7 +13,7 @@ chmodr(const char *path, struct stat *st, void *data, struct recursor *r)
 {
 	mode_t m;
 
-	m = parsemode(modestr, st->st_mode & ~S_IFMT, mask);
+	m = parsemode(modestr, st->st_mode, mask);
 	if (chmod(path, m) < 0) {
 		weprintf("chmod %s:", path);
 		ret = 1;
@@ -50,8 +50,8 @@ main(int argc, char *argv[])
 			case 'P':
 				r.follow = (*argv)[i];
 				break;
-			case 'r': case 'w': case 'x': case 's': case 't':
-				/* -[rwxst] are valid modes, so we're done */
+			case 'r': case 'w': case 'x': case 'X': case 's': case 't':
+				/* -[rwxXst] are valid modes, so we're done */
 				if (i == 1)
 					goto done;
 				/* fallthrough */
