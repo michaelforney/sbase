@@ -198,6 +198,12 @@ main(int argc, char *argv[])
 	if (mflag)
 		mode = parsemode(mflag, mode, 0);
 
+	if (dflag) {
+		for (; *argv; argc--, argv++)
+			make_dirs(*argv, 0);
+		return 0;
+	}
+
 	if (tflag) {
 		argv = memmove(argv - 1, argv, argc * sizeof(*argv));
 		argv[argc++] = tflag;
@@ -213,24 +219,18 @@ main(int argc, char *argv[])
 			eprintf("%s: not a directory\n", argv[argc - 1]);
 		}
 	}
-
-	if (dflag) {
-		for (; *argv; argc--, argv++)
-			make_dirs(*argv, 0);
-	} else {
-		if (stat(argv[argc - 1], &st) < 0) {
-			if (errno != ENOENT)
-				eprintf("stat %s:", argv[argc - 1]);
-			if (tflag || Dflag || argc > 2) {
-				if ((p = strrchr(argv[argc - 1], '/')) != NULL) {
-					*p = '\0';
-					make_dirs(argv[argc - 1], 1);
-					*p = '/';
-				}
+	if (stat(argv[argc - 1], &st) < 0) {
+		if (errno != ENOENT)
+			eprintf("stat %s:", argv[argc - 1]);
+		if (tflag || Dflag || argc > 2) {
+			if ((p = strrchr(argv[argc - 1], '/')) != NULL) {
+				*p = '\0';
+				make_dirs(argv[argc - 1], 1);
+				*p = '/';
 			}
 		}
-		enmasse(argc, argv, install);
 	}
+	enmasse(argc, argv, install);
 
 	return 0;
 }
