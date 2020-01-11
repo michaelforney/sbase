@@ -113,6 +113,10 @@ next:
 				case 'x':
 					perm |= S_IXUSR|S_IXGRP|S_IXOTH;
 					break;
+				case 'X':
+					if (S_ISDIR(mode) || mode & (S_IXUSR|S_IXGRP|S_IXOTH))
+						perm |= S_IXUSR|S_IXGRP|S_IXOTH;
+					break;
 				case 's':
 					perm |= S_ISUID|S_ISGID;
 					break;
@@ -144,5 +148,5 @@ apply:
 			goto next;
 		}
 	}
-	return mode;
+	return mode & ~S_IFMT;
 }

@@ -204,7 +204,7 @@ makeline(char *s, int *off)
 	if (lastidx >= idxsize) {
 		lp = NULL;
 		if (idxsize <= SIZE_MAX - NUMLINES)
-		    lp = realloc(zero, (idxsize + NUMLINES) * sizeof(*lp));
+		    lp = reallocarray(zero, idxsize + NUMLINES, sizeof(*lp));
 		if (!lp)
 			error("out of memory");
 		idxsize += NUMLINES;

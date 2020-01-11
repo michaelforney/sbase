@@ -66,11 +66,10 @@ skipcolumn(struct line *a, int skip_to_next_col)
 
 	if (fieldsep) {
 		if ((s = memmem(a->data, a->len, fieldsep, fieldseplen))) {
-			if (skip_to_next_col) {
+			if (skip_to_next_col)
 				s += fieldseplen;
-				a->data = s;
-				a->len = a->len - (s - a->data);
-			}
+			a->len -= s - a->data;
+			a->data = s;
 		} else {
 			a->data += a->len - 1;
 			a->len = 1;
@@ -386,7 +385,8 @@ main(int argc, char *argv[])
 	/* -b shall only apply to custom key definitions */
 	if (TAILQ_EMPTY(&kdhead) && global_flags)
 		addkeydef("1", global_flags & ~(MOD_STARTB | MOD_ENDB));
-	addkeydef("1", global_flags & MOD_R);
+	if (TAILQ_EMPTY(&kdhead) || (!Cflag && !cflag))
+		addkeydef("1", global_flags & MOD_R);
 
 	if (!argc) {
 		if (Cflag || cflag) {

@@ -14,7 +14,7 @@ chmodr(int dirfd, const char *name, struct stat *st, void *data, struct recursor
 {
 	mode_t m;
 
-	m = parsemode(modestr, st->st_mode & ~S_IFMT, mask);
+	m = parsemode(modestr, st->st_mode, mask);
 	if (!S_ISLNK(st->st_mode) && fchmodat(dirfd, name, m, 0) < 0) {
 		weprintf("chmod %s:", r->path);
 		ret = 1;
@@ -46,8 +46,8 @@ main(int argc, char *argv[])
 			case 'R':
 				r.maxdepth = 0;
 				break;
-			case 'r': case 'w': case 'x': case 's': case 't':
-				/* -[rwxst] are valid modes, so we're done */
+			case 'r': case 'w': case 'x': case 'X': case 's': case 't':
+				/* -[rwxXst] are valid modes, so we're done */
 				if (i == 1)
 					goto done;
 				/* fallthrough */
