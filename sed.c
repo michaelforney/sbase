@@ -50,7 +50,7 @@ typedef struct {
 	enum {
 		IGNORE, /* empty address, ignore        */
 		EVERY , /* every line                   */
-		LINE  , /* ilne number                  */
+		LINE  , /* line number                  */
 		LAST  , /* last line ($)                */
 		REGEX , /* use included regex           */
 		LASTRE, /* use most recently used regex */
