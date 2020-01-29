@@ -6,7 +6,7 @@ ifdef() {
 	echo '};'
 }
 
-cat << EOF | ifdef confstr_l
+ifdef confstr_l << EOF
 PATH                           _CS_PATH
 POSIX_V7_ILP32_OFF32_CFLAGS    _CS_POSIX_V7_ILP32_OFF32_CFLAGS
 POSIX_V7_ILP32_OFF32_LDFLAGS   _CS_POSIX_V7_ILP32_OFF32_LDFLAGS
@@ -26,7 +26,7 @@ POSIX_V7_WIDTH_RESTRICTED_ENVS _CS_POSIX_V7_WIDTH_RESTRICTED_ENVS
 V7_ENV                         _CS_V7_ENV
 EOF
 
-cat << EOF | ifdef limits_l
+ifdef limits_l << EOF
 _POSIX_CLOCKRES_MIN                 _POSIX_CLOCKRES_MIN
 _POSIX_AIO_LISTIO_MAX               _POSIX_AIO_LISTIO_MAX
 _POSIX_AIO_MAX                      _POSIX_AIO_MAX
@@ -72,7 +72,7 @@ _POSIX2_LINE_MAX                    _POSIX2_LINE_MAX
 _POSIX2_RE_DUP_MAX                  _POSIX2_RE_DUP_MAX
 EOF
 
-cat << EOF | ifdef sysconf_l
+ifdef sysconf_l << EOF
 AIO_LISTIO_MAX                    _SC_AIO_LISTIO_MAX
 AIO_MAX                           _SC_AIO_MAX
 AIO_PRIO_DELTA_MAX                _SC_AIO_PRIO_DELTA_MAX
@@ -193,7 +193,7 @@ _XOPEN_UUCP                       _SC_XOPEN_UUCP
 _XOPEN_VERSION                    _SC_XOPEN_VERSION
 EOF
 
-cat << EOF | ifdef pathconf_l
+ifdef pathconf_l << EOF
 FILESIZEBITS                _PC_FILESIZEBITS
 LINK_MAX                    _PC_LINK_MAX
 MAX_CANON                   _PC_MAX_CANON
