@@ -1128,7 +1128,7 @@ next_file(void)
 			file = stdin;
 		} else if (!(file = fopen(*files, "r"))) {
 			/* warn this file didn't open, but move on to next */
-			weprintf("fopen:");
+			weprintf("fopen %s:", *files);
 			ret = 1;
 		}
 		files++;
