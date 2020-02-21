@@ -1119,23 +1119,20 @@ next_file(void)
 		clearerr(file);
 	else if (file)
 		fshut(file, "<file>");
-	file = NULL;
+	/* given no files, default to stdin */
+	file = first && !*files ? stdin : NULL;
+	first = 0;
 
-	do {
-		if (!*files) {
-			if (first) /* given no files, default to stdin */
-				file = stdin;
-			/* else we've used all our files, leave file = NULL */
-		} else if (!strcmp(*files, "-")) {
+	while (!file && *files) {
+		if (!strcmp(*files, "-")) {
 			file = stdin;
-			files++;
-		} else if (!(file = fopen(*files++, "r"))) {
+		} else if (!(file = fopen(*files, "r"))) {
 			/* warn this file didn't open, but move on to next */
 			weprintf("fopen:");
 			ret = 1;
 		}
-	} while (!file && *files);
-	first = 0;
+		files++;
+	}
 
 	return !file;
 }
