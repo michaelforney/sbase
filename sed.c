@@ -216,6 +216,7 @@ static size_t lineno;
 static regex_t *lastre; /* last used regex for empty regex search */
 static char   **files;  /* list of file names from argv */
 static FILE    *file;   /* current file we are reading */
+static int      ret;    /* exit status */
 
 static String patt, hold, genbuf;
 
@@ -1131,6 +1132,7 @@ next_file(void)
 		} else if (!(file = fopen(*files++, "r"))) {
 			/* warn this file didn't open, but move on to next */
 			weprintf("fopen:");
+			ret = 1;
 		}
 	} while (!file && *files);
 	first = 0;
@@ -1694,7 +1696,7 @@ int
 main(int argc, char *argv[])
 {
 	char *arg;
-	int ret = 0, script = 0;
+	int script = 0;
 
 	ARGBEGIN {
 	case 'n':
