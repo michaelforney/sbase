@@ -84,6 +84,7 @@ The following tools are implemented:
 0=*|x md5sum          .
 0=*|o mkdir           .
 0=*|o mkfifo          .
+0=*|x mknod           .
 0=*|x mktemp          .
 0=*|o mv              (-i)
 0=*|o nice            .

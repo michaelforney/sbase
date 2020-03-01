@@ -1,0 +1,37 @@
+.Dd 2015-02-02
+.Dt MKNOD 1
+.Os sbase
+.Sh NAME
+.Nm mknod
+.Nd create a special device file
+.Sh SYNOPSIS
+.Nm
+.Op Fl m Ar mode
+.Ar name
+.Ar type
+.Ar major
+.Ar minor
+.Sh DESCRIPTION
+.Nm
+creates a special device file named
+.Ar name
+with major number
+.Ar major ,
+and minor number
+.Ar minor .
+.Ar type
+specifies what kind of special file will be created and must be one of:
+.Bl -tag -width Ds
+.It Ar u | c
+A character device.
+.It Ar b
+A block device.
+.El
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl m
+Set the mode of the new file based on the octal value of
+.Ar mode .
+.El
+.Sh SEE ALSO
+.Xr mknod 2

@@ -125,6 +125,7 @@ BIN =\
 	md5sum\
 	mkdir\
 	mkfifo\
+	mknod\
 	mktemp\
 	mv\
 	nice\
