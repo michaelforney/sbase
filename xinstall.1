@@ -1,4 +1,4 @@
-.Dd 2016-24-27
+.Dd 2016-12-03
 .Dt INSTALL 1
 .Os sbase
 .Sh NAME
@@ -31,7 +31,8 @@ If more than one
 .Ar source
 is given
 .Ar dest
-is treated as a directory. Otherwise
+is treated as a directory.
+Otherwise
 .Ar dest
 is treated as a filename.
 .Nm
@@ -52,12 +53,13 @@ Change the installed files' group to
 .Ar group .
 This may be a group name or a group identifier.
 .It Fl m Ar mode
-Change the file modes. Both numerical and symbolic
-values are supported. See
+Change the file modes.
+Both numerical and symbolic values are supported.
+See
 .Xr chmod 1
 for the syntex.
-Default mode 0755. If a file has the mode 0644 and
-is copied with
+Default mode 0755.
+If a file has the mode 0644 and is copied with
 .It Fl o Ar owner
 Change the installed files' owner to
 .Ar owner .
@@ -68,8 +70,8 @@ Copy files into the directory
 .Nm install ,
 the copy's mode will be 0755 unless
 .Fl m
-is used to select another mode. When the symbolic
-notation is used, the base mode is 0000.
+is used to select another mode.
+When the symbolic notation is used, the base mode is 0000.
 .El
 .Sh SEE ALSO
 .Xr chmod 1 ,
@@ -79,6 +81,6 @@ notation is used, the base mode is 0000.
 .Sh STANDARDS
 The
 .Nm
-utility is not standardized. This implementation is a subset
-of the GNU implementation and a subset with extensions to
-the FreeBSD implementation.
+utility is not standardized.
+This implementation is a subset of the GNU implementation and a subset
+with extensions to the FreeBSD implementation.

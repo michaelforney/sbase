@@ -41,8 +41,8 @@ sign signals a user-defined format string using
 conversion specifications.
 .Pp
 An operand without a leading plus sign is interpreted as a value
-for setting the system's current date and time. The canonical
-representation for setting the date and time is:
+for setting the system's current date and time.
+The canonical representation for setting the date and time is:
 .Pp
 .Bl -tag -width Ds -compact -offset indent
 .It Ar mm
@@ -65,12 +65,14 @@ is not, a value for
 .Ar yy
 between 69 and 99 results in a
 .Ar CC
-value of 19. Otherwise, a
+value of 19.
+Otherwise, a
 .Ar CC
 value of 20 is used.
 .El
 .Pp
-The century and year are optional. The default is the current year.
+The century and year are optional.
+The default is the current year.
 .Sh STANDARDS
 The
 .Nm

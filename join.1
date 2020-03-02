@@ -19,8 +19,8 @@ lines from
 .Ar file1
 and
 .Ar file2
-on a matching field. If one of the input files is '-', standard input
-is read for that file.
+on a matching field.
+If one of the input files is '-', standard input is read for that file.
 .Pp
 Files are read sequentially and are assumed to be sorted on the join
 field.
@@ -31,9 +31,9 @@ produce unexpected output.
 By default, input lines are matched on the first blank-separated
 field; output lines are space-separated and consist of the join field
 followed by the remaining fields from
-.Ar file1 Ns ,
+.Ar file1 ,
 then the remaining fields from
-.Ar file2 Ns .
+.Ar file2 .
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl 1 Ar field
@@ -50,12 +50,12 @@ Print unpairable lines from file
 in addition to normal output.
 .It Fl e Ar string
 When used with
-.Fl o Ns ,
+.Fl o ,
 replace empty fields in the output list with
-.Ar string Ns .
+.Ar string .
 .It Fl o Ar list
 Format output according to the string
-.Ar list Ns .
+.Ar list .
 Each element of
 .Ar list
 may be either
@@ -63,22 +63,24 @@ may be either
 or 0 (representing the join field).
 Elements in
 .Ar list
-may be separated by blanks or commas. For example,
+may be separated by blanks or commas.
+For example,
 .Bd -literal -offset indent
 join -o "0 2.1 1.3"
 .Ed
 .Pp
 would print the join field, the first field of
-.Ar file2 Ns ,
+.Ar file2 ,
 then the third field of
-.Ar file1 Ns .
+.Ar file1 .
 .Pp
 Only paired lines are formatted with the
 .Fl o
-option. Unpairable lines (selected with
+option.
+Unpairable lines (selected with
 .Fl a
 or
-.Fl v Ns )
+.Fl v )
 are printed raw.
 .It Fl t Ar delim
 Use the arbitrary string
@@ -98,7 +100,7 @@ specification with the following exeption:
 .Bl -bullet -offset indent
 .It
 Unpairable lines ignore formatting specified with
-.Fl o Ns .
+.Fl o .
 .El
 .Pp
 The possibility of specifying multibyte delimiters of arbitrary

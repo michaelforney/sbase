@@ -103,4 +103,6 @@ main(int argc, char *argv[])
 	}
 
 	eprintf("invalid variable: %s\n", argv[0]);
+
+	return 0;
 }

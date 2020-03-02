@@ -22,7 +22,8 @@ Let
 be a non-elemental expression and
 .Sy expr1 ,
 .Sy expr2
-arbitrary expressions. Then
+arbitrary expressions.
+Then
 .Sy expr
 has the recursive form
 .Sy expr = [(] expr1 operand expr2 [)].
@@ -76,8 +77,9 @@ against
 is anchored with an implicit '^'.
 .Pp
 You can't directly match the empty string, since zero matched characters
-resolve equally to a failed match. To work around this limitation, use
-"expr X'' : 'X$' instead of "expr '' : '$'"
+resolve equally to a failed match.
+To work around this limitation, use "expr X'' : 'X$' instead of "expr ''
+: '$'"
 .El
 .Sh EXIT STATUS
 .Bl -tag -width Ds

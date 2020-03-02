@@ -13,7 +13,8 @@
 .Nm
 creates a temporary file by generating a unique filename with
 .Ar template ,
-which has to have at least six 'X's appended to it.  If no
+which has to have at least six 'X's appended to it.
+If no
 .Ar template
 is specified, a default of 'tmp.XXXXXXXXXX' is used and the
 tmpdir set to '/tmp' or, if set, the TMPDIR environment variable.
@@ -24,10 +25,11 @@ Create a temporary directory instead of a file.
 .It Fl p Ar directory
 Use the specified
 .Ar directory
-as a prefix when generating the temporary filename. The directory will be
-overridden by the user's
+as a prefix when generating the temporary filename.
+The directory will be overridden by the user's
 .Ev TMPDIR
-environment variable if it is set. This option implies the
+environment variable if it is set.
+This option implies the
 .Fl t
 flag (see below).
 .It Fl q
@@ -37,9 +39,11 @@ Generate a path rooted in a temporary directory.
 .It Fl u
 Unlink file before
 .Nm
-exits. This is slightly better than
+exits.
+This is slightly better than
 .Xr mktemp 3
-but still introduces a race condition. Use of this option is not encouraged.
+but still introduces a race condition.
+Use of this option is not encouraged.
 .El
 .Sh SEE ALSO
 .Xr mkdtemp 3 ,

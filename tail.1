@@ -13,7 +13,8 @@
 .Nm
 writes the last 10 lines of each
 .Ar file
-to stdout. If no
+to stdout.
+If no
 .Ar file
 is given,
 .Nm
@@ -23,15 +24,16 @@ reads from stdin.
 .It Fl c Ar num | Fl m Ar num | Fl n Ar num | Fl Ns Ar num
 Display final
 .Ar num
-bytes | characters | lines |
-lines. If
+bytes | characters | lines | lines.
+If
 .Ar num
 begins with '+'
 it is an offset from the beginning of each
 .Ar file .
 If
 .Ar num
-begins with '-' it is as if no sign was given. The default is 10 lines.
+begins with '-' it is as if no sign was given.
+The default is 10 lines.
 .It Fl f
 If one
 .Ar file
