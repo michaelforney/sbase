@@ -22,7 +22,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	mode_t type, mode = 0666;
+	mode_t mode = 0666;
 	dev_t dev;
 
 	ARGBEGIN {
@@ -36,13 +36,24 @@ main(int argc, char *argv[])
 	if (argc != 4)
 		usage();
 
-	if (strlen(argv[1]) != 1 || !strchr("ucb", argv[1][0]))
+	if (strlen(argv[1]) != 1)
+		goto invalid;
+	switch (argv[1][0]) {
+	case 'b':
+		mode |= S_IFBLK;
+		break;
+	case 'u':
+	case 'c':
+		mode |= S_IFCHR;
+		break;
+	default:
+	invalid:
 		eprintf("invalid type '%s'\n", argv[1]);
-	type = (argv[1][0] == 'b') ? S_IFBLK : S_IFCHR;
+	}
 
 	dev = makedev(estrtonum(argv[2], 0, LLONG_MAX), estrtonum(argv[3], 0, LLONG_MAX));
 
-	if (mknod(argv[0], type|mode, dev) == -1)
+	if (mknod(argv[0], mode, dev) == -1)
 		eprintf("mknod %s:", argv[0]);
 	return 0;
 }
