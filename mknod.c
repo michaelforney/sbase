@@ -16,7 +16,9 @@
 static void
 usage(void)
 {
-	eprintf("usage: %s [-m mode] name type major minor\n", argv0);
+	eprintf("usage: %s [-m mode] name b|c|u major minor\n"
+	        "       %s [-m mode] name p\n",
+	        argv0, argv0);
 }
 
 int
@@ -33,7 +35,7 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc != 4)
+	if (argc < 2)
 		usage();
 
 	if (strlen(argv[1]) != 1)
@@ -46,12 +48,23 @@ main(int argc, char *argv[])
 	case 'c':
 		mode |= S_IFCHR;
 		break;
+	case 'p':
+		mode |= S_IFIFO;
+		break;
 	default:
 	invalid:
 		eprintf("invalid type '%s'\n", argv[1]);
 	}
 
-	dev = makedev(estrtonum(argv[2], 0, LLONG_MAX), estrtonum(argv[3], 0, LLONG_MAX));
+	if (S_ISFIFO(mode)) {
+		if (argc != 2)
+			usage();
+		dev = 0;
+	} else {
+		if (argc != 4)
+			usage();
+		dev = makedev(estrtonum(argv[2], 0, LLONG_MAX), estrtonum(argv[3], 0, LLONG_MAX));
+	}
 
 	if (mknod(argv[0], mode, dev) == -1)
 		eprintf("mknod %s:", argv[0]);
