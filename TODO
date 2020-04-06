@@ -22,3 +22,51 @@ The return values of mdcheckline() in crypt.c need to be fixed (0 -> success,
 
 [0] http://landley.net/toybox/roadmap.html
 [1] http://git.suckless.org/ubase/
+
+Bugs
+====
+
+ed
+--
+* Multi-line commands don't work in global commands:
+    g/^line/a \
+    line1
+    .
+* Signal handling is broken.
+* cat <<EOF | ed
+    0a
+    int radix = 16;
+    int Pflag;
+    int Aflag;
+    int vflag;
+    int gflag;
+    int uflag;
+    int arflag;
+
+    .
+    ?radix?;/^$/-s/^/static /
+* cat <<EOF | ed
+    0a
+       Line
+    .
+    s# *##
+* cat <<EOF | ed
+    0a
+    line
+    .
+    1g/^$/p
+* w command doesn't print byte count.
+* Editing huge files doesn't work well.
+
+printf
+------
+* Flags for string conversion-specifier (%s) are not supported.
+* Escape sequences that expand to '%' are treated as beginning of
+  conversion specification.
+* An trailing '%' at the end of a format string causes a read past
+  the end of the string.
+
+tr
+--
+* When a character class is present, all other characters in the
+  string are ignored.
