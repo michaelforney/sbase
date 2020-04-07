@@ -1,12 +1,12 @@
 /* See LICENSE file for copyright and license details. */
 #include "../utf.h"
 
-int
+size_t
 utftorunestr(const char *str, Rune *r)
 {
-	int i, n;
+	size_t i, n;
 
-	for(i = 0; (n = chartorune(&r[i], str)) && r[i]; i++)
+	for (i = 0; (n = chartorune(&r[i], str)) && r[i]; i++)
 		str += n;
 
 	return i;
