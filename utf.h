@@ -38,6 +38,7 @@ int fullrune(const char *, size_t);
 char *utfecpy(char *, char *, const char *);
 size_t utflen(const char *);
 size_t utfnlen(const char *, size_t);
+size_t utfmemlen(const char *, size_t);
 char *utfrune(const char *, Rune);
 char *utfrrune(const char *, Rune);
 char *utfutf(const char *, const char *);
@@ -59,7 +60,8 @@ int isxdigitrune(Rune);
 Rune tolowerrune(Rune);
 Rune toupperrune(Rune);
 
-int utftorunestr(const char*, Rune *);
+size_t utftorunestr(const char *, Rune *);
+size_t utfntorunestr(const char *, size_t, Rune *);
 
 int fgetrune(Rune *, FILE *);
 int efgetrune(Rune *, FILE *, const char *);

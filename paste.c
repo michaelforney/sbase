@@ -51,9 +51,11 @@ nextline:
 		d = delim[i % delimlen];
 		c = 0;
 
-		for (; efgetrune(&c, dsc[i].fp, dsc[i].name) ;) {
-			for (m = last + 1; m < i; m++)
-				efputrune(&(delim[m % delimlen]), stdout, "<stdout>");
+		while (efgetrune(&c, dsc[i].fp, dsc[i].name)) {
+			for (m = last + 1; m < i; m++) {
+				if (delim[m % delimlen] != '\0')
+					efputrune(&delim[m % delimlen], stdout, "<stdout>");
+			}
 			last = i;
 			if (c == '\n') {
 				if (i != fdescrlen - 1)
@@ -67,7 +69,7 @@ nextline:
 		if (c == 0 && last != -1) {
 			if (i == fdescrlen - 1)
 				putchar('\n');
-			else
+			else if (d != '\0')
 				efputrune(&d, stdout, "<stdout>");
 			last++;
 		}
@@ -86,18 +88,18 @@ int
 main(int argc, char *argv[])
 {
 	struct fdescr *dsc;
-	Rune *delim;
-	size_t delimlen, i;
+	Rune *delim_rune = NULL;
+	size_t delim_runelen, i, delim_bytelen = 1;
 	int seq = 0, ret = 0;
-	char *adelim = "\t";
+	char *delim = "\t";
 
 	ARGBEGIN {
 	case 's':
 		seq = 1;
 		break;
 	case 'd':
-		adelim = EARGF(usage());
-		unescape(adelim);
+		delim = EARGF(usage());
+		delim_bytelen = unescape(delim);
 		break;
 	default:
 		usage();
@@ -107,10 +109,11 @@ main(int argc, char *argv[])
 		usage();
 
 	/* populate delimiters */
-	/* TODO: fix libutf to accept sizes */
-	delim = ereallocarray(NULL, utflen(adelim) + 1, sizeof(*delim));
-	if (!(delimlen = utftorunestr(adelim, delim)))
+	delim_rune = ereallocarray(NULL,
+		utfmemlen(delim, delim_bytelen) + 1, sizeof(*delim_rune));
+	if (!(delim_runelen = utfntorunestr(delim, delim_bytelen, delim_rune))) {
 		usage();
+	}
 
 	/* populate file list */
 	dsc = ereallocarray(NULL, argc, sizeof(*dsc));
@@ -126,9 +129,9 @@ main(int argc, char *argv[])
 	}
 
 	if (seq) {
-		sequential(dsc, argc, delim, delimlen);
+		sequential(dsc, argc, delim_rune, delim_runelen);
 	} else {
-		parallel(dsc, argc, delim, delimlen);
+		parallel(dsc, argc, delim_rune, delim_runelen);
 	}
 
 	for (i = 0; i < argc; i++)

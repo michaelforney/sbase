@@ -62,6 +62,19 @@ utfnlen(const char *s, size_t len)
 	return i;
 }
 
+size_t
+utfmemlen(const char *s, size_t len)
+{
+	const char *p = s;
+	size_t i;
+	Rune r;
+	int n;
+
+	for(i = 0; (n = charntorune(&r, p, len-(p-s))); i++)
+		p += n;
+	return i;
+}
+
 char *
 utfrune(const char *s, Rune r)
 {

@@ -1,35 +1,4 @@
 /* See LICENSE file for copyright and license details. */
-
-/*
- * TODO: Multi-line commands don't work in global commands:
- * o  g/^line/a \
- *    line1
- *    .
- * o  Signal handling is broken
- * o  cat <<EOF | ed
- *    0a
- *    int radix = 16;
- *    int Pflag;
- *    int Aflag;
- *    int vflag;
- *    int gflag;
- *    int uflag;
- *    int arflag;
- *
- *    .
- *    ?radix?;/^$/-s/^/static /
- * o  cat <<EOF | ed
- *    0a
- *       Line
- *    .
- *    s# *##
- * o cat <<EOF | ed
- *   0a
- *   line
- *   .
- *   1g/^$/p
- */
-
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <regex.h>
