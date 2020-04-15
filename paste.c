@@ -51,10 +51,10 @@ nextline:
 		d = delim[i % delimlen];
 		c = 0;
 
-		for (; efgetrune(&c, dsc[i].fp, dsc[i].name) ;) {
+		while (efgetrune(&c, dsc[i].fp, dsc[i].name)) {
 			for (m = last + 1; m < i; m++) {
 				if (delim[m % delimlen] != '\0')
-					efputrune(&(delim[m % delimlen]), stdout, "<stdout>");
+					efputrune(&delim[m % delimlen], stdout, "<stdout>");
 			}
 			last = i;
 			if (c == '\n') {
