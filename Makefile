@@ -100,6 +100,7 @@ BIN =\
 	cron\
 	cut\
 	date\
+	dd\
 	dirname\
 	du\
 	echo\
