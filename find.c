@@ -785,12 +785,10 @@ parse(int argc, char **argv)
 	size_t ntok = 0;
 	struct tok and = { .u.oinfo = find_op("-a"), .type = AND };
 
-	infix = ereallocarray(NULL, 2 * argc + 1, sizeof(*infix));
-	stack = ereallocarray(NULL, argc, sizeof(*stack));
-
 	gflags.print = 1;
 
 	/* convert argv to infix expression of tok, inserting in *tok */
+	infix = ereallocarray(NULL, 2 * argc + 1, sizeof(*infix));
 	for (arg = argv, tok = infix; *arg; arg++, tok++) {
 		pri = find_primary(*arg);
 
@@ -833,6 +831,7 @@ parse(int argc, char **argv)
 	 * read from infix, resulting rpn ends up in rpn, next position in rpn is out
 	 * push operators onto stack, next position in stack is top */
 	rpn = ereallocarray(NULL, ntok + gflags.print, sizeof(*rpn));
+	stack = ereallocarray(NULL, argc + gflags.print, sizeof(*stack));
 	for (tok = infix, out = rpn, top = stack; tok->type != END; tok++) {
 		switch (tok->type) {
 		case PRIM: *out++ = *tok; break;
