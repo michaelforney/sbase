@@ -520,6 +520,12 @@ main(int argc, char *argv[])
 	char *file = NULL, *dir = ".", mode = '\0';
 	int fd;
 
+	if (argc >= 2 && argv[1][0] != '-') {
+		char *argv1 = emalloc(strlen(argv[1] + 2));
+		sprintf(argv1, "-%s", argv[1]);
+		argv[1] = argv1;
+	}
+
 	ARGBEGIN {
 	case 'x':
 	case 'c':
