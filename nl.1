@@ -1,4 +1,4 @@
-.Dd 2015-10-08
+.Dd 2020-05-15
 .Dt NL 1
 .Os sbase
 .Sh NAME
@@ -28,6 +28,23 @@ If no
 is given
 .Nm
 reads from stdin.
+.Pp
+.Nm
+treats the input text as a collection of logical pages divided into
+logical page sections.
+Each logical page consists of a header section, a body
+section and a footer section.
+Sections may be empty.
+The start of each section is indicated by a single delimiting line, one of:
+.Bl -column "\e:\e:\e: " "header " -offset indent
+.It Em "Line" Ta Em "Start of"
+.It \e:\e:\e:	header
+.It \e:\e:	body
+.It \e:	footer
+.El
+.Pp
+If the input text contains no delimiting line then all of the input text
+belongs to a single logical page body section.
 .Sh OPTIONS
 .Bl -tag -width Ds
 .It Fl p
