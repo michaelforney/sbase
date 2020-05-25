@@ -55,15 +55,13 @@ install(const char *s1, const char *s2, int depth)
 	}
 	if (concat(f1, s1, f2, s2) < 0)
 		exit(1);
-
 	if (fchmod(f2, mode) < 0)
 		eprintf("fchmod %s:", s2);
+	if (fchown(f2, owner, group) < 0)
+		eprintf("lchown %s:", s2);
 
 	close(f1);
 	close(f2);
-
-	if (lchown(s2, owner, group) < 0)
-		eprintf("lchown %s:", s2);
 
 	return 0;
 }
