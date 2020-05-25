@@ -54,18 +54,24 @@ install(const char *s1, const char *s2, int depth)
 			eprintf("creat %s:", s2);
 	}
 	if (concat(f1, s1, f2, s2) < 0)
-		exit(1);
-
-	if (fchmod(f2, mode) < 0)
-		eprintf("fchmod %s:", s2);
+		goto fail;
+	if (fchmod(f2, mode) < 0) {
+		weprintf("fchmod %s:", s2);
+		goto fail;
+	}
+	if (fchown(f2, owner, group) < 0) {
+		weprintf("fchown %s:", s2);
+		goto fail;
+	}
 
 	close(f1);
 	close(f2);
 
-	if (lchown(s2, owner, group) < 0)
-		eprintf("lchown %s:", s2);
-
 	return 0;
+
+fail:
+	unlink(s2);
+	exit(1);
 }
 
 static void
