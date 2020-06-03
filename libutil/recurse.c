@@ -90,6 +90,8 @@ recurse(int dirfd, const char *name, void *data, struct recursor *r)
 				r->depth--;
 			}
 		}
+		r->path[pathlen - 1] = '\0';
+		r->pathlen = pathlen - 1;
 		closedir(dp);
 	}
 
