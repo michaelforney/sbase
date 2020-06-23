@@ -514,8 +514,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	struct recursor r = { .fn = c, .hist = NULL, .depth = 0, .maxdepth = 0,
-	                      .follow = 'P', .flags = DIRFIRST };
+	struct recursor r = { .fn = c, .follow = 'P', .flags = DIRFIRST };
 	struct stat st;
 	char *file = NULL, *dir = ".", mode = '\0';
 	int fd;

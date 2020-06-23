@@ -13,8 +13,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	struct recursor r = { .fn = rm, .hist = NULL, .depth = 0, .maxdepth = 1,
-	                      .follow = 'P', .flags = 0 };
+	struct recursor r = { .fn = rm, .maxdepth = 1, .follow = 'P' };
 
 	ARGBEGIN {
 	case 'f':

@@ -60,8 +60,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	struct recursor r = { .fn = du, .hist = NULL, .depth = 0, .maxdepth = 0,
-	                      .follow = 'P', .flags = 0 };
+	struct recursor r = { .fn = du, .follow = 'P' };
 	off_t n = 0;
 	int kflag = 0, dflag = 0;
 	char *bsize;
