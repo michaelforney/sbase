@@ -279,4 +279,4 @@ clean:
 .gitignore:
 	{ printf '*.o\n' ; printf '/%s\n' getconf.h $(LIB) $(BIN) ; } > $@
 
-.PHONY: all install uninstall dist sbase-box sbase-box-install sbase-box-uninstall clean .gitignore
+.PHONY: all install uninstall dist sbase-box-install sbase-box-uninstall clean .gitignore
