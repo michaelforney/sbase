@@ -4,10 +4,12 @@
 
 #include "util.h"
 
+static int fflag = 0;
+
 static void
 usage(void)
 {
-	eprintf("usage: %s cmd [arg ...]\n", argv0);
+	eprintf("usage: %s cmd [-f] [arg ...]\n", argv0);
 }
 
 int
@@ -16,6 +18,9 @@ main(int argc, char *argv[])
 	int savederrno;
 
 	ARGBEGIN {
+	case 'f':
+		fflag = 1;
+		break;
 	default:
 		usage();
 	} ARGEND
@@ -23,7 +28,7 @@ main(int argc, char *argv[])
 	if (!argc)
 		usage();
 
-	if (getpgrp() == getpid()) {
+	if (fflag || getpgrp() == getpid()) {
 		switch (fork()) {
 		case -1:
 			eprintf("fork:");
