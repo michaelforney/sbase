@@ -23,6 +23,9 @@ main(int argc, char *argv[])
 	case 'r':
 		r.maxdepth = 0;
 		break;
+	case 'i':
+		r.flags |= INTERACTIVE;
+		break;
 	default:
 		usage();
 	} ARGEND
