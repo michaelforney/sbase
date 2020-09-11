@@ -89,3 +89,6 @@ int mkdirp(const char *, mode_t, mode_t);
 #undef memmem
 #define memmem xmemmem
 void *memmem(const void *, size_t, const void *, size_t);
+
+
+#define getresp(...) ({fprintf(stdout, __VA_ARGS__); getchar();})
