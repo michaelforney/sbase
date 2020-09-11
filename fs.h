@@ -24,6 +24,7 @@ enum {
 	SAMEDEV  = 1 << 0,
 	DIRFIRST = 1 << 1,
 	SILENT   = 1 << 2,
+	INTERACTIVE = 1 << 3,
 };
 
 extern int cp_aflag;
