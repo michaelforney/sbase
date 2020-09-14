@@ -623,14 +623,18 @@ static void
 dowrite(const char *fname, int trunc)
 {
 	FILE *fp;
+	size_t bytecount = 0;
 	int i, line;
 
 	if (!(fp = fopen(fname, (trunc) ? "w" : "a")))
 		error("input/output error");
 
 	line = curln;
-	for (i = line1; i <= line2; ++i)
-		fputs(gettxt(i), fp);
+	for (i = line1; i <= line2; ++i) {
+		gettxt(i);
+		bytecount += text.siz - 1;
+		fputs(text.str, fp);
+	}
 
 	curln = line2;
 	if (fclose(fp))
@@ -638,6 +642,7 @@ dowrite(const char *fname, int trunc)
 	strcpy(savfname, fname);
 	modflag = 0;
 	curln = line;
+	printf("%zu\n", bytecount);
 }
 
 static void

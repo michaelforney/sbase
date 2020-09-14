@@ -55,7 +55,6 @@ ed
     line
     .
     1g/^$/p
-* w command doesn't print byte count.
 * Editing huge files doesn't work well.
 
 printf
