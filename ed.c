@@ -633,7 +633,7 @@ dowrite(const char *fname, int trunc)
 	for (i = line1; i <= line2; ++i) {
 		gettxt(i);
 		bytecount += text.siz - 1;
-		fputs(text.str, fp);
+		fwrite(text.str, 1, text.siz - 1, fp);
 	}
 
 	curln = line2;
