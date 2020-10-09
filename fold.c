@@ -39,7 +39,9 @@ foldline(struct line *l) {
 				col = 0;
 				break;
 			case '\t':
-				col += (col + 1) % 8;
+				col += (8 - (col % 8));
+				if (col >= width)
+					i--;
 				break;
 			}
 		} else {
