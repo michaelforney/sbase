@@ -19,7 +19,7 @@ foldline(struct line *l) {
 	for (i = 0, last = 0, col = 0, spacesect = 0; i < l->len; i++) {
 		if (!UTF8_POINT(l->data[i]) && !bflag)
 			continue;
-		if (col >= width) {
+		if (col >= width && ((l->data[i] != '\r' && l->data[i] != '\b') || bflag)) {
 			len = ((sflag && spacesect) ? spacesect : i) - last;
 			if (fwrite(l->data + last, 1, len, stdout) != len)
 				eprintf("fwrite <stdout>:");
