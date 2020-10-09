@@ -23,7 +23,8 @@ foldline(struct line *l) {
 			len = ((sflag && spacesect) ? spacesect : i) - last;
 			if (fwrite(l->data + last, 1, len, stdout) != len)
 				eprintf("fwrite <stdout>:");
-			putchar('\n');
+			if (l->data[i] != '\n')
+				putchar('\n');
 			last = (sflag && spacesect) ? spacesect : i;
 			col = 0;
 			spacesect = 0;
