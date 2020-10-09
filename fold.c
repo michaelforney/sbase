@@ -28,14 +28,16 @@ foldline(struct line *l, const char *fname) {
 				eprintf("fwrite <stdout>:");
 			if (l->data[i] != '\n')
 				putchar('\n');
-			last = (sflag && spacesect) ? spacesect : i;
+			if (sflag && spacesect)
+				i = spacesect;
+			last = i;
 			col = 0;
 			spacesect = 0;
 		}
 		runelen = charntorune(&r, l->data + i, l->len - i);
 		if (!runelen || r == Runeerror)
 			eprintf("charntorune: %s: invalid utf\n", fname);
-		if (sflag && isspacerune(r))
+		if (sflag && isblankrune(r))
 			spacesect = i + runelen;
 		if (!bflag && iscntrl(l->data[i])) {
 			switch(l->data[i]) {
