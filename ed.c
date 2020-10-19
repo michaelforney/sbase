@@ -839,9 +839,9 @@ join(void)
 {
 	int i;
 	char *t, c;
-	static String s;
+	String s;
 
-	free(s.str);
+	s.str = NULL;
 	s.siz = s.cap = 0;
 	for (i = line1;; i = nextln(i)) {
 		for (t = gettxt(i); (c = *t) != '\n'; ++t)
