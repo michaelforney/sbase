@@ -70,7 +70,7 @@ recurse(int dirfd, const char *name, void *data, struct recursor *r)
 			return;
 		}
 		if (r->path[pathlen - 1] != '/')
-			pathlen += estrlcpy(r->path + pathlen, "/", sizeof(r->path) - pathlen);
+			r->path[pathlen++] = '/';
 		if (r->follow == 'H')
 			flags |= AT_SYMLINK_NOFOLLOW;
 		while ((d = readdir(dp))) {
@@ -90,6 +90,8 @@ recurse(int dirfd, const char *name, void *data, struct recursor *r)
 				r->depth--;
 			}
 		}
+		r->path[pathlen - 1] = '\0';
+		r->pathlen = pathlen - 1;
 		closedir(dp);
 	}
 

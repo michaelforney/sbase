@@ -38,8 +38,7 @@ int
 main(int argc, char *argv[])
 {
 	struct group *gr;
-	struct recursor r = { .fn = chgrp, .hist = NULL, .depth = 0, .maxdepth = 1,
-	                      .follow = 'P', .flags = 0 };
+	struct recursor r = { .fn = chgrp, .maxdepth = 1, .follow = 'P' };
 
 	ARGBEGIN {
 	case 'h':

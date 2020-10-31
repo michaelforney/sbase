@@ -55,7 +55,6 @@ ed
     line
     .
     1g/^$/p
-* w command doesn't print byte count.
 * Editing huge files doesn't work well.
 
 printf
@@ -70,3 +69,7 @@ tr
 --
 * When a character class is present, all other characters in the
   string are ignored.
+
+sbase-box
+---------
+* List of commands does not contain `install` (only `xinstall`).

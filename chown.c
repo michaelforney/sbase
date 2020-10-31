@@ -45,8 +45,7 @@ main(int argc, char *argv[])
 {
 	struct group *gr;
 	struct passwd *pw;
-	struct recursor r = { .fn = chownpwgr, .hist = NULL, .depth = 0, .maxdepth = 1,
-	                      .follow = 'P', .flags = 0 };
+	struct recursor r = { .fn = chownpwgr, .maxdepth = 1, .follow = 'P' };
 	char *owner, *group;
 
 	ARGBEGIN {

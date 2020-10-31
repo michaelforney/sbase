@@ -623,14 +623,18 @@ static void
 dowrite(const char *fname, int trunc)
 {
 	FILE *fp;
+	size_t bytecount = 0;
 	int i, line;
 
 	if (!(fp = fopen(fname, (trunc) ? "w" : "a")))
 		error("input/output error");
 
 	line = curln;
-	for (i = line1; i <= line2; ++i)
-		fputs(gettxt(i), fp);
+	for (i = line1; i <= line2; ++i) {
+		gettxt(i);
+		bytecount += text.siz - 1;
+		fwrite(text.str, 1, text.siz - 1, fp);
+	}
 
 	curln = line2;
 	if (fclose(fp))
@@ -638,6 +642,7 @@ dowrite(const char *fname, int trunc)
 	strcpy(savfname, fname);
 	modflag = 0;
 	curln = line;
+	printf("%zu\n", bytecount);
 }
 
 static void
@@ -834,9 +839,9 @@ join(void)
 {
 	int i;
 	char *t, c;
-	static String s;
+	String s;
 
-	free(s.str);
+	s.str = NULL;
 	s.siz = s.cap = 0;
 	for (i = line1;; i = nextln(i)) {
 		for (t = gettxt(i); (c = *t) != '\n'; ++t)
