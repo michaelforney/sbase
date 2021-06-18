@@ -58,6 +58,7 @@ The following tools are implemented:
 0=*|x cron            .
 0#*|o cut             .
 0=*|o date            .
+0=*|o dd              .
 0=*|o dirname         .
 0=*|o du              .
 0=*|o echo            .
