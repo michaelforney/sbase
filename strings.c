@@ -10,36 +10,34 @@
 static char *format = "";
 
 static void
-strings(FILE *fp, const char *fname, size_t len)
+strings(FILE *fp, const char *fname, size_t min)
 {
 	Rune r, *rbuf;
 	size_t i, bread;
 	off_t off;
 
-	rbuf = ereallocarray(NULL, len, sizeof(*rbuf));
+	rbuf = ereallocarray(NULL, min, sizeof(*rbuf));
 
 	for (off = 0, i = 0; (bread = efgetrune(&r, fp, fname)); ) {
 		off += bread;
 		if (r == Runeerror)
 			continue;
 		if (!isprintrune(r)) {
-			if (i > len)
+			if (i == min)
 				putchar('\n');
 			i = 0;
 			continue;
 		}
-		if (i < len) {
-			rbuf[i++] = r;
-			continue;
-		} else if (i > len) {
+		if (i == min) {
 			efputrune(&r, stdout, "<stdout>");
 			continue;
 		}
+		rbuf[i++] = r;
+		if (i < min)
+			continue;
 		printf(format, (long)off - i);
-		for (i = 0; i < len; i++)
+		for (i = 0; i < min; i++)
 			efputrune(rbuf + i, stdout, "<stdout>");
-		efputrune(&r, stdout, "<stdout>");
-		i++;
 	}
 	free(rbuf);
 }
@@ -54,7 +52,7 @@ int
 main(int argc, char *argv[])
 {
 	FILE *fp;
-	size_t len = 4;
+	size_t min = 4;
 	int ret = 0;
 	char f;
 
@@ -62,7 +60,7 @@ main(int argc, char *argv[])
 	case 'a':
 		break;
 	case 'n':
-		len = estrtonum(EARGF(usage()), 1, LLONG_MAX);
+		min = estrtonum(EARGF(usage()), 1, LLONG_MAX);
 		break;
 	case 't':
 		format = estrdup("%8l#: ");
@@ -77,7 +75,7 @@ main(int argc, char *argv[])
 	} ARGEND
 
 	if (!argc) {
-		strings(stdin, "<stdin>", len);
+		strings(stdin, "<stdin>", min);
 	} else {
 		for (; *argv; argc--, argv++) {
 			if (!strcmp(*argv, "-")) {
@@ -88,7 +86,7 @@ main(int argc, char *argv[])
 				ret = 1;
 				continue;
 			}
-			strings(fp, *argv, len);
+			strings(fp, *argv, min);
 			if (fp != stdin && fshut(fp, *argv))
 				ret = 1;
 		}
