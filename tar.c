@@ -78,8 +78,8 @@ static const char *filtertools[] = {
 static void
 pushdirtime(char *name, time_t mtime)
 {
-	dirtimes = reallocarray(dirtimes, dirtimeslen + 1, sizeof(*dirtimes));
-	dirtimes[dirtimeslen].name = strdup(name);
+	dirtimes = ereallocarray(dirtimes, dirtimeslen + 1, sizeof(*dirtimes));
+	dirtimes[dirtimeslen].name = estrdup(name);
 	dirtimes[dirtimeslen].mtime = mtime;
 	dirtimeslen++;
 }
