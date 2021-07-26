@@ -127,7 +127,11 @@ main(int argc, char *argv[])
 			free(rarg);
 			break;
 		case 's':
-			printf("%*.*s", width, precision, arg);
+			fmt = estrdup(flag ? "%#*.*s" : "%*.*s");
+			if (flag)
+				fmt[1] = flag;
+			printf(fmt, width, precision, arg);
+			free(fmt);
 			break;
 		case 'd': case 'i': case 'o': case 'u': case 'x': case 'X':
 			for (j = 0; isspace(arg[j]); j++);
