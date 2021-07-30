@@ -27,11 +27,12 @@ mv(const char *s1, const char *s2, int depth)
 			recurse(AT_FDCWD, s1, NULL, &r);
 		if (cp_status || rm_status)
 			mv_status = 1;
-		return 0;
+	} else {
+		weprintf("%s -> %s:", s1, s2);
+		mv_status = 1;
 	}
-	mv_status = 1;
 
-	return -1;
+	return 0;
 }
 
 static void
