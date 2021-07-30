@@ -20,9 +20,14 @@ mv(const char *s1, const char *s2, int depth)
 	if (errno == EXDEV) {
 		cp_aflag = cp_rflag = cp_pflag = 1;
 		cp_follow = 'P';
+		cp_status = 0;
+		rm_status = 0;
 		cp(s1, s2, depth);
-		recurse(AT_FDCWD, s1, NULL, &r);
-		return (mv_status = cp_status || rm_status);
+		if (cp_status == 0)
+			recurse(AT_FDCWD, s1, NULL, &r);
+		if (cp_status || rm_status)
+			mv_status = 1;
+		return 0;
 	}
 	mv_status = 1;
 
