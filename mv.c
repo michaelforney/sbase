@@ -16,7 +16,7 @@ mv(const char *s1, const char *s2, int depth)
 	struct recursor r = { .fn = rm, .follow = 'P' };
 
 	if (!rename(s1, s2))
-		return (mv_status = 0);
+		return 0;
 	if (errno == EXDEV) {
 		cp_aflag = cp_rflag = cp_pflag = 1;
 		cp_follow = 'P';
