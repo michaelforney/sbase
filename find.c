@@ -235,6 +235,11 @@ spawn(char *argv[])
 	pid_t pid;
 	int status;
 
+	/* flush stdout so that -print output always appears before
+	 * any output from the command and does not get cut-off in
+	 * the middle of a line. */
+	fflush(stdout);
+
 	switch((pid = fork())) {
 	case -1:
 		eprintf("fork:");
