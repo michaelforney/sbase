@@ -4,7 +4,7 @@
 #include "../utf.h"
 #include "runetype.h"
 
-static Rune digit2[][2] = {
+static const Rune digit2[][2] = {
 	{ 0x0030, 0x0039 },
 	{ 0x0660, 0x0669 },
 	{ 0x06F0, 0x06F9 },

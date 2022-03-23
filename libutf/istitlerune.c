@@ -4,13 +4,13 @@
 #include "../utf.h"
 #include "runetype.h"
 
-static Rune title2[][2] = {
+static const Rune title2[][2] = {
 	{ 0x1F88, 0x1F8F },
 	{ 0x1F98, 0x1F9F },
 	{ 0x1FA8, 0x1FAF },
 };
 
-static Rune title1[] = {
+static const Rune title1[] = {
 	0x01C5,
 	0x01C8,
 	0x01CB,

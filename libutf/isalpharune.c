@@ -4,7 +4,7 @@
 #include "../utf.h"
 #include "runetype.h"
 
-static Rune alpha3[][2] = {
+static const Rune alpha3[][2] = {
 	{ 0x00D6, 0x00D8 },
 	{ 0x00F6, 0x00F8 },
 	{ 0x02EC, 0x02EE },
@@ -201,7 +201,7 @@ static Rune alpha3[][2] = {
 	{ 0x1EEA9, 0x1EEAB },
 };
 
-static Rune alpha2[][2] = {
+static const Rune alpha2[][2] = {
 	{ 0x0041, 0x005A },
 	{ 0x0061, 0x007A },
 	{ 0x00C0, 0x00D6 },
@@ -715,7 +715,7 @@ static Rune alpha2[][2] = {
 	{ 0x2F800, 0x2FA1D },
 };
 
-static Rune alpha1[] = {
+static const Rune alpha1[] = {
 	0x00AA,
 	0x00B5,
 	0x00BA,
@@ -818,7 +818,7 @@ static Rune alpha1[] = {
 int
 isalpharune(Rune r)
 {
-	Rune *match;
+	const Rune *match;
 
 	if((match = bsearch(&r, alpha3, nelem(alpha3), sizeof *alpha3, &rune2cmp)))
 		return !((r - match[0]) % 2);

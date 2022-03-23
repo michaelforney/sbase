@@ -4,7 +4,7 @@
 #include "../utf.h"
 #include "runetype.h"
 
-static Rune lower4[][2] = {
+static const Rune lower4[][2] = {
 	{ 0x0101, 0x012F },
 	{ 0x0133, 0x0137 },
 	{ 0x013A, 0x0148 },
@@ -42,7 +42,7 @@ static Rune lower4[][2] = {
 	{ 0xA7D7, 0xA7D9 },
 };
 
-static Rune lower2[][3] = {
+static const Rune lower2[][3] = {
 	{ 0x0061, 0x007A, 0x0041 },
 	{ 0x00E0, 0x00F6, 0x00C0 },
 	{ 0x00F8, 0x00FE, 0x00D8 },
@@ -161,7 +161,7 @@ static Rune lower2[][3] = {
 	{ 0x1E922, 0x1E943, 0x1E900 },
 };
 
-static Rune lower1[][2] = {
+static const Rune lower1[][2] = {
 	{ 0x00B5, 0x039C },
 	{ 0x00DF, 0x00DF },
 	{ 0x00FF, 0x0178 },
@@ -327,7 +327,7 @@ static Rune lower1[][2] = {
 int
 islowerrune(Rune r)
 {
-	Rune *match;
+	const Rune *match;
 
 	if((match = bsearch(&r, lower4, nelem(lower4), sizeof *lower4, &rune2cmp)))
 		return !((r - match[0]) % 2);
