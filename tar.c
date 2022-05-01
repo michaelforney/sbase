@@ -33,6 +33,19 @@ enum Type {
 	RESERVED  = '7'
 };
 
+struct xheader {
+	int valid : 1;
+	int has_atime : 1;
+	int has_ctime : 1;
+	int has_mtime : 1;
+	struct timespec atime;
+	struct timespec ctime;
+	struct timespec mtime;
+	char *path;
+	char *linkpath;
+	char *buf; /* Backing buffer during read. */
+};
+
 struct header {
 	char name[100];
 	char mode[8];
@@ -252,9 +265,9 @@ archive(const char *path)
 }
 
 static int
-unarchive(char *fname, ssize_t l, char b[BLKSIZ])
+unarchive(char *fname, ssize_t l, char b[BLKSIZ], struct xheader *xhdr)
 {
-	char lname[101], *tmp, *p;
+	char linkbuf[101], *linkpath, *tmp, *p;
 	long mode, major, minor, type, mtime, uid, gid;
 	struct header *h = (struct header *)b;
 	int fd = -1;
@@ -281,12 +294,17 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 		break;
 	case HARDLINK:
 	case SYMLINK:
-		snprintf(lname, sizeof(lname), "%.*s", (int)sizeof(h->linkname),
-		         h->linkname);
-		if (((h->type == HARDLINK) ? link : symlink)(lname, fname) < 0)
+		if (xhdr && xhdr->linkpath) {
+			linkpath = xhdr->linkpath;
+		} else {
+			snprintf(linkbuf, sizeof(linkbuf), "%.*s", (int)sizeof(h->linkname),
+			         h->linkname);
+			linkpath = linkbuf;
+		}
+		if (((h->type == HARDLINK) ? link : symlink)(linkpath, fname) < 0)
 			eprintf("%s %s -> %s:",
 			        (h->type == HARDLINK) ? "link" : "symlink",
-				fname, lname);
+				fname, linkpath);
 		break;
 	case DIRECTORY:
 		if ((mode = strtol(h->mode, &p, 8)) < 0 || *p != '\0')
@@ -334,6 +352,13 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 
 	times[0].tv_sec = times[1].tv_sec = mtime;
 	times[0].tv_nsec = times[1].tv_nsec = 0;
+	if (xhdr && xhdr->has_mtime) {
+		times[0] = times[1] = xhdr->mtime;
+	}
+	if (xhdr && xhdr->has_atime) {
+		times[0] = xhdr->atime;
+	}
+
 	if (!mflag && utimensat(AT_FDCWD, fname, times, AT_SYMLINK_NOFOLLOW) < 0)
 		weprintf("utimensat %s:", fname);
 	if (h->type == SYMLINK) {
@@ -359,8 +384,104 @@ skipblk(ssize_t l)
 			break;
 }
 
+static void
+xhdrtime(struct timespec *t, char *s)
+{
+	size_t i;
+	char *pns, *pdot;
+
+	t->tv_sec = strtoul(s, NULL, 10);
+	t->tv_nsec = 0;
+	if ((pdot = strchr(s, '.'))) {
+		pns = pdot+1;
+		for (i = 0; i < 9 && pns[i]; i++) {
+			t->tv_nsec *= 10;
+			t->tv_nsec += pns[i] - '0';
+		}
+		for (; i < 9; i++) {
+			t->tv_nsec *= 10;
+		}
+	}
+	
+}
+
+static void
+readxhdr(struct xheader *xhdr , ssize_t l)
+{
+	char b[BLKSIZ];
+	char *reason, *buf;
+	char *p, *pend, *lenstr, *k, *v, *vend;
+
+	buf = xhdr->buf;
+	memset(xhdr, 0, sizeof(struct xheader));
+	xhdr->valid = 1;
+	xhdr->buf = erealloc(buf, l);
+
+	if (!eread(tarfd, xhdr->buf, l)) {
+		reason = "truncated";
+		goto bad;
+	}
+	if (l % BLKSIZ)
+		eread(tarfd, b, BLKSIZ-(l % BLKSIZ));
+
+	p = xhdr->buf;
+	pend = p + l;
+
+	while (p < pend) {
+		lenstr = p;
+		while (p < pend && (*p >= '0' && *p <= '9')) {
+			p++;
+		}
+		if (p >= pend || *p != ' ') {
+			reason = "corrupt length";
+			goto bad;
+		}
+		*p++ = 0;
+		k = p;
+		while (p < pend && *p != '=') {
+			p++;
+		}
+		if (p >= pend) {
+			reason = "corrupt keyword";
+			goto bad;
+		}
+		*p++ = 0;
+		v = p;
+		vend = lenstr + strtoul(lenstr, NULL, 10) - 1;
+		if (vend >= pend || vend <= p || *vend != '\n') {
+			reason = "length mismatch";
+			goto bad;
+		}
+		*vend = 0;
+		p = vend + 1;
+		if (strcmp(k, "path") == 0) {
+			xhdr->path = v;
+		} else if (strcmp(k, "linkpath") == 0) {
+			xhdr->linkpath = v;
+		} else if (k[0] && strcmp(k+1, "time") == 0) {
+			if (k[0] == 'a') {
+				xhdr->has_atime = 1;
+				xhdrtime(&xhdr->atime, v);
+			} else if (k[0] == 'c') {
+				xhdr->has_ctime = 1;
+				xhdrtime(&xhdr->ctime, v);
+			} else if (k[0] == 'm') {
+				xhdr->has_mtime = 1;
+				xhdrtime(&xhdr->mtime, v);
+			} else {
+				weprintf("unknown time header '%s'\n", k);
+			}
+		} else {
+			weprintf("ignoring unsupported pax header keyword '%s'\n", k);
+		}
+	}
+	return;
+bad:
+	eprintf("malformed pax header: %s\n", reason);
+}
+
 static int
-print(char *fname, ssize_t l, char b[BLKSIZ])
+print(char *fname, ssize_t l, char b[BLKSIZ], struct xheader *xhdr)
 {
 	puts(fname);
 	skipblk(l);
@@ -445,13 +566,15 @@ bad:
 static void
 xt(int argc, char *argv[], int mode)
 {
-	char b[BLKSIZ], fname[256 + 1], *p;
+	struct xheader xhdr = {0};
+	char *fname;
+	char b[BLKSIZ], namebuf[256 + 1], *p;
 	struct timespec times[2];
 	struct header *h = (struct header *)b;
 	struct dirtime *dirtime;
 	long size;
 	int i, n;
-	int (*fn)(char *, ssize_t, char[BLKSIZ]) = (mode == 'x') ? unarchive : print;
+	int (*fn)(char *, ssize_t, char[BLKSIZ], struct xheader *) = (mode == 'x') ? unarchive : print;
 
 	while (eread(tarfd, b, BLKSIZ) > 0 && h->name[0]) {
 		chktar(h);
@@ -459,13 +582,27 @@ xt(int argc, char *argv[], int mode)
 
 		/* small dance around non-null terminated fields */
 		if (h->prefix[0])
-			n = snprintf(fname, sizeof(fname), "%.*s/",
+			n = snprintf(namebuf, sizeof(namebuf), "%.*s/",
 			             (int)sizeof(h->prefix), h->prefix);
-		snprintf(fname + n, sizeof(fname) - n, "%.*s",
+		snprintf(namebuf + n, sizeof(namebuf) - n, "%.*s",
 		         (int)sizeof(h->name), h->name);
 
 		if ((size = strtol(h->size, &p, 8)) < 0 || *p != '\0')
 			eprintf("strtol %s: invalid number\n", h->size);
+
+		/* ignore global pax header craziness */
+		if (h->type == 'g') {
+			weprintf("ignoring global pax header\n");
+			skipblk(size);
+			continue;
+		}
+
+		if (h->type == 'x') {
+			readxhdr(&xhdr, size);
+			continue;
+		}
+
+		fname = (xhdr.valid && xhdr.path) ? xhdr.path : namebuf;
 
 		if (argc) {
 			/* only extract the given files */
@@ -478,16 +615,14 @@ xt(int argc, char *argv[], int mode)
 			}
 		}
 
-		/* ignore global pax header craziness */
-		if (h->type == 'g' || h->type == 'x') {
-			skipblk(size);
-			continue;
-		}
-
-		fn(fname, size, b);
+		fn(fname, size, b, xhdr.valid ? &xhdr : NULL);
 		if (vflag && mode != 't')
 			puts(fname);
+
+		xhdr.valid = 0;
 	}
+
+	free(xhdr.buf);
 
 	if (mode == 'x' && !mflag) {
 		while ((dirtime = popdirtime())) {
