@@ -9,7 +9,7 @@ static int fflag = 0;
 static void
 usage(void)
 {
-	eprintf("usage: %s cmd [-f] [arg ...]\n", argv0);
+	eprintf("usage: %s [-f] cmd [arg ...]\n", argv0);
 }
 
 int
