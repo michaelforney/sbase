@@ -31,7 +31,7 @@ main(int argc, char *argv[])
 		enprintf(127, "signal HUP:");
 
 	if (isatty(STDOUT_FILENO)) {
-		if ((fd = open("nohup.out", O_APPEND | O_CREAT, S_IRUSR | S_IWUSR)) < 0)
+		if ((fd = open("nohup.out", O_WRONLY | O_APPEND | O_CREAT, S_IRUSR | S_IWUSR)) < 0)
 			enprintf(127, "open nohup.out:");
 		if (dup2(fd, STDOUT_FILENO) < 0)
 			enprintf(127, "dup2:");

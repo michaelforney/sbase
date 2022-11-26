@@ -110,6 +110,9 @@ struct findhist {
 	ino_t ino;
 };
 
+/* Utility */
+static int spawn(char *argv[]);
+
 /* Primaries */
 static int pri_name   (struct arg *arg);
 static int pri_path   (struct arg *arg);
@@ -222,6 +225,34 @@ static struct {
 	char xdev ; /* -xdev, prune directories on different devices      */
 	char print; /* whether we will need -print when parsing           */
 } gflags;
+
+/*
+ * Utility
+ */
+static int
+spawn(char *argv[])
+{
+	pid_t pid;
+	int status;
+
+	/* flush stdout so that -print output always appears before
+	 * any output from the command and does not get cut-off in
+	 * the middle of a line. */
+	fflush(stdout);
+
+	switch((pid = fork())) {
+	case -1:
+		eprintf("fork:");
+	case 0:
+		execvp(*argv, argv);
+		weprintf("exec %s failed:", *argv);
+		_exit(1);
+	}
+
+	/* FIXME: proper course of action for waitpid() on EINTR? */
+	waitpid(pid, &status, 0);
+	return status;
+}
 
 /*
  * Primaries
@@ -352,7 +383,6 @@ pri_exec(struct arg *arg)
 {
 	int status;
 	size_t len;
-	pid_t pid;
 	char **sp, ***brace;
 	struct execarg *e = arg->extra.p;
 
@@ -363,15 +393,7 @@ pri_exec(struct arg *arg)
 		if (len + e->u.p.arglen + e->u.p.filelen + envlen > argmax) {
 			e->argv[e->u.p.next] = NULL;
 
-			switch((pid = fork())) {
-			case -1:
-				eprintf("fork:");
-			case 0:
-				execvp(*e->argv, e->argv);
-				weprintf("exec %s failed:", *e->argv);
-				_exit(1);
-			}
-			waitpid(pid, &status, 0);
+			status = spawn(e->argv);
 			gflags.ret = gflags.ret || status;
 
 			for (sp = e->argv + e->u.p.first; *sp; sp++)
@@ -394,16 +416,7 @@ pri_exec(struct arg *arg)
 		for (brace = e->u.s.braces; *brace; brace++)
 			**brace = arg->path;
 
-		switch((pid = fork())) {
-		case -1:
-			eprintf("fork:");
-		case 0:
-			execvp(*e->argv, e->argv);
-			weprintf("exec %s failed:", *e->argv);
-			_exit(1);
-		}
-		/* FIXME: proper course of action for all waitpid() on EINTR? */
-		waitpid(pid, &status, 0);
+		status = spawn(e->argv);
 		return !!status;
 	}
 }
@@ -412,7 +425,6 @@ static int
 pri_ok(struct arg *arg)
 {
 	int status, reply;
-	pid_t pid;
 	char ***brace, c;
 	struct okarg *o = arg->extra.p;
 
@@ -435,15 +447,7 @@ pri_ok(struct arg *arg)
 	for (brace = o->braces; *brace; brace++)
 		**brace = arg->path;
 
-	switch((pid = fork())) {
-	case -1:
-		eprintf("fork:");
-	case 0:
-		execvp(*o->argv, o->argv);
-		weprintf("exec %s failed:", *o->argv);
-		_exit(1);
-	}
-	waitpid(pid, &status, 0);
+	status = spawn(o->argv);
 	return !!status;
 }
 
@@ -687,7 +691,6 @@ static void
 free_exec_arg(union extra extra)
 {
 	int status;
-	pid_t pid;
 	char **arg;
 	struct execarg *e = extra.p;
 
@@ -698,15 +701,7 @@ free_exec_arg(union extra extra)
 
 		/* if we have files, do the last exec */
 		if (e->u.p.first != e->u.p.next) {
-			switch((pid = fork())) {
-			case -1:
-				eprintf("fork:");
-			case 0:
-				execvp(*e->argv, e->argv);
-				weprintf("exec %s failed:", *e->argv);
-				_exit(1);
-			}
-			waitpid(pid, &status, 0);
+			status = spawn(e->argv);
 			gflags.ret = gflags.ret || status;
 		}
 		for (arg = e->argv + e->u.p.first; *arg; arg++)
@@ -807,7 +802,8 @@ parse(int argc, char **argv)
 		} else if ((op = find_op(*arg))) { /* token is an operator */
 			if (lasttype == LPAR && op->type == RPAR)
 				eprintf("empty parens\n");
-			if ((lasttype == PRIM || lasttype == RPAR) && op->type == NOT) { /* need another implicit -a */
+			if ((lasttype == PRIM || lasttype == RPAR) &&
+			    (op->type == NOT || op->type == LPAR)) { /* need another implicit -a */
 				*tok++ = and;
 				ntok++;
 			}
