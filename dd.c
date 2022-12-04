@@ -221,7 +221,7 @@ main(int argc, char *argv[])
 			else
 				ofull++;
 			opos += ret;
-		} while ((eof && ipos < opos) || (!eof && ipos - opos >= obs));
+		} while (ipos - opos >= (eof ? 1 : obs));
 		if (opos < ipos)
 			memmove(buf, buf + opos, ipos - opos);
 		ipos -= opos;
