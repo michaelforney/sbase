@@ -642,7 +642,8 @@ dowrite(const char *fname, int trunc)
 	strcpy(savfname, fname);
 	modflag = 0;
 	curln = line;
-	printf("%zu\n", bytecount);
+	if (optdiag)
+		printf("%zu\n", bytecount);
 }
 
 static void
