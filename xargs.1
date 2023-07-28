@@ -1,4 +1,4 @@
-.Dd 2015-10-08
+.Dd 2023-07-30
 .Dt XARGS 1
 .Os sbase
 .Sh NAME
@@ -8,6 +8,7 @@
 .Nm
 .Op Fl rtx
 .Op Fl E Ar eofstr
+.Op Fl I Ar replstr
 .Op Fl n Ar num
 .Op Fl s Ar num
 .Op Ar cmd Op Ar arg ...
@@ -44,6 +45,11 @@ Normally the command is executed at least once even if there are no arguments.
 Use
 .Ar eofstr
 as a logical EOF marker.
+.It Fl I Ar replstr
+Use
+.Ar replstr
+as the placeholder for the argument.
+Sets the arguments count to 1 per command line.
 .It Fl s Ar num
 Use at most
 .Ar num

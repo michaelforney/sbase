@@ -195,10 +195,11 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	int ret = 0, leftover = 0, i;
+	int ret = 0, leftover = 0, ri = 0, i;
 	size_t argsz, argmaxsz;
 	size_t arglen, a;
 	char *arg = "";
+	char *replstr;
 
 	if ((argmaxsz = sysconf(_SC_ARG_MAX)) == (size_t)-1)
 		argmaxsz = _POSIX_ARG_MAX;
@@ -225,6 +226,11 @@ main(int argc, char *argv[])
 	case 'E':
 		eofstr = EARGF(usage());
 		break;
+	case 'I':
+		nflag = 1;
+		maxargs = 1;
+		replstr = EARGF(usage());
+		break;
 	default:
 		usage();
 	} ARGEND
@@ -235,6 +241,8 @@ main(int argc, char *argv[])
 			for (; i < argc; i++) {
 				cmd[i] = estrdup(argv[i]);
 				argsz += strlen(cmd[i]) + 1;
+				if (!strcmp(cmd[i], replstr))
+					ri = i;
 			}
 		} else {
 			cmd[i] = estrdup("/bin/echo");
@@ -252,7 +260,11 @@ main(int argc, char *argv[])
 				leftover = 1;
 				break;
 			}
-			cmd[i] = estrdup(arg);
+			if (ri > 0)
+				strnsubst(&cmd[ri], replstr, arg, 255);
+			else
+				cmd[i] = estrdup(arg);
+
 			argsz += arglen + 1;
 			i++;
 			a++;
