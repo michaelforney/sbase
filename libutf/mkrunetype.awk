@@ -129,7 +129,7 @@ function mkis(name, runev, runec, file, casev, casename) {
 
 	#generate list of laces 1
 	if(rune3c > 0) {
-		print "static Rune "name"3[][2] = {" > file;
+		print "static const Rune "name"3[][2] = {" > file;
 		for(j = 0; j < rune3c; j++) {
 			print "\t{ 0x"rune3v0[j]", 0x"rune3v1[j]" }," > file;
 		}
@@ -138,7 +138,7 @@ function mkis(name, runev, runec, file, casev, casename) {
 
 	#generate list of laces 2
 	if(rune4c > 0) {
-		print "static Rune "name"4[][2] = {" > file;
+		print "static const Rune "name"4[][2] = {" > file;
 		for(j = 0; j < rune4c; j++) {
 			print "\t{ 0x"rune4v0[j]", 0x"rune4v1[j]" }," > file;
 		}
@@ -148,12 +148,12 @@ function mkis(name, runev, runec, file, casev, casename) {
 	# generate list of ranges
 	if(rune2c > 0) {
 		if(length(casev) > 0) {
-			print "static Rune "name"2[][3] = {" > file;
+			print "static const Rune "name"2[][3] = {" > file;
 			for(j = 0; j < rune2c; j++) {
 				print "\t{ 0x"rune2v0[j]", 0x"rune2v1[j]", 0x"case2v[j]" }," > file;
 			}
 		} else {
-			print "static Rune "name"2[][2] = {" > file
+			print "static const Rune "name"2[][2] = {" > file
 			for(j = 0; j < rune2c; j++) {
 				print "\t{ 0x"rune2v0[j]", 0x"rune2v1[j]" }," > file;
 			}
@@ -164,12 +164,12 @@ function mkis(name, runev, runec, file, casev, casename) {
 	# generate list of singletons
 	if(rune1c > 0) {
 		if(length(casev) > 0) {
-			print "static Rune "name"1[][2] = {" > file;
+			print "static const Rune "name"1[][2] = {" > file;
 			for(j = 0; j < rune1c; j++) {
 				print "\t{ 0x"rune1v[j]", 0x"case1v[j]" }," > file;
 			}
 		} else {
-			print "static Rune "name"1[] = {" > file;
+			print "static const Rune "name"1[] = {" > file;
 			for(j = 0; j < rune1c; j++) {
 				print "\t0x"rune1v[j]"," > file;
 			}
@@ -179,7 +179,7 @@ function mkis(name, runev, runec, file, casev, casename) {
 	# generate lookup function
 	print "int\nis"name"rune(Rune r)\n{" > file;
 	if(rune4c > 0 || rune3c > 0)
-		print "\tRune *match;\n" > file;
+		print "\tconst Rune *match;\n" > file;
 	if(rune4c > 0) {
 		print "\tif((match = bsearch(&r, "name"4, nelem("name"4), sizeof *"name"4, &rune2cmp)))" > file;
 		print "\t\treturn !((r - match[0]) % 2);" > file;

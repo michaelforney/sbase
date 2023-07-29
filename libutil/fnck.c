@@ -13,7 +13,8 @@ fnck(const char *a, const char *b,
 	    && !stat(b, &stb)
 	    && sta.st_dev == stb.st_dev
 	    && sta.st_ino == stb.st_ino) {
-		eprintf("%s -> %s: same file\n", a, b);
+		weprintf("%s -> %s: same file\n", a, b);
+		return;
 	}
 
 	if (fn(a, b, depth) < 0)

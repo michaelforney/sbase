@@ -4,14 +4,14 @@
 #include "../utf.h"
 #include "runetype.h"
 
-static Rune space2[][2] = {
+static const Rune space2[][2] = {
 	{ 0x0009, 0x000D },
 	{ 0x001C, 0x0020 },
 	{ 0x2000, 0x200A },
 	{ 0x2028, 0x2029 },
 };
 
-static Rune space1[] = {
+static const Rune space1[] = {
 	0x0085,
 	0x00A0,
 	0x1680,

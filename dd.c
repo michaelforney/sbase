@@ -173,8 +173,12 @@ main(int argc, char *argv[])
 			eprintf("lseek:");
 		/* XXX: handle non-seekable files */
 	}
-	while (!eof && (count == -1 || ifull + ipart < count)) {
+	while (!eof) {
 		while (ipos - opos < obs) {
+			if (ifull + ipart == count) {
+				eof = 1;
+				break;
+			}
 			ret = read(ifd, buf + ipos, ibs);
 			if (ret == 0) {
 				eof = 1;
@@ -221,7 +225,7 @@ main(int argc, char *argv[])
 			else
 				ofull++;
 			opos += ret;
-		} while ((eof && ipos < opos) || (!eof && ipos - opos >= obs));
+		} while (ipos - opos >= (eof ? 1 : obs));
 		if (opos < ipos)
 			memmove(buf, buf + opos, ipos - opos);
 		ipos -= opos;
