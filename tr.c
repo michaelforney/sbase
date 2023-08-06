@@ -250,12 +250,10 @@ read:
 		}
 	}
 	if (set1check && set1check(r)) {
-		if (dflag) {
-			if (cflag)
-				goto write;
-			else
-				goto read;
-		}
+		if (cflag)
+			goto write;
+		if (dflag)
+			goto read;
 		if (set2check) {
 			if (set2check == islowerrune)
 				r = tolowerrune(r);
