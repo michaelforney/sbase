@@ -623,14 +623,16 @@ dowrite(const char *fname, int trunc)
 {
 	FILE *fp;
 	size_t bytecount = 0;
-	int i, line;
+	int i, r, line, sh;
 
 	if(fname[0] == '!') {
+		sh = 1;
 		fname++;
-		if((fp = popen(fname, "r")) == NULL)
-			error("Bad Exec");
+		if((fp = popen(fname, "w")) == NULL)
+			error("bad exec");
 	} else {
-		if ((fp = fopen(fname, "r")) == NULL)
+		sh = 0;
+		if ((fp = fopen(fname, "w")) == NULL)
 			error("cannot open input file");
 	}
 
@@ -642,7 +644,9 @@ dowrite(const char *fname, int trunc)
 	}
 
 	curln = line2;
-	if (fclose(fp))
+
+	r = sh ? pclose(fp) : fclose(fp);
+	if (r)
 		error("input/output error");
 	strcpy(savfname, fname);
 	modflag = 0;
