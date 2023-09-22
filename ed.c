@@ -76,15 +76,14 @@ discard(void)
 {
 	int c;
 
-	if (repidx >= 0)
+	if (repidx >= 0 || cmdline.siz == 0)
 		return;
 
 	/* discard until the end of the line */
-	if (cmdline.siz > 0 && cmdline.str[cmdline.siz-1] == '\n')
-		return;
-
-	while ((c = getchar()) != '\n' && c != EOF)
-		;
+	if (cmdline.str[cmdline.siz-1] != '\n') {
+		while ((c = getchar()) != '\n' && c != EOF)
+			;
+	}
 }
 
 static void undo(void);
