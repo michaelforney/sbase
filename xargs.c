@@ -111,7 +111,11 @@ poparg(void)
 		return NULL;
 	while ((ch = inputc()) != EOF) {
 		switch (ch) {
-		case ' ': case '\t': case '\n':
+		case ' ':
+		case '\t':
+			if (Iflag)
+				goto fill;
+		case '\n':
 			goto out;
 		case '\'':
 			if (parsequote('\'') < 0)
@@ -126,6 +130,7 @@ poparg(void)
 				eprintf("backslash at EOF\n");
 			break;
 		default:
+		fill:
 			fillargbuf(ch);
 			argbpos++;
 			break;
