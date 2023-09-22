@@ -32,7 +32,6 @@ ed
     g/^line/a \
     line1
     .
-* Signal handling is broken.
 * cat <<EOF | ed
     0a
     int radix = 16;
