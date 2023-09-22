@@ -26,7 +26,7 @@ static size_t argbsz;
 static size_t argbpos;
 static size_t maxargs = 0;
 static int    nerrors = 0;
-static int    rflag = 0, nflag = 0, tflag = 0, xflag = 0;
+static int    rflag = 0, nflag = 0, tflag = 0, xflag = 0, Iflag = 0;
 static char  *argb;
 static char  *cmd[NARGS];
 static char  *eofstr;
@@ -195,7 +195,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	int ret = 0, leftover = 0, ri = 0, i;
+	int ret = 0, leftover = 0, i, j;
 	size_t argsz, argmaxsz;
 	size_t arglen, a;
 	char *arg = "";
@@ -227,6 +227,7 @@ main(int argc, char *argv[])
 		eofstr = EARGF(usage());
 		break;
 	case 'I':
+		Iflag = 1;
 		xflag = 1;
 		nflag = 1;
 		maxargs = 1;
@@ -242,8 +243,6 @@ main(int argc, char *argv[])
 			for (; i < argc; i++) {
 				cmd[i] = estrdup(argv[i]);
 				argsz += strlen(cmd[i]) + 1;
-				if (!strcmp(cmd[i], replstr))
-					ri = i;
 			}
 		} else {
 			cmd[i] = estrdup("/bin/echo");
@@ -261,12 +260,18 @@ main(int argc, char *argv[])
 				leftover = 1;
 				break;
 			}
-			if (ri > 0)
-				strnsubst(&cmd[ri], replstr, arg, 255);
-			else
-				cmd[i] = estrdup(arg);
 
-			argsz += arglen + 1;
+			if (!Iflag) {
+				cmd[i] = estrdup(arg);
+				argsz += arglen + 1;
+			} else {
+				for (j = 1; j < i; j++) {
+					argsz -= strlen(cmd[j]);
+					strnsubst(&cmd[j], replstr, arg, 255);
+					argsz += strlen(cmd[j]);
+				}
+			}
+
 			i++;
 			a++;
 			leftover = 0;
