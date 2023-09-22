@@ -227,6 +227,7 @@ main(int argc, char *argv[])
 		eofstr = EARGF(usage());
 		break;
 	case 'I':
+		xflag = 1;
 		nflag = 1;
 		maxargs = 1;
 		replstr = EARGF(usage());
