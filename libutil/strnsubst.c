@@ -56,7 +56,6 @@ strnsubst(char **str, const char *match, const char *replstr, size_t maxsize)
 	}
 	strlcpy(s2 + s2len, s1, maxsize - s2len);
 done:
-	free(*str);
 	*str = s2;
 	return;
 }
