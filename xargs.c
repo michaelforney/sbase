@@ -266,9 +266,11 @@ main(int argc, char *argv[])
 				argsz += arglen + 1;
 			} else {
 				for (j = 1; j < i; j++) {
+					char *p = cmd[j];
 					argsz -= strlen(cmd[j]);
 					strnsubst(&cmd[j], replstr, arg, 255);
 					argsz += strlen(cmd[j]);
+					free(p);
 				}
 			}
 
