@@ -187,7 +187,7 @@ MAN = $(BIN:=.1)
 
 all: $(BIN)
 
-$(BIN): $(LIB) $(@:=.o)
+$(BIN): $(LIB)
 
 $(OBJ): $(HDR) config.mk
 
