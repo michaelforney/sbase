@@ -1,4 +1,5 @@
 *.o
+/build
 /getconf.h
 /libutf.a
 /libutil.a

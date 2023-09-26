@@ -236,27 +236,9 @@ dist: clean
 	gzip sbase-$(VERSION).tar
 	rm -rf sbase-$(VERSION)
 
-sbase-box: $(LIB) $(SRC) getconf.h
-	mkdir -p build
-	cp $(HDR) build
-	cp getconf.h build
-	for f in $(SRC); do sed "s/^main(/$$(echo "$${f%.c}" | sed s/-/_/g)_&/" < $$f > build/$$f; done
-	echo '#include <libgen.h>'                                                                                                     > build/$@.c
-	echo '#include <stdio.h>'                                                                                                     >> build/$@.c
-	echo '#include <stdlib.h>'                                                                                                    >> build/$@.c
-	echo '#include <string.h>'                                                                                                    >> build/$@.c
-	echo '#include "util.h"'                                                                                                      >> build/$@.c
-	for f in $(SRC); do echo "int $$(echo "$${f%.c}" | sed s/-/_/g)_main(int, char **);"; done                                    >> build/$@.c
-	echo 'int main(int argc, char *argv[]) { char *s = basename(argv[0]);'                                                        >> build/$@.c
-	echo 'if(!strcmp(s,"sbase-box")) { argc--; argv++; s = basename(argv[0]); } if(0) ;'                                          >> build/$@.c
-	echo "else if (!strcmp(s, \"install\")) return xinstall_main(argc, argv);"                                                    >> build/$@.c
-	echo "else if (!strcmp(s, \"[\")) return test_main(argc, argv);"                                                              >> build/$@.c
-	for f in $(SRC); do echo "else if(!strcmp(s, \"$${f%.c}\")) return $$(echo "$${f%.c}" | sed s/-/_/g)_main(argc, argv);"; done >> build/$@.c
-	echo 'else { fputs("[ ", stdout);'                                                                                            >> build/$@.c
-	for f in $(SRC); do echo "fputs(\"$${f%.c} \", stdout);"; done                                                                >> build/$@.c
-	echo 'putchar(0xa); }; return 0; }'                                                                                           >> build/$@.c
+sbase-box: $(BIN)
+	scripts/mkbox
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ build/*.c $(LIB)
-	rm -r build
 
 sbase-box-install: sbase-box
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
@@ -276,5 +258,6 @@ sbase-box-uninstall: uninstall
 clean:
 	rm -f $(BIN) $(OBJ) $(LIB) sbase-box sbase-$(VERSION).tar.gz
 	rm -f getconf.h
+	rm -rf build
 
 .PHONY: all install uninstall dist sbase-box-install sbase-box-uninstall clean
