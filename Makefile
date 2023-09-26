@@ -210,19 +210,18 @@ getconf.o: getconf.h
 getconf.h:
 	scripts/getconf.sh > $@
 
-install: all
-	mkdir -p $(DESTDIR)$(PREFIX)/bin
-	cp -f $(BIN) $(DESTDIR)$(PREFIX)/bin
-	cd $(DESTDIR)$(PREFIX)/bin && ln -f test [ && chmod 755 $(BIN)
-	mv -f $(DESTDIR)$(PREFIX)/bin/xinstall $(DESTDIR)$(PREFIX)/bin/install
-	mkdir -p $(DESTDIR)$(MANPREFIX)/man1
-	for m in $(MAN); do sed "s/^\.Os sbase/.Os sbase $(VERSION)/g" < "$$m" > $(DESTDIR)$(MANPREFIX)/man1/"$$m"; done
-	cd $(DESTDIR)$(MANPREFIX)/man1 && chmod 644 $(MAN)
-	mv -f $(DESTDIR)$(MANPREFIX)/man1/xinstall.1 $(DESTDIR)$(MANPREFIX)/man1/install.1
+install uninstall:
+	scripts/mkproto $@ $(DESTDIR)$(PREFIX) $(DESTDIR)$(MANPREFIX) proto
+	scripts/$@ proto
 
-uninstall:
-	cd $(DESTDIR)$(PREFIX)/bin && rm -f $(BIN) [ install
-	cd $(DESTDIR)$(MANPREFIX)/man1 && rm -f $(MAN) install.1
+sbase-box-install: sbase-box
+	scripts/mkproto $@ $(DESTDIR)$(PREFIX) $(DESTDIR)$(MANPREFIX) proto
+	scripts/$@ proto
+	$(DESTDIR)$(PREFIX)/bin/sbase-box -i $(DESTDIR)$(PREFIX)/bin/
+
+sbase-box-uninstall: sbase-box
+	$(DESTDIR)$(PREFIX)/bin/sbase-box -d $(DESTDIR)$(PREFIX)/bin/
+	$(MAKE) uninstall
 
 dist: clean
 	mkdir -p sbase-$(VERSION)
@@ -235,21 +234,10 @@ sbase-box: $(BIN)
 	scripts/mkbox
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ build/*.c $(LIB)
 
-sbase-box-install: sbase-box
-	mkdir -p $(DESTDIR)$(PREFIX)/bin
-	mkdir -p $(DESTDIR)$(MANPREFIX)/man1
-	cp -f sbase-box $(DESTDIR)$(PREFIX)/bin
-	chmod 755 $(DESTDIR)$(PREFIX)/bin/sbase-box
-	$(DESTDIR)$(PREFIX)/bin/sbase-box -i $(DESTDIR)$(PREFIX)/bin/
-	cp -f $(MAN) $(DESTDIR)$(MANPREFIX)/man1/
-	mv -f $(DESTDIR)$(MANPREFIX)/man1/xinstall.1 $(DESTDIR)$(MANPREFIX)/man1/install.1
-
-sbase-box-uninstall: uninstall
-	cd $(DESTDIR)$(PREFIX)/bin && rm -f sbase-box
-
 clean:
 	rm -f $(BIN) $(OBJ) $(LIB) sbase-box sbase-$(VERSION).tar.gz
 	rm -f getconf.h
+	rm -f proto
 	rm -rf build
 
 .PHONY: all install uninstall dist sbase-box-install sbase-box-uninstall clean
