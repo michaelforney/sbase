@@ -474,6 +474,24 @@ skipblank(void)
 	back(c);
 }
 
+static void
+ensureblank(void)
+{
+	char c;
+
+	switch ((c = input())) {
+	case ' ':
+	case '\t':
+		skipblank();
+	case '\n':
+		back(c);
+	case EOF:
+		break;
+	default:
+		error("unknown command");
+	}
+}
+
 static int
 getnum(void)
 {
@@ -1145,10 +1163,12 @@ repeat:
 	case 'w':
 		trunc = 1;
 	case 'W':
+		ensureblank();
 		deflines(nextln(0), lastln);
 		dowrite(getfname(cmd), trunc);
 		break;
 	case 'r':
+		ensureblank();
 		if (nlines > 1)
 			goto bad_address;
 		deflines(lastln, lastln);
@@ -1260,6 +1280,7 @@ repeat:
 		quit();
 		break;
 	case 'f':
+		ensureblank();
 		if (nlines > 0)
 			goto unexpected;
 		if (back(input()) != '\n')
@@ -1271,6 +1292,7 @@ repeat:
 	case 'E':
 		modflag = 0;
 	case 'e':
+		ensureblank();
 		if (nlines > 0)
 			goto unexpected;
 		if (modflag)
