@@ -207,8 +207,8 @@ libutil.a: $(LIBUTILOBJ)
 
 getconf.o: getconf.h
 
-getconf.h: getconf.sh
-	./getconf.sh > $@
+getconf.h:
+	scripts/getconf.sh > $@
 
 install: all
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
