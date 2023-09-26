@@ -22,66 +22,66 @@ HDR =\
 	util.h
 
 LIBUTF = libutf.a
-LIBUTFSRC =\
-	libutf/fgetrune.c\
-	libutf/fputrune.c\
-	libutf/isalnumrune.c\
-	libutf/isalpharune.c\
-	libutf/isblankrune.c\
-	libutf/iscntrlrune.c\
-	libutf/isdigitrune.c\
-	libutf/isgraphrune.c\
-	libutf/isprintrune.c\
-	libutf/ispunctrune.c\
-	libutf/isspacerune.c\
-	libutf/istitlerune.c\
-	libutf/isxdigitrune.c\
-	libutf/lowerrune.c\
-	libutf/rune.c\
-	libutf/runetype.c\
-	libutf/upperrune.c\
-	libutf/utf.c\
-	libutf/utftorunestr.c
+LIBUTFOBJ =\
+	libutf/fgetrune.o\
+	libutf/fputrune.o\
+	libutf/isalnumrune.o\
+	libutf/isalpharune.o\
+	libutf/isblankrune.o\
+	libutf/iscntrlrune.o\
+	libutf/isdigitrune.o\
+	libutf/isgraphrune.o\
+	libutf/isprintrune.o\
+	libutf/ispunctrune.o\
+	libutf/isspacerune.o\
+	libutf/istitlerune.o\
+	libutf/isxdigitrune.o\
+	libutf/lowerrune.o\
+	libutf/rune.o\
+	libutf/runetype.o\
+	libutf/upperrune.o\
+	libutf/utf.o\
+	libutf/utftorunestr.o
 
 LIBUTIL = libutil.a
-LIBUTILSRC =\
-	libutil/concat.c\
-	libutil/cp.c\
-	libutil/crypt.c\
-	libutil/ealloc.c\
-	libutil/enmasse.c\
-	libutil/eprintf.c\
-	libutil/eregcomp.c\
-	libutil/estrtod.c\
-	libutil/fnck.c\
-	libutil/fshut.c\
-	libutil/getlines.c\
-	libutil/human.c\
-	libutil/linecmp.c\
-	libutil/md5.c\
-	libutil/memmem.c\
-	libutil/mkdirp.c\
-	libutil/mode.c\
-	libutil/parseoffset.c\
-	libutil/putword.c\
-	libutil/reallocarray.c\
-	libutil/recurse.c\
-	libutil/rm.c\
-	libutil/sha1.c\
-	libutil/sha224.c\
-	libutil/sha256.c\
-	libutil/sha384.c\
-	libutil/sha512.c\
-	libutil/sha512-224.c\
-	libutil/sha512-256.c\
-	libutil/strcasestr.c\
-	libutil/strlcat.c\
-	libutil/strlcpy.c\
-	libutil/strsep.c\
-	libutil/strnsubst.c\
-	libutil/strtonum.c\
-	libutil/unescape.c\
-	libutil/writeall.c
+LIBUTILOBJ =\
+	libutil/concat.o\
+	libutil/cp.o\
+	libutil/crypt.o\
+	libutil/ealloc.o\
+	libutil/enmasse.o\
+	libutil/eprintf.o\
+	libutil/eregcomp.o\
+	libutil/estrtod.o\
+	libutil/fnck.o\
+	libutil/fshut.o\
+	libutil/getlines.o\
+	libutil/human.o\
+	libutil/linecmp.o\
+	libutil/md5.o\
+	libutil/memmem.o\
+	libutil/mkdirp.o\
+	libutil/mode.o\
+	libutil/parseoffset.o\
+	libutil/putword.o\
+	libutil/reallocarray.o\
+	libutil/recurse.o\
+	libutil/rm.o\
+	libutil/sha1.o\
+	libutil/sha224.o\
+	libutil/sha256.o\
+	libutil/sha384.o\
+	libutil/sha512.o\
+	libutil/sha512-224.o\
+	libutil/sha512-256.o\
+	libutil/strcasestr.o\
+	libutil/strlcat.o\
+	libutil/strlcpy.o\
+	libutil/strsep.o\
+	libutil/strnsubst.o\
+	libutil/strtonum.o\
+	libutil/unescape.o\
+	libutil/writeall.o
 
 LIB = $(LIBUTF) $(LIBUTIL)
 
@@ -184,8 +184,6 @@ BIN =\
 	xinstall\
 	yes
 
-LIBUTFOBJ = $(LIBUTFSRC:.c=.o)
-LIBUTILOBJ = $(LIBUTILSRC:.c=.o)
 OBJ = $(BIN:=.o) $(LIBUTFOBJ) $(LIBUTILOBJ)
 SRC = $(BIN:=.c)
 MAN = $(BIN:=.1)
