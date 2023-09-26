@@ -183,7 +183,6 @@ BIN =\
 	yes
 
 OBJ = $(BIN:=.o) $(LIBUTFOBJ) $(LIBUTILOBJ)
-SRC = $(BIN:=.c)
 MAN = $(BIN:=.1)
 
 all: $(BIN)
@@ -227,7 +226,7 @@ uninstall:
 
 dist: clean
 	mkdir -p sbase-$(VERSION)
-	cp -r LICENSE Makefile README TODO config.mk $(SRC) $(MAN) libutf libutil $(HDR) sbase-$(VERSION)
+	cp -r LICENSE Makefile README TODO config.mk *.c *.1 *.h libutf libutil sbase-$(VERSION)
 	tar -cf sbase-$(VERSION).tar sbase-$(VERSION)
 	gzip sbase-$(VERSION).tar
 	rm -rf sbase-$(VERSION)
