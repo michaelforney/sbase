@@ -237,14 +237,11 @@ sbase-box: $(BIN)
 
 sbase-box-install: sbase-box
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
+	mkdir -p $(DESTDIR)$(MANPREFIX)/man1
 	cp -f sbase-box $(DESTDIR)$(PREFIX)/bin
 	chmod 755 $(DESTDIR)$(PREFIX)/bin/sbase-box
-	for f in $(BIN); do ln -sf sbase-box $(DESTDIR)$(PREFIX)/bin/"$$f"; done
-	ln -sf sbase-box $(DESTDIR)$(PREFIX)/bin/[
-	mv -f $(DESTDIR)$(PREFIX)/bin/xinstall $(DESTDIR)$(PREFIX)/bin/install
-	mkdir -p $(DESTDIR)$(MANPREFIX)/man1
-	for m in $(MAN); do sed "s/^\.Os sbase/.Os sbase $(VERSION)/g" < "$$m" > $(DESTDIR)$(MANPREFIX)/man1/"$$m"; done
-	cd $(DESTDIR)$(MANPREFIX)/man1 && chmod 644 $(MAN)
+	$(DESTDIR)$(PREFIX)/bin/sbase-box -i $(DESTDIR)$(PREFIX)/bin/
+	cp -f $(MAN) $(DESTDIR)$(MANPREFIX)/man1/
 	mv -f $(DESTDIR)$(MANPREFIX)/man1/xinstall.1 $(DESTDIR)$(MANPREFIX)/man1/install.1
 
 sbase-box-uninstall: uninstall

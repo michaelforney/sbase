@@ -8,7 +8,10 @@ mkdir -p build
 cp *.h build
 
 cat > build/sbase-box.c <<EOF
+#include <unistd.h>
+
 #include <libgen.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,6 +41,35 @@ done)
 	{NULL},
 };
 
+static void
+install(char *path)
+{
+	int r;
+	struct cmd *bp;
+	char fname[FILENAME_MAX];
+
+	if (path == NULL) {
+		fputs("sbase-box [-i path] [command]\n", stderr);
+		exit(1);
+	}
+
+	for (bp = cmds; bp->name; ++bp) {
+		r = snprintf(fname, sizeof(fname), "%s/%s", path, bp->name);
+		if (r < 0 || r >= sizeof(fname)) {
+			fprintf(stderr,
+			        "sbase-box: destination path truncated for '%s'\n",
+			        bp->name);
+			exit(1);
+		}
+		if (symlink("sbase-box", fname) < 0) {
+			fprintf(stderr,
+			        "sbase-box: %s: %s\n",
+			        bp->name, strerror(errno));
+			exit(1);
+		}
+	}
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -46,6 +78,10 @@ main(int argc, char *argv[])
 
 	if(!strcmp(s,"sbase-box")) {
 		argc--; argv++;
+		if (strcmp(argv[0], "-i") == 0) {
+			install(argv[1]);
+			exit(0);
+		}
 		s = basename(argv[0]);
 	}
 
