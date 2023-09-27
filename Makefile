@@ -21,7 +21,6 @@ HDR =\
 	utf.h\
 	util.h
 
-LIBUTF = libutf.a
 LIBUTFOBJ =\
 	libutf/fgetrune.o\
 	libutf/fputrune.o\
@@ -43,7 +42,6 @@ LIBUTFOBJ =\
 	libutf/utf.o\
 	libutf/utftorunestr.o
 
-LIBUTIL = libutil.a
 LIBUTILOBJ =\
 	libutil/concat.o\
 	libutil/cp.o\
@@ -83,7 +81,7 @@ LIBUTILOBJ =\
 	libutil/unescape.o\
 	libutil/writeall.o
 
-LIB = $(LIBUTF) $(LIBUTIL)
+LIB = libutf.a libutil.a
 
 BIN =\
 	basename\
@@ -200,11 +198,11 @@ $(OBJ): $(HDR) config.mk
 .c.o:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 
-$(LIBUTF): $(LIBUTFOBJ)
+libutf.a: $(LIBUTFOBJ)
 	$(AR) rc $@ $?
 	$(RANLIB) $@
 
-$(LIBUTIL): $(LIBUTILOBJ)
+libutil.a: $(LIBUTILOBJ)
 	$(AR) rc $@ $?
 	$(RANLIB) $@
 
