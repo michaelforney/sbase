@@ -1,7 +1,15 @@
+.POSIX:
 include config.mk
 
 .SUFFIXES:
 .SUFFIXES: .o .c
+
+CPPFLAGS =\
+	-D_DEFAULT_SOURCE \
+	-D_NETBSD_SOURCE \
+	-D_BSD_SOURCE \
+	-D_XOPEN_SOURCE=700 \
+	-D_FILE_OFFSET_BITS=64
 
 HDR =\
 	arg.h\
@@ -189,13 +197,13 @@ all: $(BIN)
 
 $(BIN): $(LIB)
 
-$(OBJ): $(HDR) config.mk
+$(OBJ): $(HDR)
 
 .o:
 	$(CC) $(LDFLAGS) -o $@ $< $(LIB)
 
 .c.o:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $<
 
 libutf.a: $(LIBUTFOBJ)
 	$(AR) $(ARFLAGS) $@ $?
