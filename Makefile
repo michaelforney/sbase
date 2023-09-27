@@ -199,11 +199,11 @@ $(OBJ): $(HDR) config.mk
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 
 libutf.a: $(LIBUTFOBJ)
-	$(AR) rc $@ $?
+	$(AR) $(ARFLAGS) $@ $?
 	$(RANLIB) $@
 
 libutil.a: $(LIBUTILOBJ)
-	$(AR) rc $@ $?
+	$(AR) $(ARFLAGS) $@ $?
 	$(RANLIB) $@
 
 getconf.o: getconf.h
