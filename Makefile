@@ -277,7 +277,4 @@ clean:
 	rm -f $(BIN) $(OBJ) $(LIB) sbase-box sbase-$(VERSION).tar.gz
 	rm -f getconf.h
 
-.gitignore:
-	{ printf '*.o\n' ; printf '/%s\n' getconf.h $(LIB) $(BIN) ; } > $@
-
-.PHONY: all install uninstall dist sbase-box-install sbase-box-uninstall clean .gitignore
+.PHONY: all install uninstall dist sbase-box-install sbase-box-uninstall clean
