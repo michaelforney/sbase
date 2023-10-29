@@ -14,7 +14,7 @@ trap "rm -f scripts/proto" EXIT INT QUIT TERM
 
 (set -e
 echo d $prefix/bin $prefix/bin 755
-find . ! -name . -prune -type f -perm /111 |
+find . ! -name . -prune -type f \( -perm -u+x -o -perm -g+x -o -perm o+x \) |
 sed "s@.*@c & $prefix/bin/& 755@"
 
 echo d $manprefix/man1 $manprefix/man1 755
