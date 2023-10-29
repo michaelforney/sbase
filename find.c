@@ -809,8 +809,12 @@ parse(int argc, char **argv)
 			}
 			tok->type = op->type;
 			tok->u.oinfo = op;
-		} else { /* token is neither primary nor operator, must be path in the wrong place */
-			eprintf("paths must precede expression: %s\n", *arg);
+		} else {
+			/* token is neither primary nor operator, must be */
+			if ((*arg)[0] == '-') /* an unsupported option */
+				eprintf("unknown operand: %s\n", *arg);
+			else /* or a path in the wrong place */
+				eprintf("paths must precede expression: %s\n", *arg);
 		}
 		if (tok->type != LPAR && tok->type != RPAR)
 			ntok++; /* won't have parens in rpn */
