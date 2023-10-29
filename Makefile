@@ -219,11 +219,11 @@ getconf.h:
 	scripts/getconf.sh > $@
 
 install uninstall:
-	scripts/mkproto $@ $(DESTDIR)$(PREFIX) $(DESTDIR)$(MANPREFIX) proto
+	scripts/mkproto $(DESTDIR)$(PREFIX) $(DESTDIR)$(MANPREFIX) proto
 	scripts/$@ proto
 
 sbase-box-install: sbase-box
-	scripts/mkproto $@ $(DESTDIR)$(PREFIX) $(DESTDIR)$(MANPREFIX) proto
+	scripts/mkproto $(DESTDIR)$(PREFIX) $(DESTDIR)$(MANPREFIX) proto
 	scripts/$@ proto
 	$(DESTDIR)$(PREFIX)/bin/sbase-box -i $(DESTDIR)$(PREFIX)/bin/
 
