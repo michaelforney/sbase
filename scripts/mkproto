@@ -14,11 +14,11 @@ trap "rm -f scripts/proto" EXIT INT QUIT TERM
 
 (set -e
 echo d $prefix/bin $prefix/bin 755
-find . -maxdepth 1 -type f -perm /111 |
+find . ! -name . -prune -type f -perm /111 |
 sed "s@.*@c & $prefix/bin/& 755@"
 
 echo d $manprefix/man1 $manprefix/man1 755
-find . -maxdepth 1 -name '*.1' |
+find . ! -name . -prune -name '*.1' |
 sed "s@.*@c & $manprefix/man1/& 644@") > $proto
 
 trap "" EXIT INT QUIT TERM
