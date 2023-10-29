@@ -55,6 +55,19 @@ ed
     .
     1g/^$/p
 * Editing huge files doesn't work well.
+* Escaping newlines in replacement doesn't work well:
+	% /bin/ed
+	i
+	foobar
+	.
+	s/foo/&\
+	->
+	->bar
+	,p
+	foo
+	->bar
+	Q
+
 
 printf
 ------
