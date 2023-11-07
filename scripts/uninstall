@@ -1,0 +1,32 @@
+#!/bin/sh
+
+set -e
+
+while read type src dst perm
+do
+	case $type in
+	d)
+		echo $type $src $dst $perm
+		continue
+		;;
+	c)
+		rm -f $dst
+		;;
+	*)
+		echo uninstall: wrong entry type >&2
+		exit 1
+		;;
+	esac
+done < $1 |
+sort -r |
+while read type src dst perm
+do
+	case $type in
+	d)
+		if test `ls $dst | wc -l` -eq 0
+		then
+			rmdir $dst
+		fi
+		;;
+	esac
+done

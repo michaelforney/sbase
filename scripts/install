@@ -1,0 +1,21 @@
+#!/bin/sh
+
+set -e
+
+while read type src dst perm
+do
+	case $type in
+	d)
+		mkdir -p $src
+		;;
+	c)
+		cp $src $dst
+		;;
+	*)
+		echo install: wrong entry type >&2
+		exit 1
+		;;
+	esac
+
+	chmod $perm $dst
+done < $1

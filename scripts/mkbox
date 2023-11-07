@@ -1,0 +1,102 @@
+#!/bin/sh
+
+trap "rm -rf build" INT QUIT TERM
+
+rm -rf build
+mkdir -p build
+
+cp *.h build
+
+cat > build/sbase-box.c <<EOF
+#include <unistd.h>
+
+#include <libgen.h>
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "util.h"
+#include "sbase-box.h"
+
+struct cmd {
+	char *name;
+	int (*fn)(int, char **);
+} cmds[] = {
+	{"install", xinstall_main},
+	{"[", test_main},
+$(grep -l ^main *.c |
+while read f
+do
+	sed -n '
+	/^main/ {
+		s/main/'${f%.c}'_main/
+		s/-/_/g
+		w build/'$f'
+		s/\(^.*\)(.*)/	{"'${f%.c}'", \1},/p
+		d
+	}
+	w 'build/$f $f
+done)
+	{NULL},
+};
+
+static void
+install(char *path)
+{
+	int r;
+	struct cmd *bp;
+	char fname[FILENAME_MAX];
+
+	if (path == NULL) {
+		fputs("sbase-box [-i path] [command]\n", stderr);
+		exit(1);
+	}
+
+	for (bp = cmds; bp->name; ++bp) {
+		r = snprintf(fname, sizeof(fname), "%s/%s", path, bp->name);
+		if (r < 0 || r >= sizeof(fname)) {
+			fprintf(stderr,
+			        "sbase-box: destination path truncated for '%s'\n",
+			        bp->name);
+			exit(1);
+		}
+		if (symlink("sbase-box", fname) < 0) {
+			fprintf(stderr,
+			        "sbase-box: %s: %s\n",
+			        bp->name, strerror(errno));
+			exit(1);
+		}
+	}
+}
+
+int
+main(int argc, char *argv[])
+{
+	char *s = basename(argv[0]);
+	struct cmd *bp;
+
+	if(!strcmp(s,"sbase-box")) {
+		argc--; argv++;
+		if (strcmp(argv[0], "-i") == 0) {
+			install(argv[1]);
+			exit(0);
+		}
+		s = basename(argv[0]);
+	}
+
+	for (bp = cmds; bp->name; ++bp) {
+		if (strcmp(bp->name, s) == 0)
+			return (*bp->fn)(argc, argv);
+	}
+
+	for (bp = cmds; bp->name; ++bp)
+		printf("%s ", bp->name);
+	putchar('\n');
+
+	return 0;
+}
+EOF
+
+sed -n 's/.* \(.*_main\).*/int \1(int, char **);/p'\
+	build/sbase-box.c > build/sbase-box.h

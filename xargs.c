@@ -26,7 +26,7 @@ static size_t argbsz;
 static size_t argbpos;
 static size_t maxargs = 0;
 static int    nerrors = 0;
-static int    rflag = 0, nflag = 0, tflag = 0, xflag = 0;
+static int    rflag = 0, nflag = 0, tflag = 0, xflag = 0, Iflag = 0;
 static char  *argb;
 static char  *cmd[NARGS];
 static char  *eofstr;
@@ -111,7 +111,11 @@ poparg(void)
 		return NULL;
 	while ((ch = inputc()) != EOF) {
 		switch (ch) {
-		case ' ': case '\t': case '\n':
+		case ' ':
+		case '\t':
+			if (Iflag)
+				goto fill;
+		case '\n':
 			goto out;
 		case '\'':
 			if (parsequote('\'') < 0)
@@ -126,6 +130,7 @@ poparg(void)
 				eprintf("backslash at EOF\n");
 			break;
 		default:
+		fill:
 			fillargbuf(ch);
 			argbpos++;
 			break;
@@ -195,10 +200,11 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	int ret = 0, leftover = 0, i;
+	int ret = 0, leftover = 0, i, j;
 	size_t argsz, argmaxsz;
 	size_t arglen, a;
 	char *arg = "";
+	char *replstr;
 
 	if ((argmaxsz = sysconf(_SC_ARG_MAX)) == (size_t)-1)
 		argmaxsz = _POSIX_ARG_MAX;
@@ -224,6 +230,13 @@ main(int argc, char *argv[])
 		break;
 	case 'E':
 		eofstr = EARGF(usage());
+		break;
+	case 'I':
+		Iflag = 1;
+		xflag = 1;
+		nflag = 1;
+		maxargs = 1;
+		replstr = EARGF(usage());
 		break;
 	default:
 		usage();
@@ -252,8 +265,20 @@ main(int argc, char *argv[])
 				leftover = 1;
 				break;
 			}
-			cmd[i] = estrdup(arg);
-			argsz += arglen + 1;
+
+			if (!Iflag) {
+				cmd[i] = estrdup(arg);
+				argsz += arglen + 1;
+			} else {
+				for (j = 1; j < i; j++) {
+					char *p = cmd[j];
+					argsz -= strlen(cmd[j]);
+					strnsubst(&cmd[j], replstr, arg, 255);
+					argsz += strlen(cmd[j]);
+					free(p);
+				}
+			}
+
 			i++;
 			a++;
 			leftover = 0;

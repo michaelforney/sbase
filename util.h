@@ -63,6 +63,8 @@ size_t estrlcpy(char *, const char *, size_t);
 #define strsep xstrsep
 char *strsep(char **, const char *);
 
+void strnsubst(char **, const char *, const char *, size_t);
+
 /* regex */
 int enregcomp(int, regex_t *, const char *, int);
 int eregcomp(regex_t *, const char *, int);
