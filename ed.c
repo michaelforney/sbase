@@ -692,6 +692,15 @@ getinput(void)
 	}
 }
 
+static int
+moreinput(void)
+{
+	if (!uflag)
+		return cmdline.str[inputidx] != '\0';
+
+	getinput();
+	return 1;
+}
 
 static void dowrite(const char *, int);
 
@@ -876,7 +885,7 @@ dohelp(void)
 static void
 chkprint(int flag)
 {
-	char c;
+	int c;
 
 	if (flag) {
 		if ((c = input()) == 'p' || c == 'l' || c == 'n')
@@ -884,7 +893,7 @@ chkprint(int flag)
 		else
 			back(c);
 	}
-	if (input() != '\0')
+	if ((c = input()) != '\0' && c != '\n')
 		error("invalid command suffix");
 }
 
@@ -919,16 +928,21 @@ getfname(int comm)
 static void
 append(int num)
 {
-	char *s = NULL;
-	size_t len = 0;
+	int ch;
+	static String line;
 
 	curln = num;
-	while (getline(&s, &len, stdin) > 0) {
-		if (*s == '.' && s[1] == '\n')
+	while (moreinput()) {
+		string(&line);
+		while ((ch = input()) != '\n' && ch != '\0')
+			addchar(ch, &line);
+		addchar('\n', &line);
+		addchar('\0', &line);
+
+		if (!strcmp(line.str, ".\n") || !strcmp(line.str, "."))
 			break;
-		inject(s, AFTER);
+		inject(line.str, AFTER);
 	}
-	free(s);
 }
 
 static void
