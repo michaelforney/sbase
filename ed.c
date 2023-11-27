@@ -199,7 +199,7 @@ makeline(char *s, int *off)
 		len = 0;
 	} else {
 		while ((c = *s++) && c != '\n')
-			/* nothing */;
+			;
 		len = s - begin;
 		if ((lp->seek = lseek(scratch, 0, SEEK_END)) < 0 ||
 		    write(scratch, begin, len) < 0) {
@@ -482,7 +482,7 @@ skipblank(void)
 	char c;
 
 	while ((c = input()) == ' ' || c == '\t')
-		/* nothing */;
+		;
 	back(c);
 }
 
