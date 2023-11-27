@@ -1067,13 +1067,21 @@ execsh(void)
 	}
 
 	while ((c = input()) != '\0') {
-		if (c == '%' && (cmd.siz == 0 || cmd.str[cmd.siz - 1] != '\\')) {
+		switch (c) {
+		case '%':
 			if (savfname[0] == '\0')
 				error("no current filename");
 			repl = 1;
 			for (p = savfname; *p; ++p)
 				addchar(*p, &cmd);
-		} else {
+			break;
+		case '\\':
+			c = input();
+			if (c != '%') {
+				back(c);
+				c = '\\';
+			}
+		default:
 			addchar(c, &cmd);
 		}
 	}
