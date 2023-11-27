@@ -185,19 +185,20 @@ makeline(char *s, int *off)
 	if (lastidx >= idxsize) {
 		lp = NULL;
 		if (idxsize <= SIZE_MAX - NUMLINES)
-		    lp = reallocarray(zero, idxsize + NUMLINES, sizeof(*lp));
+			lp = reallocarray(zero, idxsize + NUMLINES, sizeof(*lp));
 		if (!lp)
 			error("out of memory");
 		idxsize += NUMLINES;
 		zero = lp;
 	}
 	lp = zero + lastidx;
+	lp->global = 0;
 
 	if (!s) {
 		lp->seek = -1;
 		len = 0;
 	} else {
-		while ((c = *s++) != '\n')
+		while ((c = *s++) && c != '\n')
 			/* nothing */;
 		len = s - begin;
 		if ((lp->seek = lseek(scratch, 0, SEEK_END)) < 0 ||
