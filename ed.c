@@ -1102,9 +1102,9 @@ getrhs(int delim)
 	}
 
 	if (!strcmp("%", s.str)) {
-		free(s.str);
 		if (!rhs)
 			error("no previous substitution");
+		free(s.str);
 	} else {
 		free(rhs);
 		rhs = s.str;
