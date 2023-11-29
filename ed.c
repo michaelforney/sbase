@@ -122,6 +122,24 @@ prevln(int line)
 }
 
 static String *
+copystring(String *s, char *from)
+{
+	size_t len;
+	char *t;
+
+	if ((t = strdup(from)) == NULL)
+		error("out of memory");
+	len = strlen(t);
+
+	free(s->str);
+	s->str = t;
+	s->siz = len;
+	s->cap = len;
+
+	return s;
+}
+
+static String *
 string(String *s)
 {
 	free(s->str);
