@@ -64,29 +64,14 @@ static int pflag, modflag, uflag, gflag;
 static size_t csize;
 static String cmdline;
 static char *ocmdline;
-static int repidx;
+static int inputidx;
 static char *rhs;
 static char *lastmatch;
 static struct undo udata;
 static int newcmd;
-int eol, bol;
+static int eol, bol;
 
 static sig_atomic_t intr, hup;
-
-static void
-discard(void)
-{
-	int c;
-
-	if (repidx >= 0 || cmdline.siz == 0)
-		return;
-
-	/* discard until the end of the line */
-	if (cmdline.str[cmdline.siz-1] != '\n') {
-		while ((c = getchar()) != '\n' && c != EOF)
-			;
-	}
-}
 
 static void undo(void);
 
@@ -102,7 +87,6 @@ error(char *msg)
 	if (!newcmd)
 		undo();
 
-	discard();
 	curln = ocurln;
 	longjmp(savesp, 1);
 }
@@ -172,30 +156,22 @@ static void chksignals(void);
 static int
 input(void)
 {
-	int c;
-
-	if (repidx >= 0)
-		return ocmdline[repidx++];
-
-	if ((c = getchar()) != EOF)
-		addchar(c, &cmdline);
+	int ch;
 
 	chksignals();
 
-	return c;
+	ch = cmdline.str[inputidx];
+	if (ch != '\0')
+		inputidx++;
+	return ch;
 }
 
 static int
 back(int c)
 {
-	if (repidx > 0) {
-		--repidx;
-	} else {
-		ungetc(c, stdin);
-		if (c != EOF)
-			--cmdline.siz;
-	}
-	return c;
+	if (c == '\0')
+		return c;
+	return cmdline.str[--inputidx] = c;
 }
 
 static int
@@ -203,7 +179,8 @@ makeline(char *s, int *off)
 {
 	struct hline *lp;
 	size_t len;
-	char c, *begin = s;
+	char *begin = s;
+	int c;
 
 	if (lastidx >= idxsize) {
 		lp = NULL;
@@ -426,18 +403,14 @@ compile(int delim)
 
 	eol = bol = bracket = lastre.siz = 0;
 	for (n = 0;; ++n) {
-		if ((c = input()) == delim && !bracket)
+		c = input();
+		if (c == delim && !bracket || c == '\0') {
 			break;
-		if (c == '^') {
+		} else if (c == '^') {
 			bol = 1;
 		} else if (c == '$') {
 			eol = 1;
-		} else if (c == '\n' || c == EOF) {
-			back(c);
-			break;
-		}
-
-		if (c == '\\') {
+		} else if (c == '\\') {
 			addchar(c, &lastre);
 			c = input();
 		} else if (c == '[') {
@@ -521,9 +494,8 @@ ensureblank(void)
 	case ' ':
 	case '\t':
 		skipblank();
-	case '\n':
+	case '\0':
 		back(c);
-	case EOF:
 		break;
 	default:
 		error("unknown command");
@@ -680,6 +652,46 @@ quit(void)
 	clearbuf();
 	exit(exstatus);
 }
+
+static void
+setinput(char *s)
+{
+	copystring(&cmdline, s);
+	inputidx = 0;
+}
+
+static void
+getinput(void)
+{
+	int ch;
+
+	string(&cmdline);
+
+	while ((ch = getchar()) != '\n' && ch != EOF) {
+		if (ch == '\\') {
+			if ((ch = getchar()) == EOF)
+				break;
+			if (ch != '\n') {
+				ungetc(ch, stdin);
+				ch = '\\';
+			}
+		}
+		addchar(ch, &cmdline);
+	}
+
+	addchar('\0', &cmdline);
+	inputidx = 0;
+
+	if (ch == EOF) {
+		chksignals();
+		if (ferror(stdin)) {
+			exstatus = 1;
+			fputs("ed: error reading input\n", stderr);
+		}
+		quit();
+	}
+}
+
 
 static void dowrite(const char *, int);
 
@@ -872,12 +884,12 @@ chkprint(int flag)
 		else
 			back(c);
 	}
-	if (input() != '\n')
+	if (input() != '\0')
 		error("invalid command suffix");
 }
 
 static char *
-getfname(char comm)
+getfname(int comm)
 {
 	int c;
 	char *bp;
@@ -885,7 +897,7 @@ getfname(char comm)
 
 	skipblank();
 	for (bp = fname; bp < &fname[FILENAME_MAX]; *bp++ = c) {
-		if ((c = input()) == EOF || c == '\n')
+		if ((c = input()) == '\0')
 			break;
 	}
 	if (bp == fname) {
@@ -1040,7 +1052,7 @@ execsh(void)
 		error("no previous command");
 	}
 
-	while ((c = input()) != EOF && c != '\n') {
+	while ((c = input()) != '\0') {
 		if (c == '%' && (cmd.siz == 0 || cmd.str[cmd.siz - 1] != '\\')) {
 			if (savfname[0] == '\0')
 				error("no current filename");
@@ -1067,12 +1079,10 @@ getrhs(int delim)
 	static String s;
 
 	string(&s);
-	while ((c = input()) != '\n' && c != EOF && c != delim)
+	while ((c = input()) != '\0' && c != delim)
 		addchar(c, &s);
 	addchar('\0', &s);
-	if (c == EOF)
-		error("invalid pattern delimiter");
-	if (c == '\n') {
+	if (c == '\0') {
 		pflag = 'p';
 		back(c);
 	}
@@ -1201,8 +1211,7 @@ subst(int nth)
 static void
 docmd(void)
 {
-	char cmd;
-	int rep = 0, c, line3, num, trunc;
+	int cmd, c, line3, num, trunc;
 
 repeat:
 	skipblank();
@@ -1210,21 +1219,18 @@ repeat:
 	trunc = pflag = 0;
 	switch (cmd) {
 	case '&':
+		/* This is not working now */
 		skipblank();
 		chkprint(0);
 		if (!ocmdline)
 			error("no previous command");
-		rep = 1;
-		repidx = 0;
+		setinput(ocmdline);
 		getlst();
 		goto repeat;
 	case '!':
 		execsh();
 		break;
-	case EOF:
-		if (cmdline.siz == 0)
-			quit();
-	case '\n':
+	case '\0':
 		if (gflag && uflag)
 			return;
 		num = gflag ? curln : curln+1;
@@ -1378,7 +1384,7 @@ repeat:
 		ensureblank();
 		if (nlines > 0)
 			goto unexpected;
-		if (back(input()) != '\n')
+		if (back(input()) != '\0')
 			getfname(cmd);
 		else
 			puts(savfname);
@@ -1410,21 +1416,11 @@ repeat:
 	}
 
 	if (!pflag)
-		goto save_last_cmd;
-
+		return;
 	line1 = line2 = curln;
+
 print:
 	doprint();
-
-save_last_cmd:
-	if (!uflag)
-		repidx = 0;
-	if (rep)
-		return;
-	free(ocmdline);
-	addchar('\0', &cmdline);
-	if ((ocmdline = strdup(cmdline.str)) == NULL)
-		error("out of memory");
 }
 
 static int
@@ -1469,12 +1465,26 @@ chkglobal(void)
 }
 
 static void
-doglobal(void)
+savecmd(void)
 {
-	int cnt, ln, k;
+	int ch;
 
 	skipblank();
-	string(&cmdline);
+	ch = input();
+	if (ch != '&') {
+		ocmdline = strdup(cmdline.str);
+		if (ocmdline == NULL)
+			error("out of memory");
+	}
+	back(ch);
+}
+
+static void
+doglobal(void)
+{
+	int cnt, ln, k, idx;
+
+	skipblank();
 	gflag = 1;
 	if (uflag)
 		chkprint(0);
@@ -1491,15 +1501,18 @@ doglobal(void)
 				line1 = line2 = ln;
 				pflag = 0;
 				doprint();
+				getinput();
+				savecmd();
 			}
+			idx = inputidx;
 			getlst();
 			docmd();
+			inputidx = idx;
 		} else {
 			cnt++;
 			ln = nextln(ln);
 		}
 	}
-	discard();   /* cover the case of not matching anything */
 }
 
 static void
@@ -1527,12 +1540,12 @@ edit(void)
 		newcmd = 1;
 		ocurln = curln;
 		olastln = lastln;
-		cmdline.siz = 0;
-		repidx = -1;
 		if (optprompt) {
 			fputs(prompt, stdout);
 			fflush(stdout);
 		}
+
+		getinput();
 		getlst();
 		chkglobal() ? doglobal() : docmd();
 	}
