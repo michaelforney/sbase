@@ -76,7 +76,7 @@ main(int argc, char *argv[])
 	char *s = basename(argv[0]);
 	struct cmd *bp;
 
-	if(!strcmp(s,"sbase-box")) {
+	if (!strcmp(s, "sbase-box") && argc > 1) {
 		argc--; argv++;
 		if (strcmp(argv[0], "-i") == 0) {
 			install(argv[1]);
