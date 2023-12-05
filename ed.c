@@ -1242,7 +1242,6 @@ repeat:
 	trunc = pflag = 0;
 	switch (cmd) {
 	case '&':
-		/* This is not working now */
 		skipblank();
 		chkprint(0);
 		if (!ocmdline)
@@ -1254,8 +1253,6 @@ repeat:
 		execsh();
 		break;
 	case '\0':
-		if (gflag && uflag)
-			return;
 		num = gflag ? curln : curln+1;
 		deflines(num, num);
 		pflag = 'p';
@@ -1520,17 +1517,28 @@ doglobal(void)
 			zero[k].global = 0;
 			curln = ln;
 			nlines = 0;
-			if (uflag) {
-				line1 = line2 = ln;
-				pflag = 0;
-				doprint();
-				getinput();
-				savecmd();
+
+			if (!uflag) {
+				idx = inputidx;
+				getlst();
+				docmd();
+				inputidx = idx;
+				continue;
 			}
-			idx = inputidx;
-			getlst();
-			docmd();
-			inputidx = idx;
+
+			line1 = line2 = ln;
+			pflag = 0;
+			doprint();
+
+			for (;;) {
+				getinput();
+				if (strcmp(cmdline.str, "") == 0)
+					break;
+				savecmd();
+				getlst();
+				docmd();
+			}
+
 		} else {
 			cnt++;
 			ln = nextln(ln);
