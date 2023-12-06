@@ -1255,6 +1255,7 @@ repeat:
 	case '\0':
 		num = gflag ? curln : curln+1;
 		deflines(num, num);
+		line1 = line2;
 		pflag = 'p';
 		goto print;
 	case 'l':
