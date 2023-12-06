@@ -710,6 +710,9 @@ dump(void)
 {
 	char *home;
 
+	if (modflag)
+		return;
+
 	line1 = nextln(0);
 	line2 = lastln;
 
@@ -730,9 +733,8 @@ static void
 chksignals(void)
 {
 	if (hup) {
-		if (modflag)
-			dump();
 		exstatus = 1;
+		dump();
 		quit();
 	}
 
