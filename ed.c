@@ -740,6 +740,7 @@ chksignals(void)
 
 	if (intr) {
 		intr = 0;
+		newcmd = 1;
 		clearerr(stdin);
 		error("Interrupt");
 	}
