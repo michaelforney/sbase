@@ -1226,11 +1226,23 @@ subline(int num, int nth)
 static void
 subst(int nth)
 {
-	int i;
+	int i, line, next;
 
-	for (i = line1; i <= line2; ++i) {
+	line = line1;
+	for (i = 0; i < line2 - line1 + 1; i++) {
 		chksignals();
-		subline(i, nth);
+
+		next = getindex(nextln(line));
+		subline(line, nth);
+
+		/*
+		 * The substitution command can add lines, so
+		 * we have to skip lines until we find the
+		 * index that we saved before the substitution
+		 */
+		do
+			line = nextln(line);
+		while (getindex(line) != next);
 	}
 }
 

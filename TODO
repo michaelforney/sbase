@@ -50,14 +50,6 @@ ed
     line
     .
     1g/^$/p
-* cat <<EOF | ed
-i
-foobar1
-foobar2
-.
-1,2s/foo/&\
-&/
-,n
 
 * Editing huge files doesn't work well.
 
