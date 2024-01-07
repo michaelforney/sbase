@@ -59,11 +59,9 @@ match(struct val *vstr, struct val *vregx, struct val *ret)
 {
 	regex_t re;
 	regmatch_t matches[2];
-	long long d;
 	size_t anchlen;
 	char *s, *p, *anchreg;
 	char *str = vstr->str, *regx = vregx->str;
-	const char *errstr;
 
 	/* anchored regex */
 	anchlen = strlen(regx) + 1 + 1;
@@ -83,15 +81,8 @@ match(struct val *vstr, struct val *vregx, struct val *ret)
 		s = str + matches[1].rm_so;
 		p = str + matches[1].rm_eo;
 		*p = '\0';
-
-		d = strtonum(s, LLONG_MIN, LLONG_MAX, &errstr);
-		if (!errstr) {
-			ret->num = d;
-			return;
-		} else {
-			ret->str = enstrdup(3, s);
-			return;
-		}
+		ret->str = enstrdup(3, s);
+		return;
 	} else {
 		regfree(&re);
 		str += matches[0].rm_so;
