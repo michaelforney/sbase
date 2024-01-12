@@ -29,6 +29,12 @@ Bugs
 ed
 --
 * cat <<EOF | ed
+  i
+  LLL
+  .
+  s/$/\\
+
+* cat <<EOF | ed
     0a
     int radix = 16;
     int Pflag;
