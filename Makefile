@@ -190,20 +190,22 @@ BIN =\
 	xinstall\
 	yes
 
-OBJ = $(BIN:=.o) $(LIBUTFOBJ) $(LIBUTILOBJ)
-MAN = $(BIN:=.1)
+OBJ = $(LIBUTFOBJ) $(LIBUTILOBJ)
 
 all: $(BIN)
 
 $(BIN): $(LIB)
 
-$(OBJ): $(HDR)
+$(OBJ) $(BIN): $(HDR)
 
 .o:
 	$(CC) $(LDFLAGS) -o $@ $< $(LIB)
 
 .c.o:
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $<
+
+.c:
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $< $(LIB)
 
 libutf.a: $(LIBUTFOBJ)
 	$(AR) $(ARFLAGS) $@ $?
