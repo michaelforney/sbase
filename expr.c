@@ -21,7 +21,13 @@ static void
 tonum(struct val *v)
 {
 	const char *errstr;
-	long long d = strtonum(v->str, LLONG_MIN, LLONG_MAX, &errstr);
+	long long d;
+
+	/* check if val is the result of an earlier calculation */
+	if (!v->str)
+		return;
+
+	d = strtonum(v->str, LLONG_MIN, LLONG_MAX, &errstr);
 	if (errstr)
 		enprintf(2, "error: expected integer, got %s\n", v->str);
 	v->num = d;
