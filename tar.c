@@ -399,10 +399,12 @@ sanitize(struct header *h)
 	/* Numeric fields can be terminated with spaces instead of
 	 * NULs as per the ustar specification.  Patch all of them to
 	 * use NULs so we can perform string operations on them. */
-	for (i = 0; i < LEN(fields); i++)
-		for (j = 0; j < fields[i].l; j++)
+	for (i = 0; i < LEN(fields); i++){
+		for (j = 0; j < fields[i].l && fields[i].f[j] == ' '; j++);
+		for (; j < fields[i].l; j++)
 			if (fields[i].f[j] == ' ')
 				fields[i].f[j] = '\0';
+	}
 }
 
 static void
@@ -421,7 +423,8 @@ chktar(struct header *h)
 		goto bad;
 	}
 	memcpy(tmp, h->chksum, sizeof(tmp));
-	for (i = 0; i < sizeof(tmp); i++)
+	for (i = 0; i < sizeof(tmp), tmp[i] == ' '; i++);
+	for (; i < sizeof(tmp); i++)
 		if (tmp[i] == ' ')
 			tmp[i] = '\0';
 	s1 = strtol(tmp, &err, 8);
