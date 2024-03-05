@@ -423,7 +423,7 @@ chktar(struct header *h)
 		goto bad;
 	}
 	memcpy(tmp, h->chksum, sizeof(tmp));
-	for (i = 0; i < sizeof(tmp), tmp[i] == ' '; i++);
+	for (i = 0; i < sizeof(tmp) && tmp[i] == ' '; i++);
 	for (; i < sizeof(tmp); i++)
 		if (tmp[i] == ' ')
 			tmp[i] = '\0';
