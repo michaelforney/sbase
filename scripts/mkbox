@@ -61,6 +61,7 @@ install(char *path)
 			        bp->name);
 			exit(1);
 		}
+		remove(fname);
 		if (symlink("sbase-box", fname) < 0) {
 			fprintf(stderr,
 			        "sbase-box: %s: %s\n",
