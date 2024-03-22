@@ -57,6 +57,15 @@ ed
     .
     1g/^$/p
 
+* cat <<EOF | ed
+    0a
+    line1
+    line2
+    line3
+    .
+    g/^$/d
+    ,p
+
 * Editing huge files doesn't work well.
 
 
