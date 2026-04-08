@@ -15,7 +15,8 @@ int
 main(int argc, char *argv[])
 {
 	ssize_t off;
-	char *p;
+	size_t slen;
+	char *p = "";
 
 	ARGBEGIN {
 	default:
@@ -25,9 +26,10 @@ main(int argc, char *argv[])
 	if (argc != 1 && argc != 2)
 		usage();
 
-	p = basename(argv[0]);
-	if (argc == 2) {
-		off = strlen(p) - strlen(argv[1]);
+	if (argv[0][0])
+		p = basename(argv[0]);
+	if (argc == 2 && (slen = strlen(argv[1])) > 0) {
+		off = strlen(p) - slen;
 		if (off > 0 && !strcmp(p + off, argv[1]))
 			p[off] = '\0';
 	}

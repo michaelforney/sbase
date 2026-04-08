@@ -7,7 +7,7 @@
 static void
 usage(void)
 {
-	eprintf("usage: %s [-afpv] [-R [-H | -L | -P]] source ... dest\n", argv0);
+	eprintf("usage: %s [-afipv] [-R [-H | -L | -P]] source ... dest\n", argv0);
 }
 
 int
@@ -16,6 +16,9 @@ main(int argc, char *argv[])
 	struct stat st;
 
 	ARGBEGIN {
+	case 'i':
+		cp_iflag = 1;
+		break;
 	case 'a':
 		cp_follow = 'P';
 		cp_aflag = cp_pflag = cp_rflag = 1;

@@ -49,11 +49,12 @@ mdchecklist(FILE *listfp, struct crypt_ops *ops, uint8_t *md, size_t sz,
 	char *line = NULL, *file, *p;
 
 	while (getline(&line, &bufsiz, listfp) > 0) {
-		if (!(file = strstr(line, "  "))) {
+		file = strchr(line, ' ');
+		if (file == NULL || (file[1] != ' ' && file[1] != '*')) {
 			(*formatsucks)++;
 			continue;
 		}
-		if ((file - line) / 2 != sz) {
+		if (file - line != sz * 2) {
 			(*formatsucks)++; /* checksum length mismatch */
 			continue;
 		}
@@ -108,15 +109,18 @@ cryptcheck(int argc, char *argv[], struct crypt_ops *ops, uint8_t *md, size_t sz
 	}
 
 	if (formatsucks) {
-		weprintf("%d lines are improperly formatted\n", formatsucks);
+		weprintf("%d improperly formatted line%s\n",
+		         formatsucks, formatsucks > 1 ? "s" : "");
 		ret = 1;
 	}
 	if (noread) {
-		weprintf("%d listed file could not be read\n", noread);
+		weprintf("%d listed file%s could not be read\n",
+		         noread, noread > 1 ? "s" : "");
 		ret = 1;
 	}
 	if (nonmatch) {
-		weprintf("%d computed checksums did NOT match\n", nonmatch);
+		weprintf("%d computed checksum%s did NOT match\n",
+		         nonmatch, nonmatch > 1 ? "s" : "");
 		ret = 1;
 	}
 

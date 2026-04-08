@@ -26,7 +26,7 @@ touch(const char *file)
 		eprintf("utimensat %s:", file);
 	if (cflag)
 		return;
-	if ((fd = open(file, O_WRONLY | O_CREAT | O_EXCL, 0666)) < 0)
+	if ((fd = open(file, O_WRONLY | O_CREAT, 0666)) < 0)
 		eprintf("open %s:", file);
 	ret = futimens(fd, times);
 	close(fd);

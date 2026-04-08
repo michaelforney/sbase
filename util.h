@@ -4,6 +4,7 @@
 #include <regex.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdarg.h>
 
 #include "arg.h"
 #include "compat.h"
@@ -43,6 +44,9 @@ int  fshut(FILE *, const char *);
 void enprintf(int, const char *, ...);
 void eprintf(const char *, ...);
 void weprintf(const char *, ...);
+void xvprintf(const char *, va_list);
+
+int confirm(const char*, ...);
 
 double estrtod(const char *);
 

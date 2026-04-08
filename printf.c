@@ -19,11 +19,11 @@ int
 main(int argc, char *argv[])
 {
 	Rune *rarg;
-	size_t i, j, argi, lastargi, formatlen, blen;
+	size_t i, j, f, argi, lastargi, formatlen, blen, nflags;
 	long long num;
 	double dou;
 	int cooldown = 0, width, precision, ret = 0;
-	char *format, *tmp, *arg, *fmt, flag;
+	char *format, *tmp, *arg, *fmt;
 
 	argv0 = argv[0];
 	if (argc < 2)
@@ -44,15 +44,19 @@ main(int argc, char *argv[])
 				break;
 			lastargi = argi;
 		}
+
 		if (format[i] != '%') {
 			putchar(format[i]);
 			continue;
 		}
 
 		/* flag */
-		for (flag = '\0', i++; strchr("#-+ 0", format[i]); i++) {
-			flag = format[i];
-		}
+		f = ++i;
+		nflags = strspn(&format[f], "#-+ 0");
+		i += nflags;
+
+		if (nflags > INT_MAX)
+			eprintf("Too many flags in format\n");
 
 		/* field width */
 		width = -1;
@@ -64,7 +68,7 @@ main(int argc, char *argv[])
 			i++;
 		} else {
 			j = i;
-			for (; strchr("+-0123456789", format[i]); i++);
+			i += strspn(&format[i], "+-0123456789");
 			if (j != i) {
 				tmp = estrndup(format + j, i - j);
 				width = estrtonum(tmp, 0, INT_MAX);
@@ -85,7 +89,7 @@ main(int argc, char *argv[])
 				i++;
 			} else {
 				j = i;
-				for (; strchr("+-0123456789", format[i]); i++);
+				i += strspn(&format[i], "+-0123456789");
 				if (j != i) {
 					tmp = estrndup(format + j, i - j);
 					precision = estrtonum(tmp, 0, INT_MAX);
@@ -127,9 +131,8 @@ main(int argc, char *argv[])
 			free(rarg);
 			break;
 		case 's':
-			fmt = estrdup(flag ? "%#*.*s" : "%*.*s");
-			if (flag)
-				fmt[1] = flag;
+			fmt = emalloc(sizeof("%*.*s") + nflags);
+			sprintf(fmt, "%%%.*s*.*s", (int)nflags, &format[f]);
 			printf(fmt, width, precision, arg);
 			free(fmt);
 			break;
@@ -161,22 +164,20 @@ main(int argc, char *argv[])
 			} else {
 					num = 0;
 			}
-			fmt = estrdup(flag ? "%#*.*ll#" : "%*.*ll#");
-			if (flag)
-				fmt[1] = flag;
-			fmt[flag ? 7 : 6] = format[i];
+			fmt = emalloc(sizeof("%*.*ll#") + nflags);
+			sprintf(fmt, "%%%.*s*.*ll%c", (int)nflags, &format[f], format[i]);
 			printf(fmt, width, precision, num);
 			free(fmt);
 			break;
 		case 'a': case 'A': case 'e': case 'E': case 'f': case 'F': case 'g': case 'G':
-			fmt = estrdup(flag ? "%#*.*#" : "%*.*#");
-			if (flag)
-				fmt[1] = flag;
-			fmt[flag ? 5 : 4] = format[i];
+			fmt = emalloc(sizeof("%*.*#") + nflags);
+			sprintf(fmt, "%%%.*s*.*%c", (int)nflags, &format[f], format[i]);
 			dou = (strlen(arg) > 0) ? estrtod(arg) : 0;
 			printf(fmt, width, precision, dou);
 			free(fmt);
 			break;
+		case '\0':
+			eprintf("Missing format specifier.\n");
 		default:
 			eprintf("Invalid format specifier '%c'.\n", format[i]);
 		}

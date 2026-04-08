@@ -281,7 +281,7 @@ main(int argc, char *argv[])
 						len = sizeof(int);
 					}
 				}
-				addtype(*s++, len);
+				addtype(*s, len);
 				break;
 			default:
 				usage();

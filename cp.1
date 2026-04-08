@@ -1,4 +1,4 @@
-.Dd 2015-10-08
+.Dd April 22, 2025
 .Dt CP 1
 .Os sbase
 .Sh NAME
@@ -6,7 +6,7 @@
 .Nd copy files and directories
 .Sh SYNOPSIS
 .Nm
-.Op Fl afpv
+.Op Fl afipv
 .Oo
 .Fl R
 .Op Fl H | L | P
@@ -37,6 +37,8 @@ and
 If an existing
 .Ar dest
 cannot be opened, remove it and try again.
+.It Fl i
+Interactive prompt before overwrite.
 .It Fl p
 Preserve mode, timestamp and permissions.
 .It Fl v
@@ -62,13 +64,7 @@ If this flag is not specified, directories are not copied.
 .Sh SEE ALSO
 .Xr mv 1
 .Sh STANDARDS
-The
-.Nm
-utility is compliant with the
-.St -p1003.1-2013
-specification except from the
-.Op Fl i
-flag.
+POSIX.1-2013.
 .Pp
 The
 .Op Fl av

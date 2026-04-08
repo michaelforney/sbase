@@ -126,6 +126,7 @@ columns(struct line *line, const struct keydef *kd, struct column *col)
 	if (!(col->line.data) || col->cap < col->line.len + 1) {
 		free(col->line.data);
 		col->line.data = emalloc(col->line.len + 1);
+		col->cap = col->line.len + 1;
 	}
 	memcpy(col->line.data, start.data, col->line.len);
 	col->line.data[col->line.len] = '\0';

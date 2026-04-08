@@ -112,6 +112,7 @@ struct findhist {
 
 /* Utility */
 static int spawn(char *argv[]);
+static int do_stat(char *path, struct stat *sb, struct findhist *hist);
 
 /* Primaries */
 static int pri_name   (struct arg *arg);
@@ -132,6 +133,7 @@ static int pri_mtime  (struct arg *arg);
 static int pri_exec   (struct arg *arg);
 static int pri_ok     (struct arg *arg);
 static int pri_print  (struct arg *arg);
+static int pri_print0 (struct arg *arg);
 static int pri_newer  (struct arg *arg);
 static int pri_depth  (struct arg *arg);
 
@@ -190,6 +192,7 @@ static struct pri_info primaries[] = {
 	{ "-exec"   , pri_exec   , get_exec_arg , free_exec_arg, 1 },
 	{ "-ok"     , pri_ok     , get_ok_arg   , free_ok_arg  , 1 },
 	{ "-print"  , pri_print  , get_print_arg, NULL         , 0 },
+	{ "-print0" , pri_print0 , get_print_arg, NULL         , 0 },
 	{ "-newer"  , pri_newer  , get_newer_arg, NULL         , 1 },
 	{ "-depth"  , pri_depth  , get_depth_arg, NULL         , 0 },
 
@@ -252,6 +255,20 @@ spawn(char *argv[])
 	/* FIXME: proper course of action for waitpid() on EINTR? */
 	waitpid(pid, &status, 0);
 	return status;
+}
+
+static int
+do_stat(char *path, struct stat *sb, struct findhist *hist)
+{
+	if (gflags.l || (gflags.h && !hist)) {
+		if (stat(path, sb) == 0) {
+			return 0;
+		} else if (errno != ENOENT && errno != ENOTDIR) {
+			return -1;
+		}
+	}
+
+	return lstat(path, sb);
 }
 
 /*
@@ -417,7 +434,7 @@ pri_exec(struct arg *arg)
 			**brace = arg->path;
 
 		status = spawn(e->argv);
-		return !!status;
+		return !status;
 	}
 }
 
@@ -456,6 +473,14 @@ pri_print(struct arg *arg)
 {
 	if (puts(arg->path) == EOF)
 		eprintf("puts failed:");
+	return 1;
+}
+
+static int
+pri_print0(struct arg *arg)
+{
+	if (fwrite(arg->path, strlen(arg->path) + 1, 1, stdout) != 1)
+		eprintf("fwrite failed:");
 	return 1;
 }
 
@@ -501,6 +526,7 @@ get_xdev_arg(char *argv[], union extra *extra)
 static char **
 get_perm_arg(char *argv[], union extra *extra)
 {
+	mode_t mask;
 	struct permarg *p = extra->p = emalloc(sizeof(*p));
 
 	if (**argv == '-')
@@ -508,7 +534,10 @@ get_perm_arg(char *argv[], union extra *extra)
 	else
 		p->exact = 1;
 
-	p->mode = parsemode(*argv, 0, 0);
+	mask = umask(0);
+	umask(mask);
+
+	p->mode = parsemode(*argv, 0, mask);
 
 	return argv;
 }
@@ -664,7 +693,7 @@ get_newer_arg(char *argv[], union extra *extra)
 {
 	struct stat st;
 
-	if (stat(*argv, &st))
+	if (do_stat(*argv, &st, NULL))
 		eprintf("failed to stat '%s':", *argv);
 
 	extra->i = st.st_mtime;
@@ -809,8 +838,12 @@ parse(int argc, char **argv)
 			}
 			tok->type = op->type;
 			tok->u.oinfo = op;
-		} else { /* token is neither primary nor operator, must be path in the wrong place */
-			eprintf("paths must precede expression: %s\n", *arg);
+		} else {
+			/* token is neither primary nor operator, must be */
+			if ((*arg)[0] == '-') /* an unsupported option */
+				eprintf("unknown operand: %s\n", *arg);
+			else /* or a path in the wrong place */
+				eprintf("paths must precede expression: %s\n", *arg);
 		}
 		if (tok->type != LPAR && tok->type != RPAR)
 			ntok++; /* won't have parens in rpn */
@@ -939,8 +972,9 @@ find(char *path, struct findhist *hist)
 
 	len = strlen(path) + 2; /* \0 and '/' */
 
-	if ((gflags.l || (gflags.h && !hist) ? stat(path, &st) : lstat(path, &st)) < 0) {
+	if (do_stat(path, &st, hist) < 0) {
 		weprintf("failed to stat %s:", path);
+		gflags.ret = 1;
 		return;
 	}
 
@@ -962,6 +996,7 @@ find(char *path, struct findhist *hist)
 	for (f = hist; f; f = f->next) {
 		if (f->dev == st.st_dev && f->ino == st.st_ino) {
 			weprintf("loop detected '%s' is '%s'\n", path, f->path);
+			gflags.ret = 1;
 			return;
 		}
 	}
@@ -972,6 +1007,7 @@ find(char *path, struct findhist *hist)
 
 	if (!(dir = opendir(path))) {
 		weprintf("failed to opendir %s:", path);
+		gflags.ret = 1;
 		/* should we just ignore this since we hit an error? */
 		if (gflags.depth)
 			eval(root, &arg);
@@ -995,6 +1031,7 @@ find(char *path, struct findhist *hist)
 	free(pathbuf);
 	if (errno) {
 		weprintf("readdir %s:", path);
+		gflags.ret = 1;
 		closedir(dir);
 		return;
 	}

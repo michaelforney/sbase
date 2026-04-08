@@ -1,4 +1,4 @@
-.Dd 2023-07-30
+.Dd July 30, 2025
 .Dt XARGS 1
 .Os sbase
 .Sh NAME
@@ -6,10 +6,11 @@
 .Nd construct argument lists and execute command
 .Sh SYNOPSIS
 .Nm
-.Op Fl rtx
+.Op Fl 0prtx
 .Op Fl E Ar eofstr
 .Op Fl I Ar replstr
 .Op Fl n Ar num
+.Op Fl P Ar maxprocs
 .Op Fl s Ar num
 .Op Ar cmd Op Ar arg ...
 .Sh DESCRIPTION
@@ -26,7 +27,7 @@ stdin.
 The command is repeatedly executed one or more times until stdin is exhausted.
 .Pp
 Spaces, tabs and newlines may be embedded in arguments using single (`'')
-or double (`"') quotes or backslashes ('\\').
+or double (`"') quotes or backslashes ('\e').
 Single quotes escape all non-single quote characters, excluding newlines, up
 to the matching single quote.
 Double quotes escape all non-double quote characters, excluding newlines, up
@@ -34,13 +35,12 @@ to the matching double quote.
 Any single character, including newlines, may be escaped by a backslash.
 .Sh OPTIONS
 .Bl -tag -width Ds
-.It Fl n Ar num
-Use at most
-.Ar num
-arguments per command line.
-.It Fl r
-Do not run the command if there are no arguments.
-Normally the command is executed at least once even if there are no arguments.
+.It Fl 0
+Change
+.Nm
+to expect NUL ('\e0') characters as separators, instead of spaces
+and newlines.
+The quoting mechanisms described above are not performed.
 .It Fl E Ar eofstr
 Use
 .Ar eofstr
@@ -51,11 +51,32 @@ Use
 as the placeholder for the argument.
 Sets the arguments count to 1 per command line.
 It also implies the option x.
+.It Fl n Ar num
+Use at most
+.Ar num
+arguments per command line.
+.It Fl p
+Prompt mode: the user is asked whether to execute
+.Ar cmd
+at each invocation.
+Trace mode (-t) is turned on to write the command instance to be executed,
+followed by a prompt to standard error.
+An affirmative response read from
+.Pa /dev/tty
+executes the command, otherwise it is skipped.
+.It Fl P Ar maxprocs
+Parallel mode: run at most maxprocs invocations of
+.Ar cmd
+at once.
+.It Fl r
+Do not run the command if there are no arguments.
+Normally the command is executed at least once even if there are no arguments.
 .It Fl s Ar num
 Use at most
 .Ar num
 bytes per command line.
 .It Fl t
+Enable trace mode.
 Write the command line to stderr before executing it.
 .It Fl x
 Terminate if the command line exceeds the system limit or the number of bytes
@@ -91,14 +112,10 @@ could not be found.
 Some other error occurred.
 .El
 .Sh STANDARDS
-The
-.Nm
-utility is compliant with the
-.St -p1003.1-2013
-specification except from the
-.Op Fl p
-flag.
+POSIX.1-2013.
 .Pp
 The
 .Op Fl r
+and
+.Op Fl P
 flag is an extension to that specification.

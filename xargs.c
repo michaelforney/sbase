@@ -19,16 +19,17 @@ static int eatspace(void);
 static int parsequote(int);
 static int parseescape(void);
 static char *poparg(void);
-static void waitchld(void);
+static void waitchld(int);
 static void spawn(void);
 
 static size_t argbsz;
 static size_t argbpos;
-static size_t maxargs = 0;
-static int    nerrors = 0;
-static int    rflag = 0, nflag = 0, tflag = 0, xflag = 0, Iflag = 0;
+static size_t maxargs;
+static size_t curprocs, maxprocs = 1;
+static int    nerrors;
+static int    nulflag, nflag, pflag, rflag, tflag, xflag, Iflag;
 static char  *argb;
-static char  *cmd[NARGS];
+static char  **cmd;
 static char  *eofstr;
 
 static int
@@ -59,10 +60,7 @@ eatspace(void)
 	int ch;
 
 	while ((ch = inputc()) != EOF) {
-		switch (ch) {
-		case ' ': case '\t': case '\n':
-			break;
-		default:
+		if (nulflag || !(ch == ' ' || ch == '\t' || ch == '\n')) {
 			ungetc(ch, stdin);
 			return ch;
 		}
@@ -110,6 +108,14 @@ poparg(void)
 	if (eatspace() < 0)
 		return NULL;
 	while ((ch = inputc()) != EOF) {
+		/* NUL separator: no escaping */
+		if (nulflag) {
+			if (ch == '\0')
+				goto out;
+			else
+				goto fill;
+		}
+
 		switch (ch) {
 		case ' ':
 		case '\t':
@@ -143,22 +149,55 @@ out:
 }
 
 static void
-waitchld(void)
+waitchld(int waitall)
 {
+	pid_t pid;
 	int status;
 
-	wait(&status);
-	if (WIFEXITED(status)) {
-		if (WEXITSTATUS(status) == 255)
-			exit(124);
-		if (WEXITSTATUS(status) == 127 ||
-		    WEXITSTATUS(status) == 126)
-			exit(WEXITSTATUS(status));
-		if (status)
-			nerrors++;
+	while ((pid = waitpid(-1, &status, !waitall && curprocs < maxprocs ?
+	       WNOHANG : 0)) > 0) {
+	       curprocs--;
+
+		if (WIFEXITED(status)) {
+			if (WEXITSTATUS(status) == 255)
+				exit(124);
+			if (WEXITSTATUS(status) == 127 ||
+			    WEXITSTATUS(status) == 126)
+				exit(WEXITSTATUS(status));
+			if (WEXITSTATUS(status))
+				nerrors++;
+		}
+		if (WIFSIGNALED(status))
+			exit(125);
 	}
-	if (WIFSIGNALED(status))
-		exit(125);
+	if (pid == -1 && errno != ECHILD)
+		eprintf("waitpid:");
+}
+
+static int
+prompt(void)
+{
+	FILE *fp;
+	int ch, ret;
+
+	if (!(fp = fopen("/dev/tty", "r")))
+		return -1;
+
+	fputs("?...", stderr);
+	fflush(stderr);
+
+	ch = fgetc(fp);
+	ret = (ch == 'y' || ch == 'Y');
+	if (ch != EOF && ch != '\n') {
+		while ((ch = fgetc(fp)) != EOF) {
+			if (ch == '\n')
+				break;
+		}
+	}
+
+	fclose(fp);
+
+	return ret;
 }
 
 static void
@@ -168,16 +207,25 @@ spawn(void)
 	int first = 1;
 	char **p;
 
-	if (tflag) {
+	if (pflag || tflag) {
 		for (p = cmd; *p; p++) {
 			if (!first)
 				fputc(' ', stderr);
 			fputs(*p, stderr);
 			first = 0;
 		}
+		if (pflag) {
+			switch (prompt()) {
+			case -1: break; /* error */
+			case 0: return; /* no */
+			case 1: goto dospawn; /* yes */
+			}
+		}
 		fputc('\n', stderr);
+		fflush(stderr);
 	}
 
+dospawn:
 	switch (fork()) {
 	case -1:
 		eprintf("fork:");
@@ -187,13 +235,14 @@ spawn(void)
 		weprintf("execvp %s:", *cmd);
 		_exit(126 + (savederrno == ENOENT));
 	}
-	waitchld();
+	curprocs++;
+	waitchld(0);
 }
 
 static void
 usage(void)
 {
-	eprintf("usage: %s [-rtx] [-E eofstr] [-n num] [-s num] "
+	eprintf("usage: %s [-0prtx] [-E eofstr] [-n num] [-P maxprocs] [-s num] "
 	        "[cmd [arg ...]]\n", argv0);
 }
 
@@ -210,11 +259,18 @@ main(int argc, char *argv[])
 		argmaxsz = _POSIX_ARG_MAX;
 	/* Leave some room for environment variables */
 	argmaxsz -= 4096;
+	cmd = emalloc(NARGS * sizeof(*cmd));
 
 	ARGBEGIN {
+	case '0':
+		nulflag = 1;
+		break;
 	case 'n':
 		nflag = 1;
 		maxargs = estrtonum(EARGF(usage()), 1, MIN(SIZE_MAX, LLONG_MAX));
+		break;
+	case 'p':
+		pflag = 1;
 		break;
 	case 'r':
 		rflag = 1;
@@ -238,6 +294,9 @@ main(int argc, char *argv[])
 		maxargs = 1;
 		replstr = EARGF(usage());
 		break;
+	case 'P':
+		maxprocs = estrtonum(EARGF(usage()), 1, MIN(SIZE_MAX, LLONG_MAX));
+		break;
 	default:
 		usage();
 	} ARGEND
@@ -257,11 +316,8 @@ main(int argc, char *argv[])
 		while (leftover || (arg = poparg())) {
 			arglen = strlen(arg);
 			if (argsz + arglen >= argmaxsz || i >= NARGS - 1) {
-				if (arglen >= argmaxsz) {
-					weprintf("insufficient argument space\n");
-					if (xflag)
-						exit(1);
-				}
+				if (xflag || arglen >= argmaxsz || leftover)
+					eprintf("insufficient argument space\n");
 				leftover = 1;
 				break;
 			}
@@ -297,6 +353,8 @@ main(int argc, char *argv[])
 	} while (arg);
 
 	free(argb);
+
+	waitchld(1);
 
 	if (nerrors || (fshut(stdin, "<stdin>") | fshut(stdout, "<stdout>")))
 		ret = 123;

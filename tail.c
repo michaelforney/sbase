@@ -123,7 +123,7 @@ taketail(int fd, const char *fname, size_t count)
 		case 'm':  /* runes */
 			for (p = buf + len - 1, left = count; p >= buf; p--) {
 				/* skip utf-8 continuation bytes */
-				if ((*p & 0xc0) == 0x80)
+				if (UTF8_POINT(*p))
 					continue;
 				left--;
 				if (!left)

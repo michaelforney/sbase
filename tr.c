@@ -32,12 +32,27 @@ static struct {
 	{ "xdigit", isxdigitrune },
 };
 
-static struct range *set1        = NULL;
-static size_t set1ranges         = 0;
-static int    (*set1check)(Rune) = NULL;
-static struct range *set2        = NULL;
-static size_t set2ranges         = 0;
-static int    (*set2check)(Rune) = NULL;
+#define ISLOWERBIT 		   1U << 6
+#define ISUPPERBIT 		   1U << 10
+
+static struct   range *set1 = NULL;
+static size_t   set1ranges  = 0;
+static unsigned set1checks  = 0;
+static struct   range *set2 = NULL;
+static size_t   set2ranges  = 0;
+static unsigned set2checks  = 0;
+
+static int
+check(Rune rune, unsigned checks)
+{
+	size_t i;
+
+	for (i = 0; checks && i < LEN(classes); i++, checks >>= 1)
+		if (checks & 1 && classes[i].check(rune))
+			return 1;
+
+	return 0;
+}
 
 static size_t
 rangelen(struct range r)
@@ -68,7 +83,7 @@ rstrmatch(Rune *r, char *s, size_t n)
 }
 
 static size_t
-makeset(char *str, struct range **set, int (**check)(Rune))
+makeset(char *str, struct range **set, unsigned *checks)
 {
 	Rune  *rstr;
 	size_t len, i, j, m, n;
@@ -111,10 +126,13 @@ nextbrack:
 			if (j - i > 3 && rstr[i + 1] == ':' && rstr[m - 1] == ':') {
 				for (n = 0; n < LEN(classes); n++) {
 					if (rstrmatch(rstr + i + 2, classes[n].name, j - i - 3)) {
-						*check = classes[n].check;
-						return 0;
+						*checks |= 1 << n;
+						i = j;
+						break;
 					}
 				}
+				if (n < LEN(classes))
+					continue;
 				eprintf("Invalid character class.\n");
 			}
 
@@ -191,18 +209,18 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND
 
-	if (!argc || argc > 2 || (argc == 1 && dflag == sflag))
+	if (!argc || argc > 2 || (dflag == sflag && argc != 2) ||
+	    (dflag && argc != 1))
 		usage();
-	set1ranges = makeset(argv[0], &set1, &set1check);
-	if (argc == 2)
-		set2ranges = makeset(argv[1], &set2, &set2check);
 
-	if (!dflag || (argc == 2 && sflag)) {
+	set1ranges = makeset(argv[0], &set1, &set1checks);
+	if (argc == 2) {
+		set2ranges = makeset(argv[1], &set2, &set2checks);
 		/* sanity checks as we are translating */
-		if (!sflag && !set2ranges && !set2check)
+		if (!set2ranges && !set2checks)
 			eprintf("cannot map to an empty set.\n");
-		if (set2check && set2check != islowerrune &&
-		    set2check != isupperrune) {
+		if (set2checks && set2checks != ISLOWERBIT &&
+		    set2checks != ISUPPERBIT) {
 			eprintf("can only map to 'lower' and 'upper' class.\n");
 		}
 	}
@@ -225,8 +243,8 @@ read:
 				goto write;
 
 			/* map r to set2 */
-			if (set2check) {
-				if (set2check == islowerrune)
+			if (set2checks) {
+				if (set2checks == ISLOWERBIT)
 					r = tolowerrune(r);
 				else
 					r = toupperrune(r);
@@ -249,13 +267,13 @@ read:
 			goto write;
 		}
 	}
-	if (set1check && set1check(r)) {
+	if (check(r, set1checks)) {
 		if (cflag)
 			goto write;
 		if (dflag)
 			goto read;
-		if (set2check) {
-			if (set2check == islowerrune)
+		if (set2checks) {
+			if (set2checks == ISLOWERBIT)
 				r = tolowerrune(r);
 			else
 				r = toupperrune(r);
@@ -265,8 +283,8 @@ read:
 		goto write;
 	}
 	if (!dflag && cflag) {
-		if (set2check) {
-			if (set2check == islowerrune)
+		if (set2checks) {
+			if (set2checks == ISLOWERBIT)
 				r = tolowerrune(r);
 			else
 				r = toupperrune(r);
@@ -279,7 +297,7 @@ read:
 		goto read;
 write:
 	if (argc == 1 && sflag && r == lastrune) {
-		if (set1check && set1check(r))
+		if (check(r, set1checks))
 			goto read;
 		for (i = 0; i < set1ranges; i++) {
 			if (set1[i].start <= r && r <= set1[i].end)
@@ -287,7 +305,7 @@ write:
 		}
 	}
 	if (argc == 2 && sflag && r == lastrune) {
-		if (set2check && set2check(r))
+		if (set2checks && check(r, set2checks))
 			goto read;
 		for (i = 0; i < set2ranges; i++) {
 			if (set2[i].start <= r && r <= set2[i].end)

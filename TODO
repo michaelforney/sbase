@@ -28,45 +28,8 @@ Bugs
 
 ed
 --
-* Multi-line commands don't work in global commands:
-    g/^line/a \
-    line1
-    .
-* cat <<EOF | ed
-    0a
-    int radix = 16;
-    int Pflag;
-    int Aflag;
-    int vflag;
-    int gflag;
-    int uflag;
-    int arflag;
 
-    .
-    ?radix?;/^$/-s/^/static /
-* cat <<EOF | ed
-    0a
-       Line
-    .
-    s# *##
-* cat <<EOF | ed
-    0a
-    line
-    .
-    1g/^$/p
 * Editing huge files doesn't work well.
-* Escaping newlines in replacement doesn't work well:
-	% /bin/ed
-	i
-	foobar
-	.
-	s/foo/&\
-	->
-	->bar
-	,p
-	foo
-	->bar
-	Q
 
 
 printf
@@ -74,14 +37,7 @@ printf
 * Flags for string conversion-specifier (%s) are not supported.
 * Escape sequences that expand to '%' are treated as beginning of
   conversion specification.
-* An trailing '%' at the end of a format string causes a read past
-  the end of the string.
 
-tr
---
-* When a character class is present, all other characters in the
-  string are ignored.
-
-sbase-box
----------
-* List of commands does not contain `install` (only `xinstall`).
+xargs
+-----
+* Add -L.

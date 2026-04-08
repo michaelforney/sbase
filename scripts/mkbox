@@ -23,7 +23,6 @@ struct cmd {
 	char *name;
 	int (*fn)(int, char **);
 } cmds[] = {
-	{"install", xinstall_main},
 	{"[", test_main},
 $(grep -l ^main *.c |
 while read f
@@ -33,7 +32,9 @@ do
 		s/main/'${f%.c}'_main/
 		s/-/_/g
 		w build/'$f'
-		s/\(^.*\)(.*)/	{"'${f%.c}'", \1},/p
+		s/\(^.*\)(.*)/	{"'${f%.c}'", \1},/
+		s/xinstall/install/
+		p
 		d
 	}
 	w 'build/$f $f
@@ -61,6 +62,7 @@ install(char *path)
 			        bp->name);
 			exit(1);
 		}
+		remove(fname);
 		if (symlink("sbase-box", fname) < 0) {
 			fprintf(stderr,
 			        "sbase-box: %s: %s\n",
@@ -76,7 +78,7 @@ main(int argc, char *argv[])
 	char *s = basename(argv[0]);
 	struct cmd *bp;
 
-	if(!strcmp(s,"sbase-box")) {
+	if (!strcmp(s, "sbase-box") && argc > 1) {
 		argc--; argv++;
 		if (strcmp(argv[0], "-i") == 0) {
 			install(argv[1]);

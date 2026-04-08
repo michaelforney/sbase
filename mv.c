@@ -13,7 +13,7 @@ static int mv_status = 0;
 static int
 mv(const char *s1, const char *s2, int depth)
 {
-	struct recursor r = { .fn = rm, .follow = 'P' };
+	struct recursor r = { .fn = rm, .follow = 'P', .flags = SILENT };
 
 	if (!rename(s1, s2))
 		return 0;

@@ -2,9 +2,10 @@
 include config.mk
 
 .SUFFIXES:
-.SUFFIXES: .o .c
+.SUFFIXES: .y .o .c
 
 CPPFLAGS =\
+	-DPREFIX=\"$(PREFIX)\" \
 	-D_DEFAULT_SOURCE \
 	-D_NETBSD_SOURCE \
 	-D_BSD_SOURCE \
@@ -54,6 +55,7 @@ LIBUTILOBJ =\
 	libutil/concat.o\
 	libutil/cp.o\
 	libutil/crypt.o\
+	libutil/confirm.o\
 	libutil/ealloc.o\
 	libutil/enmasse.o\
 	libutil/eprintf.o\
@@ -93,6 +95,7 @@ LIB = libutf.a libutil.a
 
 BIN =\
 	basename\
+	bc\
 	cal\
 	cat\
 	chgrp\
@@ -107,6 +110,7 @@ BIN =\
 	cron\
 	cut\
 	date\
+	dc\
 	dd\
 	dirname\
 	du\
@@ -130,6 +134,7 @@ BIN =\
 	logger\
 	logname\
 	ls\
+	make/make\
 	md5sum\
 	mkdir\
 	mkfifo\
@@ -190,20 +195,41 @@ BIN =\
 	xinstall\
 	yes
 
-OBJ = $(BIN:=.o) $(LIBUTFOBJ) $(LIBUTILOBJ)
-MAN = $(BIN:=.1)
+MAKEOBJ =\
+	make/defaults.o\
+	make/main.o\
+	make/parser.o\
+	make/posix.o\
+	make/rules.o\
 
-all: $(BIN)
+OBJ = $(LIBUTFOBJ) $(LIBUTILOBJ) $(MAKEOBJ)
+
+all: scripts/make
+	+@$(SMAKE) $(BIN)
+
+scripts/make:
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ make/*.c
 
 $(BIN): $(LIB)
 
-$(OBJ): $(HDR)
+$(OBJ) $(BIN): $(HDR)
 
 .o:
 	$(CC) $(LDFLAGS) -o $@ $< $(LIB)
 
 .c.o:
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $<
+
+.c:
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $< $(LIB)
+
+bc: bc.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ bc.c $(LIB)
+
+$(MAKEOBJ): make/make.h
+
+make/make: $(MAKEOBJ)
+	$(CC) $(LDFLAGS) -o $@ $(MAKEOBJ) $(LIB)
 
 libutf.a: $(LIBUTFOBJ)
 	$(AR) $(ARFLAGS) $@ $?
@@ -213,27 +239,33 @@ libutil.a: $(LIBUTILOBJ)
 	$(AR) $(ARFLAGS) $@ $?
 	$(RANLIB) $@
 
-getconf.o: getconf.h
+getconf: getconf.h
 
 getconf.h:
 	scripts/getconf.sh > $@
 
-install uninstall:
-	scripts/mkproto $@ $(DESTDIR)$(PREFIX) $(DESTDIR)$(MANPREFIX) proto
+proto: $(BIN)
+	scripts/mkproto $(DESTDIR)$(PREFIX) $(DESTDIR)$(MANPREFIX) proto
+
+install uninstall: proto
 	scripts/$@ proto
 
-sbase-box-install: sbase-box
-	scripts/mkproto $@ $(DESTDIR)$(PREFIX) $(DESTDIR)$(MANPREFIX) proto
-	scripts/$@ proto
+sbase-box-install: sbase-box proto
+	scripts/install proto
 	$(DESTDIR)$(PREFIX)/bin/sbase-box -i $(DESTDIR)$(PREFIX)/bin/
 
-sbase-box-uninstall: sbase-box
+sbase-box-uninstall: sbase-box proto
 	$(DESTDIR)$(PREFIX)/bin/sbase-box -d $(DESTDIR)$(PREFIX)/bin/
-	$(MAKE) uninstall
+	scripts/uninstall proto
+
+tests: all
+	@cd $@ && $(MAKE)
 
 dist: clean
-	mkdir -p sbase-$(VERSION)
-	cp -r LICENSE Makefile README TODO config.mk *.c *.1 *.h libutf libutil sbase-$(VERSION)
+	mkdir -p sbase
+	cp LICENSE Makefile README TODO config.mk *.c *.1 *.h  sbase
+	cp -R libutf libutil make scripts tests sbase
+	mv sbase sbase-$(VERSION)
 	tar -cf sbase-$(VERSION).tar sbase-$(VERSION)
 	gzip sbase-$(VERSION).tar
 	rm -rf sbase-$(VERSION)
@@ -243,8 +275,11 @@ sbase-box: $(BIN)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ build/*.c $(LIB)
 
 clean:
-	rm -f $(BIN) $(OBJ) $(LIB) sbase-box sbase-$(VERSION).tar.gz
-	rm -f getconf.h
+	@cd tests && $(MAKE) clean
+	rm -f *.o
+	rm -f $(BIN) $(LIB) sbase-box sbase-$(VERSION).tar.gz
+	rm -f scripts/make
+	rm -f getconf.h bc.c
 	rm -f proto
 	rm -rf build
 

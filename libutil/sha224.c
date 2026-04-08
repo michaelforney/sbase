@@ -22,5 +22,5 @@ sha224_init(void *ctx)
 void
 sha224_sum(void *ctx, uint8_t md[SHA224_DIGEST_LENGTH])
 {
-	sha256_sum_n(ctx, md, 8);
+	sha256_sum_n(ctx, md, 7);
 }

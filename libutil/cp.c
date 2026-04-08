@@ -16,6 +16,7 @@
 
 int cp_aflag  = 0;
 int cp_fflag  = 0;
+int cp_iflag  = 0;
 int cp_pflag  = 0;
 int cp_rflag  = 0;
 int cp_vflag  = 0;
@@ -40,6 +41,11 @@ cp(const char *s1, const char *s2, int depth)
 		weprintf("stat %s:", s1);
 		cp_status = 1;
 		return 0;
+	}
+
+	if (cp_iflag && access(s2, F_OK) == 0) {
+		if (!confirm("overwrite '%s'? ", s2))
+			return 0;
 	}
 
 	if (cp_vflag)

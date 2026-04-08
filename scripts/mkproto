@@ -10,15 +10,24 @@ prefix=${1?$(usage)}
 manprefix=${2?$(usage)}
 proto=${3?$(usage)}
 
-trap "rm -f scripts/proto" EXIT INT QUIT TERM
+trap "rm -f $proto" EXIT INT QUIT TERM
 
 (set -e
 echo d $prefix/bin $prefix/bin 755
-find . -maxdepth 1 -type f -perm /111 |
-sed "s@.*@c & $prefix/bin/& 755@"
-
 echo d $manprefix/man1 $manprefix/man1 755
-find . -maxdepth 1 -name '*.1' |
-sed "s@.*@c & $manprefix/man1/& 644@") > $proto
+echo d $prefix/share/misc $prefix/share/misc 755
+echo c bc.library $prefix/share/misc/bc.library 644
+ls -ld * make/* |\
+awk '
+/^-/ && $1 ~ /x/ {
+	base = $9
+	sub(".*/", "", base)
+	printf "c %s '$prefix/bin/'%s 755\n", $9, base
+}
+/^-/ && $9 ~ /\.1$/ {
+	base = $9
+	sub(".*/", "", base)
+	printf "c %s '$manprefix/man1/'%s 644\n", $9, base
+}') > $proto
 
 trap "" EXIT INT QUIT TERM

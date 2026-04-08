@@ -1,4 +1,4 @@
-.Dd 2015-10-08
+.Dd July 30, 2025
 .Dt FIND 1
 .Os sbase
 .Sh NAME
@@ -36,9 +36,13 @@ True if the name of the file matches the given pattern.
 .It Fl path Ar pattern
 True if the path to the file matches the given pattern.
 .It Fl nouser
-True if the file belongs to a user for which getpwuid() returns NULL.
+True if the file belongs to a user for which
+.Xr getpwuid 3
+returns NULL.
 .It Fl nogroup
-True if the file belongs to a group for which getgrgid() returns NULL.
+True if the file belongs to a group for which
+.Xr getgrgid 3
+returns NULL.
 .It Fl xdev
 True.
 Do not enter directory on a different device.
@@ -113,7 +117,10 @@ True if the user responds yes and cmd exits with status 0, false
 otherwise.
 .It Fl print
 True.
-Print the path to the current file.
+Print the current pathname followed by a newline ('\en') character.
+.It Fl print0
+True.
+Print the current pathname followed by a NUL ('\e0') character.
 .It Fl newer Ar file
 True if the modification time of the current file is newer than that of
 the provided file.

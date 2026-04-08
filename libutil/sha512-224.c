@@ -1,5 +1,6 @@
 /* public domain sha512/224 implementation based on fips180-3 */
 #include <stdint.h>
+#include <string.h>
 #include "../sha512-224.h"
 
 extern void sha512_sum_n(void *, uint8_t *, int n);
@@ -22,5 +23,7 @@ sha512_224_init(void *ctx)
 void
 sha512_224_sum(void *ctx, uint8_t md[SHA512_224_DIGEST_LENGTH])
 {
-	sha512_sum_n(ctx, md, 4);
+	uint8_t buf[32];
+	sha512_sum_n(ctx, buf, 4);
+	memcpy(md, buf, SHA512_224_DIGEST_LENGTH);
 }

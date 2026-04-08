@@ -10,7 +10,7 @@
 
 enum { Match = 0, NoMatch = 1, Error = 2 };
 
-static void addpattern(const char *, size_t);
+static void addpattern(const char *);
 static void addpatternfile(FILE *);
 static int grep(FILE *, const char *);
 
@@ -29,58 +29,34 @@ static int many;
 static int mode;
 
 struct pattern {
-	char *pattern;
 	regex_t preg;
 	SLIST_ENTRY(pattern) entry;
+	char pattern[];
 };
 
 static SLIST_HEAD(phead, pattern) phead;
 
 static void
-addpattern(const char *pattern, size_t patlen)
+addpattern(const char *pattern)
 {
 	struct pattern *pnode;
-	char *tmp;
-	int bol, eol;
-	size_t len;
+	size_t patlen;
 
-	if (!patlen)
-		return;
+	patlen = strlen(pattern);
 
-	/* a null BRE/ERE matches every line */
-	if (!Fflag)
-		if (pattern[0] == '\0')
-			pattern = "^";
-
-	if (!Fflag && xflag) {
-		tmp = enmalloc(Error, patlen + 3);
-		snprintf(tmp, patlen + 3, "%s%s%s",
-			 pattern[0] == '^' ? "" : "^",
-			 pattern,
-			 pattern[patlen - 1] == '$' ? "" : "$");
-	} else if (!Fflag && wflag) {
-		len = patlen + 5 + (Eflag ? 2 : 4);
-		tmp = enmalloc(Error, len);
-
-		bol = eol = 0;
-		if (pattern[0] == '^')
-			bol = 1;
-		if (pattern[patlen - 1] == '$')
-			eol = 1;
-
-		snprintf(tmp, len, "%s\\<%s%.*s%s\\>%s",
-		         bol ? "^" : "",
-		         Eflag ? "(" : "\\(",
-		         (int)patlen - bol - eol, pattern + bol,
-		         Eflag ? ")" : "\\)",
-		         eol ? "$" : "");
-	} else {
-		tmp = enstrdup(Error, pattern);
-	}
-
-	pnode = enmalloc(Error, sizeof(*pnode));
-	pnode->pattern = tmp;
+	pnode = enmalloc(Error, sizeof(*pnode) + patlen + 9);
 	SLIST_INSERT_HEAD(&phead, pnode, entry);
+
+	if (Fflag || (!xflag && !wflag)) {
+		memcpy(pnode->pattern, pattern, patlen + 1);
+	} else {
+		sprintf(pnode->pattern, "%s%s%s%s%s",
+			xflag ? "^" : "\\<",
+			Eflag ? "(" : "\\(",
+			pattern,
+			Eflag ? ")" : "\\)",
+			xflag ? "$" : "\\>");
+	}
 }
 
 static void
@@ -91,9 +67,9 @@ addpatternfile(FILE *fp)
 	ssize_t len = 0;
 
 	while ((len = getline(&buf, &size, fp)) > 0) {
-		if (len > 0 && buf[len - 1] == '\n')
+		if (buf[len - 1] == '\n')
 			buf[len - 1] = '\0';
-		addpattern(buf, (size_t)len);
+		addpattern(buf);
 	}
 	if (ferror(fp))
 		enprintf(Error, "read error:");
@@ -111,7 +87,7 @@ grep(FILE *fp, const char *str)
 
 	for (n = 1; (len = getline(&buf, &size, fp)) > 0; n++) {
 		/* Remove the trailing newline if one is present. */
-		if (len && buf[len - 1] == '\n')
+		if (buf[len - 1] == '\n')
 			buf[len - 1] = '\0';
 		match = 0;
 		SLIST_FOREACH(pnode, &phead, entry) {

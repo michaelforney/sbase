@@ -6,6 +6,7 @@
 #include <sys/sysmacros.h>
 #endif
 
+#include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <grp.h>
@@ -19,7 +20,7 @@
 #include "fs.h"
 #include "util.h"
 
-#define BLKSIZ 512
+#define BLKSIZ (sizeof (struct header)) /* must equal 512 bytes */
 
 enum Type {
 	REG       = '0',
@@ -50,6 +51,7 @@ struct header {
 	char major[8];
 	char minor[8];
 	char prefix[155];
+	char padding[12];
 };
 
 static struct dirtime {
@@ -169,23 +171,37 @@ ewrite(int fd, const void *buf, size_t n)
 	return r;
 }
 
+static unsigned
+chksum(struct header *h)
+{
+	unsigned sum, i;
+
+	memset(h->chksum, ' ', sizeof(h->chksum));
+	for (i = 0, sum = 0, assert(BLKSIZ == 512); i < BLKSIZ; i++)
+		sum += *((unsigned char *)h + i);
+	return sum;
+}
+
 static void
 putoctal(char *dst, unsigned num, int size)
 {
 	if (snprintf(dst, size, "%.*o", size - 1, num) >= size)
-		eprintf("snprintf: input number too large\n");
+		eprintf("putoctal: input number '%o' too large\n", num);
 }
 
 static int
 archive(const char *path)
 {
-	char b[BLKSIZ];
-	struct group *gr;
-	struct header *h;
+	static const struct header blank = {
+		"././@LongLink", "0000600", "0000000", "0000000", "00000000000",
+		"00000000000"  , "       ",  AREG    , ""       , "ustar", "00",
+	};
+	char   b[BLKSIZ + BLKSIZ], *p;
+	struct header *h = (struct header *)b;
+	struct group  *gr;
 	struct passwd *pw;
 	struct stat st;
-	size_t chksum, i;
-	ssize_t l, r;
+	ssize_t l, n, r;
 	int fd = -1;
 
 	if (lstat(path, &st) < 0) {
@@ -195,26 +211,37 @@ archive(const char *path)
 		weprintf("ignoring %s\n", path);
 		return 0;
 	}
-
 	pw = getpwuid(st.st_uid);
 	gr = getgrgid(st.st_gid);
 
-	h = (struct header *)b;
-	memset(b, 0, sizeof(b));
-	estrlcpy(h->name,    path,                        sizeof(h->name));
+	*h = blank;
+	n  = strlcpy(h->name, path, sizeof(h->name));
+	if (n >= sizeof(h->name)) {
+		*++h = blank;
+		h->type = 'L';
+		putoctal(h->size,   n,         sizeof(h->size));
+		putoctal(h->chksum, chksum(h), sizeof(h->chksum));
+		ewrite(tarfd, (char *)h, BLKSIZ);
+
+		for (p = (char *)path; n > 0; n -= BLKSIZ, p += BLKSIZ) {
+			if (n < BLKSIZ) {
+				p = memcpy(h--, p, n);
+				memset(p + n, 0, BLKSIZ - n);
+			}
+			ewrite(tarfd, p, BLKSIZ);
+		}
+	}
+
 	putoctal(h->mode,    (unsigned)st.st_mode & 0777, sizeof(h->mode));
 	putoctal(h->uid,     (unsigned)st.st_uid,         sizeof(h->uid));
 	putoctal(h->gid,     (unsigned)st.st_gid,         sizeof(h->gid));
-	putoctal(h->size,    0,                           sizeof(h->size));
 	putoctal(h->mtime,   (unsigned)st.st_mtime,       sizeof(h->mtime));
-	memcpy(  h->magic,   "ustar",                     sizeof(h->magic));
-	memcpy(  h->version, "00",                        sizeof(h->version));
 	estrlcpy(h->uname,   pw ? pw->pw_name : "",       sizeof(h->uname));
 	estrlcpy(h->gname,   gr ? gr->gr_name : "",       sizeof(h->gname));
 
 	if (S_ISREG(st.st_mode)) {
 		h->type = REG;
-		putoctal(h->size, (unsigned)st.st_size,  sizeof(h->size));
+		putoctal(h->size, st.st_size,  sizeof(h->size));
 		fd = open(path, O_RDONLY);
 		if (fd < 0)
 			eprintf("open %s:", path);
@@ -233,10 +260,7 @@ archive(const char *path)
 		h->type = FIFO;
 	}
 
-	memset(h->chksum, ' ', sizeof(h->chksum));
-	for (i = 0, chksum = 0; i < sizeof(*h); i++)
-		chksum += (unsigned char)b[i];
-	putoctal(h->chksum, chksum, sizeof(h->chksum));
+	putoctal(h->chksum, chksum(h), sizeof(h->chksum));
 	ewrite(tarfd, b, BLKSIZ);
 
 	if (fd != -1) {
@@ -254,16 +278,16 @@ archive(const char *path)
 static int
 unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 {
+	struct header *h = (struct header *)b;
+	struct timespec times[2];
 	char lname[101], *tmp, *p;
 	long mode, major, minor, type, mtime, uid, gid;
-	struct header *h = (struct header *)b;
-	int fd = -1;
-	struct timespec times[2];
+	int  fd = -1, lnk = h->type == SYMLINK;
 
 	if (!mflag && ((mtime = strtol(h->mtime, &p, 8)) < 0 || *p != '\0'))
-		eprintf("strtol %s: invalid number\n", h->mtime);
-	if (remove(fname) < 0 && errno != ENOENT)
-		weprintf("remove %s:", fname);
+		eprintf("strtol %s: invalid mtime\n", h->mtime);
+	if (strcmp(fname, ".") && strcmp(fname, "./") && remove(fname) < 0)
+		if (errno != ENOENT) weprintf("remove %s:", fname);
 
 	tmp = estrdup(fname);
 	mkdirp(dirname(tmp), 0777, 0777);
@@ -274,7 +298,7 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 	case AREG:
 	case RESERVED:
 		if ((mode = strtol(h->mode, &p, 8)) < 0 || *p != '\0')
-			eprintf("strtol %s: invalid number\n", h->mode);
+			eprintf("strtol %s: invalid mode\n", h->mode);
 		fd = open(fname, O_WRONLY | O_TRUNC | O_CREAT, 0600);
 		if (fd < 0)
 			eprintf("open %s:", fname);
@@ -283,14 +307,13 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 	case SYMLINK:
 		snprintf(lname, sizeof(lname), "%.*s", (int)sizeof(h->linkname),
 		         h->linkname);
-		if (((h->type == HARDLINK) ? link : symlink)(lname, fname) < 0)
-			eprintf("%s %s -> %s:",
-			        (h->type == HARDLINK) ? "link" : "symlink",
-				fname, lname);
+		if ((lnk ? symlink:link)(lname, fname) < 0)
+			eprintf("%s %s -> %s:", lnk ? "symlink":"link", fname, lname);
+		lnk++;
 		break;
 	case DIRECTORY:
 		if ((mode = strtol(h->mode, &p, 8)) < 0 || *p != '\0')
-			eprintf("strtol %s: invalid number\n", h->mode);
+			eprintf("strtol %s: invalid mode\n", h->mode);
 		if (mkdir(fname, (mode_t)mode) < 0 && errno != EEXIST)
 			eprintf("mkdir %s:", fname);
 		pushdirtime(fname, mtime);
@@ -298,18 +321,18 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 	case CHARDEV:
 	case BLOCKDEV:
 		if ((mode = strtol(h->mode, &p, 8)) < 0 || *p != '\0')
-			eprintf("strtol %s: invalid number\n", h->mode);
+			eprintf("strtol %s: invalid mode\n", h->mode);
 		if ((major = strtol(h->major, &p, 8)) < 0 || *p != '\0')
-			eprintf("strtol %s: invalid number\n", h->major);
+			eprintf("strtol %s: invalid major device\n", h->major);
 		if ((minor = strtol(h->minor, &p, 8)) < 0 || *p != '\0')
-			eprintf("strtol %s: invalid number\n", h->minor);
+			eprintf("strtol %s: invalid minor device\n", h->minor);
 		type = (h->type == CHARDEV) ? S_IFCHR : S_IFBLK;
 		if (mknod(fname, type | mode, makedev(major, minor)) < 0)
 			eprintf("mknod %s:", fname);
 		break;
 	case FIFO:
 		if ((mode = strtol(h->mode, &p, 8)) < 0 || *p != '\0')
-			eprintf("strtol %s: invalid number\n", h->mode);
+			eprintf("strtol %s: invalid mode\n", h->mode);
 		if (mknod(fname, S_IFIFO | mode, 0) < 0)
 			eprintf("mknod %s:", fname);
 		break;
@@ -318,9 +341,9 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 	}
 
 	if ((uid = strtol(h->uid, &p, 8)) < 0 || *p != '\0')
-		eprintf("strtol %s: invalid number\n", h->uid);
+		eprintf("strtol %s: invalid uid\n", h->uid);
 	if ((gid = strtol(h->gid, &p, 8)) < 0 || *p != '\0')
-		eprintf("strtol %s: invalid number\n", h->gid);
+		eprintf("strtol %s: invalid gid\n", h->gid);
 
 	if (fd != -1) {
 		for (; l > 0; l -= BLKSIZ)
@@ -329,14 +352,14 @@ unarchive(char *fname, ssize_t l, char b[BLKSIZ])
 		close(fd);
 	}
 
-	if (h->type == HARDLINK)
+	if (lnk == 1)
 		return 0;
 
 	times[0].tv_sec = times[1].tv_sec = mtime;
 	times[0].tv_nsec = times[1].tv_nsec = 0;
 	if (!mflag && utimensat(AT_FDCWD, fname, times, AT_SYMLINK_NOFOLLOW) < 0)
 		weprintf("utimensat %s:", fname);
-	if (h->type == SYMLINK) {
+	if (lnk) {
 		if (!getuid() && lchown(fname, uid, gid))
 			weprintf("lchown %s:", fname);
 	} else {
@@ -381,7 +404,7 @@ c(int dirfd, const char *name, struct stat *st, void *data, struct recursor *r)
 static void
 sanitize(struct header *h)
 {
-	size_t i, j;
+	size_t i, j, l;
 	struct {
 		char  *f;
 		size_t l;
@@ -399,18 +422,24 @@ sanitize(struct header *h)
 	/* Numeric fields can be terminated with spaces instead of
 	 * NULs as per the ustar specification.  Patch all of them to
 	 * use NULs so we can perform string operations on them. */
-	for (i = 0; i < LEN(fields); i++)
-		for (j = 0; j < fields[i].l; j++)
+	for (i = 0; i < LEN(fields); i++){
+		j = 0, l = fields[i].l - 1;
+		for (; j < l && fields[i].f[j] == ' '; j++);
+		for (; j <= l; j++)
 			if (fields[i].f[j] == ' ')
 				fields[i].f[j] = '\0';
+		if (fields[i].f[l])
+			eprintf("numeric field #%d (%.*s) is not null or space terminated\n",
+			        i, l+1, fields[i].f);
+	}
 }
 
 static void
 chktar(struct header *h)
 {
-	char tmp[8], *err, *p = (char *)h;
 	const char *reason;
-	long s1, s2, i;
+	char tmp[sizeof h->chksum], *err;
+	long sum, i;
 
 	if (h->prefix[0] == '\0' && h->name[0] == '\0') {
 		reason = "empty filename";
@@ -421,22 +450,19 @@ chktar(struct header *h)
 		goto bad;
 	}
 	memcpy(tmp, h->chksum, sizeof(tmp));
-	for (i = 0; i < sizeof(tmp); i++)
-		if (tmp[i] == ' ')
-			tmp[i] = '\0';
-	s1 = strtol(tmp, &err, 8);
-	if (s1 < 0 || *err != '\0') {
+	for (i = sizeof(tmp)-1; i > 0 && tmp[i] == ' '; i--) {
+		tmp[i] = '\0';
+	}
+	sum = strtol(tmp, &err, 8);
+	if (sum < 0 || sum >= BLKSIZ*256 || *err != '\0') {
 		reason = "invalid checksum";
 		goto bad;
 	}
-	memset(h->chksum, ' ', sizeof(h->chksum));
-	for (i = 0, s2 = 0; i < sizeof(*h); i++)
-		s2 += (unsigned char)p[i];
-	if (s1 != s2) {
+	if (sum != chksum(h)) {
 		reason = "incorrect checksum";
 		goto bad;
 	}
-	memcpy(h->chksum, tmp, sizeof(h->chksum));
+	memcpy(h->chksum, tmp, sizeof(tmp));
 	return;
 bad:
 	eprintf("malformed tar archive: %s\n", reason);
@@ -445,43 +471,68 @@ bad:
 static void
 xt(int argc, char *argv[], int mode)
 {
-	char b[BLKSIZ], fname[256 + 1], *p;
+	long size;
+	char b[BLKSIZ], fname[PATH_MAX + 1], *p, *q = NULL;
+	int i, m, n;
+	int (*fn)(char *, ssize_t, char[BLKSIZ]) = (mode == 'x') ? unarchive : print;
 	struct timespec times[2];
 	struct header *h = (struct header *)b;
 	struct dirtime *dirtime;
-	long size;
-	int i, n;
-	int (*fn)(char *, ssize_t, char[BLKSIZ]) = (mode == 'x') ? unarchive : print;
 
-	while (eread(tarfd, b, BLKSIZ) > 0 && h->name[0]) {
+	while (eread(tarfd, b, BLKSIZ) > 0 && (h->name[0] || h->prefix[0])) {
 		chktar(h);
-		sanitize(h), n = 0;
-
-		/* small dance around non-null terminated fields */
-		if (h->prefix[0])
-			n = snprintf(fname, sizeof(fname), "%.*s/",
-			             (int)sizeof(h->prefix), h->prefix);
-		snprintf(fname + n, sizeof(fname) - n, "%.*s",
-		         (int)sizeof(h->name), h->name);
+		sanitize(h);
 
 		if ((size = strtol(h->size, &p, 8)) < 0 || *p != '\0')
-			eprintf("strtol %s: invalid number\n", h->size);
+			eprintf("strtol %s: invalid size\n", h->size);
 
-		if (argc) {
-			/* only extract the given files */
-			for (i = 0; i < argc; i++)
-				if (!strcmp(argv[i], fname))
+		/* Long file path is read directly into fname*/
+		if (h->type == 'L' || h->type == 'x' || h->type == 'g') {
+
+			/* Read header only up to size of fname buffer */
+			for (q = fname; q < fname+size; q += BLKSIZ) {
+				if (q + BLKSIZ >= fname + sizeof fname)
+					eprintf("name exceeds buffer: %.*s\n", q-fname, fname);
+				eread(tarfd, q, BLKSIZ);
+			}
+
+			/* Convert pax x header with 'path=' field into L header */
+			if (h->type == 'x') for (q = fname; q < fname+size-16; q += n) {
+				if ((n = strtol(q, &p, 10)) < 0 || *p != ' ')
+					eprintf("strtol %.*s: invalid number\n", p+1-q, q);
+				if (n && strncmp(p+1, "path=", 5) == 0) {
+					memmove(fname, p+6, size = q+n - p-6 - 1);
+					h->type = 'L';
 					break;
+				}
+			}
+			fname[size] = '\0';
+
+			/* Non L-like header (eg. pax 'g') is skipped by setting q=null */
+			if (h->type != 'L')
+				q = NULL;
+			continue;
+		}
+
+		/* Ustar path is copied into fname if no L header (ie: q is NULL) */
+		if (!q) {
+			m = sizeof h->prefix, n = sizeof h->name;
+			p = "/" + !h->prefix[0];
+			snprintf(fname, sizeof fname, "%.*s%s%.*s", m, h->prefix, p, n, h->name);
+		}
+		q = NULL;
+
+		/* If argc > 0 then only extract the given files/dirs */
+		if (argc) {
+			for (i = 0; i < argc; i++) {
+				if (strncmp(argv[i], fname, n = strlen(argv[i])) == 0)
+					if (strchr("/", fname[n]) || argv[i][n-1] == '/')
+						break;
+			}
 			if (i == argc) {
 				skipblk(size);
 				continue;
 			}
-		}
-
-		/* ignore global pax header craziness */
-		if (h->type == 'g' || h->type == 'x') {
-			skipblk(size);
-			continue;
 		}
 
 		fn(fname, size, b);
@@ -502,12 +553,15 @@ xt(int argc, char *argv[], int mode)
 	}
 }
 
+char **args;
+int argn;
+
 static void
 usage(void)
 {
-	eprintf("usage: %s [-C dir] [-J | -Z | -a | -j | -z] -x [-m | -t] "
+	eprintf("usage: %s [x | t | -x | -t] [-C dir] [-J | -Z | -a | -j | -z] [-m] [-p] "
 	        "[-f file] [file ...]\n"
-	        "       %s [-C dir] [-J | -Z | -a | -j | -z] [-h] -c path ... "
+	        "       %s [c | -c] [-C dir] [-J | -Z | -a | -j | -z] [-h] path ... "
 	        "[-f file]\n", argv0, argv0);
 }
 
@@ -518,6 +572,10 @@ main(int argc, char *argv[])
 	struct stat st;
 	char *file = NULL, *dir = ".", mode = '\0';
 	int fd;
+
+	argv0 = argv[0];
+	if (argc > 1 && strchr("cxt", mode = *argv[1]))
+		*(argv[1]+1) ? *argv[1] = '-' : (*++argv = argv0, --argc);
 
 	ARGBEGIN {
 	case 'x':
@@ -548,18 +606,16 @@ main(int argc, char *argv[])
 	case 'v':
 		vflag = 1;
 		break;
+	case 'p':
+		break;  /* Do nothing as already default behaviour */
 	default:
 		usage();
 	} ARGEND
 
-	if (!mode)
-		usage();
-	if (mode == 'c')
-		if (!argc)
-			usage();
-
 	switch (mode) {
 	case 'c':
+		if (!argc)
+			usage();
 		tarfd = 1;
 		if (file && *file != '-') {
 			tarfd = open(file, O_WRONLY | O_TRUNC | O_CREAT, 0644);
@@ -590,7 +646,7 @@ main(int argc, char *argv[])
 
 		if (filtertool) {
 			fd = tarfd;
-			tarfd = decomp(tarfd, filtertool, "-cd");
+			tarfd = decomp(tarfd, filtertool, "-cdf");
 			close(fd);
 		}
 
@@ -598,6 +654,8 @@ main(int argc, char *argv[])
 			eprintf("chdir %s:", dir);
 		xt(argc, argv, mode);
 		break;
+	default:
+		usage();
 	}
 
 	return recurse_status;

@@ -25,7 +25,7 @@ rev(FILE *fp)
 		lf = n && line[n - 1] == '\n';
 		i = n -= lf;
 		for (n = 0; i--;) {
-			if ((line[i] & 0xC0) == 0x80) {
+			if (UTF8_POINT(line[i])) {
 				n++;
 			} else {
 				fwrite(line + i, 1, n + 1, stdout);

@@ -1,9 +1,14 @@
 *.o
+/scripts/make
 /build
+/make/make
 /getconf.h
 /libutf.a
 /libutil.a
+/proto
 /basename
+/bc
+/bc.c
 /cal
 /cat
 /chgrp
@@ -19,6 +24,7 @@
 /cut
 /date
 /dd
+/dc
 /dirname
 /du
 /echo
@@ -61,6 +67,7 @@
 /rev
 /rm
 /rmdir
+/sbase-box
 /sed
 /seq
 /setsid
@@ -100,3 +107,5 @@
 /xargs
 /xinstall
 /yes
+/tests/test.log
+/tests/test.lst

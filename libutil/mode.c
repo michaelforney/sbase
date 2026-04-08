@@ -40,10 +40,10 @@ next:
 			who |= S_IRWXG|S_ISGID;
 			continue;
 		case 'o':
-			who |= S_IRWXO;
+			who |= S_IRWXO|S_ISVTX;
 			continue;
 		case 'a':
-			who |= S_IRWXU|S_ISUID|S_IRWXG|S_ISGID|S_IRWXO;
+			who |= S_IRWXU|S_ISUID|S_IRWXG|S_ISGID|S_IRWXO|S_ISVTX;
 			continue;
 		}
 		break;

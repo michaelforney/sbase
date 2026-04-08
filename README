@@ -18,6 +18,8 @@ You can also build sbase-box, which generates a single binary containing
 all the required tools. You can then symlink the individual tools to
 sbase-box or run: make sbase-box-install
 
+To run the tools for sbase-box directly use: sbase-box cmd [args]
+
 Ideally you will want to statically link sbase. If you are on Linux we
 recommend using musl-libc[2].
 
@@ -54,7 +56,7 @@ The following tools are implemented:
 0=*|o cmp             .
 0#*|x cols            .
 0=*|o comm            .
-0=*|o cp              (-i)
+0=*|o cp              .
 0=*|x cron            .
 0#*|o cut             .
 0=*|o date            .
@@ -82,6 +84,7 @@ The following tools are implemented:
 0=*|o logger          .
 0=*|o logname         .
 0#* o ls              (-C, -k, -m, -p, -s, -x)
+  * o make            (-j)
 0=*|x md5sum          .
 0=*|o mkdir           .
 0=*|o mkfifo          .
@@ -92,15 +95,15 @@ The following tools are implemented:
 0#*|o nl              .
 0=*|o nohup           .
 0=*|o od              .
-0#* o pathchk         .
  #*|o paste           .
+0#* o pathchk         .
 0=*|x printenv        .
 0#*|o printf          .
 0=*|o pwd             .
 0=*|x readlink        .
 0=*|o renice          .
 0#* x rev             .
-0=*|o rm              (-i)
+0=*|o rm              .
 0=*|o rmdir           .
  #    sed             .
 0=*|x seq             .
@@ -108,7 +111,7 @@ The following tools are implemented:
 0=*|x sha1sum         .
 0=* x sha224sum       .
 0=*|x sha256sum       .
-0=* x sha238sum       .
+0=* x sha384sum       .
 0=*|x sha512sum       .
 0=* x sha512-224sum   .
 0=* x sha512-256sum   .
@@ -138,7 +141,7 @@ The following tools are implemented:
 0#*|o wc              .
 0=*|x which           .
 0=*|x whoami          .
-0=*|o xargs           (-p)
+0=*|o xargs           .
 0=*|x yes             .
 
 [1] http://git.suckless.org/ubase/

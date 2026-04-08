@@ -1,0 +1,257 @@
+.Dd January 14, 2026
+.Dt DC 1
+.Os sbase
+.Sh NAME
+.Nm dc
+.Nd arbitrary-precision desk calculator
+.Sh SYNOPSIS
+.Nm
+.Op Fl i
+.Op Ar file ...
+.Sh DESCRIPTION
+.Nm
+is a reverse-polish notation arbitrary-precision desk calculator.
+It reads and executes commands from each
+.Ar file
+in sequence.
+After processing all files,
+.Nm
+reads from stdin.
+.Pp
+Numbers are arbitrary-precision decimal values.
+Numbers may contain a decimal point and use
+.Ql _
+as a negative sign prefix.
+When the input base is greater than 10, letters A-F represent digits 10-15.
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl i
+Extended identifier mode.
+Register names can be enclosed in
+.Ql < Ns No ... Ns >
+(numeric identifiers) or
+.Ql \&" Ns No ... Ns \&"
+(string identifiers).
+.El
+.Sh COMMANDS
+.Ss Printing
+.Bl -tag -width Ds
+.It Ic p
+Print the value on top of the stack with a newline,
+without popping it.
+.It Ic n
+Print the value on top of the stack without a newline,
+and pop it.
+.It Ic P
+Print the value on top of the stack as a byte stream.
+For strings, print the characters directly.
+For numbers, print it in base 100 representing the internal representation.
+The value is popped.
+.It Ic f
+Print all values on the stack, one per line, from top to bottom.
+.El
+.Ss Arithmetic
+.Bl -tag -width Ds
+.It Ic +
+Pop two values, add them, and push the result.
+.It Ic \-
+Pop two values, subtract the top from the second, and push the result.
+.It Ic *
+Pop two values, multiply them, and push the result.
+.It Ic /
+Pop two values, divide the second by the top, and push the quotient.
+The scale of the result is determined by the
+.Ic scale
+parameter.
+.It Ic %
+Pop two values, compute the remainder of dividing the second by the top,
+and push the result.
+.It Ic ~
+Pop two values, compute both quotient and remainder,
+pushing the quotient first then the remainder on top.
+.It Ic ^
+Pop two values, raise the second to the power of the top, and push the result.
+The exponent is truncated to an integer.
+.It Ic v
+Pop the top value, compute its square root, and push the result.
+The precision is determined by the
+.Ic scale
+parameter.
+.El
+.Ss Stack
+.Bl -tag -width Ds
+.It Ic c
+Clear the stack.
+.It Ic d
+Duplicate the top of the stack.
+.It Ic r
+Reverse the order of the top two values on the stack.
+.It Ic z
+Push the current stack depth.
+.El
+.Ss Registers
+Registers are named storage locations.
+In normal mode, register names are single characters.
+With the
+.Fl i
+option, extended names are available.
+Each register also has an associated stack.
+.Bl -tag -width Ds
+.It Ic s Ns Ar x
+Pop the top value and store it in register
+.Ar x .
+.It Ic l Ns Ar x
+Push a copy of the value in register
+.Ar x
+onto the stack.
+.It Ic S Ns Ar x
+Pop the top value and push it onto register
+.Ar x Ns 's
+stack.
+.It Ic L Ns Ar x
+Pop the top value from register
+.Ar x Ns 's
+stack and push it onto the main stack.
+.El
+.Ss Arrays
+Each register has an associated array.
+.Bl -tag -width Ds
+.It Ic : Ns Ar x
+Pop an index, then pop a value, and store the value at that index in array
+.Ar x .
+.It Ic ; Ns Ar x
+Pop an index and push the value at that index in array
+.Ar x .
+.El
+.Ss Parameters
+.Bl -tag -width Ds
+.It Ic i
+Pop the top value and use it as the input radix.
+The input base must be between 2 and 16.
+.It Ic o
+Pop the top value and use it as the output radix.
+The output base must be at least 2.
+.It Ic k
+Pop the top value and use it as the scale
+.Pq number of decimal places
+for arithmetic operations.
+The scale must be non-negative.
+.It Ic I
+Push the current input radix.
+.It Ic O
+Push the current output radix.
+.It Ic K
+Push the current scale.
+.El
+.Ss Strings and Macros
+.Bl -tag -width Ds
+.It Ic \&[ Ns Ar string Ns Ic \&]
+Push
+.Ar string
+onto the stack.
+Brackets inside the string must be balanced or escaped with a backslash.
+.It Ic x
+Pop the top value.
+If it is a string, execute it as a macro.
+If it is a number, push it back.
+.El
+.Ss Conditionals
+The conditional commands pop two values, compare them,
+and if the condition is true, execute the contents of register
+.Ar x
+as a macro.
+.Bl -tag -width Ds
+.It Ic > Ns Ar x
+Execute register
+.Ar x
+if the second value is greater than the top.
+.It Ic < Ns Ar x
+Execute register
+.Ar x
+if the second value is less than the top.
+.It Ic = Ns Ar x
+Execute register
+.Ar x
+if the two values are equal.
+.It Ic !> Ns Ar x
+Execute register
+.Ar x
+if the second value is not greater than (less or equal to) the top.
+.It Ic !< Ns Ar x
+Execute register
+.Ar x
+if the second value is not less than (greater or equal to) the top.
+.It Ic != Ns Ar x
+Execute register
+.Ar x
+if the two values are not equal.
+.El
+.Ss Control
+.Bl -tag -width Ds
+.It Ic q
+Quit.
+If executing a macro, exit two macro levels.
+.It Ic Q
+Pop a value and quit that many macro levels.
+.El
+.Ss Input
+.Bl -tag -width Ds
+.It Ic ?
+Read a line from stdin and execute it.
+.It Ic #
+Comment.
+The rest of the line is ignored.
+.It Ic !\& Ns Ar command
+Execute
+.Ar command
+as a shell command.
+.El
+.Ss Number Information
+.Bl -tag -width Ds
+.It Ic Z
+Pop a value and push its length.
+For numbers, push the number of significant digits.
+For strings, push the number of characters.
+.It Ic X
+Pop a value and push its scale (number of fractional digits).
+For strings, push 0.
+.El
+.Sh EXAMPLES
+Compute 6 * 7:
+.Bd -literal -offset indent
+6 7*p
+.Ed
+.Pp
+Compute 2^10:
+.Bd -literal -offset indent
+2 10^p
+.Ed
+.Pp
+Compute square root of 2 with 20 decimal places:
+.Bd -literal -offset indent
+20k 2vp
+.Ed
+.Pp
+Factorial using recursion (store in register f):
+.Bd -literal -offset indent
+[d1-d1<f*]sf 10lf xp
+.Ed
+.Sh SEE ALSO
+.Xr bc 1
+.Rs
+.%A R. H. Morris
+.%A L. L. Cherry
+.%T "DC \(em An Interactive Desk Calculator"
+.Re
+.Sh STANDARDS
+.Nm
+is compatible with traditional UNIX dc implementations.
+The
+.Fl i
+flag,
+.Ic #
+comments and
+the
+.Ic ~
+operator
+are extensions to the traditional dc specification.

@@ -1,4 +1,4 @@
-.Dd 2015-10-08
+.Dd October 8, 2015
 .Dt TAR 1
 .Os sbase
 .Sh NAME
@@ -6,16 +6,18 @@
 .Nd create, list or extract a tape archive
 .Sh SYNOPSIS
 .Nm
+.Cm x | Cm t | Fl x | Fl t
 .Op Fl C Ar dir
 .Op Fl J | Fl Z | Fl a | Fl j | Fl z
-.Fl x Op Fl m | Fl t
+.Op Fl m
+.Op Fl p
 .Op Fl f Ar file
 .Op Ar file ...
 .Nm
-.Op Fl C Ar dir
+.Cm c | Fl c Op Fl C Ar dir
 .Op Fl J | Fl Z | Fl a | Fl j | Fl z
 .Op Fl h
-.Fl c Ar path ...
+.Ar path ...
 .Op Fl f Ar file
 .Sh DESCRIPTION
 .Nm
@@ -67,3 +69,8 @@ utility is compliant with the UStar (Uniform Standard Tape ARchive)
 format defined in the
 .St -p1003.1-88
 specification.
+For long file paths (>99 bytes), the UStar, 'L' and 'x' header formats are
+supported for reading (to a maximum size of PATH_MAX or 255 bytes, depending on
+format), and the 'L' format is supported for writing (with unlimited path
+size).
+Link targets are limited to the UStar maximum of 100 bytes.

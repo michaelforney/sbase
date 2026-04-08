@@ -8,8 +8,6 @@
 
 char *argv0;
 
-static void xvprintf(const char *, va_list);
-
 void
 eprintf(const char *fmt, ...)
 {

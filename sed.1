@@ -1,4 +1,4 @@
-.Dd 2015-10-08
+.Dd October 8, 2015
 .Dt SED 1
 .Os sbase
 .Sh NAME
@@ -50,16 +50,30 @@ Append the commands from
 to the list of editing commands.
 .El
 .Sh EXTENDED DESCRIPTION
-Editing commands take the form
+Editing commands take the form:
 .Pp
 [address[,address]]function
+.Pp
+Commands can be separated by ';' or by a new line.
+.Pp
+Multiple functions for the specified address (or address-range) can be enclosed
+in blocks with '{' and '}':
+.Pp
+[address[,address]] { function ; function }
 .Ss Addresses
 Addresses are either blank, a positive decimal integer denoting a line
 number, the character '$' denoting the last line of input, or a regular
-expression.
+expression (in the format
+.No / Ns
+.Ar regexp Ns /).
 A command with no addresses matches every line, one address matches
 individual lines, and two addresses matches a range of lines from the
 first to the second address inclusive.
+.Pp
+The character '!' may be appended after the addresses,
+in which case the function is executed only if the addresses
+.Em don't
+match.
 .Ss Functions
 .Bl -tag -width Ds
 .It Ar a Op Ar text
@@ -152,6 +166,8 @@ Replace each occurrence of a character from set 1 with the corresponding
 character from set 2.
 .It Ar :label
 Create a label for b and t commands.
+.It Ar #comment
+The comment extends until the next newline.
 .It Ar =
 Write current input line number to output.
 .El

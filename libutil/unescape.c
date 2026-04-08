@@ -37,7 +37,7 @@ unescape(char *s)
 		} else if (escapes[(unsigned char)*r]) {
 			*w++ = escapes[(unsigned char)*r++];
 		} else if (is_odigit(*r)) {
-			for (q = 0, m = 4; m && is_odigit(*r); m--, r++)
+			for (q = 0, m = 3; m && is_odigit(*r); m--, r++)
 				q = q * 8 + (*r - '0');
 			*w++ = MIN(q, 255);
 		} else if (*r == 'x' && isxdigit(r[1])) {

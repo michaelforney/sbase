@@ -18,11 +18,19 @@ struct val {
 };
 
 static void
-enan(struct val *v)
+tonum(struct val *v)
 {
+	const char *errstr;
+	long long d;
+
+	/* check if val is the result of an earlier calculation */
 	if (!v->str)
 		return;
-	enprintf(2, "syntax error: expected integer, got %s\n", v->str);
+
+	d = strtonum(v->str, LLONG_MIN, LLONG_MAX, &errstr);
+	if (errstr)
+		enprintf(2, "error: expected integer, got %s\n", v->str);
+	v->num = d;
 }
 
 static void
@@ -37,16 +45,14 @@ static int
 valcmp(struct val *a, struct val *b)
 {
 	int ret;
-	char buf[BUFSIZ];
+	const char *err1, *err2;
+	long long d1, d2;
 
-	if (!a->str && !b->str) {
-		ret = (a->num > b->num) - (a->num < b->num);
-	} else if (a->str && !b->str) {
-		snprintf(buf, sizeof(buf), "%lld", b->num);
-		ret = strcmp(a->str, buf);
-	} else if (!a->str && b->str) {
-		snprintf(buf, sizeof(buf), "%lld", a->num);
-		ret = strcmp(buf, b->str);
+	d1 = strtonum(a->str, LLONG_MIN, LLONG_MAX, &err1);
+	d2 = strtonum(b->str, LLONG_MIN, LLONG_MAX, &err2);
+
+	if (!err1 && !err2) {
+		ret = (d1 > d2) - (d1 < d2);
 	} else {
 		ret = strcmp(a->str, b->str);
 	}
@@ -59,25 +65,9 @@ match(struct val *vstr, struct val *vregx, struct val *ret)
 {
 	regex_t re;
 	regmatch_t matches[2];
-	long long d;
 	size_t anchlen;
-	char strbuf[BUFSIZ], regxbuf[BUFSIZ],
-	     *s, *p, *anchreg, *str, *regx;
-	const char *errstr;
-
-	if (!vstr->str) {
-		snprintf(strbuf, sizeof(strbuf), "%lld", vstr->num);
-		str = strbuf;
-	} else {
-		str = vstr->str;
-	}
-
-	if (!vregx->str) {
-		snprintf(regxbuf, sizeof(regxbuf), "%lld", vregx->num);
-		regx = regxbuf;
-	} else {
-		regx = vregx->str;
-	}
+	char *s, *p, *anchreg;
+	char *str = vstr->str, *regx = vregx->str;
 
 	/* anchored regex */
 	anchlen = strlen(regx) + 1 + 1;
@@ -97,15 +87,8 @@ match(struct val *vstr, struct val *vregx, struct val *ret)
 		s = str + matches[1].rm_so;
 		p = str + matches[1].rm_eo;
 		*p = '\0';
-
-		d = strtonum(s, LLONG_MIN, LLONG_MAX, &errstr);
-		if (!errstr) {
-			ret->num = d;
-			return;
-		} else {
-			ret->str = enstrdup(3, s);
-			return;
-		}
+		ret->str = enstrdup(3, s);
+		return;
 	} else {
 		regfree(&re);
 		str += matches[0].rm_so;
@@ -152,11 +135,11 @@ doop(int *ophead, int *opp, struct val *valhead, struct val *valp)
 	case LE : ret.num = (valcmp(a, b) <= 0); break;
 	case NE : ret.num = (valcmp(a, b) != 0); break;
 
-	case '+': enan(a); enan(b);           ret.num = a->num + b->num; break;
-	case '-': enan(a); enan(b);           ret.num = a->num - b->num; break;
-	case '*': enan(a); enan(b);           ret.num = a->num * b->num; break;
-	case '/': enan(a); enan(b); ezero(b); ret.num = a->num / b->num; break;
-	case '%': enan(a); enan(b); ezero(b); ret.num = a->num % b->num; break;
+	case '+': tonum(a); tonum(b);           ret.num = a->num + b->num; break;
+	case '-': tonum(a); tonum(b);           ret.num = a->num - b->num; break;
+	case '*': tonum(a); tonum(b);           ret.num = a->num * b->num; break;
+	case '/': tonum(a); tonum(b); ezero(b); ret.num = a->num / b->num; break;
+	case '%': tonum(a); tonum(b); ezero(b); ret.num = a->num % b->num; break;
 
 	case ':': match(a, b, &ret); break;
 	}
@@ -167,25 +150,15 @@ doop(int *ophead, int *opp, struct val *valhead, struct val *valp)
 static int
 lex(char *s, struct val *v)
 {
-	long long d;
 	int type = VAL;
 	char *ops = "|&=><+-*/%():";
-	const char *errstr;
 
-	d = strtonum(s, LLONG_MIN, LLONG_MAX, &errstr);
-
-	if (!errstr) {
-		/* integer */
-		v->num = d;
-	} else if (s[0] && strchr(ops, s[0]) && !s[1]) {
+	if (s[0] && strchr(ops, s[0]) && !s[1]) {
 		/* one-char operand */
 		type = s[0];
 	} else if (s[0] && strchr("><!", s[0]) && s[1] == '=' && !s[2]) {
 		/* two-char operand */
 		type = (s[0] == '>') ? GE : (s[0] == '<') ? LE : NE;
-	} else {
-		/* string */
-		v->str = s;
 	}
 
 	return type;
@@ -211,8 +184,9 @@ parse(char *expr[], int numexpr)
 	for (; *expr; expr++) {
 		switch ((type = lex(*expr, &v))) {
 		case VAL:
-			valp->str = v.str;
-			valp->num = v.num;
+			/* treatment of *expr is not known until
+			 * doop(); treat as a string for now */
+			valp->str = *expr;
 			valp++;
 			break;
 		case '(':

@@ -14,20 +14,37 @@ int rm_status = 0;
 void
 rm(int dirfd, const char *name, struct stat *st, void *data, struct recursor *r)
 {
-	if (!r->maxdepth && S_ISDIR(st->st_mode)) {
+	int quiet, ask, write, flags, ignore;
+
+	ignore = r->flags & IGNORE;
+	quiet = r->flags & SILENT;
+	ask = r->flags & CONFIRM;
+	write = faccessat(dirfd, name, W_OK, 0) == 0;
+	flags = 0;
+
+	if (S_ISDIR(st->st_mode) && r->maxdepth) {
+		errno = EISDIR;
+		goto err;
+	}
+
+	if (!quiet && (!write && isatty(0) || ask)) {
+		if (!confirm("remove file '%s'? ", r->path))
+			return;
+	}
+
+	if (S_ISDIR(st->st_mode)) {
+		flags = AT_REMOVEDIR;
 		if (r->depth)
 			recurse(dirfd, name, NULL, r);
+	}
 
-		if (unlinkat(dirfd, name, AT_REMOVEDIR) < 0) {
-			if (!(r->flags & SILENT))
-				weprintf("rmdir %s:", r->path);
-			if (!((r->flags & SILENT) && errno == ENOENT))
-				rm_status = 1;
-		}
-	} else if (unlinkat(dirfd, name, 0) < 0) {
-		if (!(r->flags & SILENT))
-			weprintf("unlink %s:", r->path);
-		if (!((r->flags & SILENT) && errno == ENOENT))
-			rm_status = 1;
+	if (unlinkat(dirfd, name, flags) < 0)
+		goto err;
+	return;
+
+err:
+	if (!ignore) {
+		weprintf("cannot remove '%s':", r->path);
+		rm_status = 1;
 	}
 }

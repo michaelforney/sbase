@@ -33,7 +33,7 @@ struct entry {
 static struct {
 	dev_t dev;
 	ino_t ino;
-} tree[PATH_MAX];
+} *tree;
 
 static int ret   = 0;
 static int Aflag = 0;
@@ -370,6 +370,8 @@ main(int argc, char *argv[])
 {
 	struct entry ent, *dents, *fents;
 	size_t i, ds, fs;
+
+	tree = ereallocarray(NULL, PATH_MAX, sizeof(*tree));
 
 	ARGBEGIN {
 	case '1':

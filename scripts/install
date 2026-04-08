@@ -9,7 +9,7 @@ do
 		mkdir -p $src
 		;;
 	c)
-		cp $src $dst
+		cp -f $src $dst
 		;;
 	*)
 		echo install: wrong entry type >&2

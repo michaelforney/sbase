@@ -1,4 +1,4 @@
-.Dd 2016-12-27
+.Dd December 31, 2025
 .Dt ED 1
 .Os sbase
 .Sh NAME
@@ -100,15 +100,23 @@ Otherwise, the dot is set to the line before the deleted range.
 .It e Ar file
 Delete the contents of the buffer and load in
 .Ar file
-for editing, printing the bytes read to standard output.
+for editing, printing the number of bytes read to standard output.
 If no filename is given,
 .Nm
 uses the currently remembered filename.
 The remembered filename is set to
 .Ar file
 for later use.
+The current address is set to the last line read.
 .It E Ar file
-As above, but without warning if the current buffer has unsaved changes.
+As above,
+but without warning if the current buffer has unsaved changes.
+.It e Ar !command
+Delete the contents of the buffer and load in the output of
+.Ar command ,
+printing the number of bytes read to standard output.
+The remembered filename is not modified.
+The current address is set to the last line read.
 .It f Ar file
 Set the currently remembered filename to
 .Ar file
@@ -169,9 +177,21 @@ As above, but without warning if the current buffer has unsaved changes.
 .It ($)r Ar file
 Read in
 .Ar file
-and append it to the current buffer, printing the bytes read to standard output.
+and append it to the current buffer at the addressed line,
+printing the number of bytes read to standard output.
 The currently remembered filename isn't changed unless it's empty.
-An address of 0 reads the file into the start of the buffer.
+An address of 0 reads the
+.Ar file
+into the start of the buffer.
+.It ($)r Ar !command
+Execute the
+.Ar command
+and append its output in the current buffer at the addressed line,
+printing the number of bytes read to standard output.
+The currently remembered filename isn't changed.
+An address of 0 reads the output of
+.Ar command
+into the start of the buffer.
 .It (.,.)s/re/replacement/flags
 Substitute re for replacement in lines matching re.
 An & within replacement is replaced with the whole string matched by re.
@@ -206,9 +226,37 @@ As above, but instead of overwriting the contents of
 the addressed lines are appended to
 .Ar file
 instead.
+.It (1,$)w Ar !command
+Write the addressed lines to the standard input of
+.Ar command ,
+printing the number of bytes written to standard output.
+The dot is unchanged.
 .It (.+1)
-Print the addressed line.
+An address without a command prints the addressed line.
 Sets the dot to that line.
+.It (1,$)x Ar file
+Like the w command
+but after saving the
+.Ar file
+it exits with an exit status of 0
+independently of previous errors.
+.It (1,$)X Ar file
+Like the W command
+but after saving the
+.Ar file
+it exits with an exit status of 0
+independently of previous errors.
+.It (+) Ns Ic z Ns Ar n
+Scrolls
+.Ar n
+lines starting at the addressed line.
+If
+.Ar n
+is not specified then
+the value of $LINES - 1 is used.
+If the value of
+.Ar n
+is 0 or negative then the default value of 23 is used.
 .It ($)=
 Print the line number of the addressed line.
 The dot is unchanged.
@@ -228,14 +276,60 @@ When
 returns a '!' is printed.
 The dot is unchanged.
 .El
+.Sh ASYNCHRONOUS EVENTS
+.Bl -tag -width "SIGQUIT"
+.It Dv SIGHUP
+If the current buffer has changed since it was last written,
+.Nm
+attempts to write the buffer to the file
+.Pa ed.hup .
+Nothing is written to the currently remembered file, and
+.Nm
+exits.
+.It Dv SIGINT
+When an interrupt occurs,
+.Nm
+prints
+.Sq ?\en
+and returns to command mode.
+If interrupted during text input,
+the text already input is written to the current buffer,
+as if text input had been normally terminated.
+.It Dv SIGQUIT
+This signal is ignored.
+.El
 .Sh SEE ALSO
 .Xr sed 1 ,
 .Xr regexp 3
+.Rs
+.%A B. W. Kernighan
+.%T A Tutorial Introduction to the UNIX Text Editor
+.Re
+.Rs
+.Rs
+.%A B. W. Kernighan
+.%T Advanced Editing on UNIX
+.Re
+.Rs
+.%A B. W. Kernighan
+.%A P. J. Plauger
+.%B Software Tools
+.%O Addison-Wesley
+.%D 1976
+.Re
+.Rs
+.%A B. W. Kernighan
+.%A P. J. Plauger
+.%B Software Tools in Pascal
+.%O Addison-Wesley
+.%D 1981
+.Re
 .Sh STANDARDS
-The
-.Nm
-utility is compliant with the
-.St -p1003.1-2013
-specification, except where noted here:
-g and v operate on single commands rather than lists delimited with '\\'.
-e, E, r, w, and W commands cannot accept shell escapes.
+POSIX.1-2013.
+Except where noted here:
+The command,
+.Cm z ,
+.Cm x ,
+and
+.Cm X
+are an extension to that specification.
